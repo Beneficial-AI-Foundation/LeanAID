@@ -134,6 +134,13 @@ ul.limits b { color: var(--text); font-weight: 600; }
 details.more { margin-top: 16px; }
 details.more summary { cursor: pointer; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
 
+.table-wrap { overflow-x: auto; margin-top: 8px; }
+table.results { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+table.results td { padding: 8px 4px; border-bottom: 1px solid var(--border); color: var(--muted); }
+table.results td:last-child { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); font-weight: 600; white-space: nowrap; }
+table.results tr.hl td { color: var(--text); font-weight: 600; }
+.prop > p:last-child { margin-top: 10px; }
+
 footer { border-top: 1px solid var(--border); padding: 32px 0 48px; font-size: 0.84rem; color: var(--muted); }
 footer h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px; color: var(--muted); }
 footer ol { margin: 0 0 20px; padding-left: 1.2em; }
@@ -152,6 +159,7 @@ footer li { margin: 3px 0; }
       <a href="#did">What we did</a>
       <a href="#findings">Findings</a>
       <a href="#proved">Proofs</a>
+      <a href="#tested">Testing</a>
       <a href="#limits">Limits</a>
       <a href="#details">Details</a>
       <a href="https://github.com/Beneficial-AI-Foundation/LeanAID">GitHub</a>
@@ -250,7 +258,32 @@ footer li { margin: 3px 0; }
   </div>
 </section>
 
-<section id="background">
+<section id="tested">
+  <div class="wrap">
+    <h2>How we tested</h2>
+    <p class="sub">Proofs show the Lean version is safe. Tests show it behaves like the original: we ran the compiled Lean program and the original JavaScript on the same inputs.</p>
+    <div class="props">
+      <div class="prop"><h3>oref0's own test cases <span class="tag ok">146 of 148 identical</span></h3><p>The other 2 differ only where a value falls exactly on a rounding boundary.</p></div>
+      <div class="prop"><h3>Planted bugs <span class="tag ok">24 of 24 caught</span></h3><p>We deliberately broke the Lean code in 24 ways, such as removing a safety cap. Every change made a proof or a test fail.</p></div>
+    </div>
+    <div class="prop" style="margin-top:12px">
+      <h3>100,000 random cases</h3>
+      <div class="table-wrap"><table class="results">
+        <tbody>
+          <tr><td>Identical output, word for word</td><td>83,089</td></tr>
+          <tr><td>Only the explanation text differs</td><td>413</td></tr>
+          <tr><td>A predicted glucose value differs by 1 mg/dL</td><td>13,818</td></tr>
+          <tr><td>Other reported numbers differ, same insulin rate</td><td>2,598</td></tr>
+          <tr class="hl"><td>The insulin rate differs</td><td>82</td></tr>
+        </tbody>
+      </table></div>
+      <p>As far as we have found, all of these differences come from arithmetic: the Lean version computes with exact fractions, JavaScript with rounded numbers. A fix that copies JavaScript's arithmetic exactly is in progress.</p>
+    </div>
+    <p class="note">Planned: running both versions on simulated patients over several days.</p>
+  </div>
+</section>
+
+<section class="alt" id="background">
   <div class="wrap">
     <h2>Background</h2>
     <p class="sub">The project covers only the part that decides the dose: glucose readings in, an insulin amount out.</p>
@@ -269,7 +302,7 @@ footer li { margin: 3px 0; }
   </div>
 </section>
 
-<section class="alt" id="limits">
+<section id="limits">
   <div class="wrap">
     <h2>Limits</h2>
     <p class="sub">What the results do not show.</p>
