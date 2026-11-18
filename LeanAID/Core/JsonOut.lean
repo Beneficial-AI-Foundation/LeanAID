@@ -58,7 +58,8 @@ def result (r : Result) : String :=
     if r.rateFirst then [("rate", r.rate.map num), ("duration", r.duration.map num)]
     else [("duration", r.duration.map num), ("rate", r.rate.map num)]
   match r.shape with
-  | .error => obj [("error", r.error.map str)]
+  | .error => obj [("temp", r.temp.map str), ("deliverAt", r.deliverAt.map (str ∘ DateFmt.toISOString)),
+                    ("error", r.error.map str)]
   | .cgm => obj ([("reason", r.reason.map str), ("deliverAt", r.deliverAt.map (str ∘ DateFmt.toISOString)),
                   ("temp", r.temp.map str)] ++ rateDur)
   | .lastTemp => obj ([("temp", r.temp.map str), ("deliverAt", r.deliverAt.map (str ∘ DateFmt.toISOString)),

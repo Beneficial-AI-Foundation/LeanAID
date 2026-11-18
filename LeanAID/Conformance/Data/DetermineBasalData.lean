@@ -682,4 +682,374 @@ def c42 : DBCase where
 
 def all : List DBCase := [c01, c02, c03, c04, c05, c06, c07, c08, c09, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30, c31, c32, c33, c34, c35, c36, c37, c38, c39, c40, c41, c42]
 
+/-- DB-07 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d01 : DBCase where
+  id := "DB-07"
+  name := "DB-07 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (115 : JsNum), delta := some (0 : JsNum), short_avgdelta := some (0 : JsNum), long_avgdelta := some (1.1 : JsNum) },
+      currenttemp := some { duration := some (30 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0 : JsNum), activity := some (0 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":115,\"tick\":\"+0\",\"eventualBG\":115,\"insulinReq\":0,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[115],\"ZT\":[115]},\"COB\":0,\"IOB\":0,\"BGI\":0,\"deviation\":0,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: 0, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 115; 115-999 in range: no temp required; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr\",\"duration\":30,\"rate\":0.9}"
+
+/-- DB-11 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d02 : DBCase where
+  id := "DB-11"
+  name := "DB-11 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (75 : JsNum), delta := some (5 : JsNum), short_avgdelta := some (5 : JsNum), long_avgdelta := some (5 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (-1 : JsNum), activity := some (-0.01 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":75,\"tick\":\"+5\",\"eventualBG\":133,\"insulinReq\":0.45,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[75],\"ZT\":[75]},\"COB\":0,\"IOB\":-1,\"BGI\":2,\"deviation\":18,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 133 >= 120, no temp, setting 1.8U/hr. \",\"duration\":30,\"rate\":1.8}"
+
+/-- DB-12 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d03 : DBCase where
+  id := "DB-12"
+  name := "DB-12 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (75 : JsNum), delta := some (4 : JsNum), short_avgdelta := some (-2 : JsNum), long_avgdelta := some (-2 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0 : JsNum), activity := some (0 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":75,\"tick\":\"+4\",\"eventualBG\":63,\"insulinReq\":0,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[75],\"ZT\":[75]},\"COB\":0,\"IOB\":0,\"BGI\":0,\"deviation\":-12,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: -12, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 63 < 110, setting 60m zero temp. \",\"duration\":60,\"rate\":0}"
+
+/-- DB-15 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d04 : DBCase where
+  id := "DB-15"
+  name := "DB-15 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (75 : JsNum), delta := some (5 : JsNum), short_avgdelta := some (5 : JsNum), long_avgdelta := some (5 : JsNum) },
+      currenttemp := some { duration := some (20 : JsNum), rate := some (2 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (-1 : JsNum), activity := some (-0.01 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":75,\"tick\":\"+5\",\"eventualBG\":133,\"insulinReq\":0.45,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[75],\"ZT\":[75]},\"COB\":0,\"IOB\":-1,\"BGI\":2,\"deviation\":18,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 133 >= 120, temp 2 >~ req 1.8U/hr. \"}"
+
+/-- DB-16 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d05 : DBCase where
+  id := "DB-16"
+  name := "DB-16 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (75 : JsNum), delta := some (5 : JsNum), short_avgdelta := some (5 : JsNum), long_avgdelta := some (5 : JsNum) },
+      currenttemp := some { duration := some (20 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (-1 : JsNum), activity := some (-0.01 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":75,\"tick\":\"+5\",\"eventualBG\":133,\"insulinReq\":0.45,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[75],\"ZT\":[75]},\"COB\":0,\"IOB\":-1,\"BGI\":2,\"deviation\":18,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 133 >= 120, temp 0<1.8U/hr. \",\"duration\":30,\"rate\":1.8}"
+
+/-- DB-30 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d06 : DBCase where
+  id := "DB-30"
+  name := "DB-30 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (110 : JsNum), delta := some (-1 : JsNum), short_avgdelta := some (-1 : JsNum), long_avgdelta := some (-1 : JsNum) },
+      currenttemp := some { duration := some (20 : JsNum), rate := some (0.25 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0 : JsNum), activity := some (0 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":110,\"tick\":-1,\"eventualBG\":104,\"insulinReq\":0,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[110],\"ZT\":[110]},\"COB\":0,\"IOB\":0,\"BGI\":0,\"deviation\":-6,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: -6, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 110; Eventual BG 104 < 110\",\"duration\":30,\"rate\":0}"
+
+/-- DB-41 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d07 : DBCase where
+  id := "DB-41"
+  name := "DB-41 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (300 : JsNum), delta := some (-6 : JsNum), short_avgdelta := some (-5 : JsNum), long_avgdelta := some (-5 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0.5 : JsNum), activity := some (0.005 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":300,\"tick\":-6,\"eventualBG\":256,\"insulinReq\":2,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[300],\"ZT\":[300]},\"COB\":0,\"IOB\":0.5,\"BGI\":-1,\"deviation\":-24,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: -24, BGI: -1, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 300; Eventual BG 256 >= 120, max_iob 2.5, adj. req. rate: 4.9 to maxSafeBasal: 3.5, no temp, setting 3.5U/hr. \",\"duration\":30,\"rate\":3.5}"
+
+/-- DB-42 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d08 : DBCase where
+  id := "DB-42"
+  name := "DB-42 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (300 : JsNum), delta := some (-6 : JsNum), short_avgdelta := some (-5 : JsNum), long_avgdelta := some (-5 : JsNum) },
+      currenttemp := some { duration := some (30 : JsNum), rate := some (3.5 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0.5 : JsNum), activity := some (0.005 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":300,\"tick\":-6,\"eventualBG\":256,\"insulinReq\":2,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[300],\"ZT\":[300]},\"COB\":0,\"IOB\":0.5,\"BGI\":-1,\"deviation\":-24,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: -24, BGI: -1, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 300; Eventual BG 256 >= 120, max_iob 2.5, adj. req. rate: 4.9 to maxSafeBasal: 3.5, temp 3.5 >~ req 3.5U/hr. \"}"
+
+/-- DB-48 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d09 : DBCase where
+  id := "DB-48"
+  name := "DB-48 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (100 : JsNum) },
+      currenttemp := none,
+      iob_data := some (.single { activity := some (0 : JsNum) }),
+      profile := some { current_basal := some (0 : JsNum), min_bg := some (110 : JsNum), max_bg := some (100 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"error\":\"Error: iob_data missing some property. \"}"
+
+/-- DB-49 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d10 : DBCase where
+  id := "DB-49"
+  name := "DB-49 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (100 : JsNum) },
+      currenttemp := none,
+      iob_data := some (.single { iob := some (0 : JsNum), activity := some (0 : JsNum) }),
+      profile := some { current_basal := some (0 : JsNum), sens := some .nan },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"error\":\"Error: could not determine target_bg. \"}"
+
+/-- DB-50 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d11 : DBCase where
+  id := "DB-50"
+  name := "DB-50 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (80 : JsNum), delta := some (1 : JsNum), short_avgdelta := some (1 : JsNum), long_avgdelta := some (1 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0.5 : JsNum), activity := some (-0.01 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (20 : JsNum), mealCOB := some (20 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":80,\"tick\":\"+1\",\"eventualBG\":54,\"insulinReq\":0,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[80],\"ZT\":[80]},\"COB\":20,\"IOB\":0.5,\"BGI\":2,\"deviation\":-6,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 20, Dev: -6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 80; Eventual BG 54 < 110, setting 90m zero temp. \",\"duration\":90,\"rate\":0}"
+
+/-- DB-52 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d12 : DBCase where
+  id := "DB-52"
+  name := "DB-52 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (80 : JsNum), delta := some (-1 : JsNum), short_avgdelta := some (1 : JsNum), long_avgdelta := some (1 : JsNum) },
+      currenttemp := some { duration := some (20 : JsNum), rate := some (2 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0.5 : JsNum), activity := some (-0.01 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":80,\"tick\":-1,\"eventualBG\":54,\"insulinReq\":0,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[80],\"ZT\":[80]},\"COB\":0,\"IOB\":0.5,\"BGI\":2,\"deviation\":-6,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: -6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 80; Eventual BG 54 < 110, setting 90m zero temp. \",\"duration\":90,\"rate\":0}"
+
+/-- DB-53 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d13 : DBCase where
+  id := "DB-53"
+  name := "DB-53 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (80 : JsNum), delta := some (1 : JsNum), short_avgdelta := some (1 : JsNum), long_avgdelta := some (1 : JsNum) },
+      currenttemp := some { duration := some (20 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0.5 : JsNum), activity := some (-0.01 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (50 : JsNum), mealCOB := some (0 : JsNum), bwCarbs := some (0 : JsNum), bwFound := some false, slopeFromMaxDeviation := some (0 : JsNum), slopeFromMinDeviation := some (0 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"bg\":80,\"tick\":\"+1\",\"eventualBG\":54,\"insulinReq\":0,\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"sensitivityRatio\":1,\"predBGs\":{\"IOB\":[80],\"ZT\":[80]},\"COB\":0,\"IOB\":0.5,\"BGI\":2,\"deviation\":-6,\"ISF\":40,\"CR\":10,\"target_bg\":115,\"reason\":\"COB: 0, Dev: -6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 80; Eventual BG 54 < 110, setting 90m zero temp. \",\"duration\":90,\"rate\":0}"
+
+/-- DB-54 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d14 : DBCase where
+  id := "DB-54"
+  name := "DB-54 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (120 : JsNum), delta := some (10 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0.4 : JsNum), activity := some (0 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (20 : JsNum), mealCOB := some (20 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-55 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d15 : DBCase where
+  id := "DB-55"
+  name := "DB-55 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (150 : JsNum), delta := some (3 : JsNum) },
+      currenttemp := some { duration := some (10 : JsNum), rate := some (2 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0.5 : JsNum), activity := some (0.01 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (20 : JsNum), mealCOB := some (20 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-56 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d16 : DBCase where
+  id := "DB-56"
+  name := "DB-56 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (160 : JsNum), delta := some (-3 : JsNum) },
+      currenttemp := some { duration := some (30 : JsNum), rate := some (2.5 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (0.9 : JsNum), activity := some (0.02 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (20 : JsNum), mealCOB := some (20 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-57 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d17 : DBCase where
+  id := "DB-57"
+  name := "DB-57 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (120 : JsNum), delta := some (4 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (6 : JsNum), activity := some (0 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (120 : JsNum), mealCOB := some (120 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-58 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d18 : DBCase where
+  id := "DB-58"
+  name := "DB-58 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (140 : JsNum), delta := some (4 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (6.5 : JsNum), activity := some (0.01 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (120 : JsNum), mealCOB := some (100 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-59 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d19 : DBCase where
+  id := "DB-59"
+  name := "DB-59 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (160 : JsNum), delta := some (4 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (7 : JsNum), activity := some (0.02 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (120 : JsNum), mealCOB := some (80 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-60 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d20 : DBCase where
+  id := "DB-60"
+  name := "DB-60 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (160 : JsNum), delta := some (1 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (7 : JsNum), activity := some (0.02 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (120 : JsNum), mealCOB := some (80 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-61 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d21 : DBCase where
+  id := "DB-61"
+  name := "DB-61 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (160 : JsNum), delta := some (-1 : JsNum) },
+      currenttemp := some { duration := some (15 : JsNum), rate := some (2.5 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (7 : JsNum), activity := some (0.03 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (120 : JsNum), mealCOB := some (80 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-62 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d22 : DBCase where
+  id := "DB-62"
+  name := "DB-62 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (160 : JsNum), delta := some (1 : JsNum) },
+      currenttemp := some { duration := some (0 : JsNum), rate := some (0 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (7 : JsNum), activity := some (0.02 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (120 : JsNum), mealCOB := some (80 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+/-- DB-63 (disabled upstream; compared with oref0 output, not with its disabled assertions) -/
+def d23 : DBCase where
+  id := "DB-63"
+  name := "DB-63 (disabled upstream)"
+  input := {
+      glucose_status := some { glucose := some (200 : JsNum), delta := some (3 : JsNum) },
+      currenttemp := some { duration := some (3 : JsNum), rate := some (3.5 : JsNum), temp := some "absolute" },
+      iob_data := some (.single { iob := some (2.701 : JsNum), activity := some (0.0107 : JsNum) }),
+      profile := some { current_basal := some (0.9 : JsNum), min_bg := some (110 : JsNum), max_bg := some (120 : JsNum), max_iob := some (2.5 : JsNum), sens := some (40 : JsNum), carb_ratio := some (10 : JsNum), max_basal := some (3.5 : JsNum), max_daily_basal := some (1.3 : JsNum), dia := some (3 : JsNum) },
+      autosens_data := some { ratio := some (1 : JsNum) },
+      meal_data := some { carbs := some (15 : JsNum), mealCOB := some (15 : JsNum) },
+      microBolusAllowed := false,
+      reservoir_data := .undef,
+      clock := { now := 1795003200000 } }
+  expected := "{\"temp\":\"absolute\",\"deliverAt\":\"2026-11-18T12:00:00.000Z\",\"error\":\"Error: could not calculate eventualBG. \"}"
+
+def disabled : List DBCase := [d01, d02, d03, d04, d05, d06, d07, d08, d09, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20, d21, d22, d23]
+
 end LeanAID.Conformance.DetermineBasalData

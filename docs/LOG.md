@@ -142,3 +142,102 @@ get-last-glucose, basal lookup, cob history) passes under Node.
   by every theorem, documented in `docs/DESIGN.md`.
 - Out-of-bounds input (R14) is handled in `aid-lean` by shell-side validation, which is
   not verified; for oref0 it is a testing question, and I expect findings (NaN paths).
+
+---
+
+## M3 – Transcription
+
+**Start:** 2026-11-18 14:05 · **End:** 2026-11-18 16:40
+
+### What was done
+Transcribed into `LeanAID/Core` (pure, Lean core only, no forbidden constructs):
+
+| oref0 file | Lean module | notes |
+|---|---|---|
+| `lib/round-basal.js` | `RoundBasal.lean` | |
+| `lib/basal-set-temp.js` | `BasalSetTemp.lean` | `getMaxSafeBasal`, `setTempBasal` |
+| `lib/determine-basal/determine-basal.js` | `DetermineBasal.lean` | three phases: `dbPrelude` (l.128-423, early returns as `Except`), `dbPredict` (l.428-903), `dbDose` (l.905-1188) |
+| `lib/iob/calculate.js`, `total.js`, `history.js`, `index.js`; `basalLookup`/`maxDailyBasal` of `lib/profile/basal.js` | `Iob.lean` | |
+| `lib/glucose-get-last.js` | `Glucose.lean` | |
+| `lib/meal/history.js` | `MealHistory.lean` | |
+| `Math.exp` | `Exp.lean` | halving + degree-30 Taylor + squaring, 2^-128 grid |
+| JS numbers, `Math.round`, `toFixed`, `Number→String` | `JsNum.lean` | |
+| `Date` (`toString`, `toISOString`, `getMinutes`) | `DateFmt.lean` | |
+| `JSON.stringify(rT)` | `JsonOut.lean` | exact key order per return path |
+
+### Plan change: COB calculation deferred
+`lib/meal/total.js` and `lib/determine-basal/cob.js` (carbs on board, i.e. producing
+`meal_data`) are **not transcribed yet**. Reading `cob.js` showed it is stateful in
+ways that need careful modelling: it mutates the shared `profile.current_basal`, and
+its IOB lookups use an `iob_inputs.clock` left over from the *previous* call — on the
+first call that clock is `undefined`, so moment-timezone substitutes the **wall
+clock**, making `oref0-meal` depend on when it runs. No oref0 test exercises it.
+`determine_basal` and `oref0-determine-basal` take `meal_data` as an input, so the dose
+decision is complete without it. Decision: finish the minimum result (M4–M7) first and
+come back to COB afterwards; until then the project page and report state that COB
+computation is not transcribed.
+
+### What was hard
+- **JS `undefined`/`NaN` semantics.** Every input field is `Option`; arithmetic uses
+  `NaN` for `undefined`, comparisons with `NaN` are false, `!==` distinguishes
+  `undefined` from `NaN`. oref0's own tests depend on this (missing `date`,
+  `lastCarbTime`, `carb_ratio`).
+- **Output fidelity.** To compare with oref0 byte for byte I reproduced
+  `JSON.stringify` key order for each return path (the SMB path sets `rate` before
+  `duration`; the eventualBG error object already carries `temp`/`deliverAt`),
+  number printing, `toFixed`, and `Date.prototype.toString`.
+- **Structure-instance layout**: multi-line `{ a := .., b := .. }` with continuation
+  lines indented less than the first field fails to parse; the generator and the
+  IOB module were reformatted.
+- **Aliasing in history.js** (found by conformance, see M4): modelled with an
+  `origin` index on temp events.
+
+### Quirks reproduced on purpose (QUIRK Qn in the code; details in FINDINGS)
+Q1 `forEach` on a single IOB object throws → no predictions; Q2 missing glucose date
+→ staleness check skipped; Q3 implicit globals `COBpredBG`/`UAMpredBG`; Q4
+`maxCOBPredBG` compared against `maxIOBPredBG`; Q5 missing `lastCarbTime` → NaN
+`remainingCATime`; Q6 `splitTimespan` drops events; Q7 `lastSuspendTime` string
+compared with numbers; Q8 in-place mutation of aliased temp events.
+
+---
+
+## M4 – Conformance
+
+**Start:** 2026-11-18 15:20 (overlapping M3) · **End:** 2026-11-18 16:45
+
+### What was done
+- `scripts/gen_conformance.js` turns the captured calls into Lean data
+  (`LeanAID/Conformance/Data/*.lean`, generated): exact decimal literals, `undefined`
+  → `none`, pump-history timestamps parsed with oref0's own moment-timezone.
+- `scripts/capture/disabled.js` replays the inputs of the 23 disabled determine-basal
+  tests through Node (their assertions are not used).
+- `LeanAID/Conformance/Checks.lean`: one `native_decide` theorem per suite.
+
+### Results
+| suite | cases | exact agreement |
+|---|---|---|
+| determine_basal (active tests) | 42 | 42 (identical JSON, incl. reason strings) |
+| determine_basal (disabled tests' inputs) | 23 | 23 |
+| round_basal | 10 | 10 |
+| setTempBasal | 13 | 13 (rate, duration, reason) |
+| basalLookup / maxDailyBasal | 2 / 1 | 2 / 1 |
+| getLastGlucose | 5 | 5 (identical JSON) |
+| meal history (cobhistory) | 1 | 1 |
+| lib/iob generate (48-element IOB arrays) | 51 | 49 exact; 2 differ only at proved rounding ties |
+
+### Failures found and fixed on the way
+1. IOB lastTemp in 4 suspend tests (IOB-15, 17, 18, 19): oref0's `splitAroundSuspends`
+   mutates temp-basal objects in place, and unsplit events are the same objects as the
+   `tempHistory` entries returned to index.js, so the mutation leaks into `lastTemp`
+   (oref0 reports a lastTemp **duration of −15 min** in IOB-17). Modelled as QUIRK Q8.
+   First attempt broke IOB-16 because my clone marking did not apply (a text
+   substitution silently missed after reformatting); fixed.
+2. The eventualBG error object carries `temp` and `deliverAt` (disabled tests DB-54..63,
+   old `avgdelta` input format → `NaN` eventualBG).
+
+### Not exact: rounding ties (2 IOB calls, test IOB-26)
+At 15 minutes after a 1 U bolus with DIA 4 h (bilinear curve), activity is
+11.25 × 1/9000 = 0.00125 exactly. Exact arithmetic rounds the tie up (0.0013);
+JavaScript's doubles compute 0.0012499999… and round down (0.0012). Same at 75 minutes
+(0.00625). `iob_ties` checks that these are the only differences and that each is an
+exact tie. This is the expected cost of exact arithmetic (DESIGN D2).

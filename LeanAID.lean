@@ -5,3 +5,9 @@ import LeanAID.Core.BasalSetTemp
 import LeanAID.Proofs.Smoke
 import LeanAID.Core.DetermineBasal
 import LeanAID.Conformance.Data.DetermineBasalData
+import LeanAID.Core.Iob
+import LeanAID.Conformance.Data.IobData
+import LeanAID.Core.Glucose
+import LeanAID.Core.MealHistory
+import LeanAID.Conformance.Data.SmallData
+import LeanAID.Conformance.Checks

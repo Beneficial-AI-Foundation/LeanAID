@@ -1,0 +1,1582 @@
+[
+ {
+  "seq": 0,
+  "fn": "determine_basal",
+  "test": "DB-07 (disabled upstream)",
+  "id": "DB-07",
+  "args": [
+   {
+    "delta": 0,
+    "glucose": 115,
+    "long_avgdelta": 1.1,
+    "short_avgdelta": 0
+   },
+   {
+    "duration": 30,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 115,
+   "tick": "+0",
+   "eventualBG": 115,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     115
+    ],
+    "ZT": [
+     115
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": 0,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 0, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 115; 115-999 in range: no temp required; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 1,
+  "fn": "determine_basal",
+  "test": "DB-11 (disabled upstream)",
+  "id": "DB-11",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 75,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": -1,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": "+5",
+   "eventualBG": 133,
+   "insulinReq": 0.45,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": -1,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 133 >= 120, no temp, setting 1.8U/hr. ",
+   "duration": 30,
+   "rate": 1.8
+  },
+  "threw": null
+ },
+ {
+  "seq": 2,
+  "fn": "determine_basal",
+  "test": "DB-12 (disabled upstream)",
+  "id": "DB-12",
+  "args": [
+   {
+    "delta": 4,
+    "glucose": 75,
+    "long_avgdelta": -2,
+    "short_avgdelta": -2
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": "+4",
+   "eventualBG": 63,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": -12,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -12, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 63 < 110, setting 60m zero temp. ",
+   "duration": 60,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 3,
+  "fn": "determine_basal",
+  "test": "DB-15 (disabled upstream)",
+  "id": "DB-15",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 75,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 20,
+    "rate": 2,
+    "temp": "absolute"
+   },
+   {
+    "iob": -1,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": "+5",
+   "eventualBG": 133,
+   "insulinReq": 0.45,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": -1,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 133 >= 120, temp 2 >~ req 1.8U/hr. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 4,
+  "fn": "determine_basal",
+  "test": "DB-16 (disabled upstream)",
+  "id": "DB-16",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 75,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 20,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": -1,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": "+5",
+   "eventualBG": 133,
+   "insulinReq": 0.45,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": -1,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 133 >= 120, temp 0<1.8U/hr. ",
+   "duration": 30,
+   "rate": 1.8
+  },
+  "threw": null
+ },
+ {
+  "seq": 5,
+  "fn": "determine_basal",
+  "test": "DB-30 (disabled upstream)",
+  "id": "DB-30",
+  "args": [
+   {
+    "delta": -1,
+    "glucose": 110,
+    "long_avgdelta": -1,
+    "short_avgdelta": -1
+   },
+   {
+    "duration": 20,
+    "rate": 0.25,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 110,
+   "tick": -1,
+   "eventualBG": 104,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     110
+    ],
+    "ZT": [
+     110
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": -6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -6, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 110; Eventual BG 104 < 110",
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 6,
+  "fn": "determine_basal",
+  "test": "DB-41 (disabled upstream)",
+  "id": "DB-41",
+  "args": [
+   {
+    "delta": -6,
+    "glucose": 300,
+    "long_avgdelta": -5,
+    "short_avgdelta": -5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.5,
+    "activity": 0.005,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 300,
+   "tick": -6,
+   "eventualBG": 256,
+   "insulinReq": 2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     300
+    ],
+    "ZT": [
+     300
+    ]
+   },
+   "COB": 0,
+   "IOB": 0.5,
+   "BGI": -1,
+   "deviation": -24,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -24, BGI: -1, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 300; Eventual BG 256 >= 120, max_iob 2.5, adj. req. rate: 4.9 to maxSafeBasal: 3.5, no temp, setting 3.5U/hr. ",
+   "duration": 30,
+   "rate": 3.5
+  },
+  "threw": null
+ },
+ {
+  "seq": 7,
+  "fn": "determine_basal",
+  "test": "DB-42 (disabled upstream)",
+  "id": "DB-42",
+  "args": [
+   {
+    "delta": -6,
+    "glucose": 300,
+    "long_avgdelta": -5,
+    "short_avgdelta": -5
+   },
+   {
+    "duration": 30,
+    "rate": 3.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.5,
+    "activity": 0.005,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 300,
+   "tick": -6,
+   "eventualBG": 256,
+   "insulinReq": 2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     300
+    ],
+    "ZT": [
+     300
+    ]
+   },
+   "COB": 0,
+   "IOB": 0.5,
+   "BGI": -1,
+   "deviation": -24,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -24, BGI: -1, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 300; Eventual BG 256 >= 120, max_iob 2.5, adj. req. rate: 4.9 to maxSafeBasal: 3.5, temp 3.5 >~ req 3.5U/hr. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 8,
+  "fn": "determine_basal",
+  "test": "DB-48 (disabled upstream)",
+  "id": "DB-48",
+  "args": [
+   {
+    "glucose": 100
+   },
+   {
+    "__undefined": true
+   },
+   {
+    "activity": 0
+   },
+   {
+    "current_basal": 0,
+    "max_bg": 100,
+    "min_bg": 110
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "error": "Error: iob_data missing some property. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 9,
+  "fn": "determine_basal",
+  "test": "DB-49 (disabled upstream)",
+  "id": "DB-49",
+  "args": [
+   {
+    "glucose": 100
+   },
+   {
+    "__undefined": true
+   },
+   {
+    "activity": 0,
+    "iob": 0,
+    "bolussnooze": 0
+   },
+   {
+    "current_basal": 0,
+    "sens": {
+     "__number": "NaN"
+    }
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "error": "Error: could not determine target_bg. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 10,
+  "fn": "determine_basal",
+  "test": "DB-50 (disabled upstream)",
+  "id": "DB-50",
+  "args": [
+   {
+    "delta": 1,
+    "glucose": 80,
+    "long_avgdelta": 1,
+    "short_avgdelta": 1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.5,
+    "activity": -0.01,
+    "bolussnooze": 1,
+    "basaliob": -0.5
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 20,
+    "boluses": 1,
+    "mealCOB": 20
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 80,
+   "tick": "+1",
+   "eventualBG": 54,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     80
+    ],
+    "ZT": [
+     80
+    ]
+   },
+   "COB": 20,
+   "IOB": 0.5,
+   "BGI": 2,
+   "deviation": -6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 20, Dev: -6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 80; Eventual BG 54 < 110, setting 90m zero temp. ",
+   "duration": 90,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 11,
+  "fn": "determine_basal",
+  "test": "DB-52 (disabled upstream)",
+  "id": "DB-52",
+  "args": [
+   {
+    "delta": -1,
+    "glucose": 80,
+    "long_avgdelta": 1,
+    "short_avgdelta": 1
+   },
+   {
+    "duration": 20,
+    "rate": 2,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.5,
+    "activity": -0.01,
+    "bolussnooze": 1,
+    "basaliob": -0.5
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 80,
+   "tick": -1,
+   "eventualBG": 54,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     80
+    ],
+    "ZT": [
+     80
+    ]
+   },
+   "COB": 0,
+   "IOB": 0.5,
+   "BGI": 2,
+   "deviation": -6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 80; Eventual BG 54 < 110, setting 90m zero temp. ",
+   "duration": 90,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 12,
+  "fn": "determine_basal",
+  "test": "DB-53 (disabled upstream)",
+  "id": "DB-53",
+  "args": [
+   {
+    "delta": 1,
+    "glucose": 80,
+    "long_avgdelta": 1,
+    "short_avgdelta": 1
+   },
+   {
+    "duration": 20,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.5,
+    "activity": -0.01,
+    "bolussnooze": 1,
+    "basaliob": -0.5
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 80,
+   "tick": "+1",
+   "eventualBG": 54,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     80
+    ],
+    "ZT": [
+     80
+    ]
+   },
+   "COB": 0,
+   "IOB": 0.5,
+   "BGI": 2,
+   "deviation": -6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 80; Eventual BG 54 < 110, setting 90m zero temp. ",
+   "duration": 90,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 13,
+  "fn": "determine_basal",
+  "test": "DB-54 (disabled upstream)",
+  "id": "DB-54",
+  "args": [
+   {
+    "delta": 10,
+    "glucose": 120,
+    "avgdelta": 10
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.4,
+    "activity": 0,
+    "bolussnooze": 0.7,
+    "basaliob": -0.3
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 20,
+    "boluses": 1,
+    "mealCOB": 20
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 14,
+  "fn": "determine_basal",
+  "test": "DB-55 (disabled upstream)",
+  "id": "DB-55",
+  "args": [
+   {
+    "delta": 3,
+    "glucose": 150,
+    "avgdelta": 5
+   },
+   {
+    "duration": 10,
+    "rate": 2,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.5,
+    "activity": 0.01,
+    "bolussnooze": 0.6,
+    "basaliob": -0.1
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 20,
+    "boluses": 1,
+    "mealCOB": 20
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 15,
+  "fn": "determine_basal",
+  "test": "DB-56 (disabled upstream)",
+  "id": "DB-56",
+  "args": [
+   {
+    "delta": -3,
+    "glucose": 160,
+    "avgdelta": 0
+   },
+   {
+    "duration": 30,
+    "rate": 2.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.9,
+    "activity": 0.02,
+    "bolussnooze": 0.5,
+    "basaliob": 0.4
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 20,
+    "boluses": 1,
+    "mealCOB": 20
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 16,
+  "fn": "determine_basal",
+  "test": "DB-57 (disabled upstream)",
+  "id": "DB-57",
+  "args": [
+   {
+    "delta": 4,
+    "glucose": 120,
+    "avgdelta": 4
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 6,
+    "activity": 0,
+    "bolussnooze": 6,
+    "basaliob": 0,
+    "hightempinsulin": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 120,
+    "boluses": 6,
+    "mealCOB": 120
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 17,
+  "fn": "determine_basal",
+  "test": "DB-58 (disabled upstream)",
+  "id": "DB-58",
+  "args": [
+   {
+    "delta": 4,
+    "glucose": 140,
+    "avgdelta": 4
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 6.5,
+    "activity": 0.01,
+    "bolussnooze": 5.5,
+    "basaliob": 1,
+    "hightempinsulin": 1
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 120,
+    "boluses": 6,
+    "mealCOB": 100
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 18,
+  "fn": "determine_basal",
+  "test": "DB-59 (disabled upstream)",
+  "id": "DB-59",
+  "args": [
+   {
+    "delta": 4,
+    "glucose": 160,
+    "avgdelta": 4
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 7,
+    "activity": 0.02,
+    "bolussnooze": 5,
+    "basaliob": 2,
+    "hightempinsulin": 2
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 120,
+    "boluses": 6,
+    "mealCOB": 80
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 19,
+  "fn": "determine_basal",
+  "test": "DB-60 (disabled upstream)",
+  "id": "DB-60",
+  "args": [
+   {
+    "delta": 1,
+    "glucose": 160,
+    "avgdelta": 1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 7,
+    "activity": 0.02,
+    "bolussnooze": 5,
+    "basaliob": 2
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 120,
+    "boluses": 6,
+    "mealCOB": 80
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 20,
+  "fn": "determine_basal",
+  "test": "DB-61 (disabled upstream)",
+  "id": "DB-61",
+  "args": [
+   {
+    "delta": -1,
+    "glucose": 160,
+    "avgdelta": -1
+   },
+   {
+    "duration": 15,
+    "rate": 2.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": 7,
+    "activity": 0.03,
+    "bolussnooze": 5,
+    "basaliob": 2
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 120,
+    "boluses": 6,
+    "mealCOB": 80
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 21,
+  "fn": "determine_basal",
+  "test": "DB-62 (disabled upstream)",
+  "id": "DB-62",
+  "args": [
+   {
+    "delta": 1,
+    "glucose": 160,
+    "avgdelta": 1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 7,
+    "activity": 0.02,
+    "bolussnooze": 4,
+    "basaliob": 3
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 120,
+    "boluses": 11,
+    "mealCOB": 80
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 22,
+  "fn": "determine_basal",
+  "test": "DB-63 (disabled upstream)",
+  "id": "DB-63",
+  "args": [
+   {
+    "delta": 3,
+    "glucose": 200,
+    "avgdelta": 8.667
+   },
+   {
+    "duration": 3,
+    "rate": 3.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": 2.701,
+    "activity": 0.0107,
+    "bolussnooze": 0.866,
+    "basaliob": 1.013,
+    "netbasalinsulin": 1.1,
+    "hightempinsulin": 1.8
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 15,
+    "boluses": 2,
+    "mealCOB": 15
+   }
+  ],
+  "result": {
+   "temp": "absolute",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "error": "Error: could not calculate eventualBG. "
+  },
+  "threw": null
+ }
+]

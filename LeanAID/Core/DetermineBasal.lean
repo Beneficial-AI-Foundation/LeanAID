@@ -249,7 +249,10 @@ def dbPrelude (inp : DBInputs) : Except Result Pre := do
     else rnd (bg - iobd.iob.js * JsNum.min sens p.sens.js)
   let eventualBG := naive_eventualBG + deviation
   -- lines 419-422
-  if eventualBG.isNaN then throw (Result.err "Error: could not calculate eventualBG. ")
+  -- `rT` already holds `temp` and `deliverAt` (lines 378-379) when this error is set
+  if eventualBG.isNaN then
+    throw { Result.err "Error: could not calculate eventualBG. " with
+            temp := some "absolute", deliverAt := some inp.clock.now }
   let expectedDelta := calculateExpectedDelta target_bg eventualBG bgi
   let some meal := inp.meal_data | throw (typeError "bwFound")
   return { p, gs, ct, iobd, iobArray, meal, bg, tick, minDelta, minAvgDelta, maxDelta, basal,
@@ -728,7 +731,6 @@ def highTemp (c : Ctx) (rT : Result) : Result :=
 def dbDose (c : Ctx) : Result :=
   let p := c.p
   let rT := c.rT
-  let eventualBG := c.eventualBG'
   -- lines 908-921: low glucose suspend
   if c.bg <ʲ c.threshold && c.iobd.iob.js <ʲ (-p.current_basal.js * 20 / 60) && c.minDelta >ʲ 0 &&
       c.minDelta >ʲ c.expectedDelta then
