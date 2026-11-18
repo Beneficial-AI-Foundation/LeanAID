@@ -13,3 +13,7 @@ import LeanAID.Conformance.Data.SmallData
 import LeanAID.Conformance.Checks
 import LeanAID.Proofs.Rounding
 import LeanAID.Proofs.SetTempBasal
+import LeanAID.Spec.Valid
+import LeanAID.Proofs.Prelude
+import LeanAID.Proofs.Dose
+import LeanAID.Proofs.Safety

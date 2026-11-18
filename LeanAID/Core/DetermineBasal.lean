@@ -214,17 +214,26 @@ def stTargets (p : Profile) : Except Result (JsNum × JsNum) :=
   | some mn, some mx => .ok (mn, mx)
   | _, _ => .error (Result.err "Error: could not determine target_bg. ")
 
+/-- Lines 253-258: the temp target that halves the basal (default 160 mg/dL). -/
+def halfBasalTargetOf (p : Profile) : JsNum :=
+  if p.half_basal_exercise_target.truthyN then p.half_basal_exercise_target.js else 160
+
+/-- Lines 264-273: the sensitivity ratio implied by a temp target
+    (`c / (c + target_bg - 100)` with `c = halfBasalTarget - 100`, or
+    `autosens_max` when that would not be positive). -/
+def tempTargetRatio (p : Profile) (target_bg : JsNum) : JsNum :=
+  let normalTarget : JsNum := 100
+  let c := halfBasalTargetOf p - normalTarget
+  if c * (c + target_bg - normalTarget) ≤ʲ 0 then p.autosens_max.js
+  else c / (c + target_bg - normalTarget)
+
 /-- Lines 250-281: `sensitivityRatio`, from a temp target or from autosens. -/
 def sensitivityRatioOf (p : Profile) (autosens : Option Autosens) (target_bg : JsNum) : Option JsNum :=
   let high_temptarget_raises_sensitivity := p.exercise_mode.truthy || p.high_temptarget_raises_sensitivity.truthy
   let normalTarget : JsNum := 100
-  let halfBasalTarget : JsNum := if p.half_basal_exercise_target.truthyN then p.half_basal_exercise_target.js else 160
   if (high_temptarget_raises_sensitivity && p.temptargetSet.truthy && target_bg >ʲ normalTarget) ||
      (p.low_temptarget_lowers_sensitivity.truthy && p.temptargetSet.truthy && target_bg <ʲ normalTarget) then
-    let c := halfBasalTarget - normalTarget
-    let sr := if c * (c + target_bg - normalTarget) ≤ʲ 0 then p.autosens_max.js
-      else c / (c + target_bg - normalTarget)
-    some (rnd (JsNum.min sr p.autosens_max.js) 2)
+    some (rnd (JsNum.min (tempTargetRatio p target_bg) p.autosens_max.js) 2)
   else match autosens with
     | some a => a.ratio
     | none => none
@@ -509,11 +518,7 @@ def dbPredict (inp : DBInputs) (pre : Pre) : Ctx :=
   let bg := pre.bg
   let sens := pre.sens
   let now : JsNum := .fin inp.clock.now
-  -- lines 428-437
-  let rT : Result :=
-    { shape := .main, temp := some "absolute", bg := pre.gs.glucose, tick := some pre.tick,
-      eventualBG := some pre.eventualBG, insulinReq := some 0, reservoir := inp.reservoir_data,
-      deliverAt := some inp.clock.now, sensitivityRatio := pre.sensitivityRatio }
+  -- lines 428-437 create `rT`; it is assembled below, after all its fields are known
   -- lines 451-461
   let enableSMB0 := enableSmb p inp.microBolusAllowed meal bg pre.target_bg pre.high_bg
   let enableUAM := p.enableUAM.truthy
@@ -576,8 +581,7 @@ def dbPredict (inp : DBInputs) (pre : Pre) : Ctx :=
     { IOB := IOBpredBGs.toList, ZT := ZTpredBGs.toList,
       COB := if cobPreds then some COBpredBGs.toList else none,
       UAM := if uamPreds then some UAMpredBGs.toList else none }
-  let rT := { rT with predBGs := some predBGs,
-                      eventualBG := if ci >ʲ 0 || remainingCIpeak >ʲ 0 then some eventualBG2 else rT.eventualBG }
+  let rTeventualBG := if ci >ʲ 0 || remainingCIpeak >ʲ 0 then eventualBG2 else pre.eventualBG
   let eventualBG := eventualBG2
   -- lines 704-722
   let minIOBPredBG := JsNum.max 39 s.minIOBPredBG
@@ -643,8 +647,6 @@ def dbPredict (inp : DBInputs) (pre : Pre) : Ctx :=
     | some v => if v >ʲ 0 then reason ++ ", UAMpredBG " ++ convertBgS v p else reason
     | none => reason
   let reason := reason ++ "; "
-  let rT := { rT with COB := meal.mealCOB, IOB := pre.iobd.iob, BGI := some BGI, deviation := some devC,
-                      ISF := some ISF, CR := some CR, target_bg := some tgt, reason := some reason }
   -- lines 822-860
   let carbsReqBG := if pre.naive_eventualBG <ʲ 40 then JsNum.min minGuardBG pre.naive_eventualBG else pre.naive_eventualBG
   let bgUndershoot := threshold - carbsReqBG
@@ -658,22 +660,29 @@ def dbPredict (inp : DBInputs) (pre : Pre) : Ctx :=
     | none => 0.2
     | some m => JsNum.min m 0.3
   let bigDelta := pre.maxDelta >ʲ maxDelta_bg_threshold * bg
-  let rT := if bigDelta then
-      rT.addReason ("maxDelta " ++ convertBgS pre.maxDelta p ++ " > " ++ JsFmt.numToString (100 * maxDelta_bg_threshold) ++
-        "% of BG " ++ convertBgS bg p ++ ": SMB disabled; ")
-    else rT
+  let reason := if bigDelta then
+      reason ++ "maxDelta " ++ convertBgS pre.maxDelta p ++ " > " ++ JsFmt.numToString (100 * maxDelta_bg_threshold) ++
+        "% of BG " ++ convertBgS bg p ++ ": SMB disabled; "
+    else reason
   let enableSMB := if bigDelta then false else enableSMB1
   -- lines 889-903
   let zeroTempDuration := minutesAboveThreshold
   let zeroTempEffect := p.current_basal.js * sens * zeroTempDuration / 60
   let COBforCarbsReq := JsNum.max 0 (meal.mealCOB.js - 0.25 * meal.carbs.js)
   let carbsReq := rnd ((bgUndershoot - zeroTempEffect) / csf - COBforCarbsReq)
-  let rT :=
-    if meal.reason == some "Could not parse clock data" then rT
+  let (reason, carbsReqOut) : String × Option JsNum :=
+    if meal.reason == some "Could not parse clock data" then (reason, none)
     else if carbsReq ≥ʲ p.carbsReqThreshold.js && minutesAboveThreshold ≤ʲ 45 then
-      { rT.addReason (JsFmt.numToString carbsReq ++ " add'l carbs req w/in " ++
-          JsFmt.numToString minutesAboveThreshold ++ "m; ") with carbsReq := some carbsReq }
-    else rT
+      (reason ++ JsFmt.numToString carbsReq ++ " add'l carbs req w/in " ++
+          JsFmt.numToString minutesAboveThreshold ++ "m; ", some carbsReq)
+    else (reason, none)
+  -- `rT` with every field set by lines 428-903, in their JavaScript key order
+  let rT : Result :=
+    { shape := .main, temp := some "absolute", bg := pre.gs.glucose, tick := some pre.tick,
+      eventualBG := some rTeventualBG, insulinReq := some 0, reservoir := inp.reservoir_data,
+      deliverAt := some inp.clock.now, sensitivityRatio := pre.sensitivityRatio, predBGs := some predBGs,
+      COB := meal.mealCOB, IOB := pre.iobd.iob, BGI := some BGI, deviation := some devC,
+      ISF := some ISF, CR := some CR, target_bg := some tgt, reason := some reason, carbsReq := carbsReqOut }
   { pre with rT, enableSMB, minGuardBG, minPredBG, minIOBPredBG, eventualBG' := eventualBG, carbsReq,
              microBolusAllowed := inp.microBolusAllowed, clock := inp.clock }
 
@@ -737,55 +746,103 @@ def lowEventualBG (c : Ctx) (rT : Result) : Result :=
       else
         setTempBasal rate 30 p (rT.addReason (", setting " ++ JsFmt.numToString rate ++ "U/hr. ")) (some c.ct)
 
+/-- Lines 1078-1095: the largest microbolus, `maxSMBBasalMinutes` (or
+    `maxUAMSMBBasalMinutes` when IOB exceeds what COB needs) worth of basal. -/
+def smbMaxBolus (c : Ctx) : JsNum :=
+  let p := c.p
+  let mealInsulinReq := rnd (c.meal.mealCOB.js / p.carb_ratio.js) 3
+  if p.maxSMBBasalMinutes.isNone then rnd (p.current_basal.js * 30 / 60) 1
+  else if c.iobd.iob.js >ʲ mealInsulinReq && c.iobd.iob.js >ʲ 0 then
+    if p.maxUAMSMBBasalMinutes.truthyN then rnd (p.current_basal.js * p.maxUAMSMBBasalMinutes.js / 60) 1
+    else rnd (p.current_basal.js * 30 / 60) 1
+  else rnd (p.current_basal.js * p.maxSMBBasalMinutes.js / 60) 1
+
+/-- Lines 1097-1098: `bolusIncrement` (default 0.1). -/
+def smbBolusIncrement (p : Profile) : JsNum :=
+  if p.bolus_increment.truthyN then p.bolus_increment.js else 0.1
+
+/-- Lines 1099-1100: half the insulinReq, at most maxBolus, rounded down to the
+    bolus increment. -/
+def smbMicroBolus (c : Ctx) (insulinReq : JsNum) : JsNum :=
+  let roundSMBTo := 1 / smbBolusIncrement c.p
+  mathFloor (JsNum.min (insulinReq / 2) (smbMaxBolus c) * roundSMBTo) / roundSMBTo
+
+/-- Lines 1102-1109: the zero-temp duration needed, before the 30/60-minute rules. -/
+def smbDurationReq (c : Ctx) (insulinReq : JsNum) : JsNum :=
+  let smbTarget := c.target_bg
+  let worstCaseInsulinReq := (smbTarget - (c.naive_eventualBG + c.minIOBPredBG) / 2) / c.sens
+  let durationReq0 := rnd (60 * worstCaseInsulinReq / c.p.current_basal.js)
+  if insulinReq >ʲ 0 && smbMicroBolus c insulinReq <ʲ smbBolusIncrement c.p then 0 else durationReq0
+
+/-- Lines 1111-1122: `(durationReq, smbLowTempReq)`. -/
+def smbLowTemp (basal durationReq : JsNum) : JsNum × JsNum :=
+  if durationReq ≤ʲ 0 then (0, 0)
+  else if durationReq ≥ʲ 30 then (JsNum.min 60 (JsNum.max 0 (rnd (durationReq / 30) * 30)), 0)
+  else (30, rnd (basal * durationReq / 30) 2)
+
+/-- Lines 1133-1136: `SMBInterval` (default 3, clamped to 1-10 minutes). -/
+def smbInterval (p : Profile) : JsNum :=
+  if p.SMBInterval.truthyN then JsNum.min 10 (JsNum.max 1 p.SMBInterval.js) else 3
+
+/-- Line 1072: minutes since the last bolus. -/
+def lastBolusAge (c : Ctx) : JsNum := rnd ((.fin c.clock.now - c.iobd.lastBolusTime.js) / 60000) 1
+
+/-- Lines 1123-1150: the text appended to the reason. -/
+def smbReason (c : Ctx) (insulinReq : JsNum) (lt : JsNum × JsNum) : String :=
+  let maxBolus := smbMaxBolus c
+  let microBolus := smbMicroBolus c insulinReq
+  let SMBInterval := smbInterval c.p
+  let age := lastBolusAge c
+  let nextBolusMins := rnd (SMBInterval - age) 0
+  let nextBolusSeconds := JsNum.mod (rnd ((SMBInterval - age) * 60) 0) 60
+  " insulinReq " ++ JsFmt.numToString insulinReq ++
+  (if microBolus ≥ʲ maxBolus then "; maxBolus " ++ JsFmt.numToString maxBolus else "") ++
+  (if lt.1 >ʲ 0 then "; setting " ++ JsFmt.numToString lt.1 ++ "m low temp of " ++
+      JsFmt.numToString lt.2 ++ "U/h" else "") ++
+  ". " ++
+  (if age >ʲ SMBInterval then
+     (if microBolus >ʲ 0 then "Microbolusing " ++ JsFmt.numToString microBolus ++ "U. " else "")
+   else "Waiting " ++ JsFmt.numToString nextBolusMins ++ "m " ++
+     JsFmt.numToString nextBolusSeconds ++ "s to microbolus again. ")
+
+/-- Lines 1143-1147: a microbolus is given if the last bolus was more than
+    `SMBInterval` minutes ago and the microbolus is positive. -/
+def smbGivesBolus (c : Ctx) (insulinReq : JsNum) : Bool :=
+  lastBolusAge c >ʲ smbInterval c.p && smbMicroBolus c insulinReq >ʲ 0
+
+/-- Lines 1123-1150: append the reason (successive `rT.reason +=` steps, which
+    concatenate) and set `rT.units` when a microbolus is given. -/
+def smbReasonUnits (c : Ctx) (rT : Result) (insulinReq : JsNum) (lt : JsNum × JsNum) : Result :=
+  { rT.addReason (smbReason c insulinReq lt) with
+    units := if smbGivesBolus c insulinReq then some (smbMicroBolus c insulinReq) else rT.units }
+
+/-- Lines 1154-1158: return with the SMB low temp, or continue. -/
+def smbFinish (lt : JsNum × JsNum) (rT : Result) : Result ⊕ Result :=
+  if lt.1 >ʲ 0 then .inl { rT with rate := some lt.2, duration := some lt.1, rateFirst := true }
+  else .inr rT
+
 /-- The SMB block, lines 1076-1160. Returns `.inl rT` when it returns (an SMB
     low temp is set), `.inr rT` when control continues to the high-temp code. -/
 def smbBlock (c : Ctx) (rT : Result) (insulinReq : JsNum) : Result ⊕ Result :=
+  smbFinish (smbLowTemp c.basal (smbDurationReq c insulinReq))
+    (smbReasonUnits c rT insulinReq (smbLowTemp c.basal (smbDurationReq c insulinReq)))
+
+/-- Lines 1169-1187: set the high temp unless the running temp already
+    delivers enough. -/
+def highTempSet (c : Ctx) (rT : Result) (rate insulinReq : JsNum) : Result :=
   let p := c.p
-  let now : JsNum := .fin c.clock.now
-  let lastBolusAge := rnd ((now - c.iobd.lastBolusTime.js) / 60000) 1
-  -- lines 1078-1095
-  let mealInsulinReq := rnd (c.meal.mealCOB.js / p.carb_ratio.js) 3
-  let maxBolus :=
-    if p.maxSMBBasalMinutes.isNone then rnd (p.current_basal.js * 30 / 60) 1
-    else if c.iobd.iob.js >ʲ mealInsulinReq && c.iobd.iob.js >ʲ 0 then
-      if p.maxUAMSMBBasalMinutes.truthyN then rnd (p.current_basal.js * p.maxUAMSMBBasalMinutes.js / 60) 1
-      else rnd (p.current_basal.js * 30 / 60) 1
-    else rnd (p.current_basal.js * p.maxSMBBasalMinutes.js / 60) 1
-  -- lines 1097-1100
-  let bolusIncrement : JsNum := if p.bolus_increment.truthyN then p.bolus_increment.js else 0.1
-  let roundSMBTo := 1 / bolusIncrement
-  let microBolus := mathFloor (JsNum.min (insulinReq / 2) maxBolus * roundSMBTo) / roundSMBTo
-  -- lines 1102-1122
-  let smbTarget := c.target_bg
-  let worstCaseInsulinReq := (smbTarget - (c.naive_eventualBG + c.minIOBPredBG) / 2) / c.sens
-  let durationReq0 := rnd (60 * worstCaseInsulinReq / p.current_basal.js)
-  let durationReq1 := if insulinReq >ʲ 0 && microBolus <ʲ bolusIncrement then 0 else durationReq0
-  let (durationReq, smbLowTempReq) : JsNum × JsNum :=
-    if durationReq1 ≤ʲ 0 then (0, 0)
-    else if durationReq1 ≥ʲ 30 then (JsNum.min 60 (JsNum.max 0 (rnd (durationReq1 / 30) * 30)), 0)
-    else (30, rnd (c.basal * durationReq1 / 30) 2)
-  -- lines 1123-1130
-  let rT := rT.addReason (" insulinReq " ++ JsFmt.numToString insulinReq)
-  let rT := if microBolus ≥ʲ maxBolus then rT.addReason ("; maxBolus " ++ JsFmt.numToString maxBolus) else rT
-  let rT := if durationReq >ʲ 0 then
-      rT.addReason ("; setting " ++ JsFmt.numToString durationReq ++ "m low temp of " ++
-        JsFmt.numToString smbLowTempReq ++ "U/h") else rT
-  let rT := rT.addReason ". "
-  -- lines 1133-1150
-  let SMBInterval : JsNum := if p.SMBInterval.truthyN then JsNum.min 10 (JsNum.max 1 p.SMBInterval.js) else 3
-  let nextBolusMins := rnd (SMBInterval - lastBolusAge) 0
-  let nextBolusSeconds := JsNum.mod (rnd ((SMBInterval - lastBolusAge) * 60) 0) 60
-  let rT :=
-    if lastBolusAge >ʲ SMBInterval then
-      if microBolus >ʲ 0 then
-        { rT.addReason ("Microbolusing " ++ JsFmt.numToString microBolus ++ "U. ") with units := some microBolus }
-      else rT
-    else rT.addReason ("Waiting " ++ JsFmt.numToString nextBolusMins ++ "m " ++
-      JsFmt.numToString nextBolusSeconds ++ "s to microbolus again. ")
-  -- lines 1154-1158
-  if durationReq >ʲ 0 then
-    .inl { rT with rate := some smbLowTempReq, duration := some durationReq, rateFirst := true }
-  else .inr rT
+  let insulinScheduled := c.ct.duration.js * (c.ct.rate.js - c.basal) / 60
+  if insulinScheduled ≥ʲ insulinReq * 2 then
+    setTempBasal rate 30 p
+      (rT.addReason (jsStr c.ct.duration ++ "m@" ++ JsFmt.toFixed c.ct.rate.js 2 ++
+        " > 2 * insulinReq. Setting temp basal of " ++ JsFmt.numToString rate ++ "U/hr. ")) (some c.ct)
+  else if c.ct.duration.isNone || c.ct.duration.js =ʲ 0 then
+    setTempBasal rate 30 p (rT.addReason ("no temp, setting " ++ JsFmt.numToString rate ++ "U/hr. ")) (some c.ct)
+  else if c.ct.duration.js >ʲ 5 && roundBasal rate p.model ≤ʲ roundBasal c.ct.rate.js p.model then
+    rT.addReason ("temp " ++ jsStr c.ct.rate ++ " >~ req " ++ JsFmt.numToString rate ++ "U/hr. ")
+  else
+    setTempBasal rate 30 p (rT.addReason ("temp " ++ jsStr c.ct.rate ++ "<" ++ JsFmt.numToString rate ++ "U/hr. "))
+      (some c.ct)
 
 /-- Lines 1054-1188: the high-temp branch when IOB is not above `max_iob`. -/
 def highTemp (c : Ctx) (rT : Result) : Result :=
@@ -807,25 +864,10 @@ def highTemp (c : Ctx) (rT : Result) : Result :=
   | .inr rT =>
     -- lines 1162-1167
     let maxSafeBasal := getMaxSafeBasal p
-    let (rate, rT) :=
-      if rate0 >ʲ maxSafeBasal then
-        (roundBasal maxSafeBasal p.model,
-         rT.addReason ("adj. req. rate: " ++ JsFmt.numToString rate0 ++ " to maxSafeBasal: " ++
-           JsFmt.numToString maxSafeBasal ++ ", "))
-      else (rate0, rT)
-    -- lines 1169-1187
-    let insulinScheduled := c.ct.duration.js * (c.ct.rate.js - c.basal) / 60
-    if insulinScheduled ≥ʲ insulinReq * 2 then
-      setTempBasal rate 30 p
-        (rT.addReason (jsStr c.ct.duration ++ "m@" ++ JsFmt.toFixed c.ct.rate.js 2 ++
-          " > 2 * insulinReq. Setting temp basal of " ++ JsFmt.numToString rate ++ "U/hr. ")) (some c.ct)
-    else if c.ct.duration.isNone || c.ct.duration.js =ʲ 0 then
-      setTempBasal rate 30 p (rT.addReason ("no temp, setting " ++ JsFmt.numToString rate ++ "U/hr. ")) (some c.ct)
-    else if c.ct.duration.js >ʲ 5 && roundBasal rate p.model ≤ʲ roundBasal c.ct.rate.js p.model then
-      rT.addReason ("temp " ++ jsStr c.ct.rate ++ " >~ req " ++ JsFmt.numToString rate ++ "U/hr. ")
-    else
-      setTempBasal rate 30 p (rT.addReason ("temp " ++ jsStr c.ct.rate ++ "<" ++ JsFmt.numToString rate ++ "U/hr. "))
-        (some c.ct)
+    if rate0 >ʲ maxSafeBasal then
+      highTempSet c (rT.addReason ("adj. req. rate: " ++ JsFmt.numToString rate0 ++ " to maxSafeBasal: " ++
+           JsFmt.numToString maxSafeBasal ++ ", ")) (roundBasal maxSafeBasal p.model) insulinReq
+    else highTempSet c rT rate0 insulinReq
 
 /-- Lines 905-1188 of `determine_basal`: the dosing decision. -/
 def dbDose (c : Ctx) : Result :=

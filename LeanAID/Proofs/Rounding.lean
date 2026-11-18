@@ -3,6 +3,7 @@
   `round(value, digits)` and `round_basal`.
 -/
 import LeanAID.Core.RoundBasal
+import LeanAID.Proofs.JsNumLemmas
 
 namespace LeanAID.Proofs
 
@@ -107,8 +108,8 @@ theorem rts_rts {x s : Rat} (hs : 0 < s) : rts (rts x s) s = rts x s := by
   unfold rts
   rw [Rat.div_mul_cancel (by grind), roundInt_intCast]
 
-/-- If `x < n/s` then rounding to the `1/s` grid stays at or below `n/s`. -/
-theorem rts_le_of_lt {x s : Rat} {n : Int} (hs : 0 < s) (h : x * s < n) : rts x s ≤ (n : Rat) / s := by
+/-- If `x · s < n + 1/2` then rounding to the `1/s` grid stays at or below `n/s`. -/
+theorem rts_le_of_lt {x s : Rat} {n : Int} (hs : 0 < s) (h : x * s < n + 1/2) : rts x s ≤ (n : Rat) / s := by
   unfold rts
   apply div_le_div_of_le hs
   have : roundInt (x * s) ≤ n := roundInt_le_iff.mpr (by grind)

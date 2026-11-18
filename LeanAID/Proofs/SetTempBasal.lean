@@ -25,7 +25,7 @@ theorem clampRate_fin {x M : Rat} (hM : 0 ≤ M) :
     ∃ c, clampRate (.fin x) (.fin M) = .fin c ∧ 0 ≤ c ∧ c ≤ M := by
   unfold clampRate
   by_cases h0 : x < 0
-  · exact ⟨0, by simp [JsNum.lt, h0]; rfl, Rat.le_refl, hM⟩
+  · exact ⟨0, by simp [h0], Rat.le_refl, hM⟩
   · by_cases h1 : M < x
     · refine ⟨M, ?_, hM, Rat.le_refl⟩
       simp [JsNum.lt, JsNum.gt, h0, h1]
