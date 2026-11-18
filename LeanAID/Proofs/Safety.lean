@@ -150,7 +150,7 @@ theorem sensitivityRatio_range {inp : DBInputs} (hv : ValidInput inp) {p : Profi
 theorem adjustedBasal_bound {inp : DBInputs} (hv : ValidInput inp) {p : Profile} (hp : inp.profile = some p)
     {M : Rat} (hM : getMaxSafeBasal p = .fin M) (t : JsNum) :
     ∃ b, adjustedBasal p (sensitivityRatioOf p inp.autosens_data t) = .fin b ∧ 0 ≤ b ∧
-      (∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40) ∧ b ≤ rbR M p.model := by
+      (∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40) ∧ b ≤ rbR M p.model ∧ rbR b p.model = b := by
   have vp := hv.validProfile hp
   obtain ⟨cb, hcb, hcb0⟩ := vp.current_basal
   obtain ⟨amax, cb', M', hamax, -, -, hcb', hM', hle⟩ := vp.autosens_max
@@ -158,8 +158,9 @@ theorem adjustedBasal_bound {inp : DBInputs} (hv : ValidInput inp) {p : Profile}
   rw [hM] at hM'; cases hM'
   obtain ⟨hcbM, -⟩ := maxSafeBasal_ge vp hM hcb
   have base : ∃ b, profileCurrentBasal p = .fin b ∧ 0 ≤ b ∧
-      (∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40) ∧ b ≤ rbR M p.model := by
-    refine ⟨rbR cb p.model, ?_, rbR_nonneg _ (by grind), rbR_grid _ (by grind), rbR_mono _ hcbM⟩
+      (∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40) ∧ b ≤ rbR M p.model ∧ rbR b p.model = b := by
+    refine ⟨rbR cb p.model, ?_, rbR_nonneg _ (by grind), rbR_grid _ (by grind), rbR_mono _ hcbM,
+      rbR_idem _ (by grind)⟩
     simp [profileCurrentBasal, hcb, Option.js, JsNum.ofOpt, roundBasal_fin]
   unfold adjustedBasal
   rcases sensitivityRatio_range hv hp hamax t with h | h | ⟨x, h, hx0, hxa⟩
@@ -174,7 +175,7 @@ theorem adjustedBasal_bound {inp : DBInputs} (hv : ValidInput inp) {p : Profile}
       have hcx : cb * x ≤ M := by
         have : cb * x ≤ cb * amax := Rat.mul_le_mul_of_nonneg_left hxa (by grind)
         grind
-      refine ⟨rbR (cb * x) p.model, ?_, rbR_nonneg _ hcx0, rbR_grid _ hcx0, rbR_mono _ hcx⟩
+      refine ⟨rbR (cb * x) p.model, ?_, rbR_nonneg _ hcx0, rbR_grid _ hcx0, rbR_mono _ hcx, rbR_idem _ hcx0⟩
       simp [hcb, Option.js, JsNum.ofOpt, HMul.hMul, Mul.mul, JsNum.mul, roundBasal_fin]
 
 /-! ### H1: the temp basal ceiling -/
@@ -215,7 +216,7 @@ theorem rate_le_roundBasal_maxSafeBasal {inp : DBInputs} (hv : ValidInput inp) {
     rw [hpre] at hr
     obtain ⟨p', g, mm, io, ct, meal, h1, -, -, -, -, -, hpp, -, -, -, -, -, hbasal, -, -⟩ := prelude_ok hpre
     have := stProfile_ok h1; rw [hp] at this; cases this
-    obtain ⟨b, hb, hb0, hbg, hbM⟩ := adjustedBasal_bound hv hp hM ((mm.1 + mm.2) / 2)
+    obtain ⟨b, hb, hb0, hbg, hbM, -⟩ := adjustedBasal_bound hv hp hM ((mm.1 + mm.2) / 2)
     have H : DoseHyp (dbPredict inp pre) M b :=
       { hM := by simp [hpp, hM], hM0, hb := by simp [hbasal, hb], hb0, hbgrid := hbg, hbM := by simp [hpp, hbM] }
     rcases dbDose_rateOk H r hr with h | h

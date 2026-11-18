@@ -102,6 +102,50 @@ theorem stPumpHistory_ok {inp : DBInputs} {p : Profile} {iobd : IobTick} {ct : C
         · simp at h
         · simp at h; rw [h]
 
+/-- When the prelude succeeds, IOB is a finite number: a missing or NaN IOB makes
+    eventualBG NaN, and oref0 returns an error (lines 419-422). -/
+theorem prelude_iob_fin {inp : DBInputs} {pre : Pre} (h : dbPrelude inp = .ok pre) :
+    ∃ i : Rat, pre.iobd.iob = some (.fin i) := by
+  unfold dbPrelude at h
+  cases h1 : stProfile inp <;> simp only [h1, bind, Except.bind] at h
+  · cases h
+  rename_i p
+  cases h2 : stGlucose inp p <;> simp only [h2] at h
+  · cases h
+  rename_i g
+  cases h3 : stTargets p <;> simp only [h3] at h
+  · cases h
+  rename_i mm
+  cases h4 : stIob inp <;> simp only [h4] at h
+  · cases h
+  rename_i io
+  cases h5 : stPumpHistory inp p io.1 <;> simp only [h5] at h
+  · cases h
+  rename_i ct
+  cases h6 : stEventual inp (eventualVals g p (sensOf p inp.autosens_data
+      (sensitivityRatioOf p inp.autosens_data ((mm.1 + mm.2) / 2))) io.1) <;> simp only [h6] at h
+  · cases h
+  cases h7 : stMeal inp <;> simp only [h7, pure, Except.pure] at h
+  · cases h
+  cases h
+  show ∃ i, io.1.iob = some (.fin i)
+  unfold stEventual at h6
+  split at h6
+  · cases h6
+  · rename_i hnan
+    cases hio : io.1.iob with
+    | none =>
+      exfalso; apply hnan
+      unfold eventualVals; rw [hio]; simp only [Option.js_none]
+      simp [rnd, JsNum.round, JsNum.isNaN]
+    | some v =>
+      cases v with
+      | nan =>
+        exfalso; apply hnan
+        unfold eventualVals; rw [hio]; simp only [Option.js_some]
+        simp [rnd, JsNum.round, JsNum.isNaN]
+      | fin i => exact ⟨i, rfl⟩
+
 /-- What an early return of the prelude can contain. -/
 theorem prelude_error {inp : DBInputs} {e : Result} (h : dbPrelude inp = .error e)
     (hM : ∀ p, inp.profile = some p → ∃ M, getMaxSafeBasal p = .fin M ∧ 0 ≤ M) :

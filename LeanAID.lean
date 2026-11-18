@@ -18,3 +18,6 @@ import LeanAID.Proofs.Prelude
 import LeanAID.Proofs.Dose
 import LeanAID.Proofs.Safety
 import LeanAID.Proofs.Hypo
+import LeanAID.Proofs.MaxIob
+import LeanAID.Proofs.Smb
+import LeanAID.Proofs.Headline

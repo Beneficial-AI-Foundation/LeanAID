@@ -8,6 +8,11 @@ namespace LeanAID.Proofs
 
 open JsNum
 
+@[simp] theorem addReasonIf_rate (r : Result) (b : Bool) (s : String) : (r.addReasonIf b s).rate = r.rate := by
+  unfold Result.addReasonIf; cases b <;> rfl
+@[simp] theorem addReasonIf_units (r : Result) (b : Bool) (s : String) : (r.addReasonIf b s).units = r.units := by
+  unfold Result.addReasonIf; cases b <;> rfl
+
 /-- A result issues no finite rate except within `[0, bound]`, or the rate `base`
     that the object already had. -/
 def RateOk (bound : Rat) (res : Result) (base : Option JsNum) : Prop :=

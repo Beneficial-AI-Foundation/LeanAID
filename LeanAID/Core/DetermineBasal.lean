@@ -844,15 +844,23 @@ def highTempSet (c : Ctx) (rT : Result) (rate insulinReq : JsNum) : Result :=
     setTempBasal rate 30 p (rT.addReason ("temp " ++ jsStr c.ct.rate ++ "<" ++ JsFmt.numToString rate ++ "U/hr. "))
       (some c.ct)
 
+/-- Lines 1060-1063: cap `insulinReq` at the room left below `max_iob`. -/
+def capInsulinReq (insulinReq room : JsNum) : JsNum :=
+  if insulinReq >ʲ room then room else insulinReq
+
+/-- `if (b) rT.reason += s` -/
+def Result.addReasonIf (r : Result) (b : Bool) (s : String) : Result :=
+  if b then r.addReason s else r
+
 /-- Lines 1054-1188: the high-temp branch when IOB is not above `max_iob`. -/
 def highTemp (c : Ctx) (rT : Result) : Result :=
   let p := c.p
   let eventualBG := c.eventualBG'
   -- lines 1058-1069
   let insulinReq0 := rnd ((JsNum.min c.minPredBG eventualBG - c.target_bg) / c.sens) 2
-  let capped := insulinReq0 >ʲ c.max_iob - c.iobd.iob.js
-  let rT := if capped then rT.addReason ("max_iob " ++ JsFmt.numToString c.max_iob ++ ", ") else rT
-  let insulinReq1 := if capped then c.max_iob - c.iobd.iob.js else insulinReq0
+  let room := c.max_iob - c.iobd.iob.js
+  let rT := rT.addReasonIf (insulinReq0 >ʲ room) ("max_iob " ++ JsFmt.numToString c.max_iob ++ ", ")
+  let insulinReq1 := capInsulinReq insulinReq0 room
   let rate0 := roundBasal (c.basal + 2 * insulinReq1) p.model
   let insulinReq := rnd insulinReq1 3
   let rT := { rT with insulinReq := some insulinReq }

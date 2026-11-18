@@ -241,3 +241,55 @@ At 15 minutes after a 1 U bolus with DIA 4 h (bilinear curve), activity is
 JavaScript's doubles compute 0.0012499999… and round down (0.0012). Same at 75 minutes
 (0.00625). `iob_ties` checks that these are the only differences and that each is an
 exact tie. This is the expected cost of exact arithmetic (DESIGN D2).
+
+---
+
+## M5 – Safety envelope (headline theorems)
+
+**Start:** 2026-11-18 16:45 · **End:** 2026-11-18 21:30
+
+### Results (all checked by `lake build`, no `sorry`, axioms: propext, Classical.choice, Quot.sound)
+| id | theorem | statement |
+|---|---|---|
+| H1 | `rate_le_roundBasal_maxSafeBasal`, `rate_le_maxSafeBasal_of_grid` | valid input ⇒ every finite issued rate ∈ [0, round_basal(maxSafeBasal)]; ≤ maxSafeBasal when it is on the pump grid |
+| H2 | `microbolus_limits` | a finite microbolus u: u > 0, u ≤ maxBolus, iob + u ≤ max_iob, last bolus > SMBInterval ago |
+| H3 | `low_glucose_suspend` | BG or minGuardBG below threshold, not (BG below threshold and rising) ⇒ zero temp (or running zero temp kept), no microbolus |
+| H4 | `iob_at_max` | iob ≥ max_iob ⇒ no microbolus, every finite rate ≤ adjusted basal |
+| H5 | `cgmError_no_increase`, `missing_current_basal`, `missing_targets`, `missing_iob` | error-coded/noisy/stale/flat CGM ⇒ no increase, no microbolus; missing inputs ⇒ error |
+| H6 | `rate_can_exceed_maxSafeBasal` (finding), `roundBasal_overshoot`, `roundBasal_monotone` | rounding can exceed the limit by ≤ half an increment |
+
+### What was hard
+- **Reasoning through the transcription.** Unfolding the whole prelude timed out
+  (`whnf` heartbeats); `simp` on `dbPredict` hit its step limit; `split` picked the
+  wrong `if` inside `setTempBasal`. Each was solved by naming sub-steps in the core
+  (stage functions with one early exit each, `keepRunning`, `smbLowTemp`,
+  `smbReasonUnits` as one `addReason`, `highTempSet`, `capInsulinReq`,
+  `tempTargetRatio`, building `rT` as one literal). Every refactor was re-checked
+  against oref0 by the conformance suite (65/65 after each). The SMB refactor merged
+  several `rT.reason +=` steps into one concatenation; this is equal by associativity
+  of string append, and is checked by differential testing (no oref0 test reaches it).
+- **The SMB low temp bound.** `round(basal·d/30, 2) ≤ basal` is false for arbitrary
+  basal (e.g. basal 0.025, d = 30 gives 0.03). It holds because the basal comes out of
+  `round_basal` (a multiple of 0.025) and d < 30; the proof goes through the 1/40 grid.
+- **Microbolus ≤ room below max_iob.** `insulinReq` is rounded to 3 decimals *after*
+  the max_iob cap, so it can exceed the cap by 0.0005. The bound still holds because
+  the microbolus is at most half of it, and a positive rounded value implies the room
+  is at least 0.0005.
+- `simp` normal forms: unfolding `HMul.hMul` also unfolded `*` on `Rat`; replaced by a
+  file of `@[simp]` lemmas on finite `JsNum`s.
+- Failed attempts: `generalize` with `_` holes (stuck typeclass problems); `rw` through
+  `dbPredict` projections (motive not type correct). Replaced by lemmas stated for an
+  arbitrary context `c : Ctx` and instantiated.
+
+### Plan changes / decisions
+- "Valid input" (`Spec/Valid.lean`, DESIGN) required one condition I had not expected:
+  the sensitivity-adjusted basal must be within maxSafeBasal (V5), because the SMB low
+  temp bypasses the clamp (F-05).
+- Theorems about rates are stated for *finite* issued rates. oref0 can issue `rate: NaN`
+  (F-06, confirmed in Node), which is a finding, not something to prove away.
+- R4 (duration bounds) is not proved: durations can be NaN for inputs that are valid
+  under V0–V9 but have inconsistent meal data. Left as planned.
+- Mathlib still not needed.
+
+### Findings confirmed in Node
+F-04 (0.83 → 0.85 U/h) and F-06 (`rate: null`, reason "setting NaNU/hr").

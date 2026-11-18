@@ -19,6 +19,11 @@ open JsNum
 @[simp] theorem reasonMsg_units (r : Result) (s : String) : (r.reasonMsg s).units = r.units := rfl
 @[simp] theorem reasonMsg_duration (r : Result) (s : String) : (r.reasonMsg s).duration = r.duration := rfl
 
+@[simp] theorem ite_addReason_rate (c : Prop) [Decidable c] (r : Result) (s : String) :
+    (if c then r.addReason s else r).rate = r.rate := by split <;> rfl
+@[simp] theorem ite_addReason_units (c : Prop) [Decidable c] (r : Result) (s : String) :
+    (if c then r.addReason s else r).units = r.units := by split <;> rfl
+
 /-- The clamp of basal-set-temp.js lines 24-28 keeps a finite rate within
     `[0, maxSafeBasal]` (for a non-negative `maxSafeBasal`). -/
 theorem clampRate_fin {x M : Rat} (hM : 0 ≤ M) :

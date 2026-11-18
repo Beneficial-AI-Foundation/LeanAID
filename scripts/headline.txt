@@ -1,2 +1,14 @@
+# Headline theorems (M5). check.sh prints #print axioms for each.
 LeanAID.Proofs.rate_le_roundBasal_maxSafeBasal
 LeanAID.Proofs.rate_le_maxSafeBasal_of_grid
+LeanAID.Proofs.microbolus_limits
+LeanAID.Proofs.low_glucose_suspend
+LeanAID.Proofs.iob_at_max
+LeanAID.Proofs.cgmError_no_increase
+LeanAID.Proofs.missing_current_basal
+LeanAID.Proofs.missing_targets
+LeanAID.Proofs.missing_iob
+LeanAID.Proofs.rate_can_exceed_maxSafeBasal
+LeanAID.Proofs.roundBasal_overshoot
+LeanAID.Proofs.roundBasal_monotone
+LeanAID.Proofs.setTempBasal_rate_bound

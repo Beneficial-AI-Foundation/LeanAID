@@ -20,6 +20,14 @@ theorem fin_div {a b : Rat} (h : b ≠ 0) : (fin a) / (fin b) = fin (a / b) := b
 @[simp] theorem div_nan (x : JsNum) : x / JsNum.nan = .nan := by cases x <;> rfl
 @[simp] theorem nan_mul (x : JsNum) : JsNum.nan * x = .nan := rfl
 @[simp] theorem nan_div (x : JsNum) : JsNum.nan / x = .nan := rfl
+@[simp] theorem nan_min (x : JsNum) : JsNum.min .nan x = .nan := rfl
+@[simp] theorem min_nan (x : JsNum) : JsNum.min x .nan = .nan := by cases x <;> rfl
+@[simp] theorem nan_max (x : JsNum) : JsNum.max .nan x = .nan := rfl
+@[simp] theorem max_nan (x : JsNum) : JsNum.max x .nan = .nan := by cases x <;> rfl
+@[simp] theorem mathFloor_nan : JsNum.mathFloor .nan = .nan := rfl
+@[simp] theorem mathFloor_fin (a : Rat) : JsNum.mathFloor (.fin a) = .fin (a.floor : Rat) := rfl
+@[simp] theorem nan_ne_fin (a : Rat) : (JsNum.nan = .fin a) = False := by simp
+@[simp] theorem fin_ne_nan (a : Rat) : (JsNum.fin a = .nan) = False := by simp
 @[simp] theorem min_fin (a b : Rat) : JsNum.min (fin a) (fin b) = fin (if a ≤ b then a else b) := rfl
 @[simp] theorem max_fin (a b : Rat) : JsNum.max (fin a) (fin b) = fin (if a ≤ b then b else a) := rfl
 @[simp] theorem min3_fin (a b c : Rat) :
