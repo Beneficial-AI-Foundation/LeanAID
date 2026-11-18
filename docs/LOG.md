@@ -595,3 +595,16 @@ the modules with the concrete checks that caught it before; it remains a specifi
 gap (H1 is stated against the implementation's `getMaxSafeBasal`). The hand-written
 Analysis section of `docs/MUTATION.md`, which the report script does not generate, was
 restored with that row updated.
+
+## Second review, step 8: project page
+
+**Time:** 2026-11-18 17:19 (from `date`)
+
+`site/index.html` updated with numbers the build and scripts produce: 148/148 test calls
+identical and IOB 51/51 (`aid-lean selftest`, `docs/numbers.json`), 100,000/100,000
+random cases identical (`docs/difftest.json`), 274 theorems (`docs/numbers.json`),
+24/24 mutations caught (`docs/mutation.json`). The exact-fractions limitation is replaced
+by the rounding tolerance of H2 (2^-44 relative, "smaller than one part in 10^13",
+FINDINGS F-16) and the Math.exp note (DESIGN D5); the 83,089 / 82 figures are kept as
+the result of the earlier exact-arithmetic version. Only these sentences and numbers were
+changed; the maintainer's text is otherwise untouched.

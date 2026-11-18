@@ -204,7 +204,7 @@ footer li { margin: 3px 0; }
     </div></div>
     <div class="layer"><span class="num">3</span><div>
       <h3>Checked that the Lean version decides like the original</h3>
-      <p>We ran the compiled Lean program and the original JavaScript side by side on the same inputs. On oref0's own test cases, 146 of 148 answers are identical. On 100,000 randomly generated cases, 83% of answers are identical word for word, and the chosen dose differs in only 82 (see Limits).</p>
+      <p>We ran the compiled Lean program and the original JavaScript side by side on the same inputs. On oref0's own test cases, 148 of 148 answers are identical. On 100,000 randomly generated cases, all 100,000 answers are identical word for word.</p>
     </div></div>
   </div>
 </section>
@@ -251,9 +251,9 @@ footer li { margin: 3px 0; }
     <div class="props">
       <div class="prop"><h3>Never above the maximum rate <span class="tag ok">Proved, small gap</span></h3><p>Except that rounding can add up to half a pump step (see findings).</p><span class="thm">rate_le_roundBasal_maxSafeBasal</span></div>
       <div class="prop"><h3>No insulin when glucose is low <span class="tag ok">Proved</span></h3><p>Low and not rising, now or predicted: the rate is zero and no extra bolus is given.</p><span class="thm">low_glucose_suspend</span></div>
-      <div class="prop"><h3>No extra insulin when enough is active <span class="tag ok">Proved</span></h3><p>For each single decision. Over many decisions in a row: planned.</p><span class="thm">microbolus_limits, iob_at_max</span></div>
+      <div class="prop"><h3>No extra insulin when enough is active <span class="tag ok">Proved</span></h3><p>For each single decision, up to a rounding error smaller than one part in 10<sup>13</sup>. Over many decisions in a row: planned.</p><span class="thm">microbolus_limits, iob_at_max</span></div>
       <div class="prop"><h3>Unreliable glucose never adds insulin <span class="tag ok">Proved, one gap</span></h3><p>Error codes, noisy, flat or old readings. Not readings without a timestamp (see findings).</p><span class="thm">cgm_unreliable_no_increase</span></div>
-      <div class="prop"><h3>Insulin in the body is computed correctly <span class="tag">Not yet proved</span></h3><p>Rewritten and tested: 49 of 51 test cases identical.</p></div>
+      <div class="prop"><h3>Insulin in the body is computed correctly <span class="tag">Not yet proved</span></h3><p>Rewritten and tested: 51 of 51 test cases identical.</p></div>
     </div>
   </div>
 </section>
@@ -263,21 +263,18 @@ footer li { margin: 3px 0; }
     <h2>How we tested</h2>
     <p class="sub">Proofs show the Lean version is safe. Tests show it behaves like the original: we ran the compiled Lean program and the original JavaScript on the same inputs.</p>
     <div class="props">
-      <div class="prop"><h3>oref0's own test cases <span class="tag ok">146 of 148 identical</span></h3><p>The other 2 differ only where a value falls exactly on a rounding boundary.</p></div>
+      <div class="prop"><h3>oref0's own test cases <span class="tag ok">148 of 148 identical</span></h3><p>Including 2 that differed while the Lean version computed with exact fractions instead of JavaScript's rounded numbers.</p></div>
       <div class="prop"><h3>Planted bugs <span class="tag ok">24 of 24 caught</span></h3><p>We deliberately broke the Lean code in 24 ways, such as removing a safety cap. Every change made a proof or a test fail.</p></div>
     </div>
     <div class="prop" style="margin-top:12px">
       <h3>100,000 random cases</h3>
       <div class="table-wrap"><table class="results">
         <tbody>
-          <tr><td>Identical output, word for word</td><td>83,089</td></tr>
-          <tr><td>Only the explanation text differs</td><td>413</td></tr>
-          <tr><td>A predicted glucose value differs by 1 mg/dL</td><td>13,818</td></tr>
-          <tr><td>Other reported numbers differ, same insulin rate</td><td>2,598</td></tr>
-          <tr class="hl"><td>The insulin rate differs</td><td>82</td></tr>
+          <tr><td>Identical output, word for word</td><td>100,000</td></tr>
+          <tr><td>Any difference</td><td>0</td></tr>
         </tbody>
       </table></div>
-      <p>As far as we have found, all of these differences come from arithmetic: the Lean version computes with exact fractions, JavaScript with rounded numbers. A fix that copies JavaScript's arithmetic exactly is in progress.</p>
+      <p>The Lean version rounds every calculation exactly as JavaScript does. An earlier version computed with exact fractions instead: on the same 100,000 cases it gave identical output in 83,089 and a different insulin rate in 82, usually slightly more insulin.</p>
     </div>
     <p class="note">Planned: running both versions on simulated patients over several days.</p>
   </div>
@@ -310,7 +307,7 @@ footer li { margin: 3px 0; }
       <li><b>Research only.</b> Not a medical device and not for dosing insulin.</li>
       <li><b>The program, not the body.</b> The proofs cover what the algorithm decides, not how a patient's glucose responds.</li>
       <li><b>Consistent settings.</b> The proofs assume the user's settings make sense, for example a maximum rate at least as high as the usual rate.</li>
-      <li><b>Small differences in arithmetic.</b> The Lean version computes with exact fractions, JavaScript with rounded numbers. In 82 of 100,000 random cases this changes the dose, usually to slightly more insulin. A fix that copies JavaScript's arithmetic exactly is in progress.</li>
+      <li><b>Rounding.</b> The Lean version rounds every calculation exactly as JavaScript does, so two proved limits (the extra-bolus cap and the cap on active insulin) hold up to a rounding error smaller than one part in 10<sup>13</sup>. JavaScript's exponential function is not exactly rounded and ours is, so the two could differ in the last digit; we never saw this happen.</li>
       <li><b>Not everything is rewritten.</b> The calculation of carbohydrates still being absorbed is taken as an input, as in the original command-line tool.</li>
       <li><b>Trusted tools.</b> We rely on Lean's compiler and on the C compiler being correct.</li>
       <li><b>Next steps.</b> Proofs over many decisions in a row, tests on simulated patients, and running on a verified operating system (seL4).</li>
@@ -324,12 +321,12 @@ footer li { margin: 3px 0; }
     <p class="sub">Numbers from <code>scripts/report.js</code>. Full write-up: <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REPORT.md">REPORT</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/FINDINGS.md">FINDINGS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REQUIREMENTS.md">REQUIREMENTS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/TRACEABILITY.md">TRACEABILITY</a>.</p>
     <div class="stats">
       <div class="stat"><b>52 / 59</b><span>generalisable oref0 unit tests (of 116 inventoried) proved as instances of general theorems</span></div>
-      <div class="stat"><b>220</b><span>theorems, no <code>sorry</code>, standard axioms only</span></div>
-      <div class="stat"><b>146 / 148</b><span>oref0 test calls reproduced exactly; 2 differ at a rounding tie</span></div>
+      <div class="stat"><b>274</b><span>theorems, no <code>sorry</code>, standard axioms only</span></div>
+      <div class="stat"><b>148 / 148</b><span>oref0 test calls reproduced exactly</span></div>
       <div class="stat"><b>24 / 24</b><span>planted bugs caught by the build (mutation testing)</span></div>
     </div>
     <ul class="limits" style="margin-top:16px">
-      <li><b>Transcription.</b> oref0 0.7.1 (commit <code>88cf032</code>): determine-basal, setTempBasal, round_basal, IOB, basal lookup, glucose status and meal history. Values use exact rationals with JavaScript's NaN semantics; no <code>Float</code> in the core.</li>
+      <li><b>Transcription.</b> oref0 0.7.1 (commit <code>88cf032</code>): determine-basal, setTempBasal, round_basal, IOB, basal lookup, glucose status and meal history. Values are exact rationals rounded after every operation to the nearest IEEE-754 double, as in JavaScript, with JavaScript's NaN semantics; no <code>Float</code> in the core.</li>
       <li><b>Conformance.</b> oref0's tests are captured under Node and replayed in Lean; these checks use <code>native_decide</code>, so they trust the compiler, while the safety theorems are kernel-checked. oref0's tests never reach predictions, COB, UAM or SMB; for those, agreement rests on differential testing over 100,000 random valid inputs.</li>
       <li><b>Requirements.</b> 23 requirements traced to the 2010 FDA-authored hazard analysis, the 2011 generic safety requirements and 21 CFR 862.1356 / 880.5730, then to theorems and tests.</li>
       <li><b>Binary.</b> <code>aid-lean determine-basal</code> has the same command-line interface and JSON format as <code>oref0-determine-basal</code>; <code>--safe</code> rejects the known unsafe inputs; <code>aid_step</code> is exported for C.</li>
