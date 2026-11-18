@@ -26,7 +26,7 @@ RUNS = os.path.join(OUT, 'runs')
 PROGRESS = os.path.join(OUT, 'progress.log')
 PY = os.path.join(ROOT, '.venv', 'bin', 'python')
 DEADLINE_H = float(os.environ.get('SIM_HOURS', '12'))
-WORKERS = int(os.environ.get('SIM_WORKERS', '6'))
+WORKERS = int(os.environ.get('SIM_WORKERS', '7'))
 MAX_SEED = 50
 
 
