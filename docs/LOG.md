@@ -510,3 +510,14 @@ applies (R1, R2, R10, R11; NaN rates are F-06), R3 marked as not holding (F-04),
 partly proved (the headline theorem omits "at most half of insulinReq" and "a multiple of
 the bolus increment"), R10 proved, R16 proved, R17 partly proved and partly false (F-10).
 DESIGN: V5/V9 now match `Spec/Valid.lean` (they were stricter in the text than in Lean).
+
+## Second review, step 5: mutation report separated
+
+**Time:** 2026-11-18 15:41 (from `date`)
+
+`scripts/mutation_report.py` rewrites `docs/MUTATION.md` from `docs/mutation.json`.
+Correction to M12: "18 break a proof" counted lemmas. Strongest catch per mutation: a
+safety theorem's proof breaks in 4 (M13, M15, M16, M24); only supporting lemmas in 16;
+only concrete checks in 3 (M04, M21, M23); only conformance in 1 (M10). A broken lemma
+stops the modules that import it from being built, so for those 16 the safety statements
+are neither confirmed nor refuted by the run.

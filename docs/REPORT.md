@@ -16,7 +16,7 @@ the full experiment log is `docs/LOG.md`.
 | theorems in `LeanAID/Proofs` | 220 (16 headline), no `sorry`, axioms only `propext`, `Classical.choice`, `Quot.sound` |
 | conformance on every in-scope call of oref0's tests | 148/148 (146 exact, 2 IOB values at a rounding tie) |
 | differential testing, 100,000 random valid inputs | 83.1% byte-identical; every difference traced to floating-point rounding; no transcription error found |
-| mutation testing | 24 mutations, all caught by the build (18 by proofs, 18 by conformance); 2 specification gaps found (H1, H3 are relative to oref0's own maxSafeBasal/threshold) |
+| mutation testing | 24 mutations, all caught by the build. Strongest catch: a safety theorem's proof breaks in 4; only a supporting lemma breaks in 16 (downstream safety modules are then not built, so this does not show a safety property is violated); only concrete checks in 3; only conformance in 1. Specification gaps: H1 and H3 are relative to oref0's own maxSafeBasal and threshold |
 | binary | `aid-lean determine-basal` (same CLI and JSON as `oref0-determine-basal`), `aid-lean selftest`, `aid-lean batch` |
 
 ## Per milestone
