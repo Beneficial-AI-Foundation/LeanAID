@@ -337,7 +337,7 @@ F-04 (0.83 → 0.85 U/h) and F-06 (`rate: null`, reason "setting NaNU/hr").
 
 ## M7 – Binary (minimum result)
 
-**Start:** 2026-11-18 14:22 · **End:** 2026-11-18 14:45
+**Start:** 2026-11-18 14:22 · **End:** 2026-11-18 14:30 (commit times)
 
 ### What was done
 - `App/Json.lean`: JSON → core inputs using the toolchain's `Lean.Json` (numbers are
@@ -372,7 +372,7 @@ F-04 (0.83 → 0.85 U/h) and F-06 (`rate: null`, reason "setting NaNU/hr").
 
 ## Review fixes (independent review of commit a95cea8)
 
-**Start:** 2026-11-18 14:50 · **End:** 2026-11-18 15:25
+**Start:** 2026-11-18 14:30 · **End:** 2026-11-18 14:47 (commit times)
 
 The maintainer ran an independent reviewer (`prompts/review.md`) and asked for six
 remaining issues to be addressed:
@@ -422,7 +422,7 @@ transcription bug in the COB/UAM eventualBG update; to investigate next.
 
 ## M10 – Differential testing (stretch)
 
-**Start:** 2026-11-18 14:50 (pilot) · **End:** 2026-11-18 15:45
+**Start:** 2026-11-18 14:30 (pilot, before the review fixes) · **End:** 2026-11-18 14:55 (commit times)
 
 ### What was done
 - `aid-lean batch <cases.jsonl>`: one decision per JSON line, in one process.
@@ -463,7 +463,7 @@ exact rationals). Not done.
 
 ## M12 – Checking the proofs have teeth (stretch)
 
-**Start:** 2026-11-18 15:45 · **End:** 2026-11-18 16:40
+**Start:** 2026-11-18 14:55 · **End:** 2026-11-18 15:13 (commit times)
 
 ### Mutation testing (`scripts/mutate.py`, `docs/MUTATION.md`)
 24 one-line mutations of `LeanAID/Core` (clamps removed, comparisons changed, constants
@@ -530,3 +530,14 @@ are neither confirmed nor refuted by the run.
 reason. DESIGN lists exactly what it rejects and what it does not. Tested by hand on four
 inputs (valid → suggestion; undated glucose, missing max_basal, carbs without
 lastCarbTime → exit 2 with the matching reason).
+
+## Second review, step 7: times
+
+**Time:** 2026-11-18 15:42 (from `date`)
+
+**Correction.** The start/end times written for M7, the first review fixes, M10 and M12
+were again my estimates, and three of them lay in the future (up to 16:40, when `date`
+said 15:39). They are replaced by the git author timestamps of the corresponding commits
+(first column of `git log --format='%ad' --date=format:'%H:%M'`), marked "(commit times)".
+M0–M6 had already been corrected the same way. From the second review on, every time in
+this log is taken from `date` at the moment of writing.
