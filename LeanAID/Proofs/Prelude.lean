@@ -86,6 +86,22 @@ theorem stPumpHistory_error {inp : DBInputs} {p : Profile} {iobd : IobTick} {e :
         · simp at h; exact Or.inr ⟨_, ct, rfl, rfl, h.symm⟩
         · simp at h
 
+theorem stPumpHistory_ok {inp : DBInputs} {p : Profile} {iobd : IobTick} {ct : CurrentTemp}
+    (h : stPumpHistory inp p iobd = .ok ct) : inp.currenttemp = some ct := by
+  unfold stPumpHistory at h
+  cases hct : inp.currenttemp with
+  | none => simp [hct] at h
+  | some c =>
+    cases hlt : iobd.lastTemp with
+    | none => simp [hct, hlt] at h; rw [h]
+    | some lt =>
+      simp only [hct, hlt] at h
+      split at h
+      · simp at h
+      · split at h
+        · simp at h
+        · simp at h; rw [h]
+
 /-- What an early return of the prelude can contain. -/
 theorem prelude_error {inp : DBInputs} {e : Result} (h : dbPrelude inp = .error e)
     (hM : ∀ p, inp.profile = some p → ∃ M, getMaxSafeBasal p = .fin M ∧ 0 ≤ M) :

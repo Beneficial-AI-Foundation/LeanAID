@@ -17,3 +17,4 @@ import LeanAID.Spec.Valid
 import LeanAID.Proofs.Prelude
 import LeanAID.Proofs.Dose
 import LeanAID.Proofs.Safety
+import LeanAID.Proofs.Hypo

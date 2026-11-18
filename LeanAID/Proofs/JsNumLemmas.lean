@@ -38,6 +38,8 @@ theorem fin_div {a b : Rat} (h : b ≠ 0) : (fin a) / (fin b) = fin (a / b) := b
 @[simp] theorem ge_nan (x : JsNum) : (x ≥ʲ .nan) = false := rfl
 @[simp] theorem nan_ge (x : JsNum) : (JsNum.nan ≥ʲ x) = false := by cases x <;> rfl
 theorem ofNat_eq (n : Nat) : (OfNat.ofNat n : JsNum) = fin (OfNat.ofNat n) := rfl
+@[simp] theorem ofSci_eq (m : Nat) (s : Bool) (e : Nat) :
+    (OfScientific.ofScientific m s e : JsNum) = fin (OfScientific.ofScientific m s e) := rfl
 @[simp] theorem zero_eq : (0 : JsNum) = fin 0 := rfl
 @[simp] theorem one_eq : (1 : JsNum) = fin 1 := rfl
 @[simp] theorem truthy_fin (a : Rat) : (fin a).truthy = (a != 0) := rfl
