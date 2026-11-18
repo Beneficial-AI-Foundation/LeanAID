@@ -458,3 +458,26 @@ rounding, agreement "within a tolerance" is not a meaningful notion at the decis
 level; the right next step, if decision-level agreement is required, is to emulate
 IEEE-754 doubles in the core (round each operation to the nearest double, still in
 exact rationals). Not done.
+
+---
+
+## M12 – Checking the proofs have teeth (stretch)
+
+**Start:** 2026-11-18 15:45 · **End:** 2026-11-18 16:40
+
+### Mutation testing (`scripts/mutate.py`, `docs/MUTATION.md`)
+24 one-line mutations of `LeanAID/Core` (clamps removed, comparisons changed, constants
+changed, branches altered), each followed by `lake build LeanAID`. All 24 are caught by
+the build; 18 break a proof, 18 fail conformance. Separating general theorems from
+concrete kernel-evaluated checks shows two specification gaps: H1 is relative to the
+implementation's `getMaxSafeBasal` (M04 survives every general theorem), and H3 to the
+implementation's `threshold` (M10). Both follow the kickoff's wording ("oref0's
+maxSafeBasal", "threshold as oref0 computes it"), but they mean a wrong formula there
+would not be caught by a proof. Not yet fixed.
+
+### Independent review
+The maintainer ran an independent reviewer on commit a95cea8 (`prompts/review.md`); I
+did not start a second one. Its remaining issues and my responses are in "Review fixes"
+above (F-11, F-12, F-13, R12 restated, sources verified, page corrected). The
+reviewer's finding that R12 used the implementation predicate `cgmError` is the same kind
+of gap as M04/M10 above.

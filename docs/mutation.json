@@ -1,0 +1,494 @@
+[
+ {
+  "id": "M01",
+  "file": "LeanAID/Core/BasalSetTemp.lean",
+  "description": "remove the maxSafeBasal clamp",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/SetTempBasal.lean"
+  ],
+  "brokenTheorems": [
+   "clampRate_fin",
+   "setTempBasal_zero_rate"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.SetTempBasal"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M02",
+  "file": "LeanAID/Core/BasalSetTemp.lean",
+  "description": "remove the clamp at 0",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/SetTempBasal.lean"
+  ],
+  "brokenTheorems": [
+   "clampRate_fin"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.SetTempBasal"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M03",
+  "file": "LeanAID/Core/BasalSetTemp.lean",
+  "description": "default daily multiplier 3 -> 30",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Safety.lean"
+  ],
+  "brokenTheorems": [
+   "maxSafeBasal_exists",
+   "maxSafeBasal_ge"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Safety"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M04",
+  "file": "LeanAID/Core/BasalSetTemp.lean",
+  "description": "double max_basal in maxSafeBasal",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Headline.lean",
+   "LeanAID/Proofs/ReviewFindings.lean"
+  ],
+  "brokenTheorems": [
+   "rate_can_exceed_maxSafeBasal",
+   "undated_glucose_max_rate"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Headline",
+   "LeanAID.Proofs.ReviewFindings"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M05",
+  "file": "LeanAID/Core/BasalSetTemp.lean",
+  "description": "keep running temps up to 3x the request",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Hypo.lean"
+  ],
+  "brokenTheorems": [
+   "keepRunning_zero"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Hypo"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M06",
+  "file": "LeanAID/Core/RoundBasal.lean",
+  "description": "round 1-10 U/h to 0.1 instead of 0.05",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Rounding.lean"
+  ],
+  "brokenTheorems": [
+   "roundBasal_fin"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Rounding"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M07",
+  "file": "LeanAID/Core/JsNum.lean",
+  "description": "Math.round rounds up",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Rounding.lean"
+  ],
+  "brokenTheorems": [
+   "le_roundInt_iff",
+   "lt_roundInt",
+   "rbR_idem",
+   "rbR_zero",
+   "roundInt_intCast",
+   "roundInt_le",
+   "roundInt_le_iff"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Rounding"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M08",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "low glucose suspend ignores predicted lows",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Hypo.lean"
+  ],
+  "brokenTheorems": [
+   "dbDose_lgs"
+  ],
+  "conformanceFails": false,
+  "failedModules": [
+   "LeanAID.Proofs.Hypo"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M09",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "low glucose suspend sets the basal instead of 0",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Hypo.lean"
+  ],
+  "brokenTheorems": [
+   "dbDose_lgs"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Hypo"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M10",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "lower the hypo threshold",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [],
+  "brokenTheorems": [],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M11",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "no max_iob cap on insulinReq",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/MaxIob.lean",
+   "LeanAID/Proofs/ReviewFindings.lean"
+  ],
+  "brokenTheorems": [
+   "capped_nonPos",
+   "missing_max_basal_no_clamp"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.MaxIob",
+   "LeanAID.Proofs.ReviewFindings"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M12",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "microbolus = full insulinReq instead of half",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Smb.lean"
+  ],
+  "brokenTheorems": [
+   "smbMicroBolus_le"
+  ],
+  "conformanceFails": false,
+  "failedModules": [
+   "LeanAID.Proofs.Smb"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M13",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "no SMB interval check",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Headline.lean"
+  ],
+  "brokenTheorems": [
+   "iob_at_max",
+   "microbolus_limits"
+  ],
+  "conformanceFails": false,
+  "failedModules": [
+   "LeanAID.Proofs.Headline"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M14",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "SMB low temp computed over 20 min",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Dose.lean"
+  ],
+  "brokenTheorems": [
+   "smbLowTemp_rate"
+  ],
+  "conformanceFails": false,
+  "failedModules": [
+   "LeanAID.Proofs.Dose"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M15",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "error-code threshold 10 -> 5",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/ReviewFindings.lean",
+   "LeanAID/Proofs/Tests.lean"
+  ],
+  "brokenTheorems": [
+   "DB_44_general",
+   "DB_44_test",
+   "DB_45_general",
+   "DB_45_test",
+   "cgm_unreliable_no_increase"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.ReviewFindings",
+   "LeanAID.Proofs.Tests"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M16",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "staleness limit 12 -> 120 min",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/ReviewFindings.lean"
+  ],
+  "brokenTheorems": [
+   "cgm_unreliable_no_increase",
+   "undated_glucose_max_rate"
+  ],
+  "conformanceFails": false,
+  "failedModules": [
+   "LeanAID.Proofs.ReviewFindings"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M17",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "CGM-error branch doubles the basal",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Prelude.lean"
+  ],
+  "brokenTheorems": [
+   "cgmResult_rate"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Prelude"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M18",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "missing targets default to 100",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Prelude.lean"
+  ],
+  "brokenTheorems": [
+   "prelude_error"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Prelude"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M19",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "neutral temp is 110% of basal",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/MaxIob.lean"
+  ],
+  "brokenTheorems": [
+   "neutralTemp_le"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.MaxIob"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M20",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "low eventualBG adds insulin (min -> max)",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/MaxIob.lean"
+  ],
+  "brokenTheorems": [
+   "lowEventualBG_le"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.MaxIob"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M21",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "expected delta over 1 h instead of 2 h",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Tests.lean"
+  ],
+  "brokenTheorems": [
+   "DB_28_test"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Tests"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M22",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "sensitivity-adjusted basal doubled",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Safety.lean"
+  ],
+  "brokenTheorems": [
+   "adjustedBasal_bound"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Safety"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M23",
+  "file": "LeanAID/Core/DetermineBasal.lean",
+  "description": "IOB check against 2 x max_iob",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Tests.lean"
+  ],
+  "brokenTheorems": [
+   "DB_22_test"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Tests"
+  ],
+  "caught": true
+ },
+ {
+  "id": "M24",
+  "file": "LeanAID/Core/Iob.lean",
+  "description": "bilinear IOB coefficient changed",
+  "applied": true,
+  "buildOk": false,
+  "coreDoesNotCompile": false,
+  "brokenProofFiles": [
+   "LeanAID/Proofs/Lifted.lean"
+  ],
+  "brokenTheorems": [
+   "bilinear_at_zero"
+  ],
+  "conformanceFails": true,
+  "failedModules": [
+   "LeanAID.Conformance.Checks",
+   "LeanAID.Proofs.Lifted"
+  ],
+  "caught": true
+ }
+]
