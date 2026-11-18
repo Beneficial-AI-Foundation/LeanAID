@@ -152,3 +152,14 @@ is "the" correct one; it shows that exact-rational faithfulness cannot give
 decision-level agreement everywhere. Bit-exact agreement would need IEEE-754 double
 emulation in the core (possible with rationals: round each operation to the nearest
 double), at the cost of harder proofs.
+
+### F-14 — Mismatches without a rounding tie: multiplication error printed in reasons
+The 4 of 100,000 differential-test mismatches (seed 7) whose oref0 run hit no
+near-tie `Math.round` (cases 22322, 28557, 65907, 66816) all differ only in the
+reason text, at "to maxSafeBasal: …". `getMaxSafeBasal` computes
+`3 × max_daily_basal` in doubles: 3 × 1.3 = 3.9000000000000004, 3 × 1.48 =
+4.4399999999999995, 3 × 2.52 = 7.5600000000000005, 3 × 3.8 = 11.399999999999999; oref0
+prints these, aid-lean (exact arithmetic) printed 3.9, 4.44, 7.56, 11.4. The issued rates
+agree. Cause: binary64 rounding of a multiplication, not a tie and not a transcription
+error. The inputs and oref0 outputs are kept in `scripts/difftest/regression-no-tie.jsonl`
+as regression cases for the IEEE-754 model (LOG, step 3 of the second review).

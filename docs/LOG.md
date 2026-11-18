@@ -481,3 +481,15 @@ did not start a second one. Its remaining issues and my responses are in "Review
 above (F-11, F-12, F-13, R12 restated, sources verified, page corrected). The
 reviewer's finding that R12 used the implementation predicate `cgmError` is the same kind
 of gap as M04/M10 above.
+
+---
+
+## Second review, step 1: the 4 mismatches without a near tie
+
+**Time:** 2026-11-18 15:40 (from `date`)
+
+All four differ only in the reason text "to maxSafeBasal: 3.9000000000000004" (and
+similar): a binary64 multiplication error in `3 × max_daily_basal`, which the
+`Math.round` tie detector cannot see. Not a transcription error (FINDINGS F-14).
+Regression inputs saved in `scripts/difftest/regression-no-tie.jsonl`; they become
+Lean conformance cases once the core models binary64 (step 3).
