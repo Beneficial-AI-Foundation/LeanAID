@@ -11,3 +11,5 @@ import LeanAID.Core.Glucose
 import LeanAID.Core.MealHistory
 import LeanAID.Conformance.Data.SmallData
 import LeanAID.Conformance.Checks
+import LeanAID.Proofs.Rounding
+import LeanAID.Proofs.SetTempBasal

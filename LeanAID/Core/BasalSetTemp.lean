@@ -34,6 +34,22 @@ def clampRate (rate maxSafeBasal : JsNum) : JsNum :=
   else if rate >ʲ maxSafeBasal then maxSafeBasal
   else rate
 
+/-- Lines 31-34: a running temp of more than `duration - 10` minutes (at most
+    120) whose rate is within ±20% of the request is left running. Returns the
+    running temp's (duration, rate) in that case. -/
+def keepRunning (suggestedRate duration : JsNum) (currenttemp : Option CurrentTemp) : Option (JsNum × JsNum) :=
+  match currenttemp with
+  | some { duration := some ctDur, rate := some ctRate, .. } =>
+    if ctDur >ʲ (duration - 10) && ctDur ≤ʲ 120 && suggestedRate ≤ʲ ctRate * 1.2 &&
+        suggestedRate ≥ʲ ctRate * 0.8 && duration >ʲ 0 then some (ctDur, ctRate) else none
+  | _ => none
+
+/-- Line 39: a temp basal is running (`currenttemp.duration > 0`). -/
+def tempActive (currenttemp : Option CurrentTemp) : Bool :=
+  match currenttemp with
+  | some { duration := some d, .. } => d >ʲ 0
+  | _ => false
+
 /-- `tempBasalFunctions.setTempBasal(rate, duration, profile, rT, currenttemp)`,
     basal-set-temp.js lines 19-57. -/
 def setTempBasal (rate duration : JsNum) (p : Profile) (rT : Result)
@@ -41,24 +57,14 @@ def setTempBasal (rate duration : JsNum) (p : Profile) (rT : Result)
   let maxSafeBasal := getMaxSafeBasal p
   let rate := clampRate rate maxSafeBasal
   let suggestedRate := roundBasal rate p.model
-  -- lines 31-34: a running temp close enough to the request is left alone
-  let keepRunning : Option (JsNum × JsNum) :=
-    match currenttemp with
-    | some { duration := some ctDur, rate := some ctRate, .. } =>
-      if ctDur >ʲ (duration - 10) && ctDur ≤ʲ 120 && suggestedRate ≤ʲ ctRate * 1.2 &&
-          suggestedRate ≥ʲ ctRate * 0.8 && duration >ʲ 0 then some (ctDur, ctRate) else none
-    | _ => none
-  match keepRunning with
+  match keepRunning suggestedRate duration currenttemp with
   | some (ctDur, ctRate) =>
     rT.addReason (" " ++ JsFmt.numToString ctDur ++ "m left and " ++ JsFmt.numToString ctRate ++
       " ~ req " ++ JsFmt.numToString suggestedRate ++ "U/hr: no temp required")
   | none =>
     if JsNum.seq suggestedRate p.current_basal.js then
       if p.skip_neutral_temps == some true then
-        let tempActive := match currenttemp with
-          | some { duration := some d, .. } => d >ʲ 0
-          | _ => false
-        if tempActive then
+        if tempActive currenttemp then
           { rT.reasonMsg "Suggested rate is same as profile rate, a temp basal is active, canceling current temp"
             with duration := some 0, rate := some 0 }
         else

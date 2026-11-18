@@ -111,85 +111,135 @@ structure Pre where
   expectedDelta : JsNum
   deriving Repr, Inhabited
 
-/-- Lines 128-423 of `determine_basal`. -/
-def dbPrelude (inp : DBInputs) : Except Result Pre := do
-  let now : JsNum := .fin inp.clock.now
-  -- lines 138-141
-  let some p := inp.profile | throw (Result.err "Error: could not get current basal rate")
-  if p.current_basal.isNone then throw (Result.err "Error: could not get current basal rate")
-  -- lines 142-143
-  let profile_current_basal := roundBasal p.current_basal.js p.model
-  let basal := profile_current_basal
-  let some gs := inp.glucose_status | throw (typeError "date")
+/-! The prelude, lines 128-423, is split into stages in source order. Each stage
+    either returns early (`Except.error r`: `determine_basal` returns `r`) or passes
+    its values on. Pure computations between the exits are separate functions. -/
+
+/-- Lines 138-143: a profile with `current_basal` is required. -/
+def stProfile (inp : DBInputs) : Except Result Profile :=
+  match inp.profile with
+  | none => .error (Result.err "Error: could not get current basal rate")
+  | some p => if p.current_basal.isNone then .error (Result.err "Error: could not get current basal rate") else .ok p
+
+/-- `profile_current_basal = round_basal(profile.current_basal, profile)` (line 142). -/
+def profileCurrentBasal (p : Profile) : JsNum := roundBasal p.current_basal.js p.model
+
+/-- Values computed from `glucose_status`, lines 145-166. -/
+structure GluVals where
+  gs : GlucoseStatus
+  bgTime : JsNum
+  minAgo : JsNum
+  bg : JsNum
+  noise : JsNum
+  tick : NumOrStr
+  minDelta : JsNum
+  minAvgDelta : JsNum
+  maxDelta : JsNum
+  deriving Repr, Inhabited
+
+/-- Lines 145-166. -/
+def gluVals (now : JsNum) (gs : GlucoseStatus) : GluVals :=
   -- lines 149-150: `new Date(glucose_status.date)`; a missing date gives NaN (QUIRK Q2)
   let bgTime := DateFmt.timeClip gs.date.js
-  let minAgo := rnd ((now - bgTime) / 60 / 1000) 1
-  let bg := gs.glucose.js
-  let noise := gs.noise.js
-  -- lines 156-166
-  let tick : NumOrStr :=
-    if gs.delta.js >ʲ (-0.5) then .str ("+" ++ JsFmt.numToString (rnd gs.delta.js 0))
-    else .num (rnd gs.delta.js 0)
-  let minDelta := JsNum.min gs.delta.js gs.short_avgdelta.js
-  let minAvgDelta := JsNum.min gs.short_avgdelta.js gs.long_avgdelta.js
-  let maxDelta := JsNum.max3 gs.delta.js gs.short_avgdelta.js gs.long_avgdelta.js
-  -- lines 174-196
-  let cgmBad := bg ≤ʲ 10 || bg =ʲ 38 || noise ≥ʲ 3
-  let reason0 : Option String := if cgmBad then some "CGM is calibrating, in ??? state, or noise is high" else none
-  let tooflat :=
-    bg >ʲ 60 && gs.delta.js =ʲ 0 && gs.short_avgdelta.js >ʲ (-1) && gs.short_avgdelta.js <ʲ 1 &&
-      gs.long_avgdelta.js >ʲ (-1) && gs.long_avgdelta.js <ʲ 1 && gs.device != some "fakecgm"
-  let stale := minAgo >ʲ 12 || minAgo <ʲ (-5)
-  let reason1 : Option String :=
-    if stale then
-      some ("If current system time " ++ DateFmt.toString now inp.clock.tzOffsetMin inp.clock.tzName ++
-        " is correct, then BG data is too old. The last BG data was read " ++ JsFmt.numToString minAgo ++
-        "m ago at " ++ DateFmt.toString bgTime inp.clock.tzOffsetMin inp.clock.tzName)
-    else if tooflat then
-      if gs.last_cal.truthyN && gs.last_cal.js <ʲ 3 then some "CGM was just calibrated"
-      else some ("CGM data is unchanged (" ++ JsFmt.numToString bg ++ "+" ++ jsStr gs.delta ++
-        ") for 5m w/ " ++ jsStr gs.short_avgdelta ++ " mg/dL ~15m change & " ++ jsStr gs.long_avgdelta ++
-        " mg/dL ~45m change")
-    else reason0
-  -- lines 198-221: cancel high temps / shorten long zero temps, and return
-  if cgmBad || stale || tooflat then
-    let some ct := inp.currenttemp | throw (typeError "rate")
-    let rT : Result := { shape := .cgm, reason := reason1 }
+  { gs, bgTime,
+    minAgo := rnd ((now - bgTime) / 60 / 1000) 1,
+    bg := gs.glucose.js,
+    noise := gs.noise.js,
+    tick := if gs.delta.js >ʲ (-0.5) then .str ("+" ++ JsFmt.numToString (rnd gs.delta.js 0))
+            else .num (rnd gs.delta.js 0),
+    minDelta := JsNum.min gs.delta.js gs.short_avgdelta.js,
+    minAvgDelta := JsNum.min gs.short_avgdelta.js gs.long_avgdelta.js,
+    maxDelta := JsNum.max3 gs.delta.js gs.short_avgdelta.js gs.long_avgdelta.js }
+
+/-- Line 174: an error code or high noise (`bg <= 10 || bg === 38 || noise >= 3`). -/
+def cgmBad (g : GluVals) : Bool := g.bg ≤ʲ 10 || g.bg =ʲ 38 || g.noise ≥ʲ 3
+
+/-- Line 187: data too old or from the future. -/
+def cgmStale (g : GluVals) : Bool := g.minAgo >ʲ 12 || g.minAgo <ʲ (-5)
+
+/-- Lines 177-185: flat CGM data (unless the device is "fakecgm"). -/
+def cgmFlat (g : GluVals) : Bool :=
+  g.bg >ʲ 60 && g.gs.delta.js =ʲ 0 && g.gs.short_avgdelta.js >ʲ (-1) && g.gs.short_avgdelta.js <ʲ 1 &&
+    g.gs.long_avgdelta.js >ʲ (-1) && g.gs.long_avgdelta.js <ʲ 1 && g.gs.device != some "fakecgm"
+
+/-- The condition of line 198. -/
+def cgmError (g : GluVals) : Bool := cgmBad g || cgmStale g || cgmFlat g
+
+/-- The reason set by lines 174-196. -/
+def cgmReason (clock : Clock) (g : GluVals) : Option String :=
+  let now : JsNum := .fin clock.now
+  if cgmStale g then
+    some ("If current system time " ++ DateFmt.toString now clock.tzOffsetMin clock.tzName ++
+      " is correct, then BG data is too old. The last BG data was read " ++ JsFmt.numToString g.minAgo ++
+      "m ago at " ++ DateFmt.toString g.bgTime clock.tzOffsetMin clock.tzName)
+  else if cgmFlat g then
+    if g.gs.last_cal.truthyN && g.gs.last_cal.js <ʲ 3 then some "CGM was just calibrated"
+    else some ("CGM data is unchanged (" ++ JsFmt.numToString g.bg ++ "+" ++ jsStr g.gs.delta ++
+      ") for 5m w/ " ++ jsStr g.gs.short_avgdelta ++ " mg/dL ~15m change & " ++ jsStr g.gs.long_avgdelta ++
+      " mg/dL ~45m change")
+  else if cgmBad g then some "CGM is calibrating, in ??? state, or noise is high"
+  else none
+
+/-- Lines 198-221: what `determine_basal` returns when the CGM data is unusable:
+    replace a high temp by the basal rate, shorten a long zero temp, or do nothing.
+    `basal` here is `profile_current_basal` (no sensitivity adjustment yet). -/
+def cgmResult (inp : DBInputs) (p : Profile) (g : GluVals) : Result :=
+  let basal := profileCurrentBasal p
+  match inp.currenttemp with
+  | none => typeError "rate"
+  | some ct =>
+    let rT : Result := { shape := .cgm, reason := cgmReason inp.clock g }
     if ct.rate.js >ʲ basal then
-      throw { rT.addReason (". Replacing high temp basal of " ++ jsStr ct.rate ++ " with neutral temp of " ++
-                JsFmt.numToString basal)
-              with deliverAt := some inp.clock.now, temp := some "absolute", duration := some 30, rate := some basal }
+      { rT.addReason (". Replacing high temp basal of " ++ jsStr ct.rate ++ " with neutral temp of " ++
+          JsFmt.numToString basal)
+        with deliverAt := some inp.clock.now, temp := some "absolute", duration := some 30, rate := some basal }
     else if ct.rate.js =ʲ 0 && ct.duration.js >ʲ 30 then
-      throw { rT.addReason (". Shortening " ++ jsStr ct.duration ++ "m long zero temp to 30m. ")
-              with deliverAt := some inp.clock.now, temp := some "absolute", duration := some 30, rate := some 0 }
+      { rT.addReason (". Shortening " ++ jsStr ct.duration ++ "m long zero temp to 30m. ")
+        with deliverAt := some inp.clock.now, temp := some "absolute", duration := some 30, rate := some 0 }
     else
-      throw (rT.addReason (". Temp " ++ jsStr ct.rate ++ " <= current basal " ++ JsFmt.numToString basal ++
-        "U/hr; doing nothing. "))
-  -- lines 226-247: targets
-  let max_iob := p.max_iob.js
-  let some min_bg0 := p.min_bg | throw (Result.err "Error: could not determine target_bg. ")
-  let some max_bg0 := p.max_bg | throw (Result.err "Error: could not determine target_bg. ")
-  let high_bg := p.enableSMB_high_bg_target
-  let target_bg0 := (min_bg0 + max_bg0) / 2
-  -- lines 250-290: sensitivityRatio from temp targets or autosens
+      rT.addReason (". Temp " ++ jsStr ct.rate ++ " <= current basal " ++ JsFmt.numToString basal ++
+        "U/hr; doing nothing. ")
+
+/-- Lines 145-221. -/
+def stGlucose (inp : DBInputs) (p : Profile) : Except Result GluVals :=
+  match inp.glucose_status with
+  | none => .error (typeError "date")
+  | some gs =>
+    let g := gluVals (.fin inp.clock.now) gs
+    if cgmError g then .error (cgmResult inp p g) else .ok g
+
+/-- Lines 226-247: `min_bg` and `max_bg` are required. -/
+def stTargets (p : Profile) : Except Result (JsNum × JsNum) :=
+  match p.min_bg, p.max_bg with
+  | some mn, some mx => .ok (mn, mx)
+  | _, _ => .error (Result.err "Error: could not determine target_bg. ")
+
+/-- Lines 250-281: `sensitivityRatio`, from a temp target or from autosens. -/
+def sensitivityRatioOf (p : Profile) (autosens : Option Autosens) (target_bg : JsNum) : Option JsNum :=
   let high_temptarget_raises_sensitivity := p.exercise_mode.truthy || p.high_temptarget_raises_sensitivity.truthy
   let normalTarget : JsNum := 100
   let halfBasalTarget : JsNum := if p.half_basal_exercise_target.truthyN then p.half_basal_exercise_target.js else 160
-  let sensitivityRatio : Option JsNum :=
-    if (high_temptarget_raises_sensitivity && p.temptargetSet.truthy && target_bg0 >ʲ normalTarget) ||
-       (p.low_temptarget_lowers_sensitivity.truthy && p.temptargetSet.truthy && target_bg0 <ʲ normalTarget) then
-      let c := halfBasalTarget - normalTarget
-      let sr := if c * (c + target_bg0 - normalTarget) ≤ʲ 0 then p.autosens_max.js
-        else c / (c + target_bg0 - normalTarget)
-      some (rnd (JsNum.min sr p.autosens_max.js) 2)
-    else match inp.autosens_data with
-      | some a => a.ratio
-      | none => none
-  let basal := if sensitivityRatio.truthyN then roundBasal (p.current_basal.js * sensitivityRatio.js) p.model else basal
-  -- lines 294-311: adjust targets for autosens when no temp target
+  if (high_temptarget_raises_sensitivity && p.temptargetSet.truthy && target_bg >ʲ normalTarget) ||
+     (p.low_temptarget_lowers_sensitivity.truthy && p.temptargetSet.truthy && target_bg <ʲ normalTarget) then
+    let c := halfBasalTarget - normalTarget
+    let sr := if c * (c + target_bg - normalTarget) ≤ʲ 0 then p.autosens_max.js
+      else c / (c + target_bg - normalTarget)
+    some (rnd (JsNum.min sr p.autosens_max.js) 2)
+  else match autosens with
+    | some a => a.ratio
+    | none => none
+
+/-- Lines 142-143 and 282-290: the basal rate after the sensitivity adjustment. -/
+def adjustedBasal (p : Profile) (sensitivityRatio : Option JsNum) : JsNum :=
+  if sensitivityRatio.truthyN then roundBasal (p.current_basal.js * sensitivityRatio.js) p.model
+  else profileCurrentBasal p
+
+/-- Lines 294-326: targets adjusted for autosens (no temp target) and for noisy CGM data. -/
+def adjustTargets (p : Profile) (autosens : Option Autosens) (gs : GlucoseStatus)
+    (min_bg0 max_bg0 target_bg0 : JsNum) : JsNum × JsNum × JsNum :=
   let (min_bg1, max_bg1, target_bg1) :=
     if p.temptargetSet.truthy then (min_bg0, max_bg0, target_bg0)
-    else match inp.autosens_data with
+    else match autosens with
       | some a =>
         if (p.sensitivity_raises_target.truthy && a.ratio.js <ʲ 1) || (p.resistance_lowers_target.truthy && a.ratio.js >ʲ 1) then
           let mn := rnd ((min_bg0 - 60) / a.ratio.js) + 60
@@ -198,66 +248,116 @@ def dbPrelude (inp : DBInputs) : Except Result Pre := do
           (mn, mx, nt)
         else (min_bg0, max_bg0, target_bg0)
       | none => (min_bg0, max_bg0, target_bg0)
-  -- lines 314-326: raise targets for noisy CGM data
-  let (min_bg, max_bg, target_bg) :=
-    if gs.noise.js ≥ʲ 2 then
-      let m := JsNum.max 1.1 p.noisyCGMTargetMultiplier.js
-      (rnd (JsNum.min 200 (min_bg1 * m)), rnd (JsNum.min 200 (max_bg1 * m)), rnd (JsNum.min 200 (target_bg1 * m)))
-    else (min_bg1, max_bg1, target_bg1)
-  -- line 329
-  let threshold := min_bg - 0.5 * (min_bg - 40)
-  -- lines 336-347: ISF
-  let sens := match inp.autosens_data with
-    | some _ => rnd (p.sens.js / sensitivityRatio.js) 1
-    | none => p.sens.js
-  -- lines 350-364: iob_data
-  let some iobIn := inp.iob_data | throw (Result.err "Error: iob_data undefined. ")
-  let (iobd?, iobArray) : Option IobTick × Option (List IobTick) :=
-    match iobIn with
-    | .single t => (some t, none)
-    | .array ts => match ts with
-      | t :: _ :: _ => (some t, some ts)
-      | _ => (none, some ts)            -- arrays of length ≤ 1 have no `.activity`
-  let some iobd := iobd? | throw (Result.err "Error: iob_data missing some property. ")
-  if iobd.activity.isNone || iobd.iob.isNone then throw (Result.err "Error: iob_data missing some property. ")
-  -- lines 369-374
+  if gs.noise.js ≥ʲ 2 then
+    let m := JsNum.max 1.1 p.noisyCGMTargetMultiplier.js
+    (rnd (JsNum.min 200 (min_bg1 * m)), rnd (JsNum.min 200 (max_bg1 * m)), rnd (JsNum.min 200 (target_bg1 * m)))
+  else (min_bg1, max_bg1, target_bg1)
+
+/-- Line 329: `threshold = min_bg - 0.5*(min_bg-40)`. -/
+def thresholdOf (min_bg : JsNum) : JsNum := min_bg - 0.5 * (min_bg - 40)
+
+/-- Lines 336-347: ISF adjusted for sensitivity. -/
+def sensOf (p : Profile) (autosens : Option Autosens) (sensitivityRatio : Option JsNum) : JsNum :=
+  match autosens with
+  | some _ => rnd (p.sens.js / sensitivityRatio.js) 1
+  | none => p.sens.js
+
+/-- Lines 350-364: `iob_data`, its first element, and the array for the predictions. -/
+def stIob (inp : DBInputs) : Except Result (IobTick × Option (List IobTick)) :=
+  match inp.iob_data with
+  | none => .error (Result.err "Error: iob_data undefined. ")
+  | some iobIn =>
+    let (iobd?, iobArray) : Option IobTick × Option (List IobTick) :=
+      match iobIn with
+      | .single t => (some t, none)
+      | .array ts => match ts with
+        | t :: _ :: _ => (some t, some ts)
+        | _ => (none, some ts)            -- arrays of length ≤ 1 have no `.activity`
+    match iobd? with
+    | none => .error (Result.err "Error: iob_data missing some property. ")
+    | some iobd =>
+      if iobd.activity.isNone || iobd.iob.isNone then .error (Result.err "Error: iob_data missing some property. ")
+      else .ok (iobd, iobArray)
+
+/-- Lines 369-392: `currenttemp` is required; cancel the temp if it disagrees with
+    pump history. -/
+def stPumpHistory (inp : DBInputs) (p : Profile) (iobd : IobTick) : Except Result CurrentTemp :=
+  let now : JsNum := .fin inp.clock.now
   let lastTempAge : JsNum := match iobd.lastTemp with
     | some lt => rnd ((now - lt.date.js) / 60000)
     | none => 0
-  let some ct := inp.currenttemp | throw (typeError "duration")
-  -- lines 378-392: compare currenttemp to pump history
-  let rT : Result := { shape := .lastTemp, temp := some "absolute", deliverAt := some inp.clock.now }
-  if let some lt := iobd.lastTemp then
-    if inp.microBolusAllowed && optSne ct.rate lt.rate && lastTempAge >ʲ 10 && ct.duration.truthyN then
-      throw (setTempBasal 0 0 p (rT.setReason ("Warning: currenttemp rate " ++ jsStr ct.rate ++ " != lastTemp rate " ++
-        jsStr lt.rate ++ " from pumphistory; canceling temp")) (some ct))
-    if ct.duration.js >ʲ 0 then
-      let lastTempEnded := lastTempAge - lt.duration.js
-      if lastTempEnded >ʲ 5 && lastTempAge >ʲ 10 then
-        throw (setTempBasal 0 0 p (rT.setReason ("Warning: currenttemp running but lastTemp from pumphistory ended " ++
-          JsFmt.numToString lastTempEnded ++ "m ago; canceling temp")) (some ct))
-  -- lines 398-417
+  match inp.currenttemp with
+  | none => .error (typeError "duration")
+  | some ct =>
+    let rT : Result := { shape := .lastTemp, temp := some "absolute", deliverAt := some inp.clock.now }
+    match iobd.lastTemp with
+    | none => .ok ct
+    | some lt =>
+      if inp.microBolusAllowed && optSne ct.rate lt.rate && lastTempAge >ʲ 10 && ct.duration.truthyN then
+        .error (setTempBasal 0 0 p (rT.setReason ("Warning: currenttemp rate " ++ jsStr ct.rate ++ " != lastTemp rate " ++
+          jsStr lt.rate ++ " from pumphistory; canceling temp")) (some ct))
+      else if ct.duration.js >ʲ 0 && (lastTempAge - lt.duration.js) >ʲ 5 && lastTempAge >ʲ 10 then
+        .error (setTempBasal 0 0 p (rT.setReason ("Warning: currenttemp running but lastTemp from pumphistory ended " ++
+          JsFmt.numToString (lastTempAge - lt.duration.js) ++ "m ago; canceling temp")) (some ct))
+      else .ok ct
+
+/-- Values of lines 398-417. -/
+structure EvVals where
+  bgi : JsNum
+  deviation : JsNum
+  naive_eventualBG : JsNum
+  eventualBG : JsNum
+  deriving Repr, Inhabited
+
+/-- Lines 398-417: BGI, deviation, naive and eventual BG. -/
+def eventualVals (g : GluVals) (p : Profile) (sens : JsNum) (iobd : IobTick) : EvVals :=
   let bgi := rnd (-iobd.activity.js * sens * 5) 2
-  let dev1 := rnd (6 * (minDelta - bgi))
+  let dev1 := rnd (6 * (g.minDelta - bgi))
   let deviation :=
     if dev1 <ʲ 0 then
-      let dev2 := rnd (6 * (minAvgDelta - bgi))
-      if dev2 <ʲ 0 then rnd (6 * (gs.long_avgdelta.js - bgi)) else dev2
+      let dev2 := rnd (6 * (g.minAvgDelta - bgi))
+      if dev2 <ʲ 0 then rnd (6 * (g.gs.long_avgdelta.js - bgi)) else dev2
     else dev1
   let naive_eventualBG :=
-    if iobd.iob.js >ʲ 0 then rnd (bg - iobd.iob.js * sens)
-    else rnd (bg - iobd.iob.js * JsNum.min sens p.sens.js)
-  let eventualBG := naive_eventualBG + deviation
-  -- lines 419-422
-  -- `rT` already holds `temp` and `deliverAt` (lines 378-379) when this error is set
-  if eventualBG.isNaN then
-    throw { Result.err "Error: could not calculate eventualBG. " with
-            temp := some "absolute", deliverAt := some inp.clock.now }
-  let expectedDelta := calculateExpectedDelta target_bg eventualBG bgi
-  let some meal := inp.meal_data | throw (typeError "bwFound")
-  return { p, gs, ct, iobd, iobArray, meal, bg, tick, minDelta, minAvgDelta, maxDelta, basal,
-           target_bg, min_bg, max_bg, high_bg, max_iob, threshold, sens, sensitivityRatio,
-           bgi, deviation, naive_eventualBG, eventualBG, expectedDelta }
+    if iobd.iob.js >ʲ 0 then rnd (g.bg - iobd.iob.js * sens)
+    else rnd (g.bg - iobd.iob.js * JsNum.min sens p.sens.js)
+  { bgi, deviation, naive_eventualBG, eventualBG := naive_eventualBG + deviation }
+
+/-- Lines 419-422. `rT` already holds `temp` and `deliverAt` (lines 378-379). -/
+def stEventual (inp : DBInputs) (ev : EvVals) : Except Result Unit :=
+  if ev.eventualBG.isNaN then
+    .error { Result.err "Error: could not calculate eventualBG. " with
+             temp := some "absolute", deliverAt := some inp.clock.now }
+  else .ok ()
+
+/-- `meal_data` is read at line 451 (`enable_smb`); `undefined` throws there. -/
+def stMeal (inp : DBInputs) : Except Result MealData :=
+  match inp.meal_data with
+  | none => .error (typeError "bwFound")
+  | some m => .ok m
+
+/-- Lines 128-423 of `determine_basal`. -/
+def dbPrelude (inp : DBInputs) : Except Result Pre := do
+  let p ← stProfile inp
+  let g ← stGlucose inp p
+  let mm ← stTargets p
+  let target_bg0 := (mm.1 + mm.2) / 2
+  let sensitivityRatio := sensitivityRatioOf p inp.autosens_data target_bg0
+  let basal := adjustedBasal p sensitivityRatio
+  let tgts := adjustTargets p inp.autosens_data g.gs mm.1 mm.2 target_bg0
+  let sens := sensOf p inp.autosens_data sensitivityRatio
+  let io ← stIob inp
+  let ct ← stPumpHistory inp p io.1
+  let ev := eventualVals g p sens io.1
+  stEventual inp ev
+  let meal ← stMeal inp
+  return { p, gs := g.gs, ct, iobd := io.1, iobArray := io.2, meal, bg := g.bg, tick := g.tick,
+           minDelta := g.minDelta, minAvgDelta := g.minAvgDelta, maxDelta := g.maxDelta, basal,
+           target_bg := tgts.2.2, min_bg := tgts.1, max_bg := tgts.2.1, high_bg := p.enableSMB_high_bg_target,
+           max_iob := p.max_iob.js, threshold := thresholdOf tgts.1, sens, sensitivityRatio,
+           bgi := ev.bgi, deviation := ev.deviation, naive_eventualBG := ev.naive_eventualBG,
+           eventualBG := ev.eventualBG,
+           expectedDelta := calculateExpectedDelta tgts.2.2 ev.eventualBG ev.bgi }
 
 /-! ### Predictions (lines 439-786) -/
 
