@@ -1,0 +1,4019 @@
+[
+ {
+  "seq": 0,
+  "fn": "round_basal",
+  "test": "round_basal should round correctly without profile being passed in",
+  "args": [
+   0.025
+  ],
+  "result": 0.05,
+  "threw": null
+ },
+ {
+  "seq": 1,
+  "fn": "__result",
+  "test": "round_basal should round correctly without profile being passed in",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 2,
+  "fn": "round_basal",
+  "test": "round_basal should round correctly with an old pump model",
+  "args": [
+   0.025,
+   {
+    "model": "522"
+   }
+  ],
+  "result": 0.05,
+  "threw": null
+ },
+ {
+  "seq": 3,
+  "fn": "__result",
+  "test": "round_basal should round correctly with an old pump model",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 4,
+  "fn": "round_basal",
+  "test": "round_basal should round correctly with a new pump model",
+  "args": [
+   0.025,
+   {
+    "model": "554"
+   }
+  ],
+  "result": 0.025,
+  "threw": null
+ },
+ {
+  "seq": 5,
+  "fn": "__result",
+  "test": "round_basal should round correctly with a new pump model",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 6,
+  "fn": "round_basal",
+  "test": "round_basal should round correctly with an invalid pump model",
+  "args": [
+   0.025,
+   {
+    "model": "HelloThisIsntAPumpModel"
+   }
+  ],
+  "result": 0.05,
+  "threw": null
+ },
+ {
+  "seq": 7,
+  "fn": "__result",
+  "test": "round_basal should round correctly with an invalid pump model",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 8,
+  "fn": "round_basal",
+  "test": "round_basal should round basal rates properly (0.83 -> 0.85)",
+  "args": [
+   0.83
+  ],
+  "result": 0.85,
+  "threw": null
+ },
+ {
+  "seq": 9,
+  "fn": "__result",
+  "test": "round_basal should round basal rates properly (0.83 -> 0.85)",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 10,
+  "fn": "round_basal",
+  "test": "round_basal should round basal rates properly (0.86 -> 0.85)",
+  "args": [
+   0.86
+  ],
+  "result": 0.85,
+  "threw": null
+ },
+ {
+  "seq": 11,
+  "fn": "__result",
+  "test": "round_basal should round basal rates properly (0.86 -> 0.85)",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 12,
+  "fn": "round_basal",
+  "test": "round_basal should round basal rates properly (1.83 -> 1.85)",
+  "args": [
+   1.83
+  ],
+  "result": 1.85,
+  "threw": null
+ },
+ {
+  "seq": 13,
+  "fn": "__result",
+  "test": "round_basal should round basal rates properly (1.83 -> 1.85)",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 14,
+  "fn": "round_basal",
+  "test": "round_basal should round basal rates properly (1.86 -> 1.85)",
+  "args": [
+   1.86
+  ],
+  "result": 1.85,
+  "threw": null
+ },
+ {
+  "seq": 15,
+  "fn": "__result",
+  "test": "round_basal should round basal rates properly (1.86 -> 1.85)",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 16,
+  "fn": "round_basal",
+  "test": "round_basal should round basal rates properly (10.83 -> 10.8)",
+  "args": [
+   10.83
+  ],
+  "result": 10.8,
+  "threw": null
+ },
+ {
+  "seq": 17,
+  "fn": "__result",
+  "test": "round_basal should round basal rates properly (10.83 -> 10.8)",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 18,
+  "fn": "round_basal",
+  "test": "round_basal should round basal rates properly (10.86 -> 10.9)",
+  "args": [
+   10.86
+  ],
+  "result": 10.9,
+  "threw": null
+ },
+ {
+  "seq": 19,
+  "fn": "__result",
+  "test": "round_basal should round basal rates properly (10.86 -> 10.9)",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 20,
+  "fn": "determine_basal",
+  "test": "determine-basal should cancel high temp when in range w/o IOB",
+  "args": [
+   {
+    "delta": 0,
+    "glucose": 115,
+    "long_avgdelta": 1.1,
+    "short_avgdelta": 0
+   },
+   {
+    "duration": 30,
+    "rate": 1.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 115,
+   "tick": "+0",
+   "eventualBG": 115,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     115
+    ],
+    "ZT": [
+     115
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": 0,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 0, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 115; 115-999 in range: no temp required; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 21,
+  "fn": "__result",
+  "test": "determine-basal should cancel high temp when in range w/o IOB",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 22,
+  "fn": "determine_basal",
+  "test": "determine-basal should temp to 0 when low w/o IOB",
+  "args": [
+   {
+    "delta": -5,
+    "glucose": 75,
+    "long_avgdelta": -5,
+    "short_avgdelta": -5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": -5,
+   "eventualBG": 45,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": -30,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -30, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 45 < 110, setting 60m zero temp. ",
+   "duration": 60,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 23,
+  "fn": "__result",
+  "test": "determine-basal should temp to 0 when low w/o IOB",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 24,
+  "fn": "determine_basal",
+  "test": "determine-basal should not extend temp to 0 when <10m elapsed",
+  "args": [
+   {
+    "delta": -5,
+    "glucose": 75,
+    "long_avgdelta": -5,
+    "short_avgdelta": -5
+   },
+   {
+    "duration": 57,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": -5,
+   "eventualBG": 45,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": -30,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -30, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 45 < 110, setting 60m zero temp.  57m left and 0 ~ req 0U/hr: no temp required"
+  },
+  "threw": null
+ },
+ {
+  "seq": 25,
+  "fn": "__result",
+  "test": "determine-basal should not extend temp to 0 when <10m elapsed",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 26,
+  "fn": "determine_basal",
+  "test": "determine-basal should do nothing when low and rising w/o IOB",
+  "args": [
+   {
+    "delta": 6,
+    "glucose": 75,
+    "long_avgdelta": 6,
+    "short_avgdelta": 6
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": "+6",
+   "eventualBG": 111,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": 36,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 36, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; 111-999 in range: no temp required; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 27,
+  "fn": "__result",
+  "test": "determine-basal should do nothing when low and rising w/o IOB",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 28,
+  "fn": "determine_basal",
+  "test": "determine-basal should temp to zero when rising slower than BGI",
+  "args": [
+   {
+    "delta": 1,
+    "glucose": 75,
+    "long_avgdelta": 1,
+    "short_avgdelta": 1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": -0.5,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": "+1",
+   "eventualBG": 89,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": -0.5,
+   "BGI": 2,
+   "deviation": -6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 89 < 110, setting 30m zero temp. ",
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 29,
+  "fn": "__result",
+  "test": "determine-basal should temp to zero when rising slower than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 30,
+  "fn": "determine_basal",
+  "test": "determine-basal should temp to 0 when low and falling, regardless of BGI",
+  "args": [
+   {
+    "delta": -1,
+    "glucose": 75,
+    "long_avgdelta": -1,
+    "short_avgdelta": -1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 1,
+    "activity": 0.01,
+    "bolussnooze": 0.5
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 75,
+   "tick": -1,
+   "eventualBG": 41,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     75
+    ],
+    "ZT": [
+     75
+    ]
+   },
+   "COB": 0,
+   "IOB": 1,
+   "BGI": -2,
+   "deviation": 6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 6, BGI: -2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 75; Eventual BG 41 < 110, setting 120m zero temp. ",
+   "duration": 120,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 31,
+  "fn": "__result",
+  "test": "determine-basal should temp to 0 when low and falling, regardless of BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 32,
+  "fn": "determine_basal",
+  "test": "determine-basal should high-temp when > 80-ish and rising w/ lots of negative IOB",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 85,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": -1,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 85,
+   "tick": "+5",
+   "eventualBG": 143,
+   "insulinReq": 0.7,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     85
+    ],
+    "ZT": [
+     85
+    ]
+   },
+   "COB": 0,
+   "IOB": -1,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 85; Eventual BG 143 >= 120, no temp, setting 2.3U/hr. ",
+   "duration": 30,
+   "rate": 2.3
+  },
+  "threw": null
+ },
+ {
+  "seq": 33,
+  "fn": "__result",
+  "test": "determine-basal should high-temp when > 80-ish and rising w/ lots of negative IOB",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 34,
+  "fn": "determine_basal",
+  "test": "determine-basal should high-temp when > 180-ish and rising but not more then maxSafeBasal",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 185,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 185,
+   "tick": "+5",
+   "eventualBG": 203,
+   "insulinReq": 2.2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     185
+    ],
+    "ZT": [
+     185
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 185; Eventual BG 203 >= 120, adj. req. rate: 5.3 to maxSafeBasal: 3.5, no temp, setting 3.5U/hr. ",
+   "duration": 30,
+   "rate": 3.5
+  },
+  "threw": null
+ },
+ {
+  "seq": 35,
+  "fn": "__result",
+  "test": "determine-basal should high-temp when > 180-ish and rising but not more then maxSafeBasal",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 36,
+  "fn": "determine_basal",
+  "test": "determine-basal should reduce high-temp when schedule would be above max",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 145,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 160,
+    "rate": 1.9,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 145,
+   "tick": "+5",
+   "eventualBG": 163,
+   "insulinReq": 1.2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     145
+    ],
+    "ZT": [
+     145
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 145; Eventual BG 163 >= 120, 160m@1.90 > 2 * insulinReq. Setting temp basal of 3.3U/hr. ",
+   "duration": 30,
+   "rate": 3.3
+  },
+  "threw": null
+ },
+ {
+  "seq": 37,
+  "fn": "__result",
+  "test": "determine-basal should reduce high-temp when schedule would be above max",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 38,
+  "fn": "determine_basal",
+  "test": "determine-basal should continue high-temp when required ~= temp running",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 145,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 30,
+    "rate": 3.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 145,
+   "tick": "+5",
+   "eventualBG": 163,
+   "insulinReq": 1.2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     145
+    ],
+    "ZT": [
+     145
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 145; Eventual BG 163 >= 120, temp 3.5 >~ req 3.3U/hr. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 39,
+  "fn": "__result",
+  "test": "determine-basal should continue high-temp when required ~= temp running",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 40,
+  "fn": "determine_basal",
+  "test": "determine-basal should set high-temp when required running temp is low",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 145,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 30,
+    "rate": 1.1,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 145,
+   "tick": "+5",
+   "eventualBG": 163,
+   "insulinReq": 1.2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     145
+    ],
+    "ZT": [
+     145
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 145; Eventual BG 163 >= 120, temp 1.1<3.3U/hr. ",
+   "duration": 30,
+   "rate": 3.3
+  },
+  "threw": null
+ },
+ {
+  "seq": 41,
+  "fn": "__result",
+  "test": "determine-basal should set high-temp when required running temp is low",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 42,
+  "fn": "determine_basal",
+  "test": "determine-basal should stop high-temp when iob is near max_iob.",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 485,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 3.5,
+    "activity": 0.05,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 485,
+   "tick": "+5",
+   "eventualBG": 435,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     401
+    ],
+    "ZT": [
+     401
+    ]
+   },
+   "COB": 0,
+   "IOB": 3.5,
+   "BGI": -10,
+   "deviation": 90,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 90, BGI: -10, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 401; Eventual BG 435 >= 120, IOB 3.5 > max_iob 2.5; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 43,
+  "fn": "__result",
+  "test": "determine-basal should stop high-temp when iob is near max_iob.",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 44,
+  "fn": "determine_basal",
+  "test": "determine-basal should temp to 0 when LOW w/ positive IOB",
+  "args": [
+   {
+    "delta": 0,
+    "glucose": 39,
+    "long_avgdelta": -1.1,
+    "short_avgdelta": 0
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 1,
+    "activity": 0.01,
+    "bolussnooze": 0.5
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 39,
+   "tick": "+0",
+   "eventualBG": 11,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     39
+    ],
+    "ZT": [
+     39
+    ]
+   },
+   "COB": 0,
+   "IOB": 1,
+   "BGI": -2,
+   "deviation": 12,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 12, BGI: -2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 39; minGuardBG 999<75",
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 45,
+  "fn": "__result",
+  "test": "determine-basal should temp to 0 when LOW w/ positive IOB",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 46,
+  "fn": "determine_basal",
+  "test": "determine-basal should low temp when LOW w/ negative IOB",
+  "args": [
+   {
+    "delta": 0,
+    "glucose": 39,
+    "long_avgdelta": -1.1,
+    "short_avgdelta": 0
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": -2.5,
+    "activity": -0.03,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 39,
+   "tick": "+0",
+   "eventualBG": 96,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     39
+    ],
+    "ZT": [
+     39
+    ]
+   },
+   "COB": 0,
+   "IOB": -2.5,
+   "BGI": 6,
+   "deviation": -43,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -43, BGI: 6, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 39; minGuardBG 999<75",
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 47,
+  "fn": "__result",
+  "test": "determine-basal should low temp when LOW w/ negative IOB",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 48,
+  "fn": "determine_basal",
+  "test": "determine-basal should temp to 0 when LOW w/ no IOB",
+  "args": [
+   {
+    "delta": 0,
+    "glucose": 39,
+    "long_avgdelta": -1.1,
+    "short_avgdelta": 0
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 39,
+   "tick": "+0",
+   "eventualBG": 39,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     39
+    ],
+    "ZT": [
+     39
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": 0,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 0, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 39; minGuardBG 999<75",
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 49,
+  "fn": "__result",
+  "test": "determine-basal should temp to 0 when LOW w/ no IOB",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 50,
+  "fn": "determine_basal",
+  "test": "determine-basal should low-temp when eventualBG < min_bg",
+  "args": [
+   {
+    "delta": -3,
+    "glucose": 110,
+    "long_avgdelta": -1,
+    "short_avgdelta": -1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 110,
+   "tick": -3,
+   "eventualBG": 104,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     110
+    ],
+    "ZT": [
+     110
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": -6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -6, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 110; Eventual BG 104 < 110",
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 51,
+  "fn": "__result",
+  "test": "determine-basal should low-temp when eventualBG < min_bg",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 52,
+  "fn": "determine_basal",
+  "test": "determine-basal should low-temp when eventualBG < min_bg with delta > exp. delta",
+  "args": [
+   {
+    "delta": -5,
+    "glucose": 115,
+    "long_avgdelta": -6,
+    "short_avgdelta": -6
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 2,
+    "activity": 0.05,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 115,
+   "tick": -5,
+   "eventualBG": 59,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     115
+    ],
+    "ZT": [
+     115
+    ]
+   },
+   "COB": 0,
+   "IOB": 2,
+   "BGI": -10,
+   "deviation": 24,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 24, BGI: -10, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 115; Eventual BG 59 < 110, setting 120m zero temp. ",
+   "duration": 120,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 53,
+  "fn": "__result",
+  "test": "determine-basal should low-temp when eventualBG < min_bg with delta > exp. delta",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 54,
+  "fn": "determine_basal",
+  "test": "determine-basal should low-temp when eventualBG < min_bg with delta > exp. delta",
+  "args": [
+   {
+    "delta": -2,
+    "glucose": 156,
+    "long_avgdelta": -1.33,
+    "short_avgdelta": -1.33
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 3.51,
+    "activity": 0.06,
+    "bolussnooze": 0.08
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 156,
+   "tick": -2,
+   "eventualBG": 76,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     156
+    ],
+    "ZT": [
+     156
+    ]
+   },
+   "COB": 0,
+   "IOB": 3.51,
+   "BGI": -12,
+   "deviation": 60,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 60, BGI: -12, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 156; Eventual BG 76 < 110, setting 0.15U/hr. ",
+   "duration": 30,
+   "rate": 0.15
+  },
+  "threw": null
+ },
+ {
+  "seq": 55,
+  "fn": "__result",
+  "test": "determine-basal should low-temp when eventualBG < min_bg with delta > exp. delta",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 56,
+  "fn": "determine_basal",
+  "test": "determine-basal should low-temp much less when eventualBG < min_bg with delta barely negative",
+  "args": [
+   {
+    "delta": -1,
+    "glucose": 115,
+    "long_avgdelta": -1,
+    "short_avgdelta": -1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 2,
+    "activity": 0.05,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 115,
+   "tick": -1,
+   "eventualBG": 89,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     115
+    ],
+    "ZT": [
+     115
+    ]
+   },
+   "COB": 0,
+   "IOB": 2,
+   "BGI": -10,
+   "deviation": 54,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 54, BGI: -10, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 115; Eventual BG 89 < 110, setting 0.6U/hr. ",
+   "duration": 30,
+   "rate": 0.6
+  },
+  "threw": null
+ },
+ {
+  "seq": 57,
+  "fn": "__result",
+  "test": "determine-basal should low-temp much less when eventualBG < min_bg with delta barely negative",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 58,
+  "fn": "determine_basal",
+  "test": "determine-basal should cancel low-temp when lowish and avg.delta rising faster than BGI",
+  "args": [
+   {
+    "delta": 3,
+    "glucose": 85,
+    "long_avgdelta": 3,
+    "short_avgdelta": 3
+   },
+   {
+    "duration": 20,
+    "rate": 0.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": -0.7,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 85,
+   "tick": "+3",
+   "eventualBG": 119,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     85
+    ],
+    "ZT": [
+     85
+    ]
+   },
+   "COB": 0,
+   "IOB": -0.7,
+   "BGI": 2,
+   "deviation": 6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 85; 119-999 in range: no temp required; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 59,
+  "fn": "__result",
+  "test": "determine-basal should cancel low-temp when lowish and avg.delta rising faster than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 60,
+  "fn": "determine_basal",
+  "test": "determine-basal should cancel low-temp when lowish and delta rising faster than BGI",
+  "args": [
+   {
+    "delta": 3,
+    "glucose": 85,
+    "long_avgdelta": 3,
+    "short_avgdelta": 3
+   },
+   {
+    "duration": 20,
+    "rate": 0.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": -0.7,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 85,
+   "tick": "+3",
+   "eventualBG": 119,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     85
+    ],
+    "ZT": [
+     85
+    ]
+   },
+   "COB": 0,
+   "IOB": -0.7,
+   "BGI": 2,
+   "deviation": 6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 85; 119-999 in range: no temp required; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 61,
+  "fn": "__result",
+  "test": "determine-basal should cancel low-temp when lowish and delta rising faster than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 62,
+  "fn": "determine_basal",
+  "test": "determine-basal should set current basal as temp when lowish and delta rising faster than BGI",
+  "args": [
+   {
+    "delta": 3,
+    "glucose": 85,
+    "long_avgdelta": 3,
+    "short_avgdelta": 3
+   },
+   {
+    "duration": 0,
+    "rate": 0.5,
+    "temp": "absolute"
+   },
+   {
+    "iob": -0.7,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 85,
+   "tick": "+3",
+   "eventualBG": 119,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     85
+    ],
+    "ZT": [
+     85
+    ]
+   },
+   "COB": 0,
+   "IOB": -0.7,
+   "BGI": 2,
+   "deviation": 6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 85; 119-999 in range: no temp required; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 63,
+  "fn": "__result",
+  "test": "determine-basal should set current basal as temp when lowish and delta rising faster than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 64,
+  "fn": "determine_basal",
+  "test": "determine-basal should low-temp when low and rising slower than BGI",
+  "args": [
+   {
+    "delta": 1,
+    "glucose": 85,
+    "long_avgdelta": 1,
+    "short_avgdelta": 1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": -0.5,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 85,
+   "tick": "+1",
+   "eventualBG": 99,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     85
+    ],
+    "ZT": [
+     85
+    ]
+   },
+   "COB": 0,
+   "IOB": -0.5,
+   "BGI": 2,
+   "deviation": -6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -6, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 85; Eventual BG 99 < 110, setting 30m zero temp. ",
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 65,
+  "fn": "__result",
+  "test": "determine-basal should low-temp when low and rising slower than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 66,
+  "fn": "determine_basal",
+  "test": "determine-basal should high-temp when eventualBG > max_bg",
+  "args": [
+   {
+    "delta": 3,
+    "glucose": 120,
+    "long_avgdelta": 0,
+    "short_avgdelta": 1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 120,
+   "tick": "+3",
+   "eventualBG": 126,
+   "insulinReq": 0.28,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     120
+    ],
+    "ZT": [
+     120
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": 6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 6, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 120; Eventual BG 126 >= 120, no temp, setting 1.45U/hr. ",
+   "duration": 30,
+   "rate": 1.45
+  },
+  "threw": null
+ },
+ {
+  "seq": 67,
+  "fn": "__result",
+  "test": "determine-basal should high-temp when eventualBG > max_bg",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 68,
+  "fn": "determine_basal",
+  "test": "determine-basal should cancel high-temp when high and avg. delta falling faster than BGI",
+  "args": [
+   {
+    "delta": -5,
+    "glucose": 175,
+    "long_avgdelta": -5,
+    "short_avgdelta": -5
+   },
+   {
+    "duration": 20,
+    "rate": 2,
+    "temp": "absolute"
+   },
+   {
+    "iob": 1,
+    "activity": 0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 175,
+   "tick": -5,
+   "eventualBG": 117,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     175
+    ],
+    "ZT": [
+     175
+    ]
+   },
+   "COB": 0,
+   "IOB": 1,
+   "BGI": -2,
+   "deviation": -18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -18, BGI: -2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 175; Eventual BG 117 > 110 but Min. Delta -5.00 < Exp. Delta -2; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 69,
+  "fn": "__result",
+  "test": "determine-basal should cancel high-temp when high and avg. delta falling faster than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 70,
+  "fn": "determine_basal",
+  "test": "determine-basal should cancel high-temp when high and delta falling faster than BGI",
+  "args": [
+   {
+    "delta": -5,
+    "glucose": 175,
+    "long_avgdelta": -4,
+    "short_avgdelta": -4
+   },
+   {
+    "duration": 20,
+    "rate": 2,
+    "temp": "absolute"
+   },
+   {
+    "iob": 1,
+    "activity": 0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 175,
+   "tick": -5,
+   "eventualBG": 123,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     175
+    ],
+    "ZT": [
+     175
+    ]
+   },
+   "COB": 0,
+   "IOB": 1,
+   "BGI": -2,
+   "deviation": -12,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -12, BGI: -2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 175; Eventual BG 123 > 110 but Min. Delta -5.00 < Exp. Delta -2; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 71,
+  "fn": "__result",
+  "test": "determine-basal should cancel high-temp when high and delta falling faster than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 72,
+  "fn": "determine_basal",
+  "test": "determine-basal should do nothing when no temp and high and delta falling faster than BGI",
+  "args": [
+   {
+    "delta": -5,
+    "glucose": 175,
+    "long_avgdelta": -4,
+    "short_avgdelta": -4
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 1,
+    "activity": 0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 175,
+   "tick": -5,
+   "eventualBG": 123,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     175
+    ],
+    "ZT": [
+     175
+    ]
+   },
+   "COB": 0,
+   "IOB": 1,
+   "BGI": -2,
+   "deviation": -12,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: -12, BGI: -2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 175; Eventual BG 123 > 110 but Min. Delta -5.00 < Exp. Delta -2; setting current basal of 0.9 as temp. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 73,
+  "fn": "__result",
+  "test": "determine-basal should do nothing when no temp and high and delta falling faster than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 74,
+  "fn": "determine_basal",
+  "test": "determine-basal should high-temp when high and falling slower than BGI",
+  "args": [
+   {
+    "delta": -1,
+    "glucose": 175,
+    "long_avgdelta": -1,
+    "short_avgdelta": -1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 1,
+    "activity": 0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 175,
+   "tick": -1,
+   "eventualBG": 141,
+   "insulinReq": 0.65,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     175
+    ],
+    "ZT": [
+     175
+    ]
+   },
+   "COB": 0,
+   "IOB": 1,
+   "BGI": -2,
+   "deviation": 6,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 6, BGI: -2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 175; Eventual BG 141 >= 120, no temp, setting 2.2U/hr. ",
+   "duration": 30,
+   "rate": 2.2
+  },
+  "threw": null
+ },
+ {
+  "seq": 75,
+  "fn": "__result",
+  "test": "determine-basal should high-temp when high and falling slower than BGI",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 76,
+  "fn": "determine_basal",
+  "test": "determine-basal should high-temp when high and falling slowly with low insulin activity",
+  "args": [
+   {
+    "delta": -1,
+    "glucose": 300,
+    "long_avgdelta": -1,
+    "short_avgdelta": -1
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.5,
+    "activity": 0.005,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 300,
+   "tick": -1,
+   "eventualBG": 280,
+   "insulinReq": 2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     300
+    ],
+    "ZT": [
+     300
+    ]
+   },
+   "COB": 0,
+   "IOB": 0.5,
+   "BGI": -1,
+   "deviation": 0,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 0, BGI: -1, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 300; Eventual BG 280 >= 120, max_iob 2.5, adj. req. rate: 4.9 to maxSafeBasal: 3.5, no temp, setting 3.5U/hr. ",
+   "duration": 30,
+   "rate": 3.5
+  },
+  "threw": null
+ },
+ {
+  "seq": 77,
+  "fn": "__result",
+  "test": "determine-basal should high-temp when high and falling slowly with low insulin activity",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 78,
+  "fn": "determine_basal",
+  "test": "determine-basal should profile.current_basal be undefined return error",
+  "args": [
+   {
+    "__undefined": true
+   },
+   {
+    "__undefined": true
+   },
+   {
+    "__undefined": true
+   },
+   {
+    "__undefined": true
+   }
+  ],
+  "result": {
+   "error": "Error: could not get current basal rate"
+  },
+  "threw": null
+ },
+ {
+  "seq": 79,
+  "fn": "__result",
+  "test": "determine-basal should profile.current_basal be undefined return error",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 80,
+  "fn": "determine_basal",
+  "test": "determine-basal should let low-temp run when bg < 30 (Dexcom is in ???)",
+  "args": [
+   {
+    "glucose": 10
+   },
+   {
+    "duration": 30,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "reason": "CGM is calibrating, in ??? state, or noise is high. Temp 0 <= current basal 0.9U/hr; doing nothing. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 81,
+  "fn": "__result",
+  "test": "determine-basal should let low-temp run when bg < 30 (Dexcom is in ???)",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 82,
+  "fn": "determine_basal",
+  "test": "determine-basal should cancel high-temp when bg < 30 (Dexcom is in ???)",
+  "args": [
+   {
+    "glucose": 10
+   },
+   {
+    "duration": 30,
+    "rate": 2,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "reason": "CGM is calibrating, in ??? state, or noise is high. Replacing high temp basal of 2 with neutral temp of 0.9",
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "temp": "absolute",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 83,
+  "fn": "__result",
+  "test": "determine-basal should cancel high-temp when bg < 30 (Dexcom is in ???)",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 84,
+  "fn": "determine_basal",
+  "test": "determine-basal profile should contain min_bg,max_bg",
+  "args": [
+   {
+    "glucose": 100
+   },
+   {
+    "__undefined": true
+   },
+   {
+    "__undefined": true
+   },
+   {
+    "current_basal": 0
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "error": "Error: could not determine target_bg. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 85,
+  "fn": "__result",
+  "test": "determine-basal profile should contain min_bg,max_bg",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 86,
+  "fn": "determine_basal",
+  "test": "determine-basal iob_data should not be undefined",
+  "args": [
+   {
+    "glucose": 100
+   },
+   {
+    "__undefined": true
+   },
+   {
+    "__undefined": true
+   },
+   {
+    "current_basal": 0,
+    "max_bg": 100,
+    "min_bg": 1100
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "error": "Error: iob_data undefined. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 87,
+  "fn": "__result",
+  "test": "determine-basal iob_data should not be undefined",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 88,
+  "fn": "determine_basal",
+  "test": "determine-basal should do nothing when requested temp already running with >15m left",
+  "args": [
+   {
+    "delta": -2,
+    "glucose": 121,
+    "long_avgdelta": -1.333,
+    "short_avgdelta": -1.333
+   },
+   {
+    "duration": 29,
+    "rate": 1.3,
+    "temp": "absolute"
+   },
+   {
+    "iob": 3.983,
+    "activity": 0.0255,
+    "bolussnooze": 2.58,
+    "basaliob": 0.384,
+    "netbasalinsulin": 0.3,
+    "hightempinsulin": 0.7
+   },
+   {
+    "max_iob": 3,
+    "type": "current",
+    "dia": 3,
+    "current_basal": 1.3,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "min_bg": 105,
+    "max_bg ": 105,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 65,
+    "boluses": 4,
+    "mealCOB": 65
+   },
+   {}
+  ],
+  "result": {
+   "error": "Error: could not determine target_bg. "
+  },
+  "threw": null
+ },
+ {
+  "seq": 89,
+  "fn": "__result",
+  "test": "determine-basal should do nothing when requested temp already running with >15m left",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 90,
+  "fn": "determine_basal",
+  "test": "determine-basal should temp to zero with double sensitivity adjustment",
+  "args": [
+   {
+    "delta": 0,
+    "glucose": 115,
+    "long_avgdelta": 1.1,
+    "short_avgdelta": 0
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0.5,
+    "activity": 0.001,
+    "bolussnooze": 0,
+    "basaliob": 0.5
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10
+   },
+   {
+    "ratio": 0.5
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 115,
+   "tick": "+0",
+   "eventualBG": 77,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 0.5,
+   "predBGs": {
+    "IOB": [
+     115
+    ],
+    "ZT": [
+     115
+    ]
+   },
+   "COB": 0,
+   "IOB": 0.5,
+   "BGI": 0,
+   "deviation": 2,
+   "ISF": 80,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 2, BGI: 0, ISF: 80, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 115; Eventual BG 77 < 110, setting 30m zero temp. ",
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 91,
+  "fn": "__result",
+  "test": "determine-basal should temp to zero with double sensitivity adjustment",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 92,
+  "fn": "determine_basal",
+  "test": "determine-basal maxSafeBasal current_basal_safety_multiplier of 1 should cause the current rate to be set, even if higher is needed",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 185,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10,
+    "current_basal_safety_multiplier": 1
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 185,
+   "tick": "+5",
+   "eventualBG": 203,
+   "insulinReq": 2.2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     185
+    ],
+    "ZT": [
+     185
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 185; Eventual BG 203 >= 120, adj. req. rate: 5.3 to maxSafeBasal: 0.9, no temp, setting 0.9U/hr. . Setting neutral temp basal of 0.9U/hr",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 93,
+  "fn": "__result",
+  "test": "determine-basal maxSafeBasal current_basal_safety_multiplier of 1 should cause the current rate to be set, even if higher is needed",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 94,
+  "fn": "determine_basal",
+  "test": "determine-basal maxSafeBasal max_daily_safety_multiplier of 1 should cause the max daily rate to be set, even if higher is needed",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 185,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 3.5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10,
+    "current_basal_safety_multiplier": null,
+    "max_daily_safety_multiplier": 1
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 185,
+   "tick": "+5",
+   "eventualBG": 203,
+   "insulinReq": 2.2,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     185
+    ],
+    "ZT": [
+     185
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 185; Eventual BG 203 >= 120, adj. req. rate: 5.3 to maxSafeBasal: 1.3, no temp, setting 1.3U/hr. ",
+   "duration": 30,
+   "rate": 1.3
+  },
+  "threw": null
+ },
+ {
+  "seq": 95,
+  "fn": "__result",
+  "test": "determine-basal maxSafeBasal max_daily_safety_multiplier of 1 should cause the max daily rate to be set, even if higher is needed",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 96,
+  "fn": "determine_basal",
+  "test": "determine-basal overriding maxSafeBasal multipliers to 10 should increase temp",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 285,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": -0.01,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.9,
+    "max_daily_basal": 1.3,
+    "max_basal": 5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10,
+    "current_basal_safety_multiplier": 10,
+    "max_daily_safety_multiplier": 10
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 285,
+   "tick": "+5",
+   "eventualBG": 303,
+   "insulinReq": 2.5,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     285
+    ],
+    "ZT": [
+     285
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 2,
+   "deviation": 18,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 18, BGI: 2, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 285; Eventual BG 303 >= 120, max_iob 2.5, adj. req. rate: 5.9 to maxSafeBasal: 5, no temp, setting 5U/hr. ",
+   "duration": 30,
+   "rate": 5
+  },
+  "threw": null
+ },
+ {
+  "seq": 97,
+  "fn": "__result",
+  "test": "determine-basal overriding maxSafeBasal multipliers to 10 should increase temp",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 98,
+  "fn": "determine_basal",
+  "test": "determine-basal should round appropriately for small basals when setting basal to maxSafeBasal ",
+  "args": [
+   {
+    "delta": 5,
+    "glucose": 185,
+    "long_avgdelta": 5,
+    "short_avgdelta": 5
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.025,
+    "max_daily_basal": 1.3,
+    "max_basal": 0.05,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 200,
+    "model": "523"
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 185,
+   "tick": "+5",
+   "eventualBG": 215,
+   "insulinReq": 0.5,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     185
+    ],
+    "ZT": [
+     185
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": 30,
+   "ISF": 200,
+   "CR": {
+    "__number": "NaN"
+   },
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 30, BGI: 0, ISF: 200, CR: NaN, minPredBG 999, minGuardBG 999, IOBpredBG 185; Eventual BG 215 >= 120, adj. req. rate: 1.05 to maxSafeBasal: 0.05, no temp, setting 0.05U/hr. ",
+   "duration": 30,
+   "rate": 0.05
+  },
+  "threw": null
+ },
+ {
+  "seq": 99,
+  "fn": "__result",
+  "test": "determine-basal should round appropriately for small basals when setting basal to maxSafeBasal ",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 100,
+  "fn": "determine_basal",
+  "test": "determine-basal should match the basal rate precision available on a 523",
+  "args": [
+   {
+    "delta": 0,
+    "glucose": 115,
+    "long_avgdelta": 1.1,
+    "short_avgdelta": 0
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.825,
+    "max_daily_basal": 1.3,
+    "max_basal": 5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10,
+    "current_basal_safety_multiplier": 10,
+    "max_daily_safety_multiplier": 10,
+    "model": "523"
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 115,
+   "tick": "+0",
+   "eventualBG": 115,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     115
+    ],
+    "ZT": [
+     115
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": 0,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 0, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 115; 115-999 in range: no temp required; setting current basal of 0.825 as temp. . Setting neutral temp basal of 0.825U/hr",
+   "duration": 30,
+   "rate": 0.825
+  },
+  "threw": null
+ },
+ {
+  "seq": 101,
+  "fn": "__result",
+  "test": "determine-basal should match the basal rate precision available on a 523",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 102,
+  "fn": "determine_basal",
+  "test": "determine-basal should match the basal rate precision available on a 522",
+  "args": [
+   {
+    "delta": 0,
+    "glucose": 115,
+    "long_avgdelta": 1.1,
+    "short_avgdelta": 0
+   },
+   {
+    "duration": 0,
+    "rate": 0,
+    "temp": "absolute"
+   },
+   {
+    "iob": 0,
+    "activity": 0,
+    "bolussnooze": 0
+   },
+   {
+    "max_iob": 2.5,
+    "dia": 3,
+    "type": "current",
+    "current_basal": 0.875,
+    "max_daily_basal": 1.3,
+    "max_basal": 5,
+    "max_bg": 120,
+    "min_bg": 110,
+    "sens": 40,
+    "carb_ratio": 10,
+    "current_basal_safety_multiplier": 10,
+    "max_daily_safety_multiplier": 10,
+    "model": "522"
+   },
+   {
+    "ratio": 1
+   },
+   {
+    "carbs": 50,
+    "nsCarbs": 50,
+    "bwCarbs": 0,
+    "journalCarbs": 0,
+    "mealCOB": 0,
+    "currentDeviation": 0,
+    "maxDeviation": 0,
+    "minDeviation": 0,
+    "slopeFromMaxDeviation": 0,
+    "slopeFromMinDeviation": 0,
+    "allDeviations": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "bwFound": false
+   },
+   {}
+  ],
+  "result": {
+   "temp": "absolute",
+   "bg": 115,
+   "tick": "+0",
+   "eventualBG": 115,
+   "insulinReq": 0,
+   "reservoir": {
+    "__undefined": true
+   },
+   "deliverAt": "2026-11-18T12:00:00.000Z",
+   "sensitivityRatio": 1,
+   "predBGs": {
+    "IOB": [
+     115
+    ],
+    "ZT": [
+     115
+    ]
+   },
+   "COB": 0,
+   "IOB": 0,
+   "BGI": 0,
+   "deviation": 0,
+   "ISF": 40,
+   "CR": 10,
+   "target_bg": 115,
+   "reason": "COB: 0, Dev: 0, BGI: 0, ISF: 40, CR: 10, minPredBG 999, minGuardBG 999, IOBpredBG 115; 115-999 in range: no temp required; setting current basal of 0.9 as temp. ",
+   "duration": 30,
+   "rate": 0.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 103,
+  "fn": "__result",
+  "test": "determine-basal should match the basal rate precision available on a 522",
+  "state": "passed",
+  "err": null
+ }
+]

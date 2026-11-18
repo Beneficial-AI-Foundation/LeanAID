@@ -64,3 +64,54 @@ get-last-glucose, basal lookup, cob history) passes under Node.
   (10 round_basal + 42 determine-basal) and 18 commented-out ones (9 with `//it(`
   and 9 inside a `/* ... */` block). 52 + 18 = 70. All 70 are inventoried in M1.
 - `iob.test.js` has 25 active tests and 1 commented out (26 total).
+
+---
+
+## M1 – Test inventory
+
+**Start:** 2026-11-18 12:55 · **End:** 2026-11-18 13:35
+
+### What was done
+- `scripts/inventory.js` extracts every `it(...)` block (active or commented out) from
+  the six in-scope test files: inputs written in the test and its assertions →
+  `docs/tests-inventory.json`.
+- `scripts/test-classes.json`: first classification A/B/C/D per test, with the general
+  property each A/B test is an instance of. `scripts/tests_md.js` renders
+  `docs/TESTS.md`.
+- `scripts/capture/` runs the same mocha tests with a hook that records every
+  top-level call to an in-scope function (arguments deep-copied *before* the call,
+  because oref0 mutates its inputs) and its result, tagged with the running test.
+  `Date.now()` / `new Date()` are frozen at 2026-11-18T12:00:00Z and `TZ=UTC`, so the
+  iob tests (which build timestamps from "now") have fixed inputs.
+  Output: `scripts/capture/out/*.json` (42 determine_basal, 10 round_basal,
+  13 setTempBasal, 51 iob, 5 getLastGlucose, 2+1 basal, 1 findMealInputs calls).
+
+### Totals
+116 test blocks: 48 A, 11 B, 33 C, 24 D (disabled upstream).
+
+### Observations (to FINDINGS)
+- **No determine-basal test reaches the prediction code.** Every test passes a single
+  IOB object instead of the IOB array produced by `oref0-calculate-iob`; the
+  prediction loop calls `iobArray.forEach`, which throws on a plain object, and the
+  `catch` swallows it ("Optional feature Advanced Meal Assist disabled"). So
+  `minPredBG`, `minGuardBG` are 999 in all 42 calls, COB/UAM/ZT predictions are never
+  computed, and the SMB branch is never entered (`microBolusAllowed` is never passed).
+- **DB-51 is vacuous**: its profile has the key `"max_bg "` (trailing space), so oref0
+  returns `Error: could not determine target_bg` and the test's "no rate set" assertion
+  holds because of the error.
+- Tests mutate the shared `profile` object (DB-65 to DB-70 inherit
+  `current_basal_safety_multiplier`, `max_daily_safety_multiplier`, `max_basal`,
+  `current_basal`, `model` from earlier tests). Conformance must use the captured
+  per-call inputs, not the textual defaults.
+- `meal_data` in the shared defaults has `carbs: 50` but no `lastCarbTime`, so
+  `remainingCATime` is `NaN` in every determine-basal test.
+- DB-68's profile has no `carb_ratio`; oref0 reports `CR: NaN` in its reason string.
+
+### Decision
+- Disabled (D) tests are not asserted: their expectations were disabled by the oref0
+  authors and several use an obsolete input format (`avgdelta`). Where their inputs are
+  complete, conformance will run them through both Node and Lean and require equal
+  outputs.
+- An attempt to auto-uncomment the disabled tests and run them under Node was
+  abandoned: the heuristic also re-enabled commented-out assertions inside active
+  tests, so its pass/fail counts were meaningless.

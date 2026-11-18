@@ -1,0 +1,302 @@
+[
+ {
+  "seq": 0,
+  "fn": "getLastGlucose",
+  "test": "getLastGlucose should handle NS sgv fields",
+  "args": [
+   [
+    {
+     "date": 1467942845000,
+     "sgv": 100
+    },
+    {
+     "date": 1467942544500,
+     "sgv": 95
+    },
+    {
+     "date": 1467942244000,
+     "sgv": 85
+    },
+    {
+     "date": 1467941944000,
+     "sgv": 70
+    }
+   ]
+  ],
+  "result": {
+   "delta": 5,
+   "glucose": 100,
+   "noise": {
+    "__number": "NaN"
+   },
+   "short_avgdelta": 7.5,
+   "long_avgdelta": 0,
+   "date": 1467942845000,
+   "last_cal": 0,
+   "device": {
+    "__undefined": true
+   }
+  },
+  "threw": null
+ },
+ {
+  "seq": 1,
+  "fn": "__result",
+  "test": "getLastGlucose should handle NS sgv fields",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 2,
+  "fn": "getLastGlucose",
+  "test": "getLastGlucose should handle two receivers 30s and 3 mg/dL offset",
+  "args": [
+   [
+    {
+     "date": 1467942875000,
+     "sgv": 103
+    },
+    {
+     "date": 1467942845000,
+     "sgv": 100
+    },
+    {
+     "date": 1467942574500,
+     "sgv": 98
+    },
+    {
+     "date": 1467942544500,
+     "sgv": 95
+    },
+    {
+     "date": 1467942274000,
+     "sgv": 88
+    },
+    {
+     "date": 1467942244000,
+     "sgv": 85
+    },
+    {
+     "date": 1467941974000,
+     "sgv": 73
+    },
+    {
+     "date": 1467941944000,
+     "sgv": 70
+    }
+   ]
+  ],
+  "result": {
+   "delta": 5,
+   "glucose": 101.5,
+   "noise": {
+    "__number": "NaN"
+   },
+   "short_avgdelta": 7.5,
+   "long_avgdelta": 0,
+   "date": 1467942860000,
+   "last_cal": 0,
+   "device": {
+    "__undefined": true
+   }
+  },
+  "threw": null
+ },
+ {
+  "seq": 3,
+  "fn": "__result",
+  "test": "getLastGlucose should handle two receivers 30s and 3 mg/dL offset",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 4,
+  "fn": "getLastGlucose",
+  "test": "getLastGlucose should handle fields named glucose and calculate long_avgdelta",
+  "args": [
+   [
+    {
+     "date": 1469509700000,
+     "glucose": 97
+    },
+    {
+     "date": 1469509400000,
+     "glucose": 94
+    },
+    {
+     "date": 1469509100000,
+     "glucose": 87
+    },
+    {
+     "date": 1469508800000,
+     "glucose": 81
+    },
+    {
+     "date": 1469508500000,
+     "glucose": 78
+    },
+    {
+     "date": 1469508200000,
+     "glucose": 78
+    },
+    {
+     "date": 1469507900000,
+     "glucose": 81
+    },
+    {
+     "date": 1469507600000,
+     "glucose": 84
+    },
+    {
+     "date": 1469507300000,
+     "glucose": 87
+    },
+    {
+     "date": 1469507000000,
+     "glucose": 93
+    },
+    {
+     "date": 1469506700000,
+     "glucose": 102
+    },
+    {
+     "date": 1469506400000,
+     "glucose": 104
+    },
+    {
+     "date": 1469506100000,
+     "glucose": 99
+    },
+    {
+     "date": 1469505800000,
+     "glucose": 81
+    },
+    {
+     "date": 1469505500000,
+     "glucose": 76
+    },
+    {
+     "date": 1469509700000,
+     "glucose": 97
+    }
+   ]
+  ],
+  "result": {
+   "delta": 3,
+   "glucose": 97,
+   "noise": {
+    "__number": "NaN"
+   },
+   "short_avgdelta": 4.44,
+   "long_avgdelta": 2.86,
+   "date": 1469509700000,
+   "last_cal": 0,
+   "device": {
+    "__undefined": true
+   }
+  },
+  "threw": null
+ },
+ {
+  "seq": 5,
+  "fn": "__result",
+  "test": "getLastGlucose should handle fields named glucose and calculate long_avgdelta",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 6,
+  "fn": "getLastGlucose",
+  "test": "getLastGlucose should fall back to dateString property",
+  "args": [
+   [
+    {
+     "dateString": "2019-12-04T08:54:19.288-0800",
+     "sgv": 100
+    },
+    {
+     "date": 1467942544500,
+     "sgv": 95
+    },
+    {
+     "date": 1467942244000,
+     "sgv": 85
+    },
+    {
+     "date": 1467941944000,
+     "sgv": 70
+    }
+   ]
+  ],
+  "result": {
+   "delta": 0,
+   "glucose": 100,
+   "noise": {
+    "__number": "NaN"
+   },
+   "short_avgdelta": 0,
+   "long_avgdelta": 0,
+   "date": 1575478459288,
+   "last_cal": 0,
+   "device": {
+    "__undefined": true
+   }
+  },
+  "threw": null
+ },
+ {
+  "seq": 7,
+  "fn": "__result",
+  "test": "getLastGlucose should fall back to dateString property",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 8,
+  "fn": "getLastGlucose",
+  "test": "getLastGlucose should skip meter BG",
+  "args": [
+   [
+    {
+     "date": 1467942845000,
+     "glucose": null,
+     "mbg": 100
+    },
+    {
+     "date": 1467942544500,
+     "sgv": 95
+    },
+    {
+     "date": 1467942244000,
+     "sgv": 85
+    },
+    {
+     "date": 1467941944000,
+     "sgv": 70
+    }
+   ]
+  ],
+  "result": {
+   "delta": 10,
+   "glucose": 95,
+   "noise": {
+    "__number": "NaN"
+   },
+   "short_avgdelta": 11.25,
+   "long_avgdelta": 0,
+   "date": 1467942544500,
+   "last_cal": 0,
+   "device": {
+    "__undefined": true
+   }
+  },
+  "threw": null
+ },
+ {
+  "seq": 9,
+  "fn": "__result",
+  "test": "getLastGlucose should skip meter BG",
+  "state": "passed",
+  "err": null
+ }
+]

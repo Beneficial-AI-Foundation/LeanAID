@@ -1,0 +1,389 @@
+[
+ {
+  "seq": 0,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should cancel temp",
+  "args": [
+   0,
+   0,
+   {
+    "current_basal": 0.8,
+    "max_daily_basal": 1.3,
+    "max_basal": 3
+   },
+   {}
+  ],
+  "result": {
+   "duration": 0,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 1,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should cancel temp",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 2,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should set zero temp",
+  "args": [
+   0,
+   30,
+   {
+    "current_basal": 0.8,
+    "max_daily_basal": 1.3,
+    "max_basal": 3
+   },
+   {
+    "duration": 0,
+    "rate": 0
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 3,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should set zero temp",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 4,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should set high temp",
+  "args": [
+   2,
+   30,
+   {
+    "current_basal": 0.8,
+    "max_daily_basal": 1.3,
+    "max_basal": 3
+   },
+   {
+    "duration": 30,
+    "rate": 0
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 2
+  },
+  "threw": null
+ },
+ {
+  "seq": 5,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should set high temp",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 6,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should not set basal on skip neutral mode",
+  "args": [
+   0.8,
+   30,
+   {
+    "current_basal": 0.8,
+    "max_daily_basal": 1.3,
+    "max_basal": 3,
+    "skip_neutral_temps": true
+   },
+   {},
+   {
+    "duration": 10
+   }
+  ],
+  "result": {
+   "reason": "Suggested rate is same as profile rate, a temp basal is active, canceling current temp",
+   "duration": 0,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 7,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should not set basal on skip neutral mode",
+  "args": [
+   0.8,
+   30,
+   {
+    "current_basal": 0.8,
+    "max_daily_basal": 1.3,
+    "max_basal": 3,
+    "skip_neutral_temps": true
+   },
+   {}
+  ],
+  "result": {
+   "reason": "Suggested rate is same as profile rate, no temp basal is active, doing nothing"
+  },
+  "threw": null
+ },
+ {
+  "seq": 8,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should not set basal on skip neutral mode",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 9,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to max_basal",
+  "args": [
+   4,
+   30,
+   {
+    "current_basal": 0.8,
+    "max_daily_basal": 1.3,
+    "max_basal": 3,
+    "skip_neutral_temps": true
+   },
+   {
+    "duration": 30,
+    "rate": 2
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 3
+  },
+  "threw": null
+ },
+ {
+  "seq": 10,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to max_basal",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 11,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to 3 * max_daily_basal",
+  "args": [
+   6,
+   30,
+   {
+    "current_basal": 1,
+    "max_daily_basal": 1.3,
+    "max_basal": 10
+   },
+   {
+    "duration": 30,
+    "rate": 3
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 3.9
+  },
+  "threw": null
+ },
+ {
+  "seq": 12,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to 3 * max_daily_basal",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 13,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to 4 * current_basal",
+  "args": [
+   6,
+   30,
+   {
+    "current_basal": 0.7,
+    "max_daily_basal": 1.3,
+    "max_basal": 10
+   },
+   {
+    "duration": 30,
+    "rate": 3.9
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 2.8
+  },
+  "threw": null
+ },
+ {
+  "seq": 14,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to 4 * current_basal",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 15,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should temp to 0 when requested rate is less then 0 * current_basal",
+  "args": [
+   -1,
+   30,
+   {
+    "current_basal": 0.7,
+    "max_daily_basal": 1.3,
+    "max_basal": 10
+   },
+   {
+    "duration": 30,
+    "rate": 2.8
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 16,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should temp to 0 when requested rate is less then 0 * current_basal",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 17,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to 4 * max_daily_basal when overridden",
+  "args": [
+   6,
+   30,
+   {
+    "current_basal": 2,
+    "max_daily_basal": 1.3,
+    "max_basal": 10,
+    "max_daily_safety_multiplier": 4
+   },
+   {
+    "duration": 30,
+    "rate": 0
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 5.2
+  },
+  "threw": null
+ },
+ {
+  "seq": 18,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to 4 * max_daily_basal when overridden",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 19,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to 5 * current_basal when overridden",
+  "args": [
+   6,
+   30,
+   {
+    "current_basal": 0.7,
+    "max_daily_basal": 1.3,
+    "max_basal": 10,
+    "current_basal_safety_multiplier": 5
+   },
+   {
+    "duration": 30,
+    "rate": 5.2
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 3.5
+  },
+  "threw": null
+ },
+ {
+  "seq": 20,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should limit high temp to 5 * current_basal when overridden",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 21,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should allow small basal change when current temp is also small",
+  "args": [
+   0,
+   30,
+   {
+    "current_basal": 0.075,
+    "max_daily_basal": 1.3,
+    "max_basal": 10,
+    "current_basal_safety_multiplier": 5,
+    "model": "523"
+   },
+   {},
+   {
+    "rate": 0.025,
+    "duration": 24
+   }
+  ],
+  "result": {
+   "duration": 30,
+   "rate": 0
+  },
+  "threw": null
+ },
+ {
+  "seq": 22,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should allow small basal change when current temp is also small",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 23,
+  "fn": "setTempBasal",
+  "test": "tempBasalFunctions.setTempBasal should not allow small basal change when current temp is large",
+  "args": [
+   10.125,
+   30,
+   {
+    "current_basal": 10.075,
+    "max_daily_basal": 11.3,
+    "max_basal": 50,
+    "current_basal_safety_multiplier": 5,
+    "model": "523"
+   },
+   {},
+   {
+    "rate": 10.1,
+    "duration": 24
+   }
+  ],
+  "result": {
+   "reason": "undefined 24m left and 10.1 ~ req 10.1U/hr: no temp required"
+  },
+  "threw": null
+ },
+ {
+  "seq": 24,
+  "fn": "__result",
+  "test": "tempBasalFunctions.setTempBasal should not allow small basal change when current temp is large",
+  "state": "passed",
+  "err": null
+ }
+]

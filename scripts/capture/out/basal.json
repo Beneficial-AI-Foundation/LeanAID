@@ -1,0 +1,111 @@
+[
+ {
+  "seq": 0,
+  "fn": "maxDailyBasal",
+  "test": "Basal should find the right max daily basal",
+  "args": [
+   {
+    "basals": [
+     {
+      "i": 0,
+      "start": "00:00:00",
+      "rate": 0,
+      "minutes": 0
+     },
+     {
+      "i": 1,
+      "start": "00:15:00",
+      "rate": 2,
+      "minutes": 15
+     },
+     {
+      "i": 1,
+      "start": "00:45:00",
+      "rate": 0.5,
+      "minutes": 45
+     }
+    ]
+   }
+  ],
+  "result": 2,
+  "threw": null
+ },
+ {
+  "seq": 1,
+  "fn": "__result",
+  "test": "Basal should find the right max daily basal",
+  "state": "passed",
+  "err": null
+ },
+ {
+  "seq": 2,
+  "fn": "basalLookup",
+  "test": "Basal should find the right basal for a given moment",
+  "args": [
+   [
+    {
+     "i": 0,
+     "start": "00:00:00",
+     "rate": 0,
+     "minutes": 0
+    },
+    {
+     "i": 1,
+     "start": "00:15:00",
+     "rate": 2,
+     "minutes": 15
+    },
+    {
+     "i": 1,
+     "start": "00:45:00",
+     "rate": 0.5,
+     "minutes": 45
+    }
+   ],
+   {
+    "__date": 1465777200000
+   }
+  ],
+  "result": 2,
+  "threw": null
+ },
+ {
+  "seq": 3,
+  "fn": "basalLookup",
+  "test": "Basal should find the right basal for a given moment",
+  "args": [
+   [
+    {
+     "i": 0,
+     "start": "00:00:00",
+     "rate": 0,
+     "minutes": 0
+    },
+    {
+     "i": 1,
+     "start": "00:15:00",
+     "rate": 2,
+     "minutes": 15
+    },
+    {
+     "i": 1,
+     "start": "00:45:00",
+     "rate": 0.5,
+     "minutes": 45
+    }
+   ],
+   {
+    "__date": 1465779600000
+   }
+  ],
+  "result": 0.5,
+  "threw": null
+ },
+ {
+  "seq": 4,
+  "fn": "__result",
+  "test": "Basal should find the right basal for a given moment",
+  "state": "passed",
+  "err": null
+ }
+]
