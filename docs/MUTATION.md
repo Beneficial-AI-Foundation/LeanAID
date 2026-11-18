@@ -13,15 +13,15 @@ and concrete counterexamples. **Conformance**: `LeanAID/Conformance/Checks.lean`
 (`native_decide`).
 
 Summary of the strongest catch per mutation: safety theorem 4, lemma only
-16, concrete check only 3, conformance only 1,
+17, concrete check only 2, conformance only 1,
 not caught 0 (of 24).
 
 | id | mutation | safety theorem broke | only lemmas broke | concrete checks broke | conformance fails |
 |---|---|---|---|---|---|
 | M01 | remove the maxSafeBasal clamp | – | `clampRate_fin`, `setTempBasal_zero_rate` | – | yes |
 | M02 | remove the clamp at 0 | – | `clampRate_fin` | – | yes |
-| M03 | default daily multiplier 3 -> 30 | – | `maxSafeBasal_exists`, `maxSafeBasal_ge` | – | yes |
-| M04 | double max_basal in maxSafeBasal | – | – | `rate_can_exceed_maxSafeBasal`, `undated_glucose_max_rate` | yes |
+| M03 | default daily multiplier 3 -> 30 | – | `maxSafeBasal_double`, `maxSafeBasal_exists`, `maxSafeBasal_ge` | – | yes |
+| M04 | double max_basal in maxSafeBasal | – | `maxSafeBasal_double`, `maxSafeBasal_ge` | – | yes |
 | M05 | keep running temps up to 3x the request | – | `keepRunning_zero` | – | yes |
 | M06 | round 1-10 U/h to 0.1 instead of 0.05 | – | `roundBasal_fin` | – | yes |
 | M07 | Math.round rounds up | – | `le_roundInt_iff`, `lt_roundInt`, `rbR_idem`, `rbR_zero`, `roundInt_intCast`, `roundInt_le`, `roundInt_le_iff` | – | yes |
@@ -51,7 +51,7 @@ All 24 mutations are caught by the build (see the summary above for what catches
 
 | mutation | caught by a general theorem? | meaning |
 |---|---|---|
-| M04 double `max_basal` inside `maxSafeBasal` | **no** (only concrete checks and conformance) | **specification gap**: H1 bounds the rate by `getMaxSafeBasal p`, the implementation's own function. A wrong `maxSafeBasal` formula is not caught by H1. An independent statement (`rate ≤ max_basal`, `≤ 3·max_daily_basal`, `≤ 4·current_basal`, with the multipliers) would catch it. |
+| M04 double `max_basal` inside `maxSafeBasal` | **no** (only the lemmas `maxSafeBasal_double`, `maxSafeBasal_ge`, and conformance; since the binary64 core, re-run 2026-11-18 17:19, the concrete checks are no longer reached because the lemma failure stops their modules) | **specification gap**: H1 bounds the rate by `getMaxSafeBasal p`, the implementation's own function. A wrong `maxSafeBasal` formula is not caught by H1. An independent statement (`rate ≤ max_basal`, `≤ 3·max_daily_basal`, `≤ 4·current_basal`, with the multipliers) would catch it. |
 | M10 lower the hypo threshold | **no** (conformance only) | **specification gap**: H3 is stated for oref0's computed `threshold`, as the kickoff asked; a wrong threshold formula is not a theorem violation. |
 | M21 expected delta over 1 h | **no** (`DB_28_test` and conformance) | not safety-relevant by itself; no general theorem constrains `expectedDelta`. |
 | M23 IOB check against 2·max_iob | **no** (`DB_22_test` and conformance) | the mutated code is still safe in the sense of H4 (the high-temp branch caps insulinReq at the room below max_iob), so H4 correctly does not break. |

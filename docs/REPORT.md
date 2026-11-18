@@ -17,7 +17,7 @@ the full experiment log is `docs/LOG.md`.
 | theorems in `LeanAID/Proofs` | 274 (16 headline), no `sorry`, axioms only `propext`, `Classical.choice`, `Quot.sound` |
 | conformance on every in-scope call of oref0's tests | 148/148, all exact |
 | differential testing, 100,000 random valid inputs (seed 7) | 100,000 byte-identical to oref0 (100%). With exact rational arithmetic, before the binary64 model: 83.1%, and the rate differed in 82 cases (F-15) |
-| mutation testing | 24 mutations, all caught by the build. Strongest catch: a safety theorem's proof breaks in 4; only a supporting lemma breaks in 16 (downstream safety modules are then not built, so this does not show a safety property is violated); only concrete checks in 3; only conformance in 1. Specification gaps: H1 and H3 are relative to oref0's own maxSafeBasal and threshold |
+| mutation testing | 24 mutations, all caught by the build. Strongest catch: a safety theorem's proof breaks in 4; only a supporting lemma breaks in 17 (downstream safety modules are then not built, so this does not show a safety property is violated); only concrete checks in 2; only conformance in 1 (re-run on the binary64 core). Specification gaps: H1 and H3 are relative to oref0's own maxSafeBasal and threshold |
 | binary | `aid-lean determine-basal` (same CLI and JSON as `oref0-determine-basal`), `aid-lean selftest`, `aid-lean batch` |
 
 ## Per milestone

@@ -582,3 +582,16 @@ no `sorry`, headline axioms propext/Classical.choice/Quot.sound only.
 the true value before rounding). DESIGN D5 states the tolerance: at most 1 ulp of
 `exp(x)`, assuming V8 is within 1 ulp (the accuracy documented for fdlibm, which we
 did not verify in V8's source). No difference was observed in 148 + 100,000 cases.
+
+## Mutation testing re-run on the binary64 core
+
+**Time:** 16:34–17:19 (from `date` before and after the run)
+
+`python3 scripts/mutate.py` and `scripts/mutation_report.py` on the new core: all 24
+mutations still caught. Strongest catch: safety theorem 4, only lemmas 17, only concrete
+checks 2 (M21, M23), only conformance 1 (M10). Change from before: M04 (double
+`max_basal`) now breaks the lemmas `maxSafeBasal_double` / `maxSafeBasal_ge`, which stops
+the modules with the concrete checks that caught it before; it remains a specification
+gap (H1 is stated against the implementation's `getMaxSafeBasal`). The hand-written
+Analysis section of `docs/MUTATION.md`, which the report script does not generate, was
+restored with that row updated.

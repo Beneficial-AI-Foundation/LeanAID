@@ -51,6 +51,7 @@
    "LeanAID/Proofs/Safety.lean"
   ],
   "brokenTheorems": [
+   "maxSafeBasal_double",
    "maxSafeBasal_exists",
    "maxSafeBasal_ge"
   ],
@@ -69,18 +70,16 @@
   "buildOk": false,
   "coreDoesNotCompile": false,
   "brokenProofFiles": [
-   "LeanAID/Proofs/Headline.lean",
-   "LeanAID/Proofs/ReviewFindings.lean"
+   "LeanAID/Proofs/Safety.lean"
   ],
   "brokenTheorems": [
-   "rate_can_exceed_maxSafeBasal",
-   "undated_glucose_max_rate"
+   "maxSafeBasal_double",
+   "maxSafeBasal_ge"
   ],
   "conformanceFails": true,
   "failedModules": [
    "LeanAID.Conformance.Checks",
-   "LeanAID.Proofs.Headline",
-   "LeanAID.Proofs.ReviewFindings"
+   "LeanAID.Proofs.Safety"
   ],
   "caught": true
  },
