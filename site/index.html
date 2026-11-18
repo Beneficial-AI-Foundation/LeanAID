@@ -110,6 +110,11 @@ h2 { font-size: 1.7rem; letter-spacing: -0.02em; margin: 0 0 8px; }
 .prop h3 { margin: 0 0 4px; font-size: 0.98rem; }
 .prop p { margin: 0; color: var(--muted); font-size: 0.92rem; }
 
+.why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 760px) { .why { grid-template-columns: 1fr; } }
+.why .prop b.big { display: block; font-size: 1.5rem; letter-spacing: -0.02em; color: var(--accent); margin-bottom: 2px; }
+.why .prop a { white-space: nowrap; }
+
 ul.limits { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 ul.limits li { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 0.93rem; color: var(--muted); }
 ul.limits b { color: var(--text); font-weight: 600; }
@@ -129,6 +134,7 @@ footer li { margin: 3px 0; }
       LeanAID
     </a>
     <div class="links">
+      <a href="#why">Why oref0</a>
       <a href="#controller">Controller</a>
       <a href="#assurance">Assurance</a>
       <a href="#proved">Proofs</a>
@@ -165,6 +171,18 @@ footer li { margin: 3px 0; }
     </div>
   </div>
 </header>
+
+<section id="why">
+  <div class="wrap">
+    <h2>Why oref0</h2>
+    <p class="sub">People dose themselves with it every day, and no regulator has reviewed its code.</p>
+    <div class="why">
+      <div class="prop"><b class="big">2 apps</b><h3>Inside the main open-source systems</h3><p>oref0's logic runs in AndroidAPS (Android) and Trio (iPhone). They are not in app stores: each user builds the app from source.</p></div>
+      <div class="prop"><b class="big">+14 pts</b><h3>Tested in a randomized trial</h3><p>Its 0.7.0 release raised time in range by 14 percentage points, with no severe hypoglycaemia (<a href="https://pubmed.ncbi.nlm.nih.gov/36069869/">NEJM 2022</a>).</p></div>
+      <div class="prop"><b class="big">0</b><h3>Regulatory code reviews</h3><p>People choose it for better control, device choice and access. Clinicians support it (<a href="https://pubmed.ncbi.nlm.nih.gov/34785000/">Lancet D&amp;E 2022</a>), but no one independently checks the code. LeanAID does.</p></div>
+    </div>
+  </div>
+</section>
 
 <section class="alt" id="controller">
   <div class="wrap">
@@ -233,6 +251,8 @@ footer li { margin: 3px 0; }
     <h4>Sources</h4>
     <ol>
       <li><a href="https://github.com/openaps/oref0">OpenAPS oref0</a>, release 0.7.1 (MIT).</li>
+      <li>Burnside et al., <a href="https://pubmed.ncbi.nlm.nih.gov/36069869/">Open-source automated insulin delivery in type 1 diabetes</a>, N. Engl. J. Med. 387(10):869–881, 2022.</li>
+      <li>Braune et al., <a href="https://pubmed.ncbi.nlm.nih.gov/34785000/">Open-source automated insulin delivery: international consensus statement and practical guidance for health-care professionals</a>, Lancet Diabetes Endocrinol., 2022.</li>
       <li>Zhang, Jones, Jetley, <a href="https://pubmed.ncbi.nlm.nih.gov/20307387/">A hazard analysis for a generic insulin infusion pump</a>, J. Diabetes Sci. Technol., 2010.</li>
       <li>Zhang, Jetley, Jones, Ray, <a href="https://pubmed.ncbi.nlm.nih.gov/22226258/">Generic safety requirements for developing safe insulin pump software</a>, J. Diabetes Sci. Technol., 2011.</li>
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-862/subpart-B/section-862.1356">21 CFR 862.1356</a>, interoperable automated glycemic controller.</li>
