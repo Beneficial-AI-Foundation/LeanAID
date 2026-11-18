@@ -5,272 +5,256 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LeanAID</title>
 <meta name="description" content="The OpenAPS oref0 insulin dosing algorithm, written and proved in Lean 4.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #fbfaf7;
+  --bg: #fbfbfa;
+  --bg-alt: #f3f4f2;
   --surface: #ffffff;
-  --text: #1d1f24;
-  --muted: #5d6270;
-  --border: #e3e1da;
-  --accent: #b4451f;
-  --accent-soft: #fbe9e1;
-  --ok: #2f6f4f;
-  --ok-soft: #e3f1e8;
-  --plan: #6b5a12;
-  --plan-soft: #f6efcf;
-  --code-bg: #f3f1ec;
+  --text: #1b1d21;
+  --muted: #5e636e;
+  --border: #e4e5e1;
+  --accent: #0f766e;
+  --accent-soft: #e0f2ef;
+  --on-accent: #ffffff;
+  --plan: #92570b;
+  --plan-soft: #fdf1dc;
+  --ok: #1f7a46;
+  --ok-soft: #e2f4e8;
+  --code-bg: #f1f2ef;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #15171b;
-    --surface: #1d2025;
-    --text: #e8e6e1;
-    --muted: #a0a4ad;
-    --border: #2e3239;
-    --accent: #f08a5d;
-    --accent-soft: #3a2419;
-    --ok: #7cc49c;
-    --ok-soft: #1c3127;
-    --plan: #e2c96a;
-    --plan-soft: #33301b;
-    --code-bg: #24272d;
+    --bg: #131518; --bg-alt: #181b1f; --surface: #1d2025; --text: #e9e9e6;
+    --muted: #a0a5ae; --border: #2c3036; --accent: #4fc3b4; --accent-soft: #163a36;
+    --on-accent: #0b1f1c; --plan: #f0bd6a; --plan-soft: #3a2c14; --ok: #7fd3a0;
+    --ok-soft: #173325; --code-bg: #24272d;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #15171b; --surface: #1d2025; --text: #e8e6e1; --muted: #a0a4ad;
-  --border: #2e3239; --accent: #f08a5d; --accent-soft: #3a2419;
-  --ok: #7cc49c; --ok-soft: #1c3127; --plan: #e2c96a; --plan-soft: #33301b;
-  --code-bg: #24272d;
+  --bg: #131518; --bg-alt: #181b1f; --surface: #1d2025; --text: #e9e9e6;
+  --muted: #a0a5ae; --border: #2c3036; --accent: #4fc3b4; --accent-soft: #163a36;
+  --on-accent: #0b1f1c; --plan: #f0bd6a; --plan-soft: #3a2c14; --ok: #7fd3a0;
+  --ok-soft: #173325; --code-bg: #24272d;
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 64px; }
 body {
   margin: 0; background: var(--bg); color: var(--text);
-  font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font: 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
-main { max-width: 860px; margin: 0 auto; padding: 0 16px 64px; }
-a { color: var(--accent); }
-h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; margin: 0.2em 0 0.3em; letter-spacing: -0.02em; }
-h2 { font-size: 1.5rem; margin: 2.4em 0 0.5em; letter-spacing: -0.01em; }
-h3 { font-size: 1.1rem; margin: 1.4em 0 0.3em; }
-p { margin: 0.6em 0; }
-.eyebrow { color: var(--muted); font-size: 0.9rem; margin-top: 48px; }
-.lede { font-size: 1.15rem; color: var(--text); max-width: 46em; }
-.muted { color: var(--muted); }
-.notice {
-  border: 1px solid var(--accent); background: var(--accent-soft);
-  border-radius: 8px; padding: 10px 14px; margin: 20px 0; font-size: 0.95rem;
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+.wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+
+/* nav */
+nav { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+nav .wrap { display: flex; align-items: center; gap: 20px; height: 56px; }
+.brand { font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.brand:hover { text-decoration: none; }
+.brand svg { color: var(--accent); }
+.links { margin-left: auto; display: flex; gap: 18px; font-size: 0.9rem; }
+.links a { color: var(--muted); }
+.links a:hover { color: var(--text); text-decoration: none; }
+.theme { background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; display: grid; place-items: center; }
+@media (max-width: 560px) { .links { display: none; } .theme { margin-left: auto; } }
+
+/* hero */
+.hero { padding: 64px 0 40px; }
+.pill { display: inline-block; font-size: 0.78rem; font-weight: 500; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 11px; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.1rem); line-height: 1.1; letter-spacing: -0.025em; margin: 18px 0 16px; }
+.lede { font-size: 1.1rem; color: var(--muted); max-width: 640px; margin: 0; }
+.lede strong { color: var(--text); font-weight: 600; }
+.buttons { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 0; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.92rem; padding: 9px 16px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.btn:hover { text-decoration: none; border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 40px; }
+@media (max-width: 760px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.stat b { display: block; font-size: 1.6rem; letter-spacing: -0.02em; }
+.stat span { font-size: 0.84rem; color: var(--muted); line-height: 1.4; display: block; margin-top: 4px; }
+
+/* sections */
+section { padding: 56px 0; border-top: 1px solid var(--border); }
+section.alt { background: var(--bg-alt); }
+h2 { font-size: 1.7rem; letter-spacing: -0.02em; margin: 0 0 8px; }
+.sub { color: var(--muted); margin: 0 0 24px; max-width: 640px; }
+
+.flow { display: grid; grid-template-columns: 1fr auto 1.4fr auto 1fr; align-items: center; gap: 10px; }
+.node { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; font-size: 0.9rem; color: var(--muted); }
+.node b { display: block; color: var(--text); font-size: 0.98rem; margin-bottom: 2px; }
+.node.here { border: 2px solid var(--accent); background: var(--accent-soft); }
+.node.here b { color: var(--accent); }
+.arrow { color: var(--muted); font-size: 0.78rem; text-align: center; line-height: 1.3; }
+.arrow::after { content: "→"; display: block; font-size: 1.3rem; }
+@media (max-width: 680px) {
+  .flow { grid-template-columns: 1fr; }
+  .arrow::after { content: "↓"; }
 }
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 28px 0; }
-.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
-.stat b { display: block; font-size: 1.8rem; line-height: 1.1; }
-.stat span { color: var(--muted); font-size: 0.9rem; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin: 12px 0; }
-.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
-.badge { display: inline-block; font-size: 0.75rem; font-weight: 600; border-radius: 999px; padding: 2px 9px; vertical-align: middle; white-space: nowrap; }
-.badge.plan { color: var(--plan); background: var(--plan-soft); }
-.badge.ok { color: var(--ok); background: var(--ok-soft); }
-.badge.out { color: var(--muted); background: var(--code-bg); }
-code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.88em; }
-code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
-pre { background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; line-height: 1.45; }
-pre code { background: none; padding: 0; }
-.table-wrap { overflow-x: auto; margin: 12px 0; }
-table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 0.93rem; }
-td { overflow-wrap: anywhere; }
-th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-th { color: var(--muted); font-weight: 600; font-size: 0.85rem; }
-.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 16px 0; }
-.flow .node { flex: 1 1 140px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 0.92rem; }
-.flow .node.here { border: 2px solid var(--accent); background: var(--accent-soft); }
-.flow .node b { display: block; }
-.flow .arrow { align-self: center; color: var(--muted); font-size: 1.2rem; }
-.layers { counter-reset: layer; padding: 0; list-style: none; }
-.layers li { counter-increment: layer; position: relative; padding-left: 44px; margin: 14px 0; }
-.layers li::before {
-  content: counter(layer); position: absolute; left: 0; top: 2px;
-  width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
-  display: flex; align-items: center; justify-content: center; font-weight: 700;
-}
-ul.tight { padding-left: 1.2em; }
-ul.tight li { margin: 0.25em 0; }
-footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 56px; padding-top: 16px; }
-@media (max-width: 560px) {
-  .flow .arrow { display: none; }
-  .flow .node { flex-basis: 100%; }
-}
+
+.layer { display: flex; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
+.num { flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 700; display: grid; place-items: center; font-size: 0.9rem; }
+.layer h3 { margin: 2px 0 4px; font-size: 1.02rem; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.layer p { margin: 0; color: var(--muted); font-size: 0.94rem; }
+.layer div { flex: 1; min-width: 0; }
+.tag { flex: none; font-size: 0.72rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; color: var(--plan); background: var(--plan-soft); }
+.tag.ok { color: var(--ok); background: var(--ok-soft); }
+
+.props { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 680px) { .props { grid-template-columns: 1fr; } }
+.prop { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.prop h3 { margin: 0 0 4px; font-size: 0.98rem; }
+.prop p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+ul.limits { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+ul.limits li { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 0.93rem; color: var(--muted); }
+ul.limits b { color: var(--text); font-weight: 600; }
+
+footer { border-top: 1px solid var(--border); padding: 32px 0 48px; font-size: 0.84rem; color: var(--muted); }
+footer h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px; color: var(--muted); }
+footer ol { margin: 0 0 20px; padding-left: 1.2em; }
+footer li { margin: 3px 0; }
 </style>
 </head>
 <body>
-<main>
 
-<p class="eyebrow">Beneficial AI Foundation · Lean 4 · vericoding</p>
-<h1>oref0, written and proved in Lean</h1>
-<p class="lede">
-LeanAID is an agent-built Lean 4 version of <strong>oref0</strong>, the OpenAPS dosing algorithm used by the
-open-source automated insulin delivery systems Trio and AndroidAPS. The goal: an implementation that compiles to a
-native binary, behaves like the original, and comes with machine-checked proofs of its safety properties.
-</p>
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5c3.5 4.6 6.5 8.4 6.5 12a6.5 6.5 0 0 1-13 0c0-3.6 3-7.4 6.5-12z"/><path d="M9.5 15.5l1.8 1.8 3.6-3.8"/></svg>
+      LeanAID
+    </a>
+    <div class="links">
+      <a href="#controller">Controller</a>
+      <a href="#assurance">Assurance</a>
+      <a href="#proved">Proofs</a>
+      <a href="#limits">Limits</a>
+      <a href="https://github.com/Beneficial-AI-Foundation/LeanAID">GitHub</a>
+    </div>
+    <button class="theme" id="theme" type="button" aria-label="Toggle dark mode">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</nav>
 
-<div class="notice">
-<strong>Status: plan stage.</strong> This page describes what the project will build and how it will be checked.
-Numbers marked <span class="badge plan">planned</span> are targets, not results. They will be replaced by figures
-generated from the build.
-<br><strong>Research artifact. Not for dosing insulin.</strong>
-</div>
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="pill">Beneficial AI Foundation · Lean 4 · in progress</span>
+    <h1>oref0, written and proved in Lean</h1>
+    <p class="lede">
+      An agent transcribes <strong>oref0</strong>, the open-source insulin dosing algorithm behind Trio and AndroidAPS,
+      into Lean. Its unit tests become theorems for every input, its safety limits are proved and traced to FDA sources,
+      and it compiles to a binary checked against the original.
+    </p>
+    <div class="buttons">
+      <a class="btn primary" href="#proved">What we prove</a>
+      <a class="btn" href="https://github.com/Beneficial-AI-Foundation/LeanAID">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.4 4.8 18.4 5.1 18.4 5.1c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>
+        Source
+      </a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>96</b><span>oref0 unit tests to lift to theorems</span></div>
+      <div class="stat"><b>0</b><span><code>sorry</code> allowed, standard axioms only</span></div>
+      <div class="stat"><b>4</b><span>FDA and safety sources traced to proofs</span></div>
+      <div class="stat"><b>1</b><span>native binary, <code>aid-lean</code>, compiled via C</span></div>
+    </div>
+  </div>
+</header>
 
-<div class="stats">
-  <div class="stat"><b>96</b><span>oref0 unit tests to lift to theorems (70 in <code>determine-basal</code>, 26 in <code>iob</code>)</span></div>
-  <div class="stat"><b>0 / 96</b><span>lifted so far <span class="badge plan">planned</span></span></div>
-  <div class="stat"><b>0</b><span>uses of <code>sorry</code> allowed; standard axioms only</span></div>
-  <div class="stat"><b>1</b><span>native binary, <code>aid-lean</code>, compiled via C</span></div>
-</div>
+<section class="alt" id="controller">
+  <div class="wrap">
+    <h2>Only the controller</h2>
+    <p class="sub">The controller takes glucose readings and decides how much insulin to give. LeanAID covers that decision, not the sensor or the pump.</p>
+    <div class="flow">
+      <div class="node"><b>CGM sensor</b>a glucose reading every 5 min</div>
+      <div class="arrow">glucose</div>
+      <div class="node here"><b>Controller · LeanAID</b>insulin on board, glucose prediction, dose decision, safety limits</div>
+      <div class="arrow">insulin</div>
+      <div class="node"><b>Insulin pump</b>delivers the dose, keeps its own limits</div>
+    </div>
+  </div>
+</section>
 
-<h2>Where this sits in an AID system</h2>
-<p>
-An automated insulin delivery (AID) system has three parts: a continuous glucose monitor (CGM), a controller that
-decides the dose, and an insulin pump. LeanAID covers the <strong>controller</strong>, which the FDA regulates as an
-<em>interoperable automated glycemic controller</em> (21 CFR 862.1356). In Trio and AndroidAPS it runs on the phone.
-</p>
-<div class="flow" role="img" aria-label="CGM sends glucose to the controller, which sends commands to the pump">
-  <div class="node"><b>CGM sensor</b><span class="muted">glucose every 5 min</span></div>
-  <div class="arrow">→</div>
-  <div class="node here"><b>Controller · LeanAID</b>insulin on board, glucose prediction, dose decision, safety limits</div>
-  <div class="arrow">→</div>
-  <div class="node"><b>Pump firmware</b><span class="muted">delivers the dose, keeps its own hard limits</span></div>
-</div>
-<p class="muted">
-Out of scope: sensor and pump firmware, Bluetooth, the app. The pump's own independent limits remain a second line of defence.
-</p>
+<section id="assurance">
+  <div class="wrap">
+    <h2>Three layers of assurance</h2>
+    <p class="sub">Every result will be checked by Lean's kernel or by a test against the original JavaScript.</p>
+    <div class="layer"><span class="num">1</span><div>
+      <h3>Tests lifted to theorems <span class="tag">Planned</span></h3>
+      <p>Each oref0 unit test checks one input. We prove the general rule behind it for every input, and the original test follows as a corollary.</p>
+    </div></div>
+    <div class="layer"><span class="num">2</span><div>
+      <h3>Safety bounds traced to FDA sources <span class="tag">Planned</span></h3>
+      <p>For any sequence of glucose readings, the insulin commanded stays within oref0's limits. Each requirement is traced to an FDA hazard analysis or regulation clause.</p>
+    </div></div>
+    <div class="layer"><span class="num">3</span><div>
+      <h3>Conformance with oref0 <span class="tag">Planned</span></h3>
+      <p>Exact agreement on oref0's own tests, differential testing on random inputs, and side-by-side runs on virtual patients.</p>
+    </div></div>
+  </div>
+</section>
 
-<h2>Why oref0</h2>
-<div class="grid2">
-  <div class="card"><h3>Deployed</h3>Its JavaScript runs inside Trio; AndroidAPS uses a Kotlin port. People rely on it every day.</div>
-  <div class="card"><h3>Small enough to finish</h3>The dose decision (<code>determine-basal</code>, insulin on board, carbs on board) is pure logic, a few thousand lines, with no hardware code.</div>
-  <div class="card"><h3>Built-in oracle</h3>The original runs under Node, and its own test suite records expected behaviour. Every claim of equivalence can be checked.</div>
-  <div class="card"><h3>Safety-critical</h3>A wrong dose can cause severe hypoglycaemia. That is exactly where proofs are worth their cost.</div>
-</div>
+<section class="alt" id="proved">
+  <div class="wrap">
+    <h2>What we prove</h2>
+    <p class="sub">Target theorems, each about the transcribed oref0 functions and stated for every valid input.</p>
+    <div class="props">
+      <div class="prop"><h3>Basal never above the safe maximum</h3><p>The rate is between 0 and oref0's <code>maxSafeBasal</code>.</p></div>
+      <div class="prop"><h3>No insulin when glucose is low</h3><p>Below oref0's threshold and not rising, the rate is zero and no microbolus is given.</p></div>
+      <div class="prop"><h3>No stacking</h3><p>Insulin on board never goes above <code>max_iob</code>, in one step or over any run.</p></div>
+      <div class="prop"><h3>Bad data fails safe</h3><p>Stale, missing or error-coded glucose never increases insulin.</p></div>
+      <div class="prop"><h3>Rounding is safe</h3><p>Rounding to pump increments never pushes a dose above a limit.</p></div>
+      <div class="prop"><h3>Insulin on board is exact</h3><p>The computed value equals its mathematical definition, within a proved bound.</p></div>
+    </div>
+  </div>
+</section>
 
-<h2>Method</h2>
-
-<h3>1. Faithful transcription with exact numbers</h3>
-<p>
-oref0 is transcribed function by function from a pinned commit. JavaScript floating point is replaced by exact
-rationals or fixed-point integers; <code>Float</code> is not allowed in the verified core. Rounding to pump increments
-is made explicit and proved never to push a dose above a limit. oref0's exponential insulin curve is computed with a
-rational approximation whose error is bounded by a theorem.
-</p>
-
-<h3>2. Unit tests lifted to theorems</h3>
-<p>
-Each oref0 test checks one input. For each one we find and prove the general rule behind it, for every input, and
-derive the original test as a corollary. Tests that only make sense for one input stay as exact conformance checks.
-A test that will not generalise is reported as a finding.
-</p>
-<div class="table-wrap">
-<table>
-  <thead><tr><th>oref0 test</th><th>General theorem (target)</th><th>Status</th></tr></thead>
-  <tbody>
-    <tr><td><em>should round basal rates properly</em>; <em>should match the basal rate precision available on a 522 / 523</em></td>
-        <td>For every rate and pump model, the result is a multiple of the model's increment and within half an increment of the input.</td>
-        <td><span class="badge plan">planned</span></td></tr>
-    <tr><td><em>maxSafeBasal current_basal_safety_multiplier of 1 …</em>; <em>should high-temp … but not more than maxSafeBasal</em></td>
-        <td>For every input, the temp basal rate is at most min(max_basal, 3 × max daily basal, 4 × current basal), with oref0's configurable multipliers.</td>
-        <td><span class="badge plan">planned</span></td></tr>
-    <tr><td><em>should temp to 0 when LOW w/ positive IOB</em>; <em>… when low and falling, regardless of BGI</em></td>
-        <td>For every input, glucose below oref0's threshold and not rising implies a zero temp basal.</td>
-        <td><span class="badge plan">planned</span></td></tr>
-    <tr><td><em>should stop high-temp when iob is near max_iob</em></td>
-        <td>For every input, insulin on board at or above max_iob implies no rate above the scheduled basal.</td>
-        <td><span class="badge plan">planned</span></td></tr>
-    <tr><td><em>should cancel high-temp when bg &lt; 30 (Dexcom is in ???)</em>; <em>profile.current_basal undefined → error</em></td>
-        <td>For every invalid input or sensor error code, the output is an error or no increase, never a higher dose.</td>
-        <td><span class="badge plan">planned</span></td></tr>
-    <tr><td><em>IOB … without counting time pump suspended</em>; <em>… Temp Basals that overlap midnight</em></td>
-        <td>For every dose history, computed insulin on board equals the specification's integral of insulin activity.</td>
-        <td><span class="badge plan">planned</span></td></tr>
-  </tbody>
-</table>
-</div>
-<p>A target statement, in the style the proofs will take:</p>
-<pre><code>theorem rate_le_maxSafeBasal (p : Profile) (s : Snapshot) :
-    (determineBasal p s).rate ≤ maxSafeBasal p := by
-  …</code></pre>
-
-<h3>3. Requirements from official sources</h3>
-<p>
-Safety requirements are written from public regulatory and safety material, and each is traced to the theorem that
-proves it, or marked as tested or out of scope:
-</p>
-<ul class="tight">
-  <li>Y. Zhang, P. L. Jones, R. Jetley, <a href="https://pubmed.ncbi.nlm.nih.gov/20307387/">A hazard analysis for a generic insulin infusion pump</a>, <em>J. Diabetes Sci. Technol.</em> 4(2):263–283, 2010.</li>
-  <li>Y. Zhang, R. Jetley, P. L. Jones, A. Ray, <a href="https://pubmed.ncbi.nlm.nih.gov/22226258/">Generic safety requirements for developing safe insulin pump software</a>, <em>J. Diabetes Sci. Technol.</em> 5(6):1403–1419, 2011.</li>
-  <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-862/subpart-B/section-862.1356">21 CFR 862.1356</a>, interoperable automated glycemic controller. Among its special controls: a traceability analysis showing every hazard is controlled, and safe operation when input data is outside the specified bounds.</li>
-  <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-880/subpart-F/section-880.5730">21 CFR 880.5730</a>, alternate controller enabled infusion pump (ACE pump), the pump type an automated glycemic controller may command.</li>
-</ul>
-<p class="muted">
-This is evidence about the algorithm, not regulatory compliance. FDA clearance also requires clinical data, human
-factors, cybersecurity and quality processes that proofs do not provide.
-</p>
-
-<h3>4. A binary that drops in for the original</h3>
-<p>
-The Lean code compiles via C to <code>aid-lean</code>, which takes the same JSON inputs as
-<code>oref0-determine-basal</code> and prints the same suggestion. The core is one pure step function with a C entry
-point, ready for embedded targets.
-</p>
-
-<h3>5. Virtual patients</h3>
-<p>
-In a closed loop with the simglucose simulator (an open reimplementation of the UVA/Padova type 1 diabetes model),
-<code>aid-lean</code> and the original JavaScript run on the same virtual patients. We report glucose traces,
-time in range and hypoglycaemia, under normal days and injected faults: sensor dropouts, compression lows and missed
-meal announcements.
-</p>
-
-<h3>6. Checking that the proofs have teeth</h3>
-<ul class="tight">
-  <li><strong>Mutation testing.</strong> Bugs are planted in the Lean code; a proof must fail for each one.</li>
-  <li><strong>Differential testing.</strong> <code>aid-lean</code> and Node oref0 are compared on many random valid inputs.</li>
-  <li><strong>Independent review.</strong> A separate reviewer agent checks every theorem statement against its requirement.</li>
-  <li><strong>Automatic gates.</strong> No <code>sorry</code>; <code>#print axioms</code> shows only the standard axioms; no <code>partial</code>, <code>unsafe</code>, <code>@[extern]</code> or <code>implemented_by</code> in the core.</li>
-</ul>
-
-<h2>Layers of assurance</h2>
-<ol class="layers">
-  <li><strong>Specification and refinement</strong> <span class="badge plan">planned</span><br>
-    A mathematical specification of insulin on board and the safety envelope, with proofs that the implementation computes it.</li>
-  <li><strong>Lifted tests</strong> <span class="badge plan">planned</span><br>
-    oref0's unit tests as general theorems, each original test a corollary.</li>
-  <li><strong>Properties over time</strong> <span class="badge plan">planned</span><br>
-    For any sequence of inputs, insulin delivered in a window stays bounded and repeated cycles never stack past max_iob.</li>
-  <li><strong>Conformance with the original</strong> <span class="badge plan">planned</span><br>
-    Exact agreement on oref0's tests, differential testing, and side-by-side closed-loop simulation.</li>
-</ol>
-
-<h2>Assumptions and limits</h2>
-<ul class="tight">
-  <li><strong>Not a medical device.</strong> Not for dosing insulin.</li>
-  <li><strong>The algorithm, not the body.</strong> Proofs say what the controller decides, not how a patient responds. Sensor accuracy is assumed.</li>
-  <li><strong>Trusted base.</strong> The Lean kernel, the Lean compiler and runtime, the C compiler, and the unverified I/O shell.</li>
-  <li><strong>Conformance is tested, not proved in general.</strong> Agreement with the JavaScript rests on its test suite, differential testing and simulation.</li>
-  <li><strong>Scope.</strong> The dose decision only. Autotune, autosens estimation and device drivers are excluded.</li>
-</ul>
-
-<h2>Roadmap</h2>
-<div class="grid2">
-  <div class="card"><h3>seL4</h3>Run the controller in an isolated seL4 protection domain, so a bug in the radio or sensor code cannot affect dosing.</div>
-  <div class="card"><h3>Pump firmware</h3>Connect to Lean models of STM32 microcontrollers and CHERIoT for the pump side.</div>
-  <div class="card"><h3>Verified compilation</h3>Emit plain C without the Lean runtime and compile it with CompCert.</div>
-  <div class="card"><h3>Shadow mode</h3>Run alongside oref0 inside Trio or AndroidAPS, comparing outputs without dosing.</div>
-</div>
+<section id="limits">
+  <div class="wrap">
+    <h2>Assumptions and limits</h2>
+    <p class="sub">What the results will not cover.</p>
+    <ul class="limits">
+      <li><b>Research artifact.</b> Not a medical device and not for dosing insulin.</li>
+      <li><b>The algorithm, not the body.</b> Proofs cover what the controller decides. Glucose outcomes are tested on simulated patients, not proved.</li>
+      <li><b>Trusted base.</b> The Lean compiler and runtime, the C compiler, and the input/output shell are not verified.</li>
+      <li><b>Conformance is tested.</b> Agreement with the JavaScript rests on its tests, differential testing and simulation.</li>
+      <li><b>Next steps.</b> Running on seL4, verified pump firmware, and verified compilation.</li>
+    </ul>
+  </div>
+</section>
 
 <footer>
-  LeanAID · Beneficial AI Foundation ·
-  <a href="https://github.com/Beneficial-AI-Foundation/LeanAID">Source on GitHub</a> ·
-  Built on <a href="https://github.com/openaps/oref0">OpenAPS oref0</a>.
+  <div class="wrap">
+    <h4>Sources</h4>
+    <ol>
+      <li><a href="https://github.com/openaps/oref0">OpenAPS oref0</a>, release 0.7.1 (MIT).</li>
+      <li>Zhang, Jones, Jetley, <a href="https://pubmed.ncbi.nlm.nih.gov/20307387/">A hazard analysis for a generic insulin infusion pump</a>, J. Diabetes Sci. Technol., 2010.</li>
+      <li>Zhang, Jetley, Jones, Ray, <a href="https://pubmed.ncbi.nlm.nih.gov/22226258/">Generic safety requirements for developing safe insulin pump software</a>, J. Diabetes Sci. Technol., 2011.</li>
+      <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-862/subpart-B/section-862.1356">21 CFR 862.1356</a>, interoperable automated glycemic controller.</li>
+      <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-880/subpart-F/section-880.5730">21 CFR 880.5730</a>, alternate controller enabled infusion pump.</li>
+    </ol>
+    LeanAID · Beneficial AI Foundation
+  </div>
 </footer>
 
-</main>
+<script>
+(function () {
+  var root = document.documentElement;
+  try { var saved = localStorage.getItem('theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  document.getElementById('theme').addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme')
+      ? root.getAttribute('data-theme') === 'dark'
+      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+})();
+</script>
 </body>
 </html>
