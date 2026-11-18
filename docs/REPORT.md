@@ -13,7 +13,7 @@ the full experiment log is `docs/LOG.md`.
 |---|---|
 | oref0 test blocks inventoried | 116 (70 determine-basal, 26 iob, 20 others); classes A 48, B 11, C 33, disabled 24 |
 | class A/B tests proved as instances of general theorems | 52 of 59 |
-| theorems in `LeanAID/Proofs` | 215+ (16 headline), no `sorry`, axioms only `propext`, `Classical.choice`, `Quot.sound` |
+| theorems in `LeanAID/Proofs` | 220 (16 headline), no `sorry`, axioms only `propext`, `Classical.choice`, `Quot.sound` |
 | conformance on every in-scope call of oref0's tests | 148/148 (146 exact, 2 IOB values at a rounding tie) |
 | differential testing, 100,000 random valid inputs | 83.1% byte-identical; every difference traced to floating-point rounding; no transcription error found |
 | mutation testing | 24 mutations, all caught by the build (18 by proofs, 18 by conformance); 2 specification gaps found (H1, H3 are relative to oref0's own maxSafeBasal/threshold) |
