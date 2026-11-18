@@ -118,9 +118,15 @@ def determineBasalCmd (args : List String) : IO UInt32 := do
       microBolusAllowed := microbolus, reservoir_data := reservoir,
       clock := { now, tzOffsetMin := tz, tzName } }
   if o.safe then
-    let mealOk := !meal.carbs.truthyN || meal.lastCarbTime.isSome
-    if !(validInputB inp && mealOk) then
-      IO.eprintln "aid-lean --safe: input outside the valid domain of the safety theorems (docs/DESIGN.md); no suggestion"
+    -- docs/DESIGN.md, "What `--safe` rejects": (1) profile/autosens outside V0-V9,
+    -- (2) carbs without lastCarbTime (F-06), (3) a glucose reading without a finite date (F-11)
+    let reasons : List String :=
+      (if validInputB inp then [] else ["profile or autosens outside the valid domain (V0-V9)"]) ++
+      (if !meal.carbs.truthyN || (match meal.lastCarbTime with | some (.fin _) => true | _ => false) then []
+       else ["meal data has carbs but no numeric lastCarbTime (F-06)"]) ++
+      (match gs.date with | some (.fin _) => [] | _ => ["glucose reading has no date (F-11)"])
+    if !reasons.isEmpty then
+      IO.eprintln s!"aid-lean --safe: refusing input: {"; ".intercalate reasons}; no suggestion"
       return 2
   let r := determineBasal inp
   match r.error with

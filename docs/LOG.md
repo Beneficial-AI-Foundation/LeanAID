@@ -521,3 +521,12 @@ safety theorem's proof breaks in 4 (M13, M15, M16, M24); only supporting lemmas 
 only concrete checks in 3 (M04, M21, M23); only conformance in 1 (M10). A broken lemma
 stops the modules that import it from being built, so for those 16 the safety statements
 are neither confirmed nor refuted by the run.
+
+## Second review, step 6: `--safe` documented, undated glucose rejected
+
+**Time:** 2026-11-18 15:42 (from `date`)
+
+`--safe` now also refuses a glucose status without a finite date (F-11) and names each
+reason. DESIGN lists exactly what it rejects and what it does not. Tested by hand on four
+inputs (valid → suggestion; undated glucose, missing max_basal, carbs without
+lastCarbTime → exit 2 with the matching reason).

@@ -110,3 +110,22 @@ least `max_iob`), the extra condition is a hypothesis of that theorem.
 polynomial, and squaring, truncating to a 2⁻¹²⁸ grid after each step. The error bound
 (< 10⁻³⁵ for `|x| ≤ 128`) is argued in the file header; its proof against Mathlib's
 `Real.exp` is planned for M8 and has not been done. No safety theorem depends on it.
+
+## What `aid-lean --safe` rejects
+
+`aid-lean determine-basal … --safe` (not an oref0 option) refuses to produce a
+suggestion, printing the reasons on stderr and exiting with code 2, exactly when one of
+these holds (`App/Main.lean`, `determineBasalCmd`):
+
+| check | rejects | why |
+|---|---|---|
+| `validInputB inp = false` | a profile violating V0–V8 (e.g. missing or non-numeric `current_basal`, `max_basal`, `max_daily_basal`, `max_iob`, `sens`; `max_basal` or `max_daily_basal` below `current_basal`; a safety multiplier below 1; `autosens_max` with more than two decimals or with `current_basal × autosens_max > maxSafeBasal`; a non-positive `bolus_increment`), or autosens data violating V9 (non-numeric or non-positive ratio, or `current_basal × ratio > maxSafeBasal`) | outside the domain of the safety theorems; F-12 (missing `max_basal` disables the clamp) |
+| meal data with truthy `carbs` and no numeric `lastCarbTime` | carbs without a carb time | F-06 (NaN rate) |
+| the glucose status has no finite `date` | CGM entries without `date`, `display_time` or `dateString` (or unparsable ones) | F-11 (staleness check skipped; maximum rate on an old reading) |
+
+It does **not** reject: stale, noisy, flat or error-coded readings (oref0 handles these,
+and H5a proves the result does not increase insulin); IOB data, current temp or meal data
+that are otherwise odd (the theorems hold for any values, but a NaN rate is still
+possible in ways not listed above); a wrong clock. `--safe` is part of the unverified
+shell; `validInputB` is proved sound for `ValidInput` (`validInputB_sound`), the other two
+checks are not proved.

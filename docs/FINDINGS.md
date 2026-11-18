@@ -118,7 +118,8 @@ node -e '…determine_basal({glucose:250,delta:5,short_avgdelta:5,long_avgdelta:
 ```
 Proved: `undated_glucose_max_rate` (both the 3.5 U/h result and the stale refusal when
 dated) and `undated_never_stale` (no undated reading is ever stale). R12 is therefore
-stated only for dated readings (`cgm_unreliable_no_increase`).
+stated only for dated readings (`cgm_unreliable_no_increase`). `aid-lean --safe` refuses
+undated readings (DESIGN, "What `aid-lean --safe` rejects").
 
 ### F-12 — Missing `max_basal` / `max_daily_basal` disables the clamp (R14)
 `getMaxSafeBasal` is `Math.min(max_basal, 3·max_daily_basal, 4·current_basal)`; with
