@@ -1,22 +1,32 @@
 {
- "cases": 2000,
- "seed": 1,
- "identical": 1645,
- "reasonOnly": 12,
- "valueDiff": 343,
+ "cases": 100000,
+ "seed": 7,
+ "identical": 83089,
+ "reasonOnly": 413,
+ "valueDiff": 16498,
+ "predOnlyPlusMinus1": 13818,
+ "rateDiffers": 82,
+ "mismatchWithNearTie": 16907,
+ "mismatchWithoutNearTie": 4,
+ "casesWithNearTie": 82006,
  "fieldsDiffering": {
-  "predBGs": 341,
-  "reason": 38,
-  "insulinReq": 2,
-  "carbsReq": 1,
-  "eventualBG": 3,
-  "rate": 3,
-  "ISF": 1
+  "predBGs": 16312,
+  "reason": 1776,
+  "insulinReq": 79,
+  "eventualBG": 225,
+  "rate": 82,
+  "carbsReq": 22,
+  "deviation": 97,
+  "ISF": 45,
+  "BGI": 15,
+  "units": 12,
+  "target_bg": 16,
+  "duration": 9
  },
  "paths": {
-  "smbUnits": 77,
+  "smbUnits": 3746,
   "errors": 0,
   "rateNull": 0
  },
- "aidLeanSeconds": 3.358
+ "aidLeanSeconds": 98.25699999999999
 }

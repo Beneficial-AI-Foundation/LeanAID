@@ -15,7 +15,8 @@ the pump's 0.05/0.025 grid) a request of 2 U/h is issued as **0.85 U/h**.
 node -e 'var t=require("./lib/basal-set-temp");console.log(t.setTempBasal(2,30,{current_basal:0.5,max_basal:0.83,max_daily_basal:1},{}))'
 → { duration: 30, rate: 0.85 }
 ```
-Proved in Lean: `rate_can_exceed_maxSafeBasal`. Strongest true statements proved:
+Proved in Lean: `rate_can_exceed_maxSafeBasal`. It also occurs on random valid inputs:
+difftest case 28557 (seed 7) has `maxSafeBasal` 4.44 and issues 4.45 U/h. Strongest true statements proved:
 every issued rate is ≤ `round_basal(maxSafeBasal)` (`rate_le_roundBasal_maxSafeBasal`),
 which exceeds `maxSafeBasal` by at most 0.025 U/h below 10 U/h (`roundBasal_overshoot`);
 and when `maxSafeBasal` is on the grid the bound is `maxSafeBasal` itself
@@ -140,3 +141,14 @@ decision. Example (iob/history.js lines 545-548): a temp of 0.05 U/h against a b
 `minGuardBG`, `eventualBG`, `insulinReq` and, in 3 cases, the issued rate (e.g. 3.15
 vs 3.2 U/h). The divergence is still caused by exact ties, but its effect on outputs is
 not bounded by one unit of the final rounding.
+
+The most severe case found (difftest pilot, seed 1): `minDelta − bgi = −6 − (−6.05)`.
+Exactly this is 0.05, so `ci = round(0.05, 1) = 0.1 > 0` and the UAM predictions switch
+on (determine-basal.js line 681); in doubles it is 0.04999999999999982, `ci = 0`, and they
+stay off. oref0 then issues a **30-minute zero temp** (eventualBG −147) while aid-lean
+issues the **neutral basal 2.05 U/h** (eventualBG 162). oref0's decision is discontinuous
+at `ci = 0`, and floating-point noise decides which side a tie lands on. Neither result
+is "the" correct one; it shows that exact-rational faithfulness cannot give
+decision-level agreement everywhere. Bit-exact agreement would need IEEE-754 double
+emulation in the core (possible with rationals: round each operation to the nearest
+double), at the cost of harder proofs.

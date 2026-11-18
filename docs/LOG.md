@@ -417,3 +417,44 @@ in values. 306 of those are prediction arrays differing by ±1 at rounding ties;
 include 3 different issued rates. One case is **not** a tie: oref0 eventualBG −147 vs
 aid-lean 162 (aid-lean also reports a UAMpredBG oref0 does not). This looks like a
 transcription bug in the COB/UAM eventualBG update; to investigate next.
+
+---
+
+## M10 – Differential testing (stretch)
+
+**Start:** 2026-11-18 14:50 (pilot) · **End:** 2026-11-18 15:45
+
+### What was done
+- `aid-lean batch <cases.jsonl>`: one decision per JSON line, in one process.
+- `scripts/difftest/run.js N seed` (run with `TZ=UTC`): a seeded generator of random
+  inputs that satisfy the valid-input conditions and cover every branch (SMB on/off,
+  UAM, COB, temp targets, autosens, exercise mode, noisy and stale CGM, error codes,
+  mmol/L, skip-neutral, single IOB objects as in oref0's tests); oref0's
+  `getLastGlucose` + `determine_basal` in-process (as `bin/oref0-determine-basal.js`
+  does), `aid-lean batch` on the same inputs, field-by-field comparison. Processes in
+  chunks of 10,000 (the first version tried to hold 600 MB of cases in one string).
+- `Math.round` is instrumented during the oref0 runs to flag any call whose argument is
+  within 1e-9 (relative) of a .5 tie.
+
+### Result: 100,000 cases, seed 7 (`docs/difftest.json`)
+| outcome | cases |
+|---|---|
+| byte-identical JSON | 83,089 (83.1%) |
+| only the reason text differs | 413 |
+| values differ | 16,498 — of which 13,818 only ±1 steps in rounded prediction arrays; 82 with a different issued rate |
+| mismatches whose oref0 run hit a near-tie `Math.round` | 16,907 of 16,911 |
+| mismatches without one | 4, all reason text only: JavaScript prints maxSafeBasal as e.g. `3.9000000000000004` (DESIGN D6) |
+
+No difference was found that is not explained by floating point (ties, or number
+printing). In particular, the transcription of the prediction, COB, UAM and SMB code,
+which no oref0 test reaches, agrees with oref0 wherever no tie occurs; microboluses
+were issued in 3,746 cases. The tie effects can be large (F-13): 82 cases issue a
+different rate, the worst a 30-min zero temp in oref0 vs the neutral basal in aid-lean.
+
+### Interpretation
+Exact arithmetic was chosen for provability (DESIGN). The difftest shows its price:
+83% byte agreement, not 100%. Because 82% of all cases hit at least one near-tie
+rounding, agreement "within a tolerance" is not a meaningful notion at the decision
+level; the right next step, if decision-level agreement is required, is to emulate
+IEEE-754 doubles in the core (round each operation to the nearest double, still in
+exact rationals). Not done.

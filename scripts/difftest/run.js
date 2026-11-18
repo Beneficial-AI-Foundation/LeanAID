@@ -102,52 +102,70 @@ function genCase() {
            meal: meal, microBolusAllowed: chance(0.5), currentTime: now };
 }
 
+// Flag Math.round calls whose argument lies within 1e-9 (relative) of a .5 tie: there,
+// double rounding and exact arithmetic can go different ways (DESIGN D2, FINDINGS F-13).
+var realRound = Math.round, nearTie = false;
+Math.round = function (x) {
+  var f = x - Math.floor(x);
+  if (Math.abs(f - 0.5) <= 1e-9 * Math.max(1, Math.abs(x))) nearTie = true;
+  return realRound(x);
+};
 function runNode(c) {
+  nearTie = false;
   var gs = getLastGlucose(JSON.parse(JSON.stringify(c.glucose)));
   var autosens = c.autosens ? JSON.parse(JSON.stringify(c.autosens)) : null;
   var rT = determine_basal(gs, JSON.parse(JSON.stringify(c.currenttemp)), JSON.parse(JSON.stringify(c.iob)),
     JSON.parse(JSON.stringify(c.profile)), autosens, JSON.parse(JSON.stringify(c.meal)), tempBasalFunctions,
     c.microBolusAllowed, null, new Date(c.currentTime));
-  return typeof rT.error === 'undefined' ? JSON.stringify(rT) : JSON.stringify({ error: rT.error });
+  var out = typeof rT.error === 'undefined' ? JSON.stringify(rT) : JSON.stringify({ error: rT.error });
+  return { out: out, nearTie: nearTie };
 }
 
 var OUT = path.join(__dirname, 'out');
 fs.mkdirSync(OUT, { recursive: true });
-var casesFile = path.join(OUT, 'cases.jsonl');
-var fd = fs.openSync(casesFile, 'w');
-var expected = [];
-var origErr = console.error; console.error = function () {};
-var origWrite = process.stderr.write.bind(process.stderr); process.stderr.write = function () { return true; };
-for (var n = 0; n < N; n++) {
-  var c = genCase();
-  fs.writeSync(fd, JSON.stringify(c) + '\n');
-  expected.push(runNode(c));
-}
-fs.closeSync(fd);
-console.error = origErr; process.stderr.write = origWrite;
-
-var t0 = Date.now();
-var lean = cp.execFileSync(path.join(ROOT, '.lake/build/bin/aid-lean'), ['batch', casesFile],
-  { encoding: 'utf8', maxBuffer: 1 << 30 }).split('\n');
-var leanSecs = (Date.now() - t0) / 1000;
-
+var casesFile = path.join(OUT, 'chunk.jsonl');
 var stats = { cases: N, seed: parseInt(process.argv[3] || '1', 10), identical: 0, reasonOnly: 0, valueDiff: 0,
-  fieldsDiffering: {}, paths: { smbUnits: 0, errors: 0, rateNull: 0 }, aidLeanSeconds: leanSecs };
+  predOnlyPlusMinus1: 0, rateDiffers: 0, mismatchWithNearTie: 0, mismatchWithoutNearTie: 0, casesWithNearTie: 0, fieldsDiffering: {}, paths: { smbUnits: 0, errors: 0, rateNull: 0 },
+  aidLeanSeconds: 0 };
 var mm = fs.openSync(path.join(OUT, 'mismatches.jsonl'), 'w');
-var cases = fs.readFileSync(casesFile, 'utf8').split('\n');
-for (n = 0; n < N; n++) {
-  var e = expected[n], l = lean[n];
-  var eo = JSON.parse(e);
-  if (eo.units !== undefined) stats.paths.smbUnits++;
-  if (eo.error !== undefined) stats.paths.errors++;
-  if (eo.rate === null) stats.paths.rateNull++;
-  if (e === l) { stats.identical++; continue; }
-  var lo; try { lo = JSON.parse(l); } catch (err) { lo = {}; }
-  var keys = {}; Object.keys(eo).concat(Object.keys(lo)).forEach(function (k) { keys[k] = 1; });
-  var diff = Object.keys(keys).filter(function (k) { return JSON.stringify(eo[k]) !== JSON.stringify(lo[k]); });
-  if (diff.length === 1 && diff[0] === 'reason') stats.reasonOnly++; else stats.valueDiff++;
-  diff.forEach(function (k) { stats.fieldsDiffering[k] = (stats.fieldsDiffering[k] || 0) + 1; });
-  fs.writeSync(mm, JSON.stringify({ n: n, fields: diff, oref0: eo, aidLean: lo, input: JSON.parse(cases[n]) }) + '\n');
+var CHUNK = 10000;
+function predOnly1(eo, lo, diff) {
+  if (diff.some(function (f) { return f !== 'predBGs' && f !== 'reason'; })) return false;
+  return ['IOB', 'ZT', 'COB', 'UAM'].every(function (k) {
+    var a = (eo.predBGs || {})[k] || [], b = (lo.predBGs || {})[k] || [];
+    return a.length === b.length && a.every(function (x, i) { return Math.abs(x - b[i]) <= 1; });
+  });
+}
+for (var base = 0; base < N; base += CHUNK) {
+  var m = Math.min(CHUNK, N - base);
+  var cases = [], expected = [];
+  var origErr = console.error; console.error = function () {};
+  var origWrite = process.stderr.write.bind(process.stderr); process.stderr.write = function () { return true; };
+  for (var n = 0; n < m; n++) { var c = genCase(); cases.push(JSON.stringify(c)); expected.push(runNode(c)); }
+  console.error = origErr; process.stderr.write = origWrite;
+  fs.writeFileSync(casesFile, cases.join('\n') + '\n');
+  var t0 = Date.now();
+  var lean = cp.execFileSync(path.join(ROOT, '.lake/build/bin/aid-lean'), ['batch', casesFile],
+    { encoding: 'utf8', maxBuffer: 1 << 30 }).split('\n');
+  stats.aidLeanSeconds += (Date.now() - t0) / 1000;
+  for (n = 0; n < m; n++) {
+    var e = expected[n].out, l = lean[n], tie = expected[n].nearTie;
+    if (tie) stats.casesWithNearTie++;
+    var eo = JSON.parse(e);
+    if (eo.units !== undefined) stats.paths.smbUnits++;
+    if (eo.error !== undefined) stats.paths.errors++;
+    if (eo.rate === null) stats.paths.rateNull++;
+    if (e === l) { stats.identical++; continue; }
+    if (tie) stats.mismatchWithNearTie++; else stats.mismatchWithoutNearTie++;
+    var lo; try { lo = JSON.parse(l); } catch (err) { lo = {}; }
+    var keys = {}; Object.keys(eo).concat(Object.keys(lo)).forEach(function (k) { keys[k] = 1; });
+    var diff = Object.keys(keys).filter(function (k) { return JSON.stringify(eo[k]) !== JSON.stringify(lo[k]); });
+    if (diff.length === 1 && diff[0] === 'reason') stats.reasonOnly++;
+    else { stats.valueDiff++; if (predOnly1(eo, lo, diff)) stats.predOnlyPlusMinus1++; }
+    if (diff.indexOf('rate') >= 0) stats.rateDiffers++;
+    diff.forEach(function (k) { stats.fieldsDiffering[k] = (stats.fieldsDiffering[k] || 0) + 1; });
+    fs.writeSync(mm, JSON.stringify({ n: base + n, nearTie: tie, fields: diff, oref0: eo, aidLean: lo, input: JSON.parse(cases[n]) }) + '\n');
+  }
 }
 fs.closeSync(mm);
 fs.writeFileSync(path.join(ROOT, 'docs/difftest.json'), JSON.stringify(stats, null, 1) + '\n');
