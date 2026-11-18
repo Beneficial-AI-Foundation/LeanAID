@@ -219,3 +219,23 @@ Unchanged: H1 (`rate_le_roundBasal_maxSafeBasal`, `rate_le_maxSafeBasal_of_grid`
 12.05 / −5.05 minute hypotheses, proved by monotonicity of rounding and kernel evaluation
 at the threshold), `missing_*`, `undated_glucose_max_rate`, `missing_max_basal_no_clamp`,
 `setTempBasal_rate_bound`, `roundBasal_monotone`. All are proved for the double model.
+
+## Found by the virtual-patient harness (M11)
+
+### F-17 — Carbs dated after the decision time: division by zero, aid-lean and oref0 differ
+**Open.** Found 2026-11-18 by the first smoke run of `sim/`, which (through a time-zone
+bug in the harness, since fixed) gave determine-basal a `currentTime` 2 h before the
+carb entry: `meal_data.lastCarbTime` 2 h in the future. The profile is valid (V0–V10).
+Then `lastCarbAge` = −120 min, `remainingCATime` = 3 + 1.5·(−120)/60 = 0, and
+determine-basal.js divides by it (`remainingCIpeak`). JavaScript gives `Infinity`, the
+Lean core `NaN` (DESIGN D1), so the COB and UAM predictions differ: oref0 prints
+`predBGs.COB`/`UAM` and `minPredBG 39, … COBpredBG 39, UAMpredBG 39`, aid-lean has no
+COB/UAM curves and `minPredBG 55`. In this case the issued rate and duration agree (a
+zero temp, from `minGuardBG 34 < 75`). Reproduce: `sim/regression-future-carbs.json`
+(input and both outputs; aid-lean's difference also appears with oref0's own IOB,
+through `aid-lean batch`).
+**Consequence:** DESIGN D1 claimed that valid input never divides by zero; that is false
+for meal data, which the validity conditions V0–V10 do not constrain. Future-dated carb
+entries are possible in practice (Nightscout accepts them; a phone clock can be ahead).
+Not yet checked: whether the rate can differ, and whether `--safe` should reject
+`lastCarbTime > currentTime` (as it rejects carbs without `lastCarbTime`, F-06).

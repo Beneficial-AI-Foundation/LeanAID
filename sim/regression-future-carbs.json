@@ -1,0 +1,1521 @@
+{
+ "note": "aid-lean smoke run 2026-11-18 with the harness time-zone bug: glucose dates and currentTime 2 h before clock, pump history and carbs (lastCarbTime 2 h after currentTime). Same input to both; meal data from oref0 lib/meal. predBGs.COB/UAM and reason differ; rate and duration agree.",
+ "input": {
+  "pumphistory": [
+   {
+    "_type": "Bolus",
+    "amount": 3.6,
+    "programmed": 3.6,
+    "unabsorbed": 0,
+    "duration": 0,
+    "timestamp": "2026-01-01T06:45:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.8,
+    "timestamp": "2026-01-01T06:40:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T06:40:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T06:35:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T06:35:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.7,
+    "timestamp": "2026-01-01T06:25:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T06:25:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 2.8,
+    "timestamp": "2026-01-01T06:20:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T06:20:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T06:10:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T06:10:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T06:00:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T06:00:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.45,
+    "timestamp": "2026-01-01T05:55:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T05:55:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 2.8,
+    "timestamp": "2026-01-01T05:50:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T05:50:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T05:35:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 120,
+    "timestamp": "2026-01-01T05:35:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T05:25:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T05:25:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.75,
+    "timestamp": "2026-01-01T05:00:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T05:00:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.75,
+    "timestamp": "2026-01-01T04:35:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T04:35:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 2.15,
+    "timestamp": "2026-01-01T04:30:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T04:30:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T04:20:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T04:20:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T04:10:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T04:10:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T04:00:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T04:00:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T03:50:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T03:50:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.35,
+    "timestamp": "2026-01-01T03:40:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T03:40:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.8,
+    "timestamp": "2026-01-01T03:35:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T03:35:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T03:30:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T03:30:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.25,
+    "timestamp": "2026-01-01T03:25:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T03:25:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.8,
+    "timestamp": "2026-01-01T03:20:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T03:20:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T03:15:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T03:15:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T03:00:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T03:00:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.75,
+    "timestamp": "2026-01-01T02:40:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T02:40:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.05,
+    "timestamp": "2026-01-01T02:35:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T02:35:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T02:30:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T02:30:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 0.0,
+    "timestamp": "2026-01-01T02:20:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T02:20:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T02:05:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T02:05:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.45,
+    "timestamp": "2026-01-01T02:00:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T02:00:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T01:55:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T01:55:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.7,
+    "timestamp": "2026-01-01T01:45:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T01:45:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T01:35:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T01:35:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T01:20:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T01:20:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.75,
+    "timestamp": "2026-01-01T00:55:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T00:55:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 1.25,
+    "timestamp": "2026-01-01T00:50:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T00:50:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.75,
+    "timestamp": "2026-01-01T00:30:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T00:30:00.000Z"
+   },
+   {
+    "_type": "TempBasal",
+    "temp": "absolute",
+    "rate": 3.75,
+    "timestamp": "2026-01-01T00:05:00.000Z"
+   },
+   {
+    "_type": "TempBasalDuration",
+    "duration (min)": 30,
+    "timestamp": "2026-01-01T00:05:00.000Z"
+   }
+  ],
+  "glucose": [
+   {
+    "date": 1767242700000,
+    "dateString": "2026-01-01T06:45:00.000Z",
+    "sgv": 111,
+    "glucose": 111,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767242400000,
+    "dateString": "2026-01-01T06:40:00.000Z",
+    "sgv": 118,
+    "glucose": 118,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767242100000,
+    "dateString": "2026-01-01T06:35:00.000Z",
+    "sgv": 121,
+    "glucose": 121,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767241800000,
+    "dateString": "2026-01-01T06:30:00.000Z",
+    "sgv": 122,
+    "glucose": 122,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767241500000,
+    "dateString": "2026-01-01T06:25:00.000Z",
+    "sgv": 121,
+    "glucose": 121,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767241200000,
+    "dateString": "2026-01-01T06:20:00.000Z",
+    "sgv": 119,
+    "glucose": 119,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767240900000,
+    "dateString": "2026-01-01T06:15:00.000Z",
+    "sgv": 117,
+    "glucose": 117,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767240600000,
+    "dateString": "2026-01-01T06:10:00.000Z",
+    "sgv": 116,
+    "glucose": 116,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767240300000,
+    "dateString": "2026-01-01T06:05:00.000Z",
+    "sgv": 119,
+    "glucose": 119,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767240000000,
+    "dateString": "2026-01-01T06:00:00.000Z",
+    "sgv": 122,
+    "glucose": 122,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767239700000,
+    "dateString": "2026-01-01T05:55:00.000Z",
+    "sgv": 124,
+    "glucose": 124,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767239400000,
+    "dateString": "2026-01-01T05:50:00.000Z",
+    "sgv": 121,
+    "glucose": 121,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767239100000,
+    "dateString": "2026-01-01T05:45:00.000Z",
+    "sgv": 118,
+    "glucose": 118,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767238800000,
+    "dateString": "2026-01-01T05:40:00.000Z",
+    "sgv": 117,
+    "glucose": 117,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767238500000,
+    "dateString": "2026-01-01T05:35:00.000Z",
+    "sgv": 122,
+    "glucose": 122,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767238200000,
+    "dateString": "2026-01-01T05:30:00.000Z",
+    "sgv": 130,
+    "glucose": 130,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767237900000,
+    "dateString": "2026-01-01T05:25:00.000Z",
+    "sgv": 137,
+    "glucose": 137,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767237600000,
+    "dateString": "2026-01-01T05:20:00.000Z",
+    "sgv": 140,
+    "glucose": 140,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767237300000,
+    "dateString": "2026-01-01T05:15:00.000Z",
+    "sgv": 139,
+    "glucose": 139,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767237000000,
+    "dateString": "2026-01-01T05:10:00.000Z",
+    "sgv": 135,
+    "glucose": 135,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767236700000,
+    "dateString": "2026-01-01T05:05:00.000Z",
+    "sgv": 130,
+    "glucose": 130,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767236400000,
+    "dateString": "2026-01-01T05:00:00.000Z",
+    "sgv": 125,
+    "glucose": 125,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767236100000,
+    "dateString": "2026-01-01T04:55:00.000Z",
+    "sgv": 121,
+    "glucose": 121,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767235800000,
+    "dateString": "2026-01-01T04:50:00.000Z",
+    "sgv": 121,
+    "glucose": 121,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767235500000,
+    "dateString": "2026-01-01T04:45:00.000Z",
+    "sgv": 119,
+    "glucose": 119,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767235200000,
+    "dateString": "2026-01-01T04:40:00.000Z",
+    "sgv": 117,
+    "glucose": 117,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767234900000,
+    "dateString": "2026-01-01T04:35:00.000Z",
+    "sgv": 115,
+    "glucose": 115,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767234600000,
+    "dateString": "2026-01-01T04:30:00.000Z",
+    "sgv": 113,
+    "glucose": 113,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767234300000,
+    "dateString": "2026-01-01T04:25:00.000Z",
+    "sgv": 112,
+    "glucose": 112,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767234000000,
+    "dateString": "2026-01-01T04:20:00.000Z",
+    "sgv": 113,
+    "glucose": 113,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767233700000,
+    "dateString": "2026-01-01T04:15:00.000Z",
+    "sgv": 115,
+    "glucose": 115,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767233400000,
+    "dateString": "2026-01-01T04:10:00.000Z",
+    "sgv": 116,
+    "glucose": 116,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767233100000,
+    "dateString": "2026-01-01T04:05:00.000Z",
+    "sgv": 117,
+    "glucose": 117,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767232800000,
+    "dateString": "2026-01-01T04:00:00.000Z",
+    "sgv": 118,
+    "glucose": 118,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767232500000,
+    "dateString": "2026-01-01T03:55:00.000Z",
+    "sgv": 119,
+    "glucose": 119,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767232200000,
+    "dateString": "2026-01-01T03:50:00.000Z",
+    "sgv": 121,
+    "glucose": 121,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767231900000,
+    "dateString": "2026-01-01T03:45:00.000Z",
+    "sgv": 123,
+    "glucose": 123,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767231600000,
+    "dateString": "2026-01-01T03:40:00.000Z",
+    "sgv": 125,
+    "glucose": 125,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767231300000,
+    "dateString": "2026-01-01T03:35:00.000Z",
+    "sgv": 127,
+    "glucose": 127,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767231000000,
+    "dateString": "2026-01-01T03:30:00.000Z",
+    "sgv": 129,
+    "glucose": 129,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767230700000,
+    "dateString": "2026-01-01T03:25:00.000Z",
+    "sgv": 130,
+    "glucose": 130,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767230400000,
+    "dateString": "2026-01-01T03:20:00.000Z",
+    "sgv": 130,
+    "glucose": 130,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767230100000,
+    "dateString": "2026-01-01T03:15:00.000Z",
+    "sgv": 130,
+    "glucose": 130,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767229800000,
+    "dateString": "2026-01-01T03:10:00.000Z",
+    "sgv": 132,
+    "glucose": 132,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767229500000,
+    "dateString": "2026-01-01T03:05:00.000Z",
+    "sgv": 136,
+    "glucose": 136,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767229200000,
+    "dateString": "2026-01-01T03:00:00.000Z",
+    "sgv": 141,
+    "glucose": 141,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767228900000,
+    "dateString": "2026-01-01T02:55:00.000Z",
+    "sgv": 143,
+    "glucose": 143,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767228600000,
+    "dateString": "2026-01-01T02:50:00.000Z",
+    "sgv": 141,
+    "glucose": 141,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767228300000,
+    "dateString": "2026-01-01T02:45:00.000Z",
+    "sgv": 137,
+    "glucose": 137,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767228000000,
+    "dateString": "2026-01-01T02:40:00.000Z",
+    "sgv": 131,
+    "glucose": 131,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767227700000,
+    "dateString": "2026-01-01T02:35:00.000Z",
+    "sgv": 127,
+    "glucose": 127,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767227400000,
+    "dateString": "2026-01-01T02:30:00.000Z",
+    "sgv": 125,
+    "glucose": 125,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767227100000,
+    "dateString": "2026-01-01T02:25:00.000Z",
+    "sgv": 128,
+    "glucose": 128,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767226800000,
+    "dateString": "2026-01-01T02:20:00.000Z",
+    "sgv": 130,
+    "glucose": 130,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767226500000,
+    "dateString": "2026-01-01T02:15:00.000Z",
+    "sgv": 133,
+    "glucose": 133,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767226200000,
+    "dateString": "2026-01-01T02:10:00.000Z",
+    "sgv": 135,
+    "glucose": 135,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767225900000,
+    "dateString": "2026-01-01T02:05:00.000Z",
+    "sgv": 137,
+    "glucose": 137,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767225600000,
+    "dateString": "2026-01-01T02:00:00.000Z",
+    "sgv": 139,
+    "glucose": 139,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767225300000,
+    "dateString": "2026-01-01T01:55:00.000Z",
+    "sgv": 140,
+    "glucose": 140,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767225000000,
+    "dateString": "2026-01-01T01:50:00.000Z",
+    "sgv": 140,
+    "glucose": 140,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767224700000,
+    "dateString": "2026-01-01T01:45:00.000Z",
+    "sgv": 139,
+    "glucose": 139,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767224400000,
+    "dateString": "2026-01-01T01:40:00.000Z",
+    "sgv": 139,
+    "glucose": 139,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767224100000,
+    "dateString": "2026-01-01T01:35:00.000Z",
+    "sgv": 140,
+    "glucose": 140,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767223800000,
+    "dateString": "2026-01-01T01:30:00.000Z",
+    "sgv": 142,
+    "glucose": 142,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767223500000,
+    "dateString": "2026-01-01T01:25:00.000Z",
+    "sgv": 145,
+    "glucose": 145,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767223200000,
+    "dateString": "2026-01-01T01:20:00.000Z",
+    "sgv": 148,
+    "glucose": 148,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767222900000,
+    "dateString": "2026-01-01T01:15:00.000Z",
+    "sgv": 150,
+    "glucose": 150,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767222600000,
+    "dateString": "2026-01-01T01:10:00.000Z",
+    "sgv": 151,
+    "glucose": 151,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767222300000,
+    "dateString": "2026-01-01T01:05:00.000Z",
+    "sgv": 148,
+    "glucose": 148,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767222000000,
+    "dateString": "2026-01-01T01:00:00.000Z",
+    "sgv": 144,
+    "glucose": 144,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767221700000,
+    "dateString": "2026-01-01T00:55:00.000Z",
+    "sgv": 140,
+    "glucose": 140,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767221400000,
+    "dateString": "2026-01-01T00:50:00.000Z",
+    "sgv": 138,
+    "glucose": 138,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767221100000,
+    "dateString": "2026-01-01T00:45:00.000Z",
+    "sgv": 138,
+    "glucose": 138,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767220800000,
+    "dateString": "2026-01-01T00:40:00.000Z",
+    "sgv": 139,
+    "glucose": 139,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767220500000,
+    "dateString": "2026-01-01T00:35:00.000Z",
+    "sgv": 139,
+    "glucose": 139,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767220200000,
+    "dateString": "2026-01-01T00:30:00.000Z",
+    "sgv": 138,
+    "glucose": 138,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767219900000,
+    "dateString": "2026-01-01T00:25:00.000Z",
+    "sgv": 136,
+    "glucose": 136,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767219600000,
+    "dateString": "2026-01-01T00:20:00.000Z",
+    "sgv": 135,
+    "glucose": 135,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767219300000,
+    "dateString": "2026-01-01T00:15:00.000Z",
+    "sgv": 133,
+    "glucose": 133,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767219000000,
+    "dateString": "2026-01-01T00:10:00.000Z",
+    "sgv": 130,
+    "glucose": 130,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767218700000,
+    "dateString": "2026-01-01T00:05:00.000Z",
+    "sgv": 127,
+    "glucose": 127,
+    "type": "sgv",
+    "device": "simglucose"
+   },
+   {
+    "date": 1767218400000,
+    "dateString": "2026-01-01T00:00:00.000Z",
+    "sgv": 123,
+    "glucose": 123,
+    "type": "sgv",
+    "device": "simglucose"
+   }
+  ],
+  "profile": {
+   "max_iob": 9.8,
+   "max_daily_safety_multiplier": 3,
+   "current_basal_safety_multiplier": 4,
+   "autosens_max": 1.2,
+   "autosens_min": 0.7,
+   "rewind_resets_autosens": true,
+   "high_temptarget_raises_sensitivity": false,
+   "low_temptarget_lowers_sensitivity": false,
+   "sensitivity_raises_target": true,
+   "resistance_lowers_target": false,
+   "exercise_mode": false,
+   "half_basal_exercise_target": 160,
+   "maxCOB": 120,
+   "unsuspend_if_no_temp": false,
+   "bolussnooze_dia_divisor": 2,
+   "min_5m_carbimpact": 8,
+   "autotune_isf_adjustmentFraction": 1,
+   "remainingCarbsFraction": 1,
+   "remainingCarbsCap": 90,
+   "enableUAM": true,
+   "A52_risk_enable": false,
+   "enableSMB_with_COB": false,
+   "enableSMB_with_temptarget": false,
+   "enableSMB_always": false,
+   "enableSMB_after_carbs": false,
+   "enableSMB_high_bg": false,
+   "enableSMB_high_bg_target": 110,
+   "allowSMB_with_high_temptarget": false,
+   "maxSMBBasalMinutes": 30,
+   "maxUAMSMBBasalMinutes": 30,
+   "SMBInterval": 3,
+   "bolus_increment": 0.1,
+   "maxDelta_bg_threshold": 0.2,
+   "curve": "rapid-acting",
+   "useCustomPeakTime": false,
+   "insulinPeakTime": 75,
+   "carbsReqThreshold": 1,
+   "offline_hotspot": false,
+   "noisyCGMTargetMultiplier": 1.3,
+   "suspend_zeros_iob": true,
+   "enableEnliteBgproxy": false,
+   "calc_glucose_noise": false,
+   "target_bg": false,
+   "edison_battery_shutdown_voltage": 3050,
+   "pi_battery_shutdown_percent": 2,
+   "dia": 5,
+   "current_basal": 1.25,
+   "basalprofile": [
+    {
+     "i": 0,
+     "start": "00:00:00",
+     "minutes": 0,
+     "rate": 1.25
+    }
+   ],
+   "max_daily_basal": 1.25,
+   "max_basal": 3.75,
+   "out_units": "mg/dL",
+   "min_bg": 110,
+   "max_bg": 110,
+   "bg_targets": {
+    "units": "mg/dL",
+    "user_preferred_units": "mg/dL",
+    "targets": [
+     {
+      "i": 0,
+      "start": "00:00:00",
+      "offset": 0,
+      "low": 110,
+      "high": 110,
+      "min_bg": 110,
+      "max_bg": 110
+     }
+    ]
+   },
+   "sens": 9,
+   "isfProfile": {
+    "units": "mg/dL",
+    "user_preferred_units": "mg/dL",
+    "sensitivities": [
+     {
+      "i": 0,
+      "start": "00:00:00",
+      "sensitivity": 9,
+      "offset": 0,
+      "x": 0,
+      "endOffset": 1440
+     }
+    ]
+   },
+   "carb_ratio": 10,
+   "carb_ratios": {
+    "units": "grams",
+    "schedule": [
+     {
+      "i": 0,
+      "start": "00:00:00",
+      "offset": 0,
+      "ratio": 10
+     }
+    ]
+   }
+  },
+  "clock": "2026-01-01T06:45:00.000Z",
+  "currenttemp": {
+   "duration": 25,
+   "rate": 0.8,
+   "temp": "absolute"
+  },
+  "autosens": {
+   "ratio": 1
+  },
+  "microBolusAllowed": false,
+  "currentTime": 1767242700000,
+  "meal": {
+   "carbs": 36,
+   "nsCarbs": 36,
+   "bwCarbs": 0,
+   "journalCarbs": 0,
+   "mealCOB": 36,
+   "currentDeviation": -3.41,
+   "maxDeviation": 2.1,
+   "minDeviation": -1.22,
+   "slopeFromMaxDeviation": -1.837,
+   "slopeFromMinDeviation": 0,
+   "allDeviations": [
+    -3,
+    -1,
+    1,
+    2,
+    2,
+    0,
+    -1
+   ],
+   "lastCarbTime": 1767249900000,
+   "bwFound": false
+  }
+ },
+ "oref0": {
+  "temp": "absolute",
+  "bg": 111,
+  "tick": -7,
+  "eventualBG": 63,
+  "insulinReq": 0,
+  "reservoir": null,
+  "deliverAt": "2026-01-01T04:45:00.000Z",
+  "sensitivityRatio": 1,
+  "predBGs": {
+   "IOB": [
+    111,
+    105,
+    98,
+    93,
+    87,
+    83,
+    78,
+    74,
+    71,
+    68,
+    66,
+    64,
+    63,
+    61,
+    60,
+    59,
+    57,
+    56,
+    55,
+    54,
+    53,
+    51,
+    50,
+    49,
+    48,
+    47,
+    46,
+    45,
+    44,
+    43,
+    42,
+    42,
+    41,
+    40,
+    39
+   ],
+   "ZT": [
+    111,
+    111,
+    110,
+    109,
+    108,
+    107,
+    106,
+    105,
+    104,
+    103,
+    102,
+    101,
+    100,
+    99,
+    98,
+    97,
+    96,
+    95,
+    94,
+    93,
+    92,
+    91,
+    91,
+    90,
+    90,
+    89,
+    89,
+    88,
+    88,
+    88,
+    87,
+    87,
+    87,
+    87,
+    87,
+    87,
+    87,
+    88,
+    88,
+    88,
+    89,
+    89,
+    89,
+    90,
+    90,
+    91,
+    91,
+    92
+   ],
+   "COB": [
+    111,
+    105,
+    98,
+    93,
+    87,
+    83,
+    78,
+    74,
+    71,
+    68,
+    66,
+    64,
+    63,
+    61,
+    60,
+    59,
+    57,
+    56,
+    55,
+    54,
+    53,
+    51,
+    50,
+    49,
+    48,
+    47,
+    46,
+    45,
+    44,
+    43,
+    42,
+    42,
+    41,
+    40,
+    39
+   ],
+   "UAM": [
+    111,
+    105,
+    98,
+    93,
+    87,
+    83,
+    78,
+    74,
+    71,
+    68,
+    66,
+    64,
+    63,
+    61,
+    60,
+    59,
+    57,
+    56,
+    55,
+    54,
+    53,
+    51,
+    50,
+    49,
+    48,
+    47,
+    46,
+    45,
+    44,
+    43,
+    42,
+    42,
+    41,
+    40,
+    39
+   ]
+  },
+  "COB": 36,
+  "IOB": 4.678,
+  "BGI": 0,
+  "deviation": -6,
+  "ISF": 9,
+  "CR": 10,
+  "target_bg": 110,
+  "reason": "COB: 36, Dev: -6, BGI: 0, ISF: 9, CR: 10, minPredBG 39, minGuardBG 34, IOBpredBG 39, COBpredBG 39, UAMpredBG 39; minGuardBG 34<75",
+  "duration": 120,
+  "rate": 0
+ },
+ "aid_lean": {
+  "temp": "absolute",
+  "bg": 111,
+  "tick": -7,
+  "eventualBG": 63,
+  "insulinReq": 0,
+  "reservoir": null,
+  "deliverAt": "2026-01-01T04:45:00.000Z",
+  "sensitivityRatio": 1,
+  "predBGs": {
+   "IOB": [
+    111,
+    105,
+    98,
+    93,
+    87,
+    83,
+    78,
+    74,
+    71,
+    68,
+    66,
+    64,
+    63,
+    61,
+    60,
+    59,
+    57,
+    56,
+    55,
+    54,
+    53,
+    51,
+    50,
+    49,
+    48,
+    47,
+    46,
+    45,
+    44,
+    43,
+    42,
+    42,
+    41,
+    40,
+    39
+   ],
+   "ZT": [
+    111,
+    111,
+    110,
+    109,
+    108,
+    107,
+    106,
+    105,
+    104,
+    103,
+    102,
+    101,
+    100,
+    99,
+    98,
+    97,
+    96,
+    95,
+    94,
+    93,
+    92,
+    91,
+    91,
+    90,
+    90,
+    89,
+    89,
+    88,
+    88,
+    88,
+    87,
+    87,
+    87,
+    87,
+    87,
+    87,
+    87,
+    88,
+    88,
+    88,
+    89,
+    89,
+    89,
+    90,
+    90,
+    91,
+    91,
+    92
+   ]
+  },
+  "COB": 36,
+  "IOB": 4.678,
+  "BGI": 0,
+  "deviation": -6,
+  "ISF": 9,
+  "CR": 10,
+  "target_bg": 110,
+  "reason": "COB: 36, Dev: -6, BGI: 0, ISF: 9, CR: 10, minPredBG 55, minGuardBG 34, IOBpredBG 39; minGuardBG 34<75",
+  "duration": 120,
+  "rate": 0
+ }
+}

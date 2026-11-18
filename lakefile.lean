@@ -9,7 +9,7 @@ lean_lib LeanAID where
   roots := #[`LeanAID]
 
 lean_lib App where
-  roots := #[`App.Json]
+  roots := #[`App.Json, `App.Serve]
 
 @[default_target]
 lean_exe «aid-lean» where

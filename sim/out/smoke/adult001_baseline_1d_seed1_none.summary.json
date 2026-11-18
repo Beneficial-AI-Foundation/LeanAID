@@ -1,0 +1,42 @@
+{
+ "run_id": "adult001_baseline_1d_seed1_none",
+ "patient": "adult#001",
+ "controller": "baseline",
+ "days": 1,
+ "meal_seed": 1,
+ "fault": "none",
+ "steps": 288,
+ "meals": [
+  [
+   405,
+   36.0
+  ],
+  [
+   740,
+   73.0
+  ]
+ ],
+ "missed_meals": [],
+ "tir_70_180": 0.9479166666666666,
+ "below_70": 0.0,
+ "below_54": 0.0,
+ "above_180": 0.052083333333333336,
+ "above_250": 0.0,
+ "mean_bg": 139.429406532106,
+ "cv": 0.18243436700487495,
+ "min_bg": 94.97545544915617,
+ "max_bg": 195.00738691193231,
+ "insulin_per_day": 41.316651999892585,
+ "basal_U": 30.416651999892586,
+ "bolus_U": 10.9,
+ "smb_U": 0.0,
+ "decisions_compared": 0,
+ "decisions_identical": 0,
+ "iob_identical": 0,
+ "first_difference": null,
+ "violations": {},
+ "controller_errors": 0,
+ "profile": null,
+ "configured_max_basal": 3.75,
+ "wall_seconds": 1.2374610900878906
+}

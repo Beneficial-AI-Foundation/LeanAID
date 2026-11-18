@@ -9,3 +9,7 @@ vendor/
 scripts/difftest/out/
 refs/HA2010-*.txt
 refs/SR2011-*.txt
+sim/out/runs/
+sim/out/logs/
+sim/out/**/*.jsonl.gz
+sim/out/**/*.tmp

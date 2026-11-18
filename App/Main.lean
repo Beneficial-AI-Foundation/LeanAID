@@ -6,6 +6,7 @@
                              [--auto-sens F] [--meal F] [--reservoir F] [--currentTime T]
                              [--microbolus] [--safe]
     aid-lean selftest
+    aid-lean serve        (JSON lines on stdin: IOB and determine-basal; see App/Serve.lean)
 
   `determine-basal` mirrors `bin/oref0-determine-basal.js`: the suggestion as JSON on
   stdout, or the error on stderr. `--safe` (not in oref0) first checks that the input
@@ -16,6 +17,7 @@
   RESEARCH ARTIFACT. NOT FOR DOSING INSULIN.
 -/
 import App.Json
+import App.Serve
 import LeanAID.Core.JsonOut
 import LeanAID.Spec.ValidCheck
 import LeanAID.Conformance.Case
@@ -224,6 +226,7 @@ def main (args : List String) : IO UInt32 := do
   | "determine-basal" :: rest => App.determineBasalCmd rest
   | ["selftest"] => App.selftest
   | ["batch", f] => App.batch f
+  | ["serve"] => App.Serve.serve
   | _ =>
-    IO.eprintln "usage: aid-lean determine-basal <iob.json> <currenttemp.json> <glucose.json> <profile.json> [<autosens.json>] [<meal.json>] [options]\n       aid-lean selftest\nResearch artifact. Not for dosing insulin."
+    IO.eprintln "usage: aid-lean determine-basal <iob.json> <currenttemp.json> <glucose.json> <profile.json> [<autosens.json>] [<meal.json>] [options]\n       aid-lean selftest\n       aid-lean serve\nResearch artifact. Not for dosing insulin."
     return 1

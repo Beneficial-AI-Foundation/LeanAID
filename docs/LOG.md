@@ -608,3 +608,66 @@ by the rounding tolerance of H2 (2^-44 relative, "smaller than one part in 10^13
 FINDINGS F-16) and the Math.exp note (DESIGN D5); the 83,089 / 82 figures are kept as
 the result of the earlier exact-arithmetic version. Only these sentences and numbers were
 changed; the maintainer's text is otherwise untouched.
+
+## M11 virtual patients, parts 1 and 2: harness and smoke test
+
+**Time:** 2026-11-18 21:01–21:53 (from `date`; part 1 started 21:01:45, `lake test`
+21:45:12–21:46:38, final smoke runs 21:46:58–21:53:03)
+
+Task: `prompts/overnight-sim.md`. Python 3.9.6 (system) is new enough: `.venv` with
+simglucose 0.2.11, matplotlib 3.9.4, pandas 2.3.3 (`sim/requirements.txt`, full freeze).
+
+Harness (`sim/`, see `sim/README.md`): simglucose patient model stepped minute by minute,
+GuardianRT sensor (5-minute samples), seeded meals (RandomScenario) announced with carbs
+and a carbs/CR bolus; inputs built from the last 12 h; oref0 as one long-lived Node
+process (`sim/oref0_server.js`: lib/profile, lib/meal, lib/iob, determine-basal);
+aid-lean as one long-lived `aid-lean serve` process (new, `App/Serve.lean`: IOB with
+`LeanAID.Iob.generate` and the decision with `determineBasal`, JSON lines). Meal data
+(COB) in the aid-lean arm comes from oref0's lib/meal (JavaScript). In aid-lean runs
+oref0 also runs on every input, and decisions and IOB arrays are compared at every step.
+Safety monitor `sim/monitor.py`: R1, R2, R4, R6, R8–R12 on each decision, plus "SMB
+issued while off". Profiles from simglucose's parameters through oref0's lib/profile.
+
+Speed. The first aid-lean step took 3.5 s (a simulated day ≈ 17 min): `rd` on
+rationals (a gcd per operation) and `Math.exp`, evaluated ~10^4 times per step in the
+IOB curve. Changes, all without trusted code (`check.sh` forbids `implemented_by` in the
+core; a first attempt with it was reverted before any commit):
+- `Exp.taylor` evaluates the same exact polynomial as one integer fraction (old form kept
+  as `taylorHorner`; equality checked on the curve's 1,202 arguments by
+  `taylor_eq_horner_samples`, not proved);
+- `Core/Binary64Impl.lean`: `rdImpl` with naturals only, and `rd_eq_rdImpl : rd = rdImpl`
+  proved and registered `@[csimp]`;
+- `Exp.jsExpFast`: `jsExp` from a table of its own values at the curves' arguments
+  (DIA 5–8 h, peaks 55/75 min), `jsExp_eq_jsExpFast` proved, `@[csimp]`.
+Result: 0.75 s per step (≈ 4 min per simulated day), identical output on the test input.
+Checks after the change: `lake build` and `lake test` pass (148/148 conformance, IOB
+51/51 exact, check.sh OK, headline axioms unchanged); differential test re-run (seed 7):
+100,000/100,000 identical, aid-lean 419 s (was 879 s); `docs/difftest.json` restored to
+the committed file since only the time changed.
+
+Smoke test (adult#001, 1 simulated day, meal seed 1; summaries in `sim/out/smoke/`):
+- oref0 and aid-lean: the same 288 decisions; aid-lean = oref0 at every step (288/288
+  decisions byte-identical, 288/288 IOB arrays identical); true BG, CGM and delivered
+  insulin traces identical. TIR 100%, mean BG 114 mg/dL, 44.1 U/day. Baseline (BB
+  controller): TIR 94.8%, mean 139, 41.3 U/day. No monitor violation.
+- faults, 1 day, oref0 and aid-lean: dropout, compression, missed meal, F-11 behave as
+  designed (see the reasons in the logs); F-12 (no `max_basal`): 23 decisions above the
+  configured max_basal (monitor R1) and 11% of the day below 70 mg/dL, in both arms.
+  With F-11 the repeated undated reading makes oref0 take its "CGM data is unchanged"
+  branch, so in this run it did not raise insulin.
+- Time per simulated day (one process, no other load): oref0 3.6 s, baseline 1.2 s,
+  aid-lean ≈ 226 s.
+- A harness bug (naive datetimes: glucose dates and `currentTime` 2 h behind the ISO
+  strings) made the first smoke run feed carbs dated 2 h in the future; on that input
+  aid-lean and oref0 differ (predictions only): FINDINGS F-17, kept in
+  `sim/regression-future-carbs.json`. Bug fixed (UTC-aware times), runs repeated.
+
+Estimate for part 3. With three aid-lean runs in parallel a simulated day took 285–362 s
+(226 s alone); with 7 workers on 4 performance + 4 efficiency cores we assume ≈ 350 s.
+Items 1–3: 180 aid-lean runs × 2 days ≈ 126,000 worker-seconds / 7 ≈ 5 h (oref0 and
+baseline runs add minutes). Item 4: a 7-day aid-lean run ≈ 40 min, so one meal seed for
+30 patients × 2 controllers ≈ 3 h; the remaining ≈ 7 h cover about 2 seeds.
+
+`docs/numbers.json` was not regenerated: the theorem count is now higher than its 274
+(the equalities in `Core/Binary64Impl.lean` and `Core/Exp.lean` and the
+`taylor_eq_horner_samples` check); the project page is not edited (part 4 rule).

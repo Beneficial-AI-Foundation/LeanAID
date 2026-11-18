@@ -31,6 +31,15 @@ as in JavaScript, and the JSON reader rounds every input number to a double. No 
 is used: `rd` is defined with integer arithmetic (`Nat.log2`, `Rat.floor`), so the kernel
 can evaluate it and the proofs can reason about it.
 
+Compiled code runs a faster but equal version: `rdImpl` (`Core/Binary64Impl.lean`)
+computes the same value from numerator and denominator with natural numbers only (bit
+lengths, one product, one division), and the theorem `rd_eq_rdImpl : rd = rdImpl` is a
+`@[csimp]` lemma, so the compiler substitutes it wherever `rd` is used (the binary and
+`native_decide`), while the kernel and the proofs see `rd`. Likewise `Exp.jsExp` is
+replaced by a table lookup (`jsExp_eq_jsExpFast`, below). Both were added for the
+closed-loop simulation (M11), which was about 10x too slow with the rational `rd`; no
+trusted step is added, since each replacement is a proved equality.
+
 History: until the second review the core used exact rational arithmetic (no
 rounding). That agreed with oref0 byte for byte on 83.1% of 100,000 random inputs and
 differed in the issued rate in 82 (FINDINGS F-13–F-15), because a rounding tie in an
@@ -66,7 +75,7 @@ propagate it, and `!==` distinguishes `undefined` from `NaN`; all of this is mod
 
 | id | difference | consequence |
 |---|---|---|
-| D1 | `x / 0` is `NaN` here, `±Infinity` in JavaScript | none for valid input (no division by zero there) |
+| D1 | `x / 0` is `NaN` here, `±Infinity` in JavaScript | **not** only outside the valid domain: a valid profile with meal data whose `lastCarbTime` is 2 h after the decision time divides by zero in the COB prediction, and aid-lean's `predBGs` and reason then differ from oref0's (FINDINGS F-17; the rate agreed in the one case found) |
 | D2 | overflow to `±Infinity` is not modelled (values above ≈1.8·10³⁰⁸ keep growing) | none: oref0's values on valid input are far below |
 | D3 | `-0` is not modelled | unobservable in outputs (`-0` prints as `0`) |
 | D4 | JSON `null` is read as `undefined` | in JavaScript `null` is 0 in arithmetic; only matters for invalid input |
@@ -127,6 +136,15 @@ polynomial, and squaring, truncating to a 2⁻¹²⁸ grid after each step, then
 the nearest double (`jsExp`). The error bound (< 10⁻³⁵ for `|x| ≤ 128`) is argued in the
 file header; its proof against Mathlib's `Real.exp` is planned for M8 and has not been
 done. No safety theorem depends on it. The tolerance against JavaScript is D5.
+
+Speed (M11). The Taylor polynomial is evaluated with integers, as one fraction
+`Σ a^i b^(n-i) n!/i! / (b^n n!)` for `y = a/b` (`Exp.taylor`), instead of Horner's rule
+on rationals (`Exp.taylorHorner`, kept as the reference). Both are exact, so they are
+the same rational; the equality is not proved, and `taylor_eq_horner_samples`
+(Conformance/Checks.lean) checks it on the 1,202 arguments the curves use with DIA 5 h.
+`jsExpFast` looks `jsExp` up in a table of its own values at the arguments the curves
+use for DIA 5–8 h and peaks 55/75 min; `jsExp_eq_jsExpFast` proves the two equal, and
+as a `@[csimp]` lemma it makes compiled code use the table.
 
 ## What `aid-lean --safe` rejects
 

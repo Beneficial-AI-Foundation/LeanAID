@@ -1,4 +1,4 @@
-import LeanAID.Core.Binary64
+import LeanAID.Core.Binary64Impl
 /-
   LeanAID.Core.JsNum — a model of the JavaScript numbers oref0 computes with.
 

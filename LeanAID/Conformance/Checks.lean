@@ -51,3 +51,15 @@ theorem iob_exact : (IobData.all.filter IobCase.ok).length = 51 := by native_dec
 theorem iob_ties : IobData.all.all IobCase.okUpToTies = true := by native_decide
 
 end LeanAID.Conformance
+
+/-! `Exp.taylor` (integer form) against `Exp.taylorHorner` (rational Horner form) on the
+    arguments the exponential insulin curves use: x = -m/τ for every whole minute
+    m ≤ 600 and the peak times 55 and 75 min with DIA 5 h, halved as `expNonpos` does. -/
+open LeanAID in
+theorem taylor_eq_horner_samples :
+    ((List.range 601).all fun m => [55, 75].all fun peak =>
+      let end_ : Rat := 300
+      let tau : Rat := Binary64.rd (peak * (1 - peak / end_) / (1 - 2 * peak / end_))
+      let x : Rat := Binary64.rd (-(m : Rat) / tau)
+      let y := x / (2 : Rat) ^ Exp.halvings x
+      Exp.taylor y 30 == Exp.taylorHorner y 30) = true := by native_decide
