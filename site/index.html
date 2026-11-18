@@ -177,8 +177,9 @@ footer li { margin: 3px 0; }
     <p class="lede">
       <strong>oref0</strong> is open-source software that decides insulin doses for people with type 1 diabetes.
       An AI agent rewrote it in <strong>Lean</strong>, a programming language in which you can also write mathematical
-      proofs about your code, and proved that its safety rules hold in every situation, not only in the ones someone
-      tested. Where they do not hold, we found out and say so.
+      proofs about your code. For 10 of the 23 safety rules we wrote down, it proved that the Lean version follows the
+      rule for every input with consistent settings, not only in the cases someone tested. Where a rule does not hold,
+      we found out and say so.
     </p>
     <div class="buttons">
       <a class="btn primary" href="#findings">What we found</a>
@@ -200,7 +201,7 @@ footer li { margin: 3px 0; }
     </div></div>
     <div class="layer"><span class="num">2</span><div>
       <h3>Proved its safety rules hold for every possible input</h3>
-      <p>We wrote down 23 safety rules, such as "never give more than the maximum rate" and "give no insulin when glucose is low". Most are limits oref0 already tries to enforce, and each is backed by FDA safety research on insulin pumps. Then we proved the Lean version follows each rule, whatever the input.</p>
+      <p>We wrote down 23 safety rules, such as "never give more than the maximum rate" and "give no insulin when glucose is low". Most are limits oref0 already tries to enforce, and each is backed by FDA safety research on insulin pumps. Then we proved that the Lean version follows 10 of the rules for every input with consistent settings, and 4 more in part. One rule does not hold (see the findings). Of the other 8, 6 are still to be proved, and 2 are covered by how the program is built and by testing.</p>
     </div></div>
     <div class="layer"><span class="num">3</span><div>
       <h3>Checked that the Lean version decides like the original</h3>
@@ -274,7 +275,7 @@ footer li { margin: 3px 0; }
           <tr><td>Any difference</td><td>0</td></tr>
         </tbody>
       </table></div>
-      <p>The Lean version rounds every calculation exactly as JavaScript does. An earlier version computed with exact fractions instead: on the same 100,000 cases it gave identical output in 83,089 and a different insulin rate in 82, usually slightly more insulin.</p>
+      <p>These cases test the dose decision. The insulin still active in the body is one of its inputs, so that calculation is checked separately, on oref0's 51 test cases (all identical). The Lean version rounds every arithmetic operation exactly as JavaScript does, except the exponential function (see Details). An earlier version computed with exact fractions instead: on the same 100,000 cases it gave identical output in 83,089 and a different insulin rate in 82, usually slightly more insulin.</p>
     </div>
     <p class="note">Planned: running both versions on simulated patients over several days.</p>
   </div>
@@ -307,7 +308,7 @@ footer li { margin: 3px 0; }
       <li><b>Research only.</b> Not a medical device and not for dosing insulin.</li>
       <li><b>The program, not the body.</b> The proofs cover what the algorithm decides, not how a patient's glucose responds.</li>
       <li><b>Consistent settings.</b> The proofs assume the user's settings make sense, for example a maximum rate at least as high as the usual rate.</li>
-      <li><b>Rounding.</b> The Lean version rounds every calculation exactly as JavaScript does, so two proved limits (the extra-bolus cap and the cap on active insulin) hold up to a rounding error smaller than one part in 10<sup>13</sup>. JavaScript's exponential function is not exactly rounded and ours is, so the two could differ in the last digit; we never saw this happen.</li>
+      <li><b>Rounding.</b> The Lean version rounds every arithmetic operation exactly as JavaScript does, so two proved limits (the extra-bolus cap and the cap on active insulin) hold up to a rounding error smaller than one part in 10<sup>13</sup>. JavaScript's exponential function is not exactly rounded and ours is: an independent reviewer measured a difference in the last digit for 8% of the values oref0 uses. The exponential is only used to compute the insulin still active in the body; on oref0's 51 test cases for that calculation, the results are identical. The 100,000 random cases do not use it.</li>
       <li><b>Not everything is rewritten.</b> The calculation of carbohydrates still being absorbed is taken as an input, as in the original command-line tool.</li>
       <li><b>Trusted tools.</b> We rely on Lean's compiler and on the C compiler being correct.</li>
       <li><b>Next steps.</b> Proofs over many decisions in a row, tests on simulated patients, and running on a verified operating system (seL4).</li>
