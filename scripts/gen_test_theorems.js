@@ -55,7 +55,7 @@ function instance(id, cn) {
       return ['low_glucose_suspend',
         'theorem ' + nm(id) + '_general : (determineBasal ' + I + ').units = none ∧\n' +
         '    ((determineBasal ' + I + ').rate = some 0 ∨ ((determineBasal ' + I + ').rate = none ∧\n' +
-        '      ∃ c, ' + I + '.currenttemp = some c ∧ c.rate = some (.fin 0))) :=\n' +
+        '      ∃ c x, ' + I + '.currenttemp = some c ∧ c.rate = some (.fin x) ∧ (Binary64.rd x = x → x = 0))) :=\n' +
         '  low_glucose_suspend ' + V + ' ' + P + ' (Or.inl (by decide +kernel)) (Or.inr (by decide +kernel))'];
     case 'DB-22':
       return ['iob_at_max',

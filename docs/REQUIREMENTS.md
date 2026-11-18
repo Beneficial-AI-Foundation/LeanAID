@@ -50,29 +50,33 @@ increment (`round_basal`) shall not produce a value above the limit the rate was
 clamped to. *Sources:* SR2011 1.2.1 (rates in fixed increments); CFR880 (b)(7)(ii)
 (increment size); HA2010 1.1. *Status:* **does not hold (finding F-04)**; proved: the
 counterexample `rate_can_exceed_maxSafeBasal`, the overshoot bound `roundBasal_overshoot`
-(≤ half an increment) and monotonicity `roundBasal_monotone`. Original note: if oref0 violates it, record
+(≤ half an increment, plus double rounding of relative size 2^-50) and monotonicity
+`roundBasal_monotone`. Original note: if oref0 violates it, record
 the counterexample (FINDINGS) and prove the strongest true bound.
 
 **R4 – Temp basal duration.** Every issued duration is 0 (cancel) or between 30 and 120
 minutes. *Sources:* SR2011 1.2.5 (duration of a temporary basal shall not exceed y
-hours). *Status:* not proved (planned). Durations can be NaN for inputs inside V0–V9
+hours). *Status:* not proved (planned). Durations can be NaN for inputs inside V0–V10
 with inconsistent meal data (F-06).
 
 **R5 – Microbolus limits.** For valid input, an issued microbolus (`units`) is positive,
 at most `maxBolus` (oref0's `maxSMBBasalMinutes` / `maxUAMSMBBasalMinutes` worth of
 `current_basal`, default 30 minutes), at most half of `insulinReq`, and a multiple of
 the bolus increment. *Sources:* SR2011 1.3.1 (maximum bolus dosage limit), 1.3.2
-(bolus increments); HA2010 1.1. *Status:* **partly proved**: `microbolus_limits` states
-`u > 0` and `u ≤ maxBolus`. It does **not** state "at most half of insulinReq" or "a
-multiple of the bolus increment". Half of insulinReq is proved as a lemma
-(`smbMicroBolus_le`) but is not part of the headline statement; the increment property
-is not proved.
+(bolus increments); HA2010 1.1. *Status:* **partly proved, up to double rounding**:
+`microbolus_limits` states `u > 0` and `u ≤ maxBolus + maxBolus/2^50 + 2^-90` (in
+doubles the microbolus can be one ulp above maxBolus; F-16). It does **not** state "at
+most half of insulinReq" or "a multiple of the bolus increment". Half of insulinReq (with
+the same tolerance) is proved as a lemma (`smbMicroBolus_le`) but is not part of the
+headline statement; the increment property is not proved.
 
 **R6 – Microbolus never exceeds max IOB.** For valid input, if a microbolus is issued
 then `iob + units ≤ max_iob`. *Sources:* SR2011 1.3.16 (adapted: it requires the unabsorbed part of an extended
 bolus to be counted as insulin on board; we generalise to "account for all insulin on
-board"); HA2010 3.1.3 (incorrect IOB), 1.1. *Status:* **proved** (`microbolus_limits`:
-`iob + u ≤ max_iob` for a finite microbolus u).
+board"); HA2010 3.1.3 (incorrect IOB), 1.1. *Status:* **proved up to double rounding**
+(`microbolus_limits`: `iob + u ≤ max_iob + (max_iob − iob)/2^44 + 2^-79` for a finite
+microbolus u; the excess comes from rounding `max_iob − iob` and the microbolus to
+doubles, F-16).
 
 **R7 – Microbolus spacing.** A microbolus is issued only if the last bolus was more than
 `SMBInterval` minutes ago (default 3, clamped to 1–10). *Sources:* SR2011 1.3.5 (adapted: it forbids
@@ -87,7 +91,8 @@ adjustments) and BG is not rising (`minDelta ≤ 0`), then the controller comman
 zero temp (or leaves a running zero temp in place) and issues no microbolus.
 *Sources:* HA2010 1.1 (overdose leading to hypoglycaemia); SR2011 1.3.14 (no
 correction when BG is below target). *Status:* **proved** (`low_glucose_suspend`), relative
-to oref0's computed threshold (mutation M10).
+to oref0's computed threshold (mutation M10). "A running zero temp" means: a running temp
+whose rate is 0 when it is a double, as every rate read from JSON is (F-16).
 
 **R9 – Predicted low suspend.** Under the same conditions, if oref0's predicted
 `minGuardBG` is below `threshold` (whatever the current BG), the controller commands a

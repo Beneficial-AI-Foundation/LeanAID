@@ -7,6 +7,7 @@ import LeanAID.Proofs.MaxIob
 namespace LeanAID.Proofs
 
 open JsNum
+open Binary64 (rd rd_mono rd_nonneg)
 
 /-- The insulinReq the SMB block receives (lines 1058-1068), for a dose context. -/
 def smbInsulinReq (c : Ctx) : JsNum :=
@@ -122,52 +123,104 @@ theorem smbBolusIncrement_pos {p : Profile} (h : ∀ x : Rat, p.bolus_increment 
       have : x ≠ 0 := by grind
       simp [this]; exact hx
 
-/-- The microbolus is at most half the insulinReq and at most maxBolus. -/
+/-- **The microbolus is at most half the insulinReq and at most maxBolus**, up to
+    double rounding: `u ≤ X + X/2^50 + 2^-90` for `X` = `insulinReq/2` and `X` =
+    `maxBolus`. (In doubles `floor(y·k)/k` can round one ulp above `y`.) A positive
+    microbolus also needs a positive insulinReq and a positive maxBolus. -/
 theorem smbMicroBolus_le {c : Ctx} {ir u : Rat} (hinc : ∀ x : Rat, c.p.bolus_increment = some (.fin x) → 0 < x)
-    (h : smbMicroBolus c (.fin ir) = .fin u) :
-    u ≤ ir / 2 ∧ ∀ mb, smbMaxBolus c = .fin mb → u ≤ mb := by
+    (h : smbMicroBolus c (.fin ir) = .fin u) (hu0 : 0 < u) :
+    0 < ir ∧ u ≤ ir / 2 + ir / 2 ^ 50 + 1 / 2 ^ 90 ∧
+      ∀ mb, smbMaxBolus c = .fin mb → 0 < mb ∧ u ≤ mb + mb / 2 ^ 50 + 1 / 2 ^ 90 := by
+  have ht := tiny_pos; have ht' := tiny_le
   obtain ⟨x, hx, hx0⟩ := smbBolusIncrement_pos hinc
   unfold smbMicroBolus at h
   rw [hx] at h
-  have hk : (1 : Rat) / x ≠ 0 := by
-    intro h0; have : (1 : Rat) / x * x = 0 := by rw [h0]; grind
-    rw [Rat.div_mul_cancel (by grind)] at this; cases this
-  have hkpos : 0 < (1 : Rat) / x := by rw [Rat.lt_div_iff hx0]; grind
   rw [show (1 : JsNum) = .fin 1 from rfl, JsNum.fin_div (by grind : x ≠ 0)] at h
+  have hk0 : 0 ≤ rd (1 / x) := rd_nonneg (Rat.le_of_lt (by rw [Rat.lt_div_iff hx0]; grind))
+  generalize rd (1 / x) = k at h hk0
   cases hmb : smbMaxBolus c with
   | nan => rw [hmb] at h; simp at h
   | fin mb =>
     rw [hmb] at h
     rw [show (2 : JsNum) = .fin 2 from rfl, JsNum.fin_div (by decide : (2 : Rat) ≠ 0)] at h
     simp only [JsNum.min_fin, JsNum.fin_mul, JsNum.mathFloor] at h
+    by_cases hk : k = 0
+    · subst hk
+      rw [show ∀ a : Rat, (JsNum.fin a / JsNum.fin 0) = JsNum.nan from
+        fun a => by show JsNum.div _ _ = _; simp [JsNum.div]] at h
+      cases h
     rw [JsNum.fin_div hk] at h
     injection h with h
-    subst h
-    have hle := floor_div_le (z := if ir / 2 ≤ mb then ir / 2 else mb) hkpos
-    constructor
-    · split at hle <;> grind
-    · intro mb' hmb'; injection hmb' with hmb'; subst hmb'; split at hle <;> grind
+    have hkpos : 0 < k := by grind
+    have hy : (if rd (ir / 2) ≤ mb then rd (ir / 2) else mb) ≤ rd (ir / 2) ∧
+        (if rd (ir / 2) ≤ mb then rd (ir / 2) else mb) ≤ mb := by split <;> grind
+    generalize (if rd (ir / 2) ≤ mb then rd (ir / 2) else mb) = y at h hy
+    -- u = rd (f / k), f = ⌊rd (y·k)⌋
+    have hf : (0 : Rat) < ((rd (y * k)).floor : Rat) / k := by
+      by_cases hc : (0 : Rat) < ((rd (y * k)).floor : Rat) / k
+      · exact hc
+      · have := Binary64.rd_nonpos (show ((rd (y * k)).floor : Rat) / k ≤ 0 by grind)
+        grind
+    have hf1 : (1 : Rat) ≤ ((rd (y * k)).floor : Rat) := by
+      have h0 : (0 : Rat) < ((rd (y * k)).floor : Rat) := by
+        rw [Rat.lt_div_iff hkpos] at hf; grind
+      have : 0 < (rd (y * k)).floor := by exact_mod_cast h0
+      exact_mod_cast (show 1 ≤ (rd (y * k)).floor by omega)
+    have hzf := Rat.floor_le (rd (y * k))
+    have hyk : 0 < y * k := by
+      by_cases hc : 0 < y * k
+      · exact hc
+      · have := Binary64.rd_nonpos (show y * k ≤ 0 by grind); grind
+    have hypos : 0 < y := by
+      by_cases hc : 0 < y
+      · exact hc
+      · have : y * k ≤ 0 * k := Rat.mul_le_mul_of_nonneg_right (by grind) (Rat.le_of_lt hkpos); grind
+    obtain ⟨-, z2⟩ := rd_close (Rat.le_of_lt hyk)
+    -- y·k ≥ 1/2, so the absolute error is small relative to y·k
+    have hyk2 : 1 / 2 ≤ y * k := by grind
+    have hfk : ((rd (y * k)).floor : Rat) ≤ y * k + y * k / 2 ^ 52 := by grind
+    have hfk' : ((rd (y * k)).floor : Rat) / k ≤ y + y / 2 ^ 52 := by
+      rw [div_le_iff_le_mul hkpos]
+      have : (y + y / 2 ^ 52) * k = y * k + y * k / 2 ^ 52 := by grind
+      grind
+    obtain ⟨-, u2⟩ := rd_close (Rat.le_of_lt hf)
+    rw [h] at u2
+    have hu : u ≤ y + y / 2 ^ 51 + tiny := by grind
+    -- the two bounds on y
+    have hir2 : 0 < rd (ir / 2) := by grind
+    have hir : 0 < ir := by
+      by_cases hc : 0 < ir
+      · exact hc
+      · have := Binary64.rd_nonpos (show ir / 2 ≤ 0 by grind); grind
+    obtain ⟨-, r2⟩ := rd_close (show 0 ≤ ir / 2 by grind)
+    refine ⟨hir, by grind, ?_⟩
+    intro mb' hmb'; injection hmb' with hmb'; subst hmb'
+    exact ⟨by grind, by grind⟩
 
-/-- `round(x, 3)` exceeds `x` by at most 1/2000, and is positive only if `x ≥ 1/2000`. -/
-theorem rts1000_facts (x : Rat) : rts x 1000 ≤ x + 1/2000 ∧ (0 < rts x 1000 → 1/2000 ≤ x) := by
+/-- `round(x, 3)` is positive only if `rd(1000·x) ≥ 1/2`, and then
+    `round(x, 3) ≤ x + 1/2000` up to double rounding. -/
+theorem rts1000_facts {x : Rat} (h : 0 < rts x 1000) :
+    1 / 2 ≤ rd (x * 1000) ∧ (0 ≤ x → rts x 1000 * 1000 ≤
+      (x * 1000 + x * 1000 / 9007199254740992 + tiny + 1/2) * (1 + 1 / 9007199254740992) + tiny * 1000) := by
   constructor
-  · have := rts_mul_le (x := x) (s := 1000) (by decide); grind
-  · intro h
-    by_cases hx : x < 1/2000
+  · by_cases hx : rd (x * 1000) < 1/2
     · exfalso
       have := rts_le_of_lt (x := x) (s := 1000) (n := 0) (by decide) (by grind)
-      rw [show ((0 : Int) : Rat) / 1000 = 0 by decide +kernel] at this
+      rw [show ((0 : Int) : Rat) / 1000 = 0 by decide +kernel, Binary64.rd_zero] at this
       grind
     · grind
+  · intro h0; exact rts_le_add (by decide) h0
 
 theorem pow10_three : pow10 3 = 1000 := by decide +kernel
 
 /-- **The arithmetic core of H2.** A positive microbolus `u` with insulinReq
-    `round(cap(ir0, room), 3)` satisfies `u ≤ room`: it never takes IOB above
-    `max_iob` (`room = max_iob − iob`). -/
+    `round(cap(ir0, room), 3)` satisfies `u ≤ room` up to double rounding
+    (`room = max_iob − iob`, itself a double): `u ≤ room + room/2^45 + 2^-80`. -/
 theorem microbolus_le_room {c : Ctx} {u room : Rat}
     (hinc : ∀ x : Rat, c.p.bolus_increment = some (.fin x) → 0 < x)
-    (hroom : c.max_iob - c.iobd.iob.js = .fin room) (hu : SmbBolus c (.fin u)) (hu0 : 0 < u) : u ≤ room := by
+    (hroom : c.max_iob - c.iobd.iob.js = .fin room) (hu : SmbBolus c (.fin u)) (hu0 : 0 < u) :
+    0 < room ∧ u ≤ room + room / 2 ^ 45 + 1 / 2 ^ 80 := by
+  have ht := tiny_pos; have ht' := tiny_le
   obtain ⟨-, hu⟩ := hu
   unfold smbInsulinReq at hu
   rw [hroom] at hu
@@ -188,10 +241,15 @@ theorem microbolus_le_room {c : Ctx} {u room : Rat}
     simp [hx, JsNum.round] at hu
   · subst h
     rw [rnd_fin, pow10_three] at hu
-    obtain ⟨hle, -⟩ := smbMicroBolus_le hinc hu.symm
-    obtain ⟨h1, h2⟩ := rts1000_facts v
-    have hpos : 0 < rts v 1000 := by grind
-    have := h2 hpos
-    grind
+    obtain ⟨hir, hle, -⟩ := smbMicroBolus_le hinc hu.symm hu0
+    obtain ⟨h1, h2⟩ := rts1000_facts hir
+    -- v is at least about 1/2000
+    have hv0 : 0 ≤ v := by
+      by_cases hc : 0 ≤ v
+      · exact hc
+      · have := Binary64.rd_nonpos (show v * 1000 ≤ 0 by grind); grind
+    obtain ⟨-, w2⟩ := rd_close (show 0 ≤ v * 1000 by grind)
+    have h2 := h2 hv0
+    exact ⟨by grind, by grind⟩
 
 end LeanAID.Proofs

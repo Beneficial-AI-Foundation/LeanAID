@@ -7,6 +7,7 @@ import LeanAID.Proofs.Prelude
 namespace LeanAID.Proofs
 
 open JsNum
+open Binary64 (rd rd_mono rd_nonneg rd_intCast)
 
 @[simp] theorem addReasonIf_rate (r : Result) (b : Bool) (s : String) : (r.addReasonIf b s).rate = r.rate := by
   unfold Result.addReasonIf; cases b <;> rfl
@@ -35,14 +36,15 @@ theorem rateOk_mono {b1 b2 : Rat} {res : Result} {base : Option JsNum} (h : Rate
   · exact Or.inr ⟨h1, Rat.le_trans h2 hb⟩
 
 /-- The standing hypotheses of this file about a context `c` of the dose phase:
-    `maxSafeBasal` is a non-negative number `M`, and the adjusted basal is a
-    multiple of 0.025 between 0 and `round_basal(M)`. -/
+    `maxSafeBasal` is a non-negative number `M`, and the adjusted basal is an output
+    of `round_basal` (the double nearest to `n/s`, `s ∈ {10, 20, 40}`) between 0 and
+    `round_basal(M)`. -/
 structure DoseHyp (c : Ctx) (M b : Rat) : Prop where
   hM : getMaxSafeBasal c.p = .fin M
   hM0 : 0 ≤ M
   hb : c.basal = .fin b
   hb0 : 0 ≤ b
-  hbgrid : ∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40
+  hbgrid : ∃ n : Int, ∃ s : Rat, 0 ≤ n ∧ (s = 10 ∨ s = 20 ∨ s = 40) ∧ b = rd ((n : Rat) / s)
   hbM : b ≤ rbR M c.p.model
 
 theorem neutralTemp_rateOk {c : Ctx} {M b : Rat} (H : DoseHyp c M b) (rT : Result) :
@@ -69,50 +71,100 @@ theorem lowEventualBG_rateOk {c : Ctx} {M b : Rat} (H : DoseHyp c M b) (rT : Res
 
 /-! ### The SMB low temp -/
 
-theorem rnd_fin (x : Rat) (d : Nat) : JsNum.round (.fin x) d = .fin (rts x (pow10 d)) := rfl
+theorem pow10_pos (d : Nat) : 0 < pow10 d := by
+  induction d with
+  | zero => decide
+  | succ d ih => simp only [pow10]; grind
+
+theorem rnd_fin (x : Rat) (d : Nat) : JsNum.round (.fin x) d = .fin (rts x (pow10 d)) := by
+  have := pow10_pos d
+  simp only [JsNum.round, JsNum.mul, JsNum.mathRound, JsNum.div, rts]
+  split
+  · grind
+  · rfl
 
 theorem pow10_two : pow10 2 = 100 := by decide +kernel
+theorem pow10_zero : pow10 0 = 1 := rfl
 
-/-- Rounding to 0.01 a value strictly below a multiple of 0.025 does not exceed it. -/
-theorem rts100_le_grid {x : Rat} {k : Int} (hk : 0 ≤ k) (hx : x < (k : Rat) / 40) :
-    rts x 100 ≤ (k : Rat) / 40 := by
-  have hq1 : 2 * ((5 * k) / 2) ≤ 5 * k := by omega
-  have hq2 : 5 * k - 1 ≤ 2 * ((5 * k) / 2) := by omega
-  have hq1' : (2 : Rat) * (((5 * k) / 2 : Int) : Rat) ≤ 5 * (k : Rat) := by exact_mod_cast hq1
-  have hq2' : 5 * (k : Rat) - 1 ≤ (2 : Rat) * (((5 * k) / 2 : Int) : Rat) := by exact_mod_cast hq2
-  have h1 : rts x 100 ≤ (((5 * k) / 2 : Int) : Rat) / 100 := by
-    apply rts_le_of_lt (by decide)
-    have : x * 100 < (k : Rat) / 40 * 100 := Rat.mul_lt_mul_of_pos_right hx (by decide)
-    have e : (k : Rat) / 40 * 100 = 5 * (k : Rat) / 2 := by grind
+/-- `rnd(y)` (to an integer) of a finite value is the double nearest an integer. -/
+theorem rnd0_int (y : Rat) : ∃ N : Int, JsNum.round (.fin y) 0 = .fin (rd (N : Rat)) := by
+  rw [rnd_fin, pow10_zero]
+  exact ⟨roundInt (rd (y * 1)), by unfold rts; rw [show ((roundInt (rd (y * 1)) : Int) : Rat) / 1 = (roundInt (rd (y * 1)) : Rat) by grind]⟩
+
+/-- **The SMB low temp stays at or below the basal.** For a basal `b = rd(n/s)`
+    (an output of `round_basal`) and an integer duration `0 < N < 30`,
+    `round(b · N / 30, 2) ≤ b`, in double arithmetic. -/
+theorem smbLowTemp_bound {b : Rat} {n N : Int} {s : Rat} (hn : 0 ≤ n) (hs : s = 10 ∨ s = 20 ∨ s = 40)
+    (hb : b = rd ((n : Rat) / s)) (hN0 : 0 < N) (hN : N < 30) :
+    0 ≤ rts (rd (rd (b * N) / 30)) 100 ∧ rts (rd (rd (b * N) / 30)) 100 ≤ b := by
+  have ht := tiny_pos; have ht' := tiny_le
+  have hspos : 0 < s := by rcases hs with h | h | h <;> rw [h] <;> decide
+  have hnR : (0 : Rat) ≤ n := by exact_mod_cast hn
+  have hq0 : 0 ≤ (n : Rat) / s := div_nonneg' hspos hnR
+  have hb0 : 0 ≤ b := by rw [hb]; exact rd_nonneg hq0
+  have hNR : (1 : Rat) ≤ N := by exact_mod_cast hN0
+  have hNR' : (N : Rat) ≤ 29 := by have : N ≤ 29 := by omega
+                                   exact_mod_cast this
+  -- the chain of roundings
+  have hp1 : 0 ≤ b * N := Rat.mul_nonneg hb0 (by grind)
+  have hbN : b * N ≤ b * 29 := Rat.mul_le_mul_of_nonneg_left hNR' hb0
+  obtain ⟨-, b2⟩ := rd_close hq0
+  rw [← hb] at b2
+  obtain ⟨-, p1⟩ := rd_close hp1
+  generalize hr1 : rd (b * N) = q1 at p1
+  have hq1 : 0 ≤ q1 := by rw [← hr1]; exact rd_nonneg hp1
+  have hq1' : 0 ≤ q1 / 30 := div_nonneg' (by decide) hq1
+  obtain ⟨-, p2⟩ := rd_close hq1'
+  generalize hr2 : rd (q1 / 30) = q2 at p2
+  have hq2 : 0 ≤ q2 := by rw [← hr2]; exact rd_nonneg hq1'
+  refine ⟨rts_nonneg (by decide) hq2, ?_⟩
+  have hq3 : 0 ≤ q2 * 100 := Rat.mul_nonneg hq2 (by decide)
+  obtain ⟨-, p3⟩ := rd_close hq3
+  unfold rts
+  have hK := roundInt_le (rd (q2 * 100))
+  generalize roundInt (rd (q2 * 100)) = K at hK ⊢
+  rw [hb]
+  apply rd_mono
+  rw [div_le_iff_le_mul (by decide)]
+  -- K ≤ 100 · n / s; work with 2K ≤ 2 · 100 · n / s, an integer comparison
+  rcases hs with h | h | h <;> subst h
+  · have : (K : Rat) ≤ (n : Rat) * 10 := by
+      have hlt : K < n * 10 + 1 := by
+        have : (K : Rat) < (n : Rat) * 10 + 1 := by grind
+        exact_mod_cast this
+      have : K ≤ n * 10 := by omega
+      exact_mod_cast this
     grind
-  have h2 : (((5 * k) / 2 : Int) : Rat) / 100 ≤ (k : Rat) / 40 := by
-    rw [div_le_iff_le_mul (by decide)]; grind
-  exact Rat.le_trans h1 h2
+  · have : (K : Rat) ≤ (n : Rat) * 5 := by
+      have hlt : K < n * 5 + 1 := by
+        have : (K : Rat) < (n : Rat) * 5 + 1 := by grind
+        exact_mod_cast this
+      have : K ≤ n * 5 := by omega
+      exact_mod_cast this
+    grind
+  · -- s = 40: 100 n / 40 = 5n/2
+    have : 2 * (K : Rat) ≤ (n : Rat) * 5 := by
+      have hlt : 2 * K < n * 5 + 1 := by
+        by_cases hn0 : n = 0
+        · subst hn0
+          have : (K : Rat) < 1 / 2 + 1 / 2 := by simp at b2; grind
+          have : K < 1 := by exact_mod_cast (show (K : Rat) < 1 by grind)
+          omega
+        · have hn1 : (1 : Rat) ≤ n := by have : 1 ≤ n := by omega
+                                         exact_mod_cast this
+          have : 2 * (K : Rat) < (n : Rat) * 5 + 1 := by grind
+          exact_mod_cast this
+      have : 2 * K ≤ n * 5 := by omega
+      exact_mod_cast this
+    grind
 
-/-- The SMB low temp `round(basal * durationReq / 30, 2)` (line 1120) for
-    `0 < durationReq < 30` is between 0 and the basal. -/
-theorem smbLowTemp_bound {b d : Rat} {k : Int} (hk : 0 ≤ k) (hb : b = (k : Rat) / 40)
-    (hd0 : 0 < d) (hd30 : d < 30) :
-    0 ≤ rts (b * d / 30) 100 ∧ rts (b * d / 30) 100 ≤ b := by
-  have hb0 : 0 ≤ b := by rw [hb]; exact div_nonneg' (by decide) (by exact_mod_cast hk)
-  have hx0 : 0 ≤ b * d / 30 := div_nonneg' (by decide) (Rat.mul_nonneg hb0 (Rat.le_of_lt hd0))
-  refine ⟨rts_nonneg (by decide) hx0, ?_⟩
-  by_cases hbz : b = 0
-  · have : b * d / 30 = 0 := by rw [hbz]; grind
-    rw [this, hbz]
-    have := rts_le_of_lt (x := 0) (s := 100) (n := 0) (by decide) (by decide +kernel)
-    have e : ((0 : Int) : Rat) / 100 = 0 := by decide +kernel
-    rw [e] at this; exact this
-  · have hbpos : 0 < b := by grind
-    rw [hb]; apply rts100_le_grid hk; rw [← hb]
-    have : b * d < b * 30 := Rat.mul_lt_mul_of_pos_left hd30 hbpos
-    rw [Rat.div_lt_iff (by decide)]; grind
-
-/-- The SMB low temp (lines 1111-1122) is 0 or `round(basal · d / 30, 2)` with
-    `0 < d < 30`; for a basal on the 0.025 grid it lies between 0 and the basal. -/
-theorem smbLowTemp_rate {b : Rat} {k : Int} (hk : 0 ≤ k) (hbk : b = (k : Rat) / 40) (d : JsNum) {r : Rat}
+/-- The SMB low temp (lines 1111-1122) is 0 or `round(basal · d / 30, 2)` for an
+    integer duration `0 < d < 30`; it lies between 0 and the basal. -/
+theorem smbLowTemp_rate {b : Rat} {n : Int} {s : Rat} (hn : 0 ≤ n) (hs : s = 10 ∨ s = 20 ∨ s = 40)
+    (hbk : b = rd ((n : Rat) / s)) (d : JsNum) (hd : d = .nan ∨ ∃ N : Int, d = .fin (rd (N : Rat))) {r : Rat}
     (h : (smbLowTemp (.fin b) d).2 = .fin r) : 0 ≤ r ∧ r ≤ b := by
-  have hb0 : 0 ≤ b := by rw [hbk]; exact div_nonneg' (by decide) (by exact_mod_cast hk)
+  have hspos : 0 < s := by rcases hs with h | h | h <;> rw [h] <;> decide
+  have hb0 : 0 ≤ b := by rw [hbk]; exact rd_nonneg (div_nonneg' hspos (by exact_mod_cast hn))
   unfold smbLowTemp at h
   split at h
   · simp at h; subst h; exact ⟨Rat.le_refl, hb0⟩
@@ -120,20 +172,43 @@ theorem smbLowTemp_rate {b : Rat} {k : Int} (hk : 0 ≤ k) (hbk : b = (k : Rat) 
     · simp at h; subst h; exact ⟨Rat.le_refl, hb0⟩
     · rename_i hle hge
       simp only at h
-      cases d with
-      | nan =>
+      rcases hd with hd | ⟨N, hd⟩
+      · subst hd
         have e : (JsNum.fin b * JsNum.nan / 30) = JsNum.nan := rfl
         rw [rnd, e] at h; simp [JsNum.round] at h
-      | fin d =>
+      · subst hd
         simp only [JsNum.le, JsNum.ge, decide_eq_true_eq] at hle hge
-        have hd0 : 0 < d := by grind
-        have hd30 : d < 30 := by grind
-        have e : (JsNum.fin b * .fin d / 30) = .fin (b * d / 30) := by
-          show JsNum.div (JsNum.mul (.fin b) (.fin d)) (.fin 30) = _
+        -- rd N is in (0, 30), so N is an integer in [1, 29] and rd N = N
+        have hN30 : N < 30 := by
+          by_cases hc : N < 30
+          · exact hc
+          · have := rd_mono (show ((30 : Int) : Rat) ≤ (N : Rat) by exact_mod_cast (show (30 : Int) ≤ N by omega))
+            rw [rd_intCast (n := 30) (by decide)] at this; simp at this; grind
+        have hN0 : 0 < N := by
+          by_cases hc : 0 < N
+          · exact hc
+          · have := rd_mono (show (N : Rat) ≤ ((0 : Int) : Rat) by exact_mod_cast (show N ≤ 0 by omega))
+            rw [rd_intCast (n := 0) (by decide)] at this; simp at this; grind
+        have hNe : rd (N : Rat) = N := rd_intCast (by omega)
+        rw [hNe] at h
+        have e : (JsNum.fin b * .fin (N : Rat) / 30) = .fin (rd (rd (b * N) / 30)) := by
+          show JsNum.div (JsNum.mul (.fin b) (.fin (N : Rat))) (.fin 30) = _
           simp [JsNum.mul, JsNum.div]
         rw [e, rnd, rnd_fin, pow10_two] at h
         injection h with h; subst h
-        exact smbLowTemp_bound hk hbk hd0 hd30
+        exact smbLowTemp_bound hn hs hbk hN0 hN30
+
+/-- The SMB duration (lines 1111-1116) is `0`, `NaN`, or an integer rounded to a double. -/
+theorem smbDurationReq_int (c : Ctx) (ir : JsNum) :
+    smbDurationReq c ir = .nan ∨ ∃ N : Int, smbDurationReq c ir = .fin (rd (N : Rat)) := by
+  unfold smbDurationReq
+  simp only
+  split
+  · right; exact ⟨0, by simp [Binary64.rd_zero]⟩
+  · generalize (60 * _ / c.p.current_basal.js) = y
+    cases y with
+    | nan => left; rfl
+    | fin y => right; exact rnd0_int y
 
 /-- The reason and units step of the SMB block does not change the rate. -/
 theorem smbReasonUnits_rate (c : Ctx) (rT : Result) (ir : JsNum) (lt : JsNum × JsNum) :
@@ -144,7 +219,7 @@ theorem smbReasonUnits_rate (c : Ctx) (rT : Result) (ir : JsNum) (lt : JsNum × 
 theorem smbBlock_rate {c : Ctx} {M b : Rat} (H : DoseHyp c M b) (rT : Result) (ir : JsNum) :
     (∀ res, smbBlock c rT ir = .inl res → RateOk b res rT.rate) ∧
     (∀ res, smbBlock c rT ir = .inr res → res.rate = rT.rate) := by
-  obtain ⟨k, hk, hbk⟩ := H.hbgrid
+  obtain ⟨n, s, hn, hs, hbk⟩ := H.hbgrid
   unfold smbBlock smbFinish
   constructor
   · intro res h
@@ -154,7 +229,7 @@ theorem smbBlock_rate {c : Ctx} {M b : Rat} (H : DoseHyp c M b) (rT : Result) (i
       right
       simp only [Option.some.injEq] at hr
       rw [H.hb] at hr
-      exact smbLowTemp_rate hk hbk _ hr
+      exact smbLowTemp_rate hn hs hbk _ (smbDurationReq_int _ _) hr
     · cases h
   · intro res h
     split at h

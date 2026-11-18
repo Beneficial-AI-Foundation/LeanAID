@@ -7,6 +7,7 @@ import LeanAID.Proofs.Hypo
 namespace LeanAID.Proofs
 
 open JsNum
+open Binary64 (rd rd_mono rd_nonneg rd_nonpos rd_rd)
 
 /-- `x` is NaN or a non-positive number. -/
 def NonPos (x : JsNum) : Prop := x = .nan ∨ ∃ v, x = .fin v ∧ v ≤ 0
@@ -14,14 +15,9 @@ def NonPos (x : JsNum) : Prop := x = .nan ∨ ∃ v, x = .fin v ∧ v ≤ 0
 theorem rts_nonpos {x s : Rat} (hs : 0 < s) (h : x ≤ 0) : rts x s ≤ 0 := by
   have := rts_le_of_lt (x := x) (s := s) (n := 0) hs (by
     have : x * s ≤ 0 * s := Rat.mul_le_mul_of_nonneg_right h (Rat.le_of_lt hs)
+    have := rd_nonpos (show x * s ≤ 0 by grind)
     grind)
-  rwa [show ((0 : Int) : Rat) / s = 0 by rw [Rat.div_def]; simp] at this
-
-theorem pow10_pos (d : Nat) : 0 < pow10 d := by
-  induction d with
-  | zero => decide
-  | succ n ih => unfold pow10; have : (0 : Rat) < 10 := by decide
-                 exact Rat.mul_pos this ih
+  rwa [show ((0 : Int) : Rat) / s = 0 by rw [Rat.div_def]; simp, Binary64.rd_zero] at this
 
 theorem NonPos.rnd {x : JsNum} (h : NonPos x) (d : Nat) : NonPos (JsNum.round x d) := by
   rcases h with h | ⟨v, h, hv⟩
@@ -39,8 +35,8 @@ theorem nonPos_two_min (y : JsNum) : NonPos (2 * JsNum.min 0 y) := by
   cases y with
   | nan => left; rfl
   | fin y =>
-    right; refine ⟨2 * (if 0 ≤ y then 0 else y), rfl, ?_⟩
-    split <;> grind
+    right; refine ⟨rd (2 * (if 0 ≤ y then 0 else y)), rfl, ?_⟩
+    apply rd_nonpos; split <;> grind
 
 theorem nonPos_min (y : JsNum) : NonPos (JsNum.min 0 y) := by
   cases y with
@@ -49,14 +45,18 @@ theorem nonPos_min (y : JsNum) : NonPos (JsNum.min 0 y) := by
 
 /-- A request `round_basal(basal + 2·ir)` with `ir` NaN or non-positive is NaN or
     at most the basal. -/
-theorem req_le_basal {b : Rat} {m : Option String} (hb0 : 0 ≤ b) (hbid : rbR b m = b) {ir : JsNum}
+theorem req_le_basal {b : Rat} {m : Option String} (hb0 : 0 ≤ b) (hbd : rd b = b) (hbid : rbR b m = b) {ir : JsNum}
     (h : NonPos ir) : roundBasal (.fin b + 2 * ir) m = .nan ∨
       ∃ x, roundBasal (.fin b + 2 * ir) m = .fin x ∧ x ≤ b := by
   rcases h with h | ⟨v, h, hv⟩
   · subst h; left; simp [roundBasal_nan]
   · subst h; right
-    refine ⟨rbR (b + 2 * v) m, by rw [show (2 : JsNum) = .fin 2 from rfl]; simp only [JsNum.fin_mul, JsNum.fin_add, roundBasal_fin], ?_⟩
-    rw [← hbid]; exact rbR_mono m (by grind)
+    refine ⟨rbR (rd (b + rd (2 * v))) m, by rw [show (2 : JsNum) = .fin 2 from rfl]; simp only [JsNum.fin_mul, JsNum.fin_add, roundBasal_fin], ?_⟩
+    have := rd_nonpos (show 2 * v ≤ 0 by grind)
+    have h2 := rd_mono (show b + rd (2 * v) ≤ b by grind)
+    rw [hbd] at h2
+    have := rbR_mono m h2
+    rwa [hbid] at this
 
 /-- `clampRate` returns 0 or a value at most the request. -/
 theorem clampRate_le {x M c : Rat} (h : clampRate (.fin x) (.fin M) = .fin c) : c = 0 ∨ c ≤ x := by
@@ -88,6 +88,11 @@ theorem rateOk_stb_le {rate dur : JsNum} {p : Profile} {rT : Result} {ct : Optio
       have : c ≤ b := by rcases clampRate_le hc with h | h <;> grind
       rw [← hbid]; exact rbR_mono _ this
 
+/-- The adjusted basal is a double. -/
+theorem DoseHyp.hbd {c : Ctx} {M b : Rat} (H : DoseHyp c M b) : rd b = b := by
+  obtain ⟨n, s, -, -, hb⟩ := H.hbgrid
+  rw [hb, rd_rd]
+
 /-- Hypotheses for H4 about a dose context. -/
 structure BasalHyp (c : Ctx) (M b : Rat) : Prop extends DoseHyp c M b where
   hbid : rbR b c.p.model = b
@@ -114,7 +119,7 @@ theorem lowEventualBG_le {c : Ctx} {M b : Rat} (H : BasalHyp c M b) (rT : Result
     RateOk b (lowEventualBG c rT) rT.rate := by
   have hreq : ∀ ir : JsNum, NonPos ir → (roundBasal (c.basal + 2 * ir) c.p.model = .nan ∨
       ∃ x, roundBasal (c.basal + 2 * ir) c.p.model = .fin x ∧ x ≤ b) := by
-    intro ir h; rw [H.hb]; exact req_le_basal H.hb0 H.hbid h
+    intro ir h; rw [H.hb]; exact req_le_basal H.hb0 H.hbd H.hbid h
   have hirB := (nonPos_two_min ((c.eventualBG' - c.target_bg) / c.sens)).rnd 2
   have hirA : (c.minDelta <ʲ 0 && c.minDelta >ʲ c.expectedDelta) = true →
       NonPos (rnd (rnd (2 * JsNum.min 0 ((c.eventualBG' - c.target_bg) / c.sens)) 2 *
@@ -133,13 +138,13 @@ theorem lowEventualBG_le {c : Ctx} {M b : Rat} (H : BasalHyp c M b) (rT : Result
         rw [hm, he] at hc
         simp at hc
         obtain ⟨hm0, hem⟩ := hc
-        have hratio : 0 < m / e := div_pos_of_neg_neg hm0 (by grind)
+        have hratio : 0 ≤ rd (m / e) := rd_nonneg (Rat.le_of_lt (div_pos_of_neg_neg hm0 (by grind)))
         rw [JsNum.fin_div (by grind)]
         rcases hir0 with h | ⟨v, h, hv⟩
         · subst h; left; rfl
-        · subst h; right; refine ⟨v * (m / e), rfl, ?_⟩
-          have : v * (m / e) ≤ 0 * (m / e) := Rat.mul_le_mul_of_nonneg_right hv (Rat.le_of_lt hratio)
-          grind
+        · subst h; right; refine ⟨rd (v * rd (m / e)), rfl, ?_⟩
+          have : v * rd (m / e) ≤ 0 * rd (m / e) := Rat.mul_le_mul_of_nonneg_right hv hratio
+          exact rd_nonpos (by grind)
   unfold lowEventualBG
   simp only
   repeat' split
@@ -175,15 +180,15 @@ theorem highTempSet_le {c : Ctx} {M b : Rat} (H : BasalHyp c M b) (rT : Result) 
 theorem highTemp_le {c : Ctx} {M b : Rat} (H : IobHyp c M b) (rT : Result) :
     RateOk b (highTemp c rT) rT.rate := by
   obtain ⟨i, mi, hi, hmi, hle⟩ := H.hiob
-  have hroom : c.max_iob - c.iobd.iob.js = .fin (mi - i) := by rw [hi, hmi]; rfl
+  have hroom : c.max_iob - c.iobd.iob.js = .fin (rd (mi - i)) := by rw [hi, hmi]; rfl
   unfold highTemp
   simp only
   have hcap := capped_nonPos (JsNum.round ((JsNum.min c.minPredBG c.eventualBG' - c.target_bg) / c.sens) 2)
-    (w := mi - i) (by grind)
+    (w := rd (mi - i)) (rd_nonpos (by grind))
   rw [← hroom] at hcap
   generalize capInsulinReq (JsNum.round ((JsNum.min c.minPredBG c.eventualBG' - c.target_bg) / c.sens) 2)
     (c.max_iob - c.iobd.iob.js) = ir1 at hcap ⊢
-  have hrate := req_le_basal (m := c.p.model) H.hb0 H.hbid hcap
+  have hrate := req_le_basal (m := c.p.model) H.hb0 H.hbd H.hbid hcap
   rw [← H.hb] at hrate
   generalize hs : (if (c.microBolusAllowed && c.enableSMB && c.bg >ʲ c.threshold) = true then
     smbBlock c ({ (rT.addReasonIf (JsNum.round ((JsNum.min c.minPredBG c.eventualBG' - c.target_bg) / c.sens) 2 >ʲ

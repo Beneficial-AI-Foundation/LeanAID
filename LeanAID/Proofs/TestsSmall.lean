@@ -18,7 +18,7 @@ theorem roundBasal_tests : SmallData.roundBasal.all RBCase.ok = true := by decid
 theorem DB_01_general : basalScale (1/40) none = 20 ∧
     roundBasal (.fin (1/40)) none = .fin (rts (1/40) 20) := by
   refine ⟨by decide +kernel, ?_⟩
-  have := (roundBasal_nearest (1/40) none).1
+  have := (roundBasal_nearest (x := 1/40) none (by decide +kernel)).1
   rw [this, show basalScale (1/40) none = 20 by decide +kernel]
 
 /-- DB-03 as an instance: model "554" uses the 0.025 grid (scale 40). -/
@@ -44,7 +44,8 @@ theorem maxDailyBasal_tests : SmallData.maxDailyBasal.all MaxDailyCase.ok = true
 theorem IOB_01_general :
     (Iob.iobCalcBilinear (.fin 2) 0 (.fin 3)).iobContrib = .fin 2 ∧
     (Iob.iobCalcBilinear (.fin 2) (.fin 180) (.fin 3)).iobContrib = .fin 0 :=
-  ⟨bilinear_at_zero 2 3 (by decide), bilinear_after_dia 2 180 3 (by decide) (by decide +kernel)⟩
+  ⟨by rw [bilinear_at_zero 2 3 (by decide)]; decide +kernel,
+   bilinear_after_dia' 2 180 3 (by decide) (by decide +kernel)⟩
 
 /-- **IOB-08 (general).** The test's profile (rapid-acting curve, DIA 3 h) gets a DIA
     of 5 h, as every exponential curve does. -/

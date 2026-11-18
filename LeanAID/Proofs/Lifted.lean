@@ -141,16 +141,27 @@ def basalScale (x : Rat) (m : Option String) : Rat :=
 
 /-- **DB-01..05.** `round_basal(x)` is `x` rounded to the nearest multiple of
     `1/scale` (ties up): steps of 0.05 U/h below 10 U/h (0.025 below 1 U/h for
-    x23/x54 pump models) and 0.1 U/h from 10 U/h. -/
-theorem roundBasal_nearest (x : Rat) (m : Option String) :
+    x23/x54 pump models) and 0.1 U/h from 10 U/h; in doubles, up to a relative
+    error of 2^-50 (`x · scale` and the quotient are rounded). -/
+theorem roundBasal_nearest {x : Rat} (m : Option String) (h0 : 0 ≤ x) :
     roundBasal (.fin x) m = .fin (rts x (basalScale x m)) ∧
-    rts x (basalScale x m) * basalScale x m ≤ x * basalScale x m + 1/2 ∧
-    x * basalScale x m - 1/2 < rts x (basalScale x m) * basalScale x m := by
+    rts x (basalScale x m) * basalScale x m ≤ x * basalScale x m + 1/2 + (x * basalScale x m + 1) / 2 ^ 50 ∧
+    x * basalScale x m - 1/2 - (x * basalScale x m + 1) / 2 ^ 50 ≤ rts x (basalScale x m) * basalScale x m := by
   have hpos : 0 < basalScale x m := by
     unfold basalScale; split
     · exact lowestRateScale_pos m
     · split <;> decide
-  refine ⟨?_, rts_mul_le hpos, lt_rts_mul hpos⟩
+  have hs40 : basalScale x m ≤ 40 := by
+    unfold basalScale; split
+    · rcases lowestRateScale_cases m with h | h <;> rw [h] <;> decide
+    · split <;> decide
+  have ht := tiny_pos; have ht' := tiny_le
+  have u1 := rts_le_add hpos h0
+  have u2 := rts_ge_sub hpos h0
+  have hts : tiny * basalScale x m ≤ tiny * 40 := Rat.mul_le_mul_of_nonneg_left hs40 (Rat.le_of_lt ht)
+  have hts0 : 0 ≤ tiny * basalScale x m := Rat.mul_nonneg (Rat.le_of_lt ht) (Rat.le_of_lt hpos)
+  have hxs0 : 0 ≤ x * basalScale x m := Rat.mul_nonneg h0 (Rat.le_of_lt hpos)
+  refine ⟨?_, by grind, by grind⟩
   rw [roundBasal_fin]; congr 1
   unfold rbR basalScale; split <;> (try split) <;> rfl
 
@@ -190,33 +201,57 @@ theorem curveSetup_dia (p : Profile) {d : Rat} (h : (Iob.curveSetup p).2.1 = JsN
       · simp [h5] at h; subst h; exact ⟨h3, fun _ => by grind⟩
 
 /-- **IOB-01 (bilinear curve).** A dose is fully on board when given
-    (`iobContrib = insulin` at `minsAgo = 0`) and contributes nothing once the
-    scaled time reaches 180 minutes (DIA). -/
+    (`iobContrib = insulin` at `minsAgo = 0`, the dose as a double) and contributes
+    nothing once the scaled time reaches 180 minutes (DIA). For a DIA of at most
+    1000 h; the 180-minute threshold has a relative margin of 2^-50 for the
+    double rounding of `3/dia · minsAgo`. -/
 theorem bilinear_at_zero (a dia : Rat) (hdia : 0 < dia) :
-    (Iob.iobCalcBilinear (.fin a) 0 (.fin dia)).iobContrib = .fin a := by
+    (Iob.iobCalcBilinear (.fin a) 0 (.fin dia)).iobContrib = .fin (Binary64.rd a) := by
   have hd : dia ≠ 0 := by grind
-  have hd60 : dia * 60 ≠ 0 := by grind
   unfold Iob.iobCalcBilinear
-  simp only [JsNum.ofNat_eq, JsNum.zero_eq, JsNum.fin_div hd, JsNum.fin_mul, JsNum.fin_div hd60]
-  have h75 : (75 : Rat) ≠ 0 := by decide
-  rw [JsNum.fin_div h75]
-  simp only [JsNum.fin_mul, JsNum.fin_div (by decide : (5 : Rat) ≠ 0), JsNum.fin_add, JsNum.ofSci_eq,
-    JsNum.fin_neg, JsNum.lt_fin]
-  rw [if_pos (by simp; decide +kernel)]
-  congr 1
-  have : (3 / dia * 0 / 5 + 1 : Rat) = 1 := by grind
-  simp only [this]
-  have e : (-(OfScientific.ofScientific 1852 true 6 : Rat) * 1 * 1 + OfScientific.ofScientific 1852 true 6 * 1 +
-      OfScientific.ofScientific 1000000 true 6) = 1 := by decide +kernel
-  rw [e]; try grind
+  simp only [JsNum.ofNat_eq, JsNum.fin_div hd, JsNum.fin_mul, Rat.mul_zero, Binary64.rd_zero, JsNum.lt_fin]
+  rw [if_pos (by decide)]
+  have e : ((-0.001852 : JsNum) * (JsNum.fin 0 / JsNum.fin 5 + JsNum.fin 1) * (JsNum.fin 0 / JsNum.fin 5 + JsNum.fin 1) +
+      (0.001852 : JsNum) * (JsNum.fin 0 / JsNum.fin 5 + JsNum.fin 1) + (1.000000 : JsNum)) = JsNum.fin 1 := by
+    decide +kernel
+  simp only [OfNat.ofNat] at e ⊢
+  rw [e]; simp
 
-theorem bilinear_after_dia (a m dia : Rat) (hdia : 0 < dia) (hm : 180 ≤ 3 / dia * m) :
+/-- IOB-01, second half, on the scaled time as oref0 computes it (in doubles):
+    once `rd(rd(3/dia) · minsAgo) ≥ 180` the dose contributes nothing. -/
+theorem bilinear_after_dia' (a m dia : Rat) (hdia : 0 < dia)
+    (hm : 180 ≤ Binary64.rd (Binary64.rd (3 / dia) * m)) :
     (Iob.iobCalcBilinear (.fin a) (.fin m) (.fin dia)).iobContrib = .fin 0 := by
   have hd : dia ≠ 0 := by grind
   unfold Iob.iobCalcBilinear
   simp only [JsNum.ofNat_eq, JsNum.fin_div hd, JsNum.fin_mul, JsNum.lt_fin]
   rw [if_neg (by simp; grind), if_neg (by simp; grind)]
   try rfl
+
+/-- IOB-01, second half, on real numbers: for a DIA of at most 1000 h, once
+    `3/dia · minsAgo ≥ 180 · (1 + 2^-50)` the dose contributes nothing. -/
+theorem bilinear_after_dia (a m dia : Rat) (hdia : 0 < dia) (hdia1 : dia ≤ 1000)
+    (hm : 180 + 180 / 2 ^ 50 ≤ 3 / dia * m) :
+    (Iob.iobCalcBilinear (.fin a) (.fin m) (.fin dia)).iobContrib = .fin 0 := by
+  have ht := tiny_pos; have ht' := tiny_le
+  have hq : 3 / 1000 ≤ 3 / dia := by
+    rw [le_div_iff_mul_le hdia]
+    have : 3 / 1000 * dia ≤ 3 / 1000 * 1000 := Rat.mul_le_mul_of_nonneg_left hdia1 (by decide +kernel)
+    grind
+  have hq0 : 0 ≤ 3 / dia := by grind
+  obtain ⟨q1, -⟩ := rd_close hq0
+  have hm0 : 0 ≤ m := by
+    by_cases hc : 0 ≤ m
+    · exact hc
+    · have : 3 / dia * m ≤ 3 / dia * 0 := Rat.mul_le_mul_of_nonneg_left (by grind) hq0; grind
+  have hlow : 3 / dia * m - 3 / dia * m / 2 ^ 52 ≤ Binary64.rd (3 / dia) * m := by
+    have h1 : tiny ≤ 3 / dia / 2 ^ 60 := by grind
+    have h2 : 3 / dia - 3 / dia / 2 ^ 52 ≤ Binary64.rd (3 / dia) := by grind
+    have := Rat.mul_le_mul_of_nonneg_right h2 hm0
+    grind
+  have hp0 : 0 ≤ Binary64.rd (3 / dia) * m := by grind
+  obtain ⟨p1, -⟩ := rd_close hp0
+  exact bilinear_after_dia' a m dia hdia (by grind)
 
 /-- **Finding F-10.** The bilinear curve's IOB polynomial dips below zero just
     before DIA: a 10 U dose 177 minutes ago (DIA 3 h) contributes −0.0021352 U, so
@@ -225,13 +260,15 @@ theorem bilinear_negative :
     ((Iob.iobCalcBilinear 10 177 3).iobContrib <ʲ (-0.002 : JsNum)) = true := by
   decide +kernel
 
-/-- **BAS-01.** `maxDailyBasal` is at least every rate of the schedule. -/
+/-- **BAS-01.** `maxDailyBasal` is at least every rate of the schedule, up to the
+    double rounding of `maxRate * 1000 / 1000` (relative 2^-51), for a schedule of
+    non-negative rates. -/
 theorem maxDailyBasal_ge (b : BasalEntry) (bs : List BasalEntry) (e : BasalEntry) (he : e ∈ b :: bs)
-    (hfin : ∀ x ∈ b :: bs, ∃ r, x.rate = .fin r) :
-    ∃ m r, Iob.maxDailyBasal (b :: bs) = .fin m ∧ e.rate = .fin r ∧ r ≤ m := by
+    (hfin : ∀ x ∈ b :: bs, ∃ r, x.rate = .fin r ∧ 0 ≤ r) :
+    ∃ m r, Iob.maxDailyBasal (b :: bs) = .fin m ∧ e.rate = .fin r ∧ r ≤ m + m / 2 ^ 51 + 1 / 2 ^ 90 := by
   -- the fold keeps the entry with the largest rate
   have key : ∀ (acc : BasalEntry) (l : List BasalEntry) (ra : Rat), acc.rate = .fin ra →
-      (∀ x ∈ l, ∃ r, x.rate = .fin r) →
+      (∀ x ∈ l, ∃ r, x.rate = .fin r ∧ 0 ≤ r) →
       ∃ rm, (l.foldl (fun m e => if (e.rate >ʲ m.rate) = true then e else m) acc).rate = .fin rm ∧ ra ≤ rm ∧
         ∀ x ∈ l, ∀ r, x.rate = .fin r → r ≤ rm := by
     intro acc l
@@ -239,7 +276,7 @@ theorem maxDailyBasal_ge (b : BasalEntry) (bs : List BasalEntry) (e : BasalEntry
     | nil => intro ra h _; exact ⟨ra, h, Rat.le_refl, by simp⟩
     | cons x xs ih =>
       intro ra h hf
-      obtain ⟨rx, hx⟩ := hf x (by simp)
+      obtain ⟨rx, hx, -⟩ := hf x (by simp)
       simp only [List.foldl_cons]
       by_cases hgt : ra < rx
       · have : (x.rate >ʲ acc.rate) = true := by rw [hx, h]; simp [hgt]
@@ -258,16 +295,25 @@ theorem maxDailyBasal_ge (b : BasalEntry) (bs : List BasalEntry) (e : BasalEntry
         simp at hy; rcases hy with rfl | hy
         · rw [hx] at hr; cases hr; grind
         · exact h3 y hy r hr
-  obtain ⟨rb, hb⟩ := hfin b (by simp)
+  obtain ⟨rb, hb, hb0⟩ := hfin b (by simp)
   obtain ⟨rm, h1, h2, h3⟩ := key b bs rb hb (fun x hx => hfin x (by simp [hx]))
-  obtain ⟨re, hre⟩ := hfin e he
-  refine ⟨rm * 1000 / 1000, re, ?_, hre, ?_⟩
+  obtain ⟨re, hre, -⟩ := hfin e he
+  have hrm0 : 0 ≤ rm := by grind
+  refine ⟨Binary64.rd (Binary64.rd (rm * 1000) / 1000), re, ?_, hre, ?_⟩
   · unfold Iob.maxDailyBasal; simp only [h1, JsNum.ofNat_eq, JsNum.fin_mul]
     rw [JsNum.fin_div (by decide)]
-  · have : rm * 1000 / 1000 = rm := by rw [Rat.mul_div_cancel (by decide)]
-    rw [this]
-    simp at he; rcases he with rfl | he
-    · rw [hb] at hre; cases hre; exact h2
-    · exact h3 e he re hre
+  · have ht := tiny_pos; have ht' := tiny_le
+    obtain ⟨a1, -⟩ := rd_close (show 0 ≤ rm * 1000 by grind)
+    have hz0 : 0 ≤ Binary64.rd (rm * 1000) / 1000 :=
+      div_nonneg' (by decide) (Binary64.rd_nonneg (by grind))
+    obtain ⟨b1, -⟩ := rd_close hz0
+    have hle : re ≤ rm := by
+      simp at he; rcases he with rfl | he
+      · rw [hb] at hre; cases hre; exact h2
+      · exact h3 e he re hre
+    -- rm ≤ m + m/2^51 + tiny-terms: the two roundings lose at most 2 · 2^-53 relative
+    by_cases hbig : 1 / 2 ^ 80 ≤ rm
+    · grind
+    · grind
 
 end LeanAID.Proofs

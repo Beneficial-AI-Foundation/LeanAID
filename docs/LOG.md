@@ -541,3 +541,44 @@ said 15:39). They are replaced by the git author timestamps of the corresponding
 (first column of `git log --format='%ad' --date=format:'%H:%M'`), marked "(commit times)".
 M0–M6 had already been corrected the same way. From the second review on, every time in
 this log is taken from `date` at the moment of writing.
+
+## Second review, step 3: IEEE-754 binary64 in the core
+
+**Time:** started after step 7 (15:42); the 100,000-case difftest on the new core was
+launched at 15:47 (process start time) and finished at 16:02; this entry written at
+16:33 (from `date`).
+
+**What changed.** `LeanAID/Core/Binary64.lean` defines `rd`, rounding a rational to the
+nearest double, ties to even (subnormals included, overflow not modelled), with integer
+arithmetic only (`Nat.log2`, `Rat.floor`). `JsNum` `+ − × ÷` now return `rd` of the exact
+result; decimal literals and JSON input numbers are rounded to doubles; `round(x, d)` and
+`round_basal` use the rounded multiplication and division; `Math.exp` is rounded to a
+double; `Number → String` is ECMAScript's shortest round-trip form. No `Float`.
+
+**Result.** Conformance 148/148, all exact (IOB 51/51; before: 49 exact, 2 at ties).
+Differential testing, seed 7, 100,000 cases: **100,000 byte-identical** (before: 83.1%;
+82 rate differences). aid-lean time for the run: 879 s (before: 98 s; the rounding costs about 9×).
+`scripts/difftest/regress.js` re-runs the F-14 inputs (4/4 identical outputs) and the
+F-15 worst cases (5/5 same rate as oref0).
+
+**Proofs.** `LeanAID/Proofs/Binary64.lean` proves what the safety proofs need about
+`rd`: monotone, odd, idempotent, exact on integers up to 2^53 and on `N·2^E` grids,
+`|rd x − x| ≤ |x|·2^-53 + 2^-1075`, positive above 2^-1075, and the only double in
+(−2^-1074, 2^-1074) is 0. Most safety theorems carried over through monotonicity.
+Where a property holds only up to rounding, the statement was changed; **every change
+is listed in FINDINGS F-16** (statement changes are recorded as AGENTS.md requires):
+H2 microbolus bounds with relative tolerance 2^-50 / 2^-44; H3 "running zero temp" for
+double rates; H6 overshoot bound + (M+1)/2^50; DB-01..05, IOB-01 and BAS-01 instances
+with tolerances; new validity condition V10 (`current_basal`, `max_basal` are doubles,
+`max_basal ≤ 2^30`) and V5 restated for doubles. H1, H4, H5 and the remaining headline
+theorems keep their statements. The CGM-staleness theorem keeps its exact 12.05 /
+−5.05 minute hypotheses: the age is a composition of monotone roundings, so the
+threshold case is evaluated by the kernel.
+
+`lake build` (all proofs, conformance) and `lake test` pass; 274 theorems, 16 headline,
+no `sorry`, headline axioms propext/Classical.choice/Quot.sound only.
+
+**Math.exp.** V8's `Math.exp` is not correctly rounded; ours is (to within 10⁻³⁵ of
+the true value before rounding). DESIGN D5 states the tolerance: at most 1 ulp of
+`exp(x)`, assuming V8 is within 1 ulp (the accuracy documented for fdlibm, which we
+did not verify in V8's source). No difference was observed in 148 + 100,000 cases.

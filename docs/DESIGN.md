@@ -17,23 +17,43 @@
 
 ## Numbers
 
-**Decision: exact rationals, plus an explicit NaN.** The core computes with
+**Decision: IEEE-754 binary64 arithmetic, computed exactly on rationals, plus an
+explicit NaN.** The core computes with
 
 ```lean
 inductive JsNum | nan | fin (q : Rat)
 ```
 
-Why rationals rather than fixed-point integers:
+where every finite value is held as an exact rational, and every arithmetic operation is
+JavaScript's: the exact result of `+ − × ÷`, rounded to the nearest double, ties to even
+(`Binary64.rd`, `LeanAID/Core/Binary64.lean`). Decimal literals denote the nearest double,
+as in JavaScript, and the JSON reader rounds every input number to a double. No `Float`
+is used: `rd` is defined with integer arithmetic (`Nat.log2`, `Rat.floor`), so the kernel
+can evaluate it and the proofs can reason about it.
 
-- oref0 divides constantly (ISF, carb ratio, autosens ratio, `/60`, `/30`, `/24`). With
-  fixed point every division needs a rounding rule that oref0 does not have, so
-  outputs would drift from the original. With rationals every intermediate value is
-  the exact real number the JavaScript double approximates.
-- Rationals keep the proofs about order and rounding simple: Lean core's `Rat` has
-  the ordered-field lemmas and `Rat.floor` lemmas we need, and `grind` closes linear
-  goals over `Rat`.
-- Kernel evaluation (`decide +kernel`) works on concrete rationals, so concrete
-  counterexamples are proved without `native_decide`.
+History: until the second review the core used exact rational arithmetic (no
+rounding). That agreed with oref0 byte for byte on 83.1% of 100,000 random inputs and
+differed in the issued rate in 82 (FINDINGS F-13–F-15), because a rounding tie in an
+intermediate value can flip a later decision. With binary64 rounding, **100,000 of
+100,000** outputs are byte-identical (`docs/difftest.json`, seed 7), and all 148 calls of
+oref0's own tests agree exactly, including the 2 IOB values that differed before.
+
+What is modelled exactly on the double values:
+
+- `+ − × ÷` (`JsNum.add/sub/mul/div`): `rd` of the exact result. Subnormals are included.
+- `Math.round(x) = ⌊x + 1/2⌋` (exact on a double, as ECMAScript defines it), `Math.floor`,
+  `Math.min/max`, comparisons.
+- oref0's `round(x, d) = Math.round(x · 10^d) / 10^d`, with the multiplication and
+  division rounded; `round_basal` likewise.
+- `toFixed` on the double value, and `Number → String` as ECMAScript's shortest
+  round-trip form (`JsFmt.numToString`, exponent form outside `1e-6 ≤ |x| < 1e21`).
+- `Math.exp`: see D5.
+
+What the proofs use about `rd` (`LeanAID/Proofs/Binary64.lean`, no `sorry`): it is
+monotone, odd, idempotent, exact on integers `|n| ≤ 2^53` and on `N · 2^E` grids, and
+`|rd x − x| ≤ |x|·2^-53 + 2^-1075`. Monotonicity carries most safety theorems through
+unchanged; where a property holds only up to rounding, the theorem now says so
+(FINDINGS F-16 lists every changed statement).
 
 Why an explicit NaN: oref0 reads missing fields as `undefined`, which becomes `NaN` in
 arithmetic, and its own tests depend on it (missing glucose `date` disables the
@@ -42,21 +62,16 @@ staleness check; missing `lastCarbTime` makes `remainingCATime` NaN; missing
 propagate it, and `!==` distinguishes `undefined` from `NaN`; all of this is modelled
 (`LeanAID/Core/JsNum.lean`, `Option.js`, `optSne`).
 
-JavaScript rounding is implemented exactly on the rational value:
-`Math.round(x) = ⌊x + 1/2⌋`, oref0's `round(x, d)`, `round_basal`, `toFixed` (ties away
-from zero on the exact value), `Math.floor`. `Number → String` is exact for every
-terminating decimal (all values oref0 prints after rounding).
-
 ### Known differences from JavaScript (outside or at the edge of the valid domain)
 
 | id | difference | consequence |
 |---|---|---|
 | D1 | `x / 0` is `NaN` here, `±Infinity` in JavaScript | none for valid input (no division by zero there) |
-| D2 | doubles round every operation; we do not | at an exact rounding tie oref0 may round down where we round up. Seen in 2 of 51 IOB test calls (activity 0.00125 → 0.0013 here, 0.0012 in oref0), never in determine-basal tests. A tie in an intermediate value can change a later decision, so output differences are *not* limited to one rounding unit (FINDINGS F-13: one extra 0.05 U temp bolus; different issued rates in difftest). Measured by differential testing (M10). |
+| D2 | overflow to `±Infinity` is not modelled (values above ≈1.8·10³⁰⁸ keep growing) | none: oref0's values on valid input are far below |
 | D3 | `-0` is not modelled | unobservable in outputs (`-0` prints as `0`) |
 | D4 | JSON `null` is read as `undefined` | in JavaScript `null` is 0 in arithmetic; only matters for invalid input |
-| D5 | `Math.exp` is a rational approximation (`Core/Exp.lean`) | differences beyond the 15th digit; rounded away by oref0's `round(…,3/4)` except at ties |
-| D6 | non-terminating values print with 16 significant digits | JavaScript prints the shortest round-trip form; only seen in reason strings, never in the numeric fields we compare |
+| D5 | `Math.exp` | ECMAScript leaves `Math.exp` implementation-approximated, and V8's is not correctly rounded. Ours computes `exp` to within 10⁻³⁵ (relative) of the true value (`Core/Exp.lean`, argued, not proved) and rounds that to the nearest double, so it is the correctly rounded result except within 10⁻³⁵ of a rounding midpoint. **Tolerance:** if V8's result is within 1 ulp of the true value (the documented accuracy of the fdlibm algorithm it uses; we did not verify V8's source), the two differ by at most 1 ulp of `exp(x)`. oref0 only uses `exp` in the exponential insulin curves and rounds IOB and activity to 3–4 decimals, so a 1-ulp difference shows only if it moves a value across a rounding tie. Observed: no difference in 148 test calls and 100,000 differential cases |
+| D6 | (removed) printing: was 16 significant digits; now ECMAScript's shortest round-trip form | — |
 | D7 | local time uses a fixed UTC offset | daylight-saving transitions inside one IOB window are not modelled |
 
 ## Time
@@ -88,11 +103,12 @@ theorems assume exactly this and nothing else:
 | V2 | `max_basal` is a number ≥ `current_basal` | a maximum below the scheduled rate is a configuration error; oref0-get-profile derives it from pump settings |
 | V3 | `max_daily_basal` is a number ≥ `current_basal` | by definition it is the largest scheduled rate |
 | V4 | safety multipliers, when set to numbers, are ≥ 1 | a multiplier below 1 would make the scheduled basal itself "unsafe"; oref0 documents defaults 3 and 4 |
-| V5 | `autosens_max`, when it is a number, is > 0, has at most two decimals, and `current_basal × autosens_max ≤ maxSafeBasal` | the sensitivity-adjusted basal must itself be allowed (F-05); if `autosens_max` is missing, temp targets give a NaN ratio and no adjustment |
+| V5 | `autosens_max`, when it is a number, is > 0, is the double nearest `n/100` for an integer `0 ≤ n ≤ 2^40` (at most two decimals), and `current_basal × autosens_max ≤ maxSafeBasal` | the sensitivity-adjusted basal must itself be allowed (F-05); if `autosens_max` is missing, temp targets give a NaN ratio and no adjustment |
 | V6 | `max_iob` is a number ≥ 0 | the user's IOB ceiling |
 | V7 | `bolus_increment`, when set to a number, is > 0 | a pump increment |
 | V8 | `sens` (ISF) is a number > 0 | a correction factor |
 | V9 | the autosens ratio, when autosens data is given, is a number r > 0 with `current_basal × r ≤ maxSafeBasal` | the adjusted basal must be allowed; autosens itself keeps r within [autosens_min, autosens_max] |
+| V10 | `current_basal` and `max_basal` are doubles, and `max_basal ≤ 2^30` U/h | needed by the double model (FINDINGS F-16): `rd(m · cb) ≥ cb` for `m ≥ 1` only if `cb` is a double, and `round_basal` is idempotent below 2^30. Every number read from JSON is a double, so V10 only excludes absurd `max_basal` values |
 
 These are exactly the fields of `LeanAID.ValidInput` / `ValidProfile` (decided by
 `validInputB`, proved sound by `validInputB_sound`).
@@ -107,9 +123,10 @@ least `max_iob`), the extra condition is a hypothesis of that theorem.
 ## Exponential insulin curve
 
 `Core/Exp.lean`: `exp(x)` for `x ≤ 0` by halving to `|y| ≤ 1/2`, a degree-30 Taylor
-polynomial, and squaring, truncating to a 2⁻¹²⁸ grid after each step. The error bound
-(< 10⁻³⁵ for `|x| ≤ 128`) is argued in the file header; its proof against Mathlib's
-`Real.exp` is planned for M8 and has not been done. No safety theorem depends on it.
+polynomial, and squaring, truncating to a 2⁻¹²⁸ grid after each step, then rounding to
+the nearest double (`jsExp`). The error bound (< 10⁻³⁵ for `|x| ≤ 128`) is argued in the
+file header; its proof against Mathlib's `Real.exp` is planned for M8 and has not been
+done. No safety theorem depends on it. The tolerance against JavaScript is D5.
 
 ## What `aid-lean --safe` rejects
 
@@ -119,7 +136,7 @@ these holds (`App/Main.lean`, `determineBasalCmd`):
 
 | check | rejects | why |
 |---|---|---|
-| `validInputB inp = false` | a profile violating V0–V8 (e.g. missing or non-numeric `current_basal`, `max_basal`, `max_daily_basal`, `max_iob`, `sens`; `max_basal` or `max_daily_basal` below `current_basal`; a safety multiplier below 1; `autosens_max` with more than two decimals or with `current_basal × autosens_max > maxSafeBasal`; a non-positive `bolus_increment`), or autosens data violating V9 (non-numeric or non-positive ratio, or `current_basal × ratio > maxSafeBasal`) | outside the domain of the safety theorems; F-12 (missing `max_basal` disables the clamp) |
+| `validInputB inp = false` | a profile violating V0–V8 or V10 (e.g. missing or non-numeric `current_basal`, `max_basal`, `max_daily_basal`, `max_iob`, `sens`; `max_basal` or `max_daily_basal` below `current_basal`; `max_basal` above 2^30; a safety multiplier below 1; `autosens_max` with more than two decimals or with `current_basal × autosens_max > maxSafeBasal`; a non-positive `bolus_increment`), or autosens data violating V9 (non-numeric or non-positive ratio, or `current_basal × ratio > maxSafeBasal`) | outside the domain of the safety theorems; F-12 (missing `max_basal` disables the clamp) |
 | meal data with truthy `carbs` and no numeric `lastCarbTime` | carbs without a carb time | F-06 (NaN rate) |
 | the glucose status has no finite `date` | CGM entries without `date`, `display_time` or `dateString` (or unparsable ones) | F-11 (staleness check skipped; maximum rate on an old reading) |
 

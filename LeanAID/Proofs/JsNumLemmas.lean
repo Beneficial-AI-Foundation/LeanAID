@@ -2,14 +2,17 @@
   LeanAID.Proofs.JsNumLemmas — rewriting `JsNum` operations on finite values.
 -/
 import LeanAID.Core.Types
+import LeanAID.Proofs.Binary64
 
 namespace LeanAID.JsNum
 
-@[simp] theorem fin_add (a b : Rat) : (fin a) + (fin b) = fin (a + b) := rfl
-@[simp] theorem fin_sub (a b : Rat) : (fin a) - (fin b) = fin (a - b) := rfl
-@[simp] theorem fin_mul (a b : Rat) : (fin a) * (fin b) = fin (a * b) := rfl
+open Binary64 (rd)
+
+@[simp] theorem fin_add (a b : Rat) : (fin a) + (fin b) = fin (rd (a + b)) := rfl
+@[simp] theorem fin_sub (a b : Rat) : (fin a) - (fin b) = fin (rd (a - b)) := rfl
+@[simp] theorem fin_mul (a b : Rat) : (fin a) * (fin b) = fin (rd (a * b)) := rfl
 @[simp] theorem fin_neg (a : Rat) : -(fin a) = fin (-a) := rfl
-theorem fin_div {a b : Rat} (h : b ≠ 0) : (fin a) / (fin b) = fin (a / b) := by
+theorem fin_div {a b : Rat} (h : b ≠ 0) : (fin a) / (fin b) = fin (rd (a / b)) := by
   show JsNum.div (fin a) (fin b) = _
   simp [JsNum.div, h]
 @[simp] theorem nan_add (x : JsNum) : JsNum.nan + x = .nan := rfl
@@ -24,6 +27,10 @@ theorem fin_div {a b : Rat} (h : b ≠ 0) : (fin a) / (fin b) = fin (a / b) := b
 @[simp] theorem min_nan (x : JsNum) : JsNum.min x .nan = .nan := by cases x <;> rfl
 @[simp] theorem nan_max (x : JsNum) : JsNum.max .nan x = .nan := rfl
 @[simp] theorem max_nan (x : JsNum) : JsNum.max x .nan = .nan := by cases x <;> rfl
+@[simp] theorem round_nan (d : Nat) : JsNum.round .nan d = .nan := rfl
+@[simp] theorem mul_nan_l (x : JsNum) : JsNum.mul .nan x = .nan := rfl
+@[simp] theorem div_nan_l (x : JsNum) : JsNum.div .nan x = .nan := rfl
+@[simp] theorem mathRound_nan : JsNum.mathRound .nan = .nan := rfl
 @[simp] theorem mathFloor_nan : JsNum.mathFloor .nan = .nan := rfl
 @[simp] theorem mathFloor_fin (a : Rat) : JsNum.mathFloor (.fin a) = .fin (a.floor : Rat) := rfl
 @[simp] theorem nan_ne_fin (a : Rat) : (JsNum.nan = .fin a) = False := by simp
@@ -47,7 +54,7 @@ theorem fin_div {a b : Rat} (h : b ≠ 0) : (fin a) / (fin b) = fin (a / b) := b
 @[simp] theorem nan_ge (x : JsNum) : (JsNum.nan ≥ʲ x) = false := by cases x <;> rfl
 theorem ofNat_eq (n : Nat) : (OfNat.ofNat n : JsNum) = fin (OfNat.ofNat n) := rfl
 @[simp] theorem ofSci_eq (m : Nat) (s : Bool) (e : Nat) :
-    (OfScientific.ofScientific m s e : JsNum) = fin (OfScientific.ofScientific m s e) := rfl
+    (OfScientific.ofScientific m s e : JsNum) = fin (rd (OfScientific.ofScientific m s e)) := rfl
 @[simp] theorem zero_eq : (0 : JsNum) = fin 0 := rfl
 @[simp] theorem one_eq : (1 : JsNum) = fin 1 := rfl
 @[simp] theorem truthy_fin (a : Rat) : (fin a).truthy = (a != 0) := rfl

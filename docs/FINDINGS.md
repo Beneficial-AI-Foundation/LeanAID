@@ -83,6 +83,8 @@ differential testing (M10).
 - **F-09** Exact arithmetic and doubles disagree at rounding ties (DESIGN D2): 2 of 51
   IOB test calls differ in `activity` by 0.0001 because the exact value is a tie. The
   effect of a tie can be much larger than one unit when it feeds a later decision: F-13.
+  **Resolved** (second review, step 3): the core now rounds every operation to the
+  nearest double; all 51 IOB calls agree exactly.
 
 ## Found during M6
 
@@ -131,6 +133,9 @@ shows `validInputB` is false for this input, so `aid-lean --safe` refuses it (ex
 Without `--safe`, aid-lean reproduces oref0's 5.9 U/h.
 
 ### F-13 — Exact and floating-point IOB differ by more than one rounding unit
+**Resolved** by modelling binary64 in the core (second review, step 3; DESIGN "Numbers"):
+both examples below now give oref0's result. Kept for the record.
+
 F-09 understated this. A tie in an *intermediate* value can change a later integer
 decision. Example (iob/history.js lines 545-548): a temp of 0.05 U/h against a basal of
 0.2 U/h for 30 min. Exactly, `netBasalRate·30·10/6 = −7.5`, `Math.round` gives −7,
@@ -155,6 +160,9 @@ emulation in the core (possible with rationals: round each operation to the near
 double), at the cost of harder proofs.
 
 ### F-14 — Mismatches without a rounding tie: multiplication error printed in reasons
+**Resolved** (second review, step 3): with binary64 arithmetic aid-lean prints oref0's
+values; `node scripts/difftest/regress.js` reproduces all 4 outputs byte for byte.
+
 The 4 of 100,000 differential-test mismatches (seed 7) whose oref0 run hit no
 near-tie `Math.round` (cases 22322, 28557, 65907, 66816) all differ only in the
 reason text, at "to maxSafeBasal: …". `getMaxSafeBasal` computes
@@ -166,6 +174,10 @@ error. The inputs and oref0 outputs are kept in `scripts/difftest/regression-no-
 as regression cases for the IEEE-754 model (LOG, step 3 of the second review).
 
 ### F-15 — With exact arithmetic, aid-lean's dose differs from oref0's in 82/100,000 cases, usually higher
+**Resolved** (second review, step 3): with binary64 arithmetic all 100,000 outputs of the
+same run (seed 7) are byte-identical to oref0's (`docs/difftest.json`), and
+`scripts/difftest/regress.js` gives oref0's rate on the 5 worst cases below.
+
 Differential testing (seed 7, 100,000 valid random inputs): the issued temp basal rate
 differs in 82 cases. aid-lean's rate is higher in 76, lower in 3, and in 3 one side
 issues no rate. Differences range from −0.06 to +0.8 U/h (median +0.05). Cause: an exact
@@ -181,3 +193,29 @@ Full inputs: `scripts/difftest/worst-rate-diffs.jsonl` (top 5 by difference).
 (they hold for every valid input), but aid-lean is not a drop-in equivalent of oref0 on
 these inputs, and its deviation is more often towards more insulin. This is the reason
 for modelling binary64 exactly (second review, step 3).
+
+### F-16 — Double rounding in the safety statements (theorem statements changed)
+With the core computing in IEEE-754 doubles (second review, step 3), some properties
+that held exactly for rational arithmetic hold only up to rounding, and some proofs need
+the inputs to be doubles. Every statement that changed, and why:
+
+| theorem | before (exact rationals) | now (doubles) | why |
+|---|---|---|---|
+| all safety theorems (via `ValidProfile`) | V1, V2 as numbers | V10 added: `current_basal` and `max_basal` are doubles (`rd x = x`), `max_basal ≤ 2^30` U/h | `rd(1 · cb) ≥ cb` needs `cb` to be a double; `round_basal` is idempotent only below a bound. Every number parsed from JSON is a double; 2^30 U/h is not a restriction in practice |
+| V5 (`autosens_max`) | `n/100` | the double nearest `n/100`, `0 ≤ n ≤ 2^40` | 0.01 steps are not doubles |
+| `microbolus_limits` (H2) | `u ≤ maxBolus`, `iob + u ≤ max_iob` | `u ≤ maxBolus + maxBolus/2^50 + 2^-90`, `iob + u ≤ max_iob + (max_iob − iob)/2^44 + 2^-79` | in doubles `floor(y·k)/k` can round one ulp above `y` (`k` = 1/bolus_increment is itself rounded), and `max_iob − iob` is rounded. The excess is below 10⁻¹² U for any realistic `max_iob` |
+| `low_glucose_suspend` (H3) | a running temp left in place has rate 0 | its rate `x` satisfies `rd x = x → x = 0` | the "close enough" test `0.8·x ≤ 0 ≤ 1.2·x` in doubles also accepts non-double rationals with \|x\| < 2^-1074; the only double among them is 0 |
+| `roundBasal_overshoot` (H6) | `rbR M ≤ M + 1/40` (or `+ 1/20` from 10 U/h) | needs `0 ≤ M`; bound `+ (M+1)/2^50` | `M · scale` and the quotient are rounded |
+| `rate_can_exceed_maxSafeBasal` (F-04) | 0.83 → 0.85 | the doubles nearest 0.83 and 0.85 | same counterexample, values as doubles |
+| `roundBasal_nearest` (DB-01..05) | `|rts·s − x·s| ≤ 1/2` | needs `0 ≤ x`; `±(x·s+1)/2^50`; lower bound `≤` instead of `<` | rounding of `x·s` and the quotient |
+| `bilinear_at_zero` (IOB-01) | `iobContrib = insulin` | `= rd(insulin)` (the dose as a double) | the final multiplication is rounded |
+| `bilinear_after_dia` (IOB-01) | `180 ≤ 3/dia · m` | `180 + 180/2^50 ≤ 3/dia · m` and `dia ≤ 1000` h; and new `bilinear_after_dia'` with the exact hypothesis on the computed scaled time, `180 ≤ rd(rd(3/dia) · m)` (used for the test instance at m = 180) | the scaled time is computed in doubles; the DIA bound keeps the absolute rounding error below the relative one |
+| `maxDailyBasal_ge` (BAS-01) | every scheduled rate `≤ maxDailyBasal` | rates `≥ 0`; `r ≤ m + m/2^51 + 2^-90` | oref0 computes `maxRate * 1000 / 1000`, which in doubles can be one ulp below `maxRate` |
+| internal: `tempTargetRatio_pos` | ratio `> 0` | `≥ 0` | a positive quotient can round to 0 (only below 2^-1075) |
+| internal: `DoseHyp.hbgrid`, `smbLowTemp_bound` | basal is `k/40` | basal is the double nearest `n/s`, `s ∈ {10,20,40}`; the SMB duration is an integer | 0.025 is not a double; the bound `round(basal·d/30, 2) ≤ basal` is re-proved by an error analysis |
+
+Unchanged: H1 (`rate_le_roundBasal_maxSafeBasal`, `rate_le_maxSafeBasal_of_grid`), H4
+(`iob_at_max`), H5 (`cgmError_no_increase`, `cgm_unreliable_no_increase` with the same
+12.05 / −5.05 minute hypotheses, proved by monotonicity of rounding and kernel evaluation
+at the threshold), `missing_*`, `undated_glucose_max_rate`, `missing_max_basal_no_clamp`,
+`setTempBasal_rate_bound`, `roundBasal_monotone`. All are proved for the double model.

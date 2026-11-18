@@ -1,3 +1,4 @@
+import LeanAID.Core.Binary64
 /-
   LeanAID.Core.JsNum — a model of the JavaScript numbers oref0 computes with.
 
@@ -7,19 +8,19 @@
   objects that lack fields, and the algorithm carries `NaN` values through
   several branches. A faithful transcription therefore has to model `NaN`.
 
-  We model a JavaScript number as either `NaN` or a *finite rational* held
-  exactly (see `docs/DESIGN.md`, section "Numbers"). Arithmetic on finite values
-  is exact rational arithmetic, i.e. the real-number result that the double
-  computation approximates. Known, documented differences from JavaScript:
+  We model a JavaScript number as either `NaN` or a finite value held exactly as
+  a rational, and every arithmetic operation as JavaScript defines it: the exact
+  result rounded to the nearest IEEE-754 double, ties to even (`Binary64.rd`).
+  Decimal literals denote the double nearest to them, as in JavaScript.
+  Known, documented differences from JavaScript (`docs/DESIGN.md`):
 
   * Division by zero yields `NaN` here; JavaScript yields `±Infinity` for a
-    non-zero numerator. Valid inputs never divide by zero (`docs/DESIGN.md`).
-  * Doubles round every intermediate result; we do not. Results can differ when
-    a value lands exactly on a rounding tie (e.g. `Math.round(x*100)` for an
-    `x` whose double is just below `.xx5`). The differential tester measures
-    how often this happens.
+    non-zero numerator. Valid inputs never divide by zero.
+  * No overflow to ±Infinity (values never exceed 1.8·10³⁰⁸ here).
   * Negative zero is not modelled (`-0 === 0` in JavaScript, and it prints as
     `0`, so it is unobservable in oref0's outputs).
+  * Integer literals are taken as exact (all literals in the code are below 2^53,
+    where integers are doubles).
 
   Everything here is pure and uses only Lean core.
 -/
@@ -36,27 +37,27 @@ namespace JsNum
 
 instance (n : Nat) : OfNat JsNum n := ⟨fin (OfNat.ofNat n)⟩
 
-/-- Decimal literals such as `0.9` denote the exact rational `9/10`. -/
-instance : OfScientific JsNum := ⟨fun m s e => fin (OfScientific.ofScientific m s e)⟩
+/-- A decimal literal such as `0.9` denotes the double nearest to it, as in JavaScript. -/
+instance : OfScientific JsNum := ⟨fun m s e => fin (Binary64.rd (OfScientific.ofScientific m s e))⟩
 
 /-- `x + y` -/
 @[inline] def add : JsNum → JsNum → JsNum
-  | fin a, fin b => fin (a + b)
+  | fin a, fin b => fin (Binary64.rd (a + b))
   | _, _ => nan
 
 /-- `x - y` -/
 @[inline] def sub : JsNum → JsNum → JsNum
-  | fin a, fin b => fin (a - b)
+  | fin a, fin b => fin (Binary64.rd (a - b))
   | _, _ => nan
 
 /-- `x * y` -/
 @[inline] def mul : JsNum → JsNum → JsNum
-  | fin a, fin b => fin (a * b)
+  | fin a, fin b => fin (Binary64.rd (a * b))
   | _, _ => nan
 
 /-- `x / y`. Division by zero gives `NaN` (JavaScript: `±Infinity` or `NaN`). -/
 @[inline] def div : JsNum → JsNum → JsNum
-  | fin a, fin b => if b = 0 then nan else fin (a / b)
+  | fin a, fin b => if b = 0 then nan else fin (Binary64.rd (a / b))
   | _, _ => nan
 
 /-- `-x` -/
@@ -154,11 +155,9 @@ def pow10 : Nat → Rat
 
 /-- oref0's `round(value, digits)` helper
     (`lib/determine-basal/determine-basal.js` lines 21-26):
-    `Math.round(value * 10^digits) / 10^digits`. -/
+    `Math.round(value * 10^digits) / 10^digits`, with double arithmetic. -/
 def round (value : JsNum) (digits : Nat := 0) : JsNum :=
-  match value with
-  | fin a => fin ((roundInt (a * pow10 digits) : Rat) / pow10 digits)
-  | nan => nan
+  div (mathRound (mul value (fin (pow10 digits)))) (fin (pow10 digits))
 
 /-- JavaScript `x % y` on numbers (remainder truncated towards zero). -/
 def mod : JsNum → JsNum → JsNum
@@ -211,25 +210,55 @@ def fixedStr (n : Nat) (k : Nat) : String :=
 def roundHalfUpNat (q : Rat) (k : Nat) : Nat :=
   ((q * JsNum.pow10 k) + 1/2).floor.toNat
 
-/-- JavaScript `ToString(Number)` for our model. Exact for every value whose
-    decimal expansion terminates within 17 significant digits (all values oref0
-    prints after rounding); otherwise prints 16 significant digits, which can
-    differ from JavaScript's shortest round-trip form in the last digit. -/
+/-- `⌊log₁₀ a⌋` for `a > 0` (bounded search; doubles lie within 10^±325). -/
+def flog10 (a : Rat) : Int :=
+  if a ≥ 1 then (natStr a.floor.toNat).length - 1
+  else go 1 400
+where
+  go (j : Nat) : Nat → Int
+    | 0 => -(j : Int)
+    | fuel + 1 => if a * JsNum.pow10 j ≥ 1 then -(j : Int) else go (j + 1) fuel
+
+/-- `10^e` for an integer exponent. -/
+def pow10Z (e : Int) : Rat := if 0 ≤ e then JsNum.pow10 e.toNat else 1 / JsNum.pow10 (-e).toNat
+
+/-- The digits `s` (with `10^(k-1) ≤ s < 10^k`) and exponent `n` of ECMAScript's
+    Number::toString for a positive double `a`: the smallest `k` such that
+    `s · 10^(n−k)` rounds to `a`, choosing the `s` closest to `a` (ties to even). -/
+def shortest (a : Rat) : Nat × Int :=
+  go 1 17
+where
+  go (k : Nat) : Nat → Nat × Int
+    | 0 => cand 17
+    | fuel + 1 => let (sd, n) := cand k
+                  if Binary64.rd ((sd : Rat) * pow10Z (n - k)) = a || k ≥ 17 then (sd, n) else go (k + 1) fuel
+  cand (k : Nat) : Nat × Int :=
+    let n := flog10 a + 1
+    let sd := (Binary64.rhe (a / pow10Z (n - k))).toNat
+    if sd ≥ 10 ^ k then (sd / 10, n + 1) else (sd, n)
+
+/-- JavaScript `ToString(Number)` (ECMAScript Number::toString, radix 10). -/
 def numToString : JsNum → String
   | .nan => "NaN"
   | .fin q =>
     if q = 0 then "0" else
     let sign := if q < 0 then "-" else ""
     let a := if q < 0 then -q else q
-    match decimalsNeeded a.den with
-    | some k =>
-      if k ≤ 20 then sign ++ fixedStr (a * JsNum.pow10 k).floor.toNat k
-      else sign ++ fixedStr (roundHalfUpNat a 20) 20
-    | none =>
-      -- 16 significant digits (JavaScript prints the shortest form, 16 or 17)
-      let intDigits := (natStr a.floor.toNat).length
-      let k := if a ≥ 1 then 16 - min 16 intDigits else 15 + (natStr (1 / a).floor.toNat).length
-      sign ++ fixedStr (roundHalfUpNat a k) k
+    let (sd, n) := shortest a
+    let digits := (natStr sd).toList
+    let k : Int := digits.length
+    let body :=
+      if k ≤ n && n ≤ 21 then String.ofList digits ++ String.ofList (List.replicate (n - k).toNat '0')
+      else if 0 < n && n ≤ 21 then
+        String.ofList (digits.take n.toNat) ++ "." ++ String.ofList (digits.drop n.toNat)
+      else if -6 < n && n ≤ 0 then
+        "0." ++ String.ofList (List.replicate (-n).toNat '0') ++ String.ofList digits
+      else
+        let e := n - 1
+        let es := (if e ≥ 0 then "+" else "-") ++ natStr e.natAbs
+        if k = 1 then String.ofList digits ++ "e" ++ es
+        else String.ofList (digits.take 1) ++ "." ++ String.ofList (digits.drop 1) ++ "e" ++ es
+    sign ++ body
 
 /-- `x.toFixed(digits)` -/
 def toFixed (x : JsNum) (digits : Nat) : String :=

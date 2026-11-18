@@ -7,8 +7,13 @@ import LeanAID.Spec.Valid
 
 namespace LeanAID
 
-/-- `x` is a number with at most two decimals. -/
-def twoDecimals (x : Rat) : Bool := (x * 100).den == 1
+/-- `x` is the double nearest to a number `n/100` with `0 ≤ n ≤ 2^40`. -/
+def twoDecimals (x : Rat) : Bool :=
+  let n := JsNum.roundInt (x * 100)
+  decide (0 ≤ n) && decide (n ≤ 2 ^ 40) && decide (Binary64.rd ((n : Rat) / 100) = x)
+
+/-- `x` is a double. -/
+def isDouble (x : Rat) : Bool := decide (Binary64.rd x = x)
 
 /-- The finite value of a `getMaxSafeBasal`, if any. -/
 def finOf : JsNum → Option Rat
@@ -31,7 +36,8 @@ def validProfileB (p : Profile) : Bool :=
     (match p.bolus_increment with
      | some (.fin x) => decide (0 < x)
      | _ => true) &&
-    decide (0 < s)
+    decide (0 < s) &&
+    isDouble cb && isDouble mb && decide (mb ≤ 2 ^ 30)
   | _, _, _, _, _, _ => false
 
 def validInputB (inp : DBInputs) : Bool :=

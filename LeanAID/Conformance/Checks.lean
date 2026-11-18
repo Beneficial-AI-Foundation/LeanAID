@@ -41,12 +41,13 @@ theorem getLastGlucose_conforms : SmallData.getLastGlucose.all GLGCase.ok = true
 /-- `cobhistory.test.js`. -/
 theorem cobHistory_conforms : SmallData.cobHistory.all COBHCase.ok = true := by native_decide
 
-/-- 49 of the 51 `lib/iob` calls of `iob.test.js` agree exactly on every element
-    of the 48-element IOB array (and on lastBolusTime and lastTemp). -/
-theorem iob_exact : (IobData.all.filter IobCase.ok).length = 49 := by native_decide
+/-- All 51 `lib/iob` calls of `iob.test.js` agree exactly on every element of the
+    48-element IOB array (and on lastBolusTime and lastTemp). (With exact rational
+    arithmetic, before the binary64 model, 2 differed at a rounding tie: F-09.) -/
+theorem iob_exact : (IobData.all.filter IobCase.ok).length = 51 := by native_decide
 
-/-- All 51 agree up to rounding ties: where they differ, it is only `activity`, by
-    one unit of the final rounding, at an exact tie. -/
+/-- All 51 agree up to rounding ties (implied by `iob_exact`; kept as a check of the
+    weaker comparison). -/
 theorem iob_ties : IobData.all.all IobCase.okUpToTies = true := by native_decide
 
 end LeanAID.Conformance

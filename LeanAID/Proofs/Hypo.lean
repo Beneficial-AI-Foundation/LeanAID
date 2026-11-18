@@ -92,28 +92,53 @@ theorem suggestedRate_zero {p : Profile} {M : Rat} (hM : getMaxSafeBasal p = .fi
     simp [clampRate]; grind
   rw [this, roundBasal_fin, rbR_zero]
 
-/-- A running temp is "close enough" to a zero request only if it is a zero temp. -/
+/-- A running temp is "close enough" to a zero request only if its rate is zero,
+    when that rate is a double (as every number read from JSON is): in double
+    arithmetic `0 ≤ rate · 1.2` and `rate · 0.8 ≤ 0` hold exactly for the rates
+    strictly between `-2^-1074` and `2^-1074`, and the only such double is 0. -/
 theorem keepRunning_zero {dur : JsNum} {ct : Option CurrentTemp} {d r : JsNum}
-    (h : keepRunning (.fin 0) dur ct = some (d, r)) : ∃ c, ct = some c ∧ c.rate = some (.fin 0) := by
+    (h : keepRunning (.fin 0) dur ct = some (d, r)) :
+    ∃ c x, ct = some c ∧ c.rate = some (.fin x) ∧ (Binary64.rd x = x → x = 0) := by
   unfold keepRunning at h
   split at h
   · rename_i ctDur ctRate temp
     split at h
     · rename_i hc
       injection h with h; injection h with h1 h2; subst h2
-      refine ⟨_, rfl, ?_⟩
       cases ctRate with
       | nan => simp at hc
       | fin x =>
+        refine ⟨_, x, rfl, rfl, ?_⟩
+        intro hdx
         simp only [Bool.and_eq_true, JsNum.ofSci_eq, JsNum.fin_mul, JsNum.le_fin, JsNum.ge_fin,
           decide_eq_true_eq] at hc
-        have : x = 0 := by
-          obtain ⟨⟨⟨-, ha⟩, hb⟩, -⟩ := hc
-          have e1 : (OfScientific.ofScientific 12 true 1 : Rat) = 6/5 := by decide +kernel
-          have e2 : (OfScientific.ofScientific 8 true 1 : Rat) = 4/5 := by decide +kernel
-          rw [e1] at ha; rw [e2] at hb
-          grind
-        subst this; rfl
+        obtain ⟨⟨⟨-, ha⟩, hb⟩, -⟩ := hc
+        have e1 : (OfScientific.ofScientific 12 true 1 : Rat) = 6/5 := by decide +kernel
+        have e2 : (OfScientific.ofScientific 8 true 1 : Rat) = 4/5 := by decide +kernel
+        rw [e1] at ha; rw [e2] at hb
+        have c1 : (1/2 : Rat) < Binary64.rd (4/5) := by decide +kernel
+        have c2 : (1/2 : Rat) < Binary64.rd (6/5) := by decide +kernel
+        have pp := Binary64.pow2_pos (-1075)
+        have p2 : Binary64.pow2 (-1074) = Binary64.pow2 (-1075) * 2 := by
+          rw [← Binary64.pow2_succ]; rfl
+        apply Binary64.double_small hdx
+        · -- x > -2^-1074, else rate · 1.2 rounds below 0
+          by_cases hx : -Binary64.pow2 (-1074) < x
+          · exact hx
+          · exfalso
+            have m := Rat.mul_le_mul_of_nonneg_right (show x ≤ -Binary64.pow2 (-1074) by grind)
+              (Rat.le_of_lt (show (0 : Rat) < Binary64.rd (6/5) by grind))
+            have m2 := Rat.mul_lt_mul_of_pos_left c2 (show 0 < Binary64.pow2 (-1074) by grind)
+            have := Binary64.rd_pos_of_gt (y := -(x * Binary64.rd (6/5))) (by grind)
+            rw [Binary64.rd_neg] at this; grind
+        · by_cases hx : x < Binary64.pow2 (-1074)
+          · exact hx
+          · exfalso
+            have m := Rat.mul_le_mul_of_nonneg_right (show Binary64.pow2 (-1074) ≤ x by grind)
+              (Rat.le_of_lt (show (0 : Rat) < Binary64.rd (4/5) by grind))
+            have m2 := Rat.mul_lt_mul_of_pos_left c1 (show 0 < Binary64.pow2 (-1074) by grind)
+            have := Binary64.rd_pos_of_gt (y := x * Binary64.rd (4/5)) (by grind)
+            grind
     · cases h
   · cases h
 
@@ -123,7 +148,8 @@ theorem setTempBasal_zero {dur : JsNum} {p : Profile} {rT : Result} {ct : Option
     (hM : getMaxSafeBasal p = .fin M) (hM0 : 0 ≤ M) (hcb : p.current_basal = some (.fin cb)) (hcb0 : 0 < cb) :
     (setTempBasal 0 dur p rT ct).units = rT.units ∧
     ((setTempBasal 0 dur p rT ct).rate = some 0 ∨
-     ((setTempBasal 0 dur p rT ct).rate = rT.rate ∧ ∃ c, ct = some c ∧ c.rate = some (.fin 0))) := by
+     ((setTempBasal 0 dur p rT ct).rate = rT.rate ∧
+       ∃ c x, ct = some c ∧ c.rate = some (.fin x) ∧ (Binary64.rd x = x → x = 0))) := by
   have hs := suggestedRate_zero hM hM0
   unfold suggestedRate at hs
   refine ⟨setTempBasal_units _ _ _ _ _, ?_⟩
@@ -152,13 +178,16 @@ theorem dbDose_lgs {c : Ctx}
     succeeded (fresh, non-error CGM data, targets and IOB present): if BG or the
     predicted `minGuardBG` is below oref0's `threshold`, and BG is not both below
     `threshold` and rising (`minDelta > 0`), then oref0 issues no microbolus and
-    either sets a zero temp or leaves a running zero temp in place. -/
+    either sets a zero temp or leaves a running zero temp in place (more precisely:
+    a running temp whose rate is 0 if it is a double, as every rate read from JSON
+    is; see `keepRunning_zero`). -/
 theorem low_glucose_suspend {inp : DBInputs} (hv : ValidInput inp) {pre : Pre} (hpre : dbPrelude inp = .ok pre)
     (hlow : (pre.bg <ʲ pre.threshold) = true ∨ ((dbPredict inp pre).minGuardBG <ʲ pre.threshold) = true)
     (hnotrising : (pre.bg <ʲ pre.threshold) = false ∨ (pre.minDelta >ʲ 0) = false) :
     (determineBasal inp).units = none ∧
     ((determineBasal inp).rate = some 0 ∨
-     ((determineBasal inp).rate = none ∧ ∃ c, inp.currenttemp = some c ∧ c.rate = some (.fin 0))) := by
+     ((determineBasal inp).rate = none ∧
+       ∃ c x, inp.currenttemp = some c ∧ c.rate = some (.fin x) ∧ (Binary64.rd x = x → x = 0))) := by
   obtain ⟨p, g, mm, io, ct, meal, h1, -, -, -, h5, -, hpp, hct, -, -, -, -, -, -, -⟩ := prelude_ok hpre
   have hp := stProfile_ok h1
   have vp := hv.validProfile hp
@@ -185,9 +214,9 @@ theorem low_glucose_suspend {inp : DBInputs} (hv : ValidInput inp) {pre : Pre} (
   obtain ⟨hu, hr⟩ := setTempBasal_zero (dur := dur) (rT := rT') (ct := some (dbPredict inp pre).ct) hM
     (Rat.le_of_lt hMpos) hcb hcb0
   refine ⟨by rw [hu, hu']; rfl, ?_⟩
-  rcases hr with hr | ⟨hr, c, hc, hcr⟩
+  rcases hr with hr | ⟨hr, c, x, hc, hcr⟩
   · left; exact hr
-  · right; refine ⟨by rw [hr, hr']; rfl, c, ?_, hcr⟩
+  · right; refine ⟨by rw [hr, hr']; rfl, c, x, ?_, hcr⟩
     injection hc with hc; rw [hct', ← hc, ← hct]; rfl
 
 end LeanAID.Proofs

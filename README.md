@@ -5,7 +5,8 @@ Trio and AndroidAPS), with machine-checked proofs of its safety properties.
 
 Planned:
 
-- A function-by-function transcription of oref0 into Lean, using exact arithmetic.
+- A function-by-function transcription of oref0 into Lean, with JavaScript's IEEE-754
+  double arithmetic modelled exactly on rationals (no floating point).
 - oref0's unit tests lifted to theorems that hold for every input.
 - Safety requirements traced to FDA hazard analyses and regulations.
 - A native binary, `aid-lean`, that matches oref0's command-line interface.

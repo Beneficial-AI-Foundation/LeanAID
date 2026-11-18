@@ -64,7 +64,7 @@ def exp (x : Rat) : Rat :=
 
 /-- `Math.exp` on JavaScript numbers. -/
 def jsExp : JsNum → JsNum
-  | .fin x => .fin (exp x)
+  | .fin x => .fin (Binary64.rd (exp x))
   | .nan => .nan
 
 end LeanAID.Exp

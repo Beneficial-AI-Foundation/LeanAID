@@ -2,19 +2,21 @@
   App.Json — the unverified input shell: JSON values to the core's input types,
   and JavaScript `Date.parse` for the date strings oref0 reads.
 
-  JSON numbers are exact decimals (mantissa · 10^-exponent) and become exact
-  rationals, so no floating point is involved. A field of the wrong JSON type is
+  JSON numbers are exact decimals (mantissa · 10^-exponent); like `JSON.parse`, we
+  take the nearest double (`Binary64.rd`), computed on rationals without floating point. A field of the wrong JSON type is
   treated as missing (`undefined`); see docs/DESIGN.md (D4) for `null`.
 -/
 import Lean.Data.Json
-import LeanAID
+import LeanAID.Core.Step
+import LeanAID.Core.Glucose
+import LeanAID.Core.Iob
 
 namespace App
 
 open Lean LeanAID
 
 def numOf : Json → Option JsNum
-  | .num n => some (.fin ((n.mantissa : Rat) / ((10 : Rat) ^ n.exponent)))
+  | .num n => some (.fin (Binary64.rd ((n.mantissa : Rat) / ((10 : Rat) ^ n.exponent))))  -- JSON.parse: nearest double
   | _ => none
 
 def field (j : Json) (k : String) : Option Json :=

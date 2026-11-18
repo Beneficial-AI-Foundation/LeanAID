@@ -84,17 +84,43 @@ theorem cgm_unreliable_no_increase {inp : DBInputs} {p : Profile} {gs : GlucoseS
       simp only [hd, Option.js_some, timeClip_int, JsNum.fin_sub]
       rw [show (60 : JsNum) = .fin 60 from rfl, show (1000 : JsNum) = .fin 1000 from rfl,
         JsNum.fin_div (by decide), JsNum.fin_div (by decide), rnd, rnd_fin]
-      have e : ((inp.clock.now : Rat) - (d : Rat)) / 60 / 1000 = ((inp.clock.now : Rat) - d) / 60000 := by grind
-      rw [e]
       have hp10 : pow10 1 = 10 := by decide +kernel
       rw [hp10]
-      generalize ((inp.clock.now : Rat) - d) / 60000 = a at h ⊢
-      have h1 := lt_rts_mul (x := a) (s := 10) (by decide)
-      have h2 := rts_mul_le (x := a) (s := 10) (by decide)
+      -- the age in minutes, rounded to 0.1, is monotone in the integer age `z` in ms
+      have hz : (inp.clock.now : Rat) - (d : Rat) = ((inp.clock.now - d : Int) : Rat) := by push_cast; rfl
+      rw [hz] at h ⊢
+      generalize inp.clock.now - d = z at h ⊢
+      have mono : ∀ a b : Rat, a ≤ b →
+          rts (Binary64.rd (Binary64.rd (Binary64.rd a / 60) / 1000)) 10 ≤
+            rts (Binary64.rd (Binary64.rd (Binary64.rd b / 60) / 1000)) 10 := by
+        intro a b hab
+        apply rts_mono (by decide)
+        apply Binary64.rd_mono; apply div_le_div_of_le (by decide)
+        apply Binary64.rd_mono; apply div_le_div_of_le (by decide)
+        exact Binary64.rd_mono hab
       rcases h with h | h
-      · simp only [JsNum.ofNat_eq, JsNum.gt_fin, Bool.or_eq_true, decide_eq_true_eq]; left; grind
-      · simp only [Bool.or_eq_true, decide_eq_true_eq]
-        right; show (JsNum.fin (rts a 10) <ʲ JsNum.fin (-5)) = true
+      · -- z ≥ 723000 ms (12.05 min): rounded age ≥ 12.1
+        have hz : ((723000 : Int) : Rat) ≤ (z : Rat) := by
+          have : (12 + 1/20 : Rat) * 60000 ≤ (z : Rat) := by
+            rw [ge_iff_le, le_div_iff_mul_le (by decide)] at h; exact h
+          have e : (12 + 1/20 : Rat) * 60000 = ((723000 : Int) : Rat) := by decide +kernel
+          rwa [e] at this
+        have := mono _ _ hz
+        have k : (12 : Rat) < rts (Binary64.rd (Binary64.rd (Binary64.rd ((723000 : Int) : Rat) / 60) / 1000)) 10 := by
+          decide +kernel
+        simp only [JsNum.ofNat_eq, JsNum.gt_fin, Bool.or_eq_true, decide_eq_true_eq]; left; grind
+      · -- z ≤ -303001 ms (below -5.05 min): rounded age ≤ -5.1
+        have hz : (z : Rat) ≤ ((-303001 : Int) : Rat) := by
+          have : (z : Rat) < (-5 - 1/20 : Rat) * 60000 := (Rat.div_lt_iff (by decide)).mp h
+          have e : (-5 - 1/20 : Rat) * 60000 = ((-303000 : Int) : Rat) := by decide +kernel
+          rw [e] at this
+          have : z < -303000 := Rat.intCast_lt_intCast.mp this
+          exact Rat.intCast_le_intCast.mpr (show z ≤ -303001 by omega)
+        have := mono _ _ hz
+        have k : rts (Binary64.rd (Binary64.rd (Binary64.rd ((-303001 : Int) : Rat) / 60) / 1000)) 10 < -5 := by
+          decide +kernel
+        simp only [Bool.or_eq_true, decide_eq_true_eq]
+        right; show (JsNum.fin (rts _ 10) <ʲ JsNum.fin (-5)) = true
         simp; grind
     simp [this]
   · simp [h]

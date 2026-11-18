@@ -16,7 +16,12 @@
   RESEARCH ARTIFACT. NOT FOR DOSING INSULIN.
 -/
 import App.Json
-import LeanAID
+import LeanAID.Core.JsonOut
+import LeanAID.Spec.ValidCheck
+import LeanAID.Conformance.Case
+import LeanAID.Conformance.Data.DetermineBasalData
+import LeanAID.Conformance.Data.IobData
+import LeanAID.Conformance.Data.SmallData
 import Std.Time
 
 open Lean LeanAID LeanAID.Conformance
@@ -118,10 +123,10 @@ def determineBasalCmd (args : List String) : IO UInt32 := do
       microBolusAllowed := microbolus, reservoir_data := reservoir,
       clock := { now, tzOffsetMin := tz, tzName } }
   if o.safe then
-    -- docs/DESIGN.md, "What `--safe` rejects": (1) profile/autosens outside V0-V9,
+    -- docs/DESIGN.md, "What `--safe` rejects": (1) profile/autosens outside V0-V10,
     -- (2) carbs without lastCarbTime (F-06), (3) a glucose reading without a finite date (F-11)
     let reasons : List String :=
-      (if validInputB inp then [] else ["profile or autosens outside the valid domain (V0-V9)"]) ++
+      (if validInputB inp then [] else ["profile or autosens outside the valid domain (V0-V10)"]) ++
       (if !meal.carbs.truthyN || (match meal.lastCarbTime with | some (.fin _) => true | _ => false) then []
        else ["meal data has carbs but no numeric lastCarbTime (F-06)"]) ++
       (match gs.date with | some (.fin _) => [] | _ => ["glucose reading has no date (F-11)"])

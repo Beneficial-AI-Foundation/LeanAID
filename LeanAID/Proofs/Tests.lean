@@ -164,7 +164,7 @@ theorem DB_23_test :
 
 theorem DB_23_general : (determineBasal DetermineBasalData.c13.input).units = none ∧
     ((determineBasal DetermineBasalData.c13.input).rate = some 0 ∨ ((determineBasal DetermineBasalData.c13.input).rate = none ∧
-      ∃ c, DetermineBasalData.c13.input.currenttemp = some c ∧ c.rate = some (.fin 0))) :=
+      ∃ c x, DetermineBasalData.c13.input.currenttemp = some c ∧ c.rate = some (.fin x) ∧ (Binary64.rd x = x → x = 0))) :=
   low_glucose_suspend (validInputB_sound (by decide +kernel)) (okOf (by decide +kernel)) (Or.inl (by decide +kernel)) (Or.inr (by decide +kernel))
 
 /-- DB-24: should low temp when LOW w/ negative IOB -/
@@ -176,7 +176,7 @@ theorem DB_24_test :
 
 theorem DB_24_general : (determineBasal DetermineBasalData.c14.input).units = none ∧
     ((determineBasal DetermineBasalData.c14.input).rate = some 0 ∨ ((determineBasal DetermineBasalData.c14.input).rate = none ∧
-      ∃ c, DetermineBasalData.c14.input.currenttemp = some c ∧ c.rate = some (.fin 0))) :=
+      ∃ c x, DetermineBasalData.c14.input.currenttemp = some c ∧ c.rate = some (.fin x) ∧ (Binary64.rd x = x → x = 0))) :=
   low_glucose_suspend (validInputB_sound (by decide +kernel)) (okOf (by decide +kernel)) (Or.inl (by decide +kernel)) (Or.inr (by decide +kernel))
 
 /-- DB-25: should temp to 0 when LOW w/ no IOB -/
@@ -188,7 +188,7 @@ theorem DB_25_test :
 
 theorem DB_25_general : (determineBasal DetermineBasalData.c15.input).units = none ∧
     ((determineBasal DetermineBasalData.c15.input).rate = some 0 ∨ ((determineBasal DetermineBasalData.c15.input).rate = none ∧
-      ∃ c, DetermineBasalData.c15.input.currenttemp = some c ∧ c.rate = some (.fin 0))) :=
+      ∃ c x, DetermineBasalData.c15.input.currenttemp = some c ∧ c.rate = some (.fin x) ∧ (Binary64.rd x = x → x = 0))) :=
   low_glucose_suspend (validInputB_sound (by decide +kernel)) (okOf (by decide +kernel)) (Or.inl (by decide +kernel)) (Or.inr (by decide +kernel))
 
 /-- DB-26: should low-temp when eventualBG < min_bg -/

@@ -8,6 +8,7 @@ import LeanAID.Proofs.Dose
 namespace LeanAID.Proofs
 
 open JsNum
+open Binary64 (rd rd_mono rd_nonneg rd_rd)
 
 /-! ### Facts from valid input -/
 
@@ -41,19 +42,32 @@ theorem maxSafeBasal_ge {p : Profile} (vp : ValidProfile p) {M cb : Rat}
   rw [hmb, hmdb, hcb, hm3, hm4] at hM
   simp only [Option.js_some, JsNum.fin_mul, JsNum.min3_fin, JsNum.min_fin] at hM
   injection hM with hM
-  have a1 : cb ≤ m3 * mdb := by
+  have hd := vp.current_basal_double cb hcb
+  have a1 : cb ≤ rd (m3 * mdb) := by
     have : 1 * mdb ≤ m3 * mdb := Rat.mul_le_mul_of_nonneg_right h3 (by grind)
-    grind
-  have a2 : cb ≤ m4 * cb := by
+    have := rd_mono (show cb ≤ m3 * mdb by grind); rwa [hd] at this
+  have a2 : cb ≤ rd (m4 * cb) := by
     have : 1 * cb ≤ m4 * cb := Rat.mul_le_mul_of_nonneg_right h4 (by grind)
-    grind
+    have := rd_mono (show cb ≤ m4 * cb by grind); rwa [hd] at this
   subst hM
   constructor <;> split <;> (try split) <;> grind
 
-/-- `rnd(x, 2)` of a value on the 0.01 grid is itself. -/
-theorem rts100_grid {n : Int} : rts ((n : Rat) / 100) 100 = (n : Rat) / 100 := by
-  unfold rts
-  rw [Rat.div_mul_cancel (by decide), roundInt_intCast]
+/-- `maxSafeBasal` of a valid profile is a double, at most `2^30`. -/
+theorem maxSafeBasal_double {p : Profile} (vp : ValidProfile p) {M : Rat} (hM : getMaxSafeBasal p = .fin M) :
+    rd M = M ∧ M ≤ 2 ^ 30 := by
+  obtain ⟨mb, cb1, hmb, hcb1, -⟩ := vp.max_basal
+  obtain ⟨mdb, cb2, hmdb, hcb2, -⟩ := vp.max_daily_basal
+  obtain ⟨m3, hm3, -⟩ := multiplierOr_ge (d := 3) (by decide) vp.max_daily_safety_multiplier
+  obtain ⟨m4, hm4, -⟩ := multiplierOr_ge (d := 4) (by decide) vp.current_basal_safety_multiplier
+  obtain ⟨hmbd, hmb30⟩ := vp.max_basal_double mb hmb
+  unfold getMaxSafeBasal at hM
+  rw [hmb, hmdb, hcb1, hm3, hm4] at hM
+  simp only [Option.js_some, JsNum.fin_mul, JsNum.min3_fin, JsNum.min_fin] at hM
+  injection hM with hM
+  subst hM
+  constructor
+  · split <;> (try split) <;> simp [rd_rd, hmbd]
+  · split <;> (try split) <;> grind
 
 theorem div_pos_of_neg_neg {a b : Rat} (ha : a < 0) (hb : b < 0) : 0 < a / b := by
   have hq : a / b * b = a := Rat.div_mul_cancel (by grind)
@@ -64,10 +78,30 @@ theorem div_pos_of_neg_neg {a b : Rat} (ha : a < 0) (hb : b < 0) : 0 < a / b := 
     have h2 : (-(a / b)) * (-b) = a / b * b := by grind
     grind
 
-/-- The temp-target ratio is NaN or positive (given a positive `autosens_max`). -/
+theorem div_nonneg_of_mul_pos {a b : Rat} (h : 0 < a * b) : 0 ≤ a / b := by
+  by_cases hb : 0 < b
+  · have ha : 0 < a := by
+      by_cases ha : 0 < a
+      · exact ha
+      · exfalso
+        have : a * b ≤ 0 * b := Rat.mul_le_mul_of_nonneg_right (by grind) (by grind)
+        grind
+    exact Rat.le_of_lt ((Rat.lt_div_iff hb).mpr (by grind))
+  · have hb' : b < 0 := by
+      have : b ≠ 0 := by intro h0; subst h0; simp at h
+      grind
+    have ha : a < 0 := by
+      by_cases ha : a < 0
+      · exact ha
+      · exfalso
+        have : b * a ≤ 0 * a := Rat.mul_le_mul_of_nonneg_right (by grind) (by grind)
+        grind
+    exact Rat.le_of_lt (div_pos_of_neg_neg ha hb')
+
+/-- The temp-target ratio is NaN or non-negative (given a positive `autosens_max`). -/
 theorem tempTargetRatio_pos {p : Profile} {amax : Rat} (hamax : p.autosens_max = some (.fin amax)) (hpos : 0 < amax)
     (p' : Profile) (t : JsNum) (hp' : p' = p := by rfl) :
-    tempTargetRatio p t = .nan ∨ ∃ y, tempTargetRatio p t = .fin y ∧ 0 < y := by
+    tempTargetRatio p t = .nan ∨ ∃ y, tempTargetRatio p t = .fin y ∧ 0 ≤ y := by
   unfold tempTargetRatio
   simp only
   generalize halfBasalTargetOf p = hbt
@@ -78,38 +112,19 @@ theorem tempTargetRatio_pos {p : Profile} {amax : Rat} (hamax : p.autosens_max =
     | nan => simp
     | fin t =>
       simp only [JsNum.ofNat_eq, JsNum.fin_sub, JsNum.fin_add, JsNum.fin_mul, JsNum.le_fin, decide_eq_true_eq]
+      generalize rd (h - 100) = a
+      generalize rd (rd (a + t) - 100) = b
       split
-      · right; exact ⟨amax, by simp [hamax], hpos⟩
+      · right; exact ⟨amax, by simp [hamax], Rat.le_of_lt hpos⟩
       · rename_i hc
-        have hne : (h - 100 + t - 100) ≠ 0 := by
-          intro h0
-          apply hc
-          have : (h - 100) * (h - 100 + t - 100) = 0 := by rw [h0]; grind
-          grind
-        rw [JsNum.fin_div hne]
+        have hab : 0 < a * b := by
+          by_cases h0 : 0 < a * b
+          · exact h0
+          · exfalso; apply hc; exact Binary64.rd_nonpos (by grind)
+        have hb : b ≠ 0 := by intro h0; subst h0; simp at hab
+        rw [JsNum.fin_div hb]
         right
-        refine ⟨(h - 100) / (h - 100 + t - 100), rfl, ?_⟩
-        have hprod : 0 < (h - 100) * (h - 100 + t - 100) := by grind
-        by_cases hpos2 : 0 < h - 100 + t - 100
-        · have h1 : 0 < h - 100 := by
-            by_cases hh : 0 < h - 100
-            · exact hh
-            · exfalso
-              have : (h - 100) * (h - 100 + t - 100) ≤ 0 * (h - 100 + t - 100) :=
-                Rat.mul_le_mul_of_nonneg_right (by grind) (by grind)
-              grind
-          exact (Rat.lt_div_iff hpos2).mpr (by grind)
-        · have hneg2 : h - 100 + t - 100 < 0 := by
-            have : h - 100 + t - 100 ≠ 0 := hne
-            grind
-          have hneg1 : h - 100 < 0 := by
-            by_cases hh : h - 100 < 0
-            · exact hh
-            · exfalso
-              have : (h - 100 + t - 100) * (h - 100) ≤ 0 * (h - 100) :=
-                Rat.mul_le_mul_of_nonneg_right (by grind) (by grind)
-              grind
-          exact div_pos_of_neg_neg hneg1 hneg2
+        exact ⟨_, rfl, rd_nonneg (div_nonneg_of_mul_pos hab)⟩
 
 /-- The sensitivity ratio oref0 uses (lines 250-281) is missing, NaN, or a number
     `x ≥ 0` with `current_basal · x ≤ maxSafeBasal`, for valid input. -/
@@ -130,7 +145,7 @@ theorem sensitivityRatio_range {inp : DBInputs} (hv : ValidInput inp) {p : Profi
       cases av with
       | nan => left; simp [rnd, JsNum.round]
       | fin amax =>
-        obtain ⟨hpos, ⟨n, hn⟩, hle⟩ := vp.autosens_max amax hamax
+        obtain ⟨hpos, ⟨n, hn0, hnB, hn⟩, hle⟩ := vp.autosens_max amax hamax
         have hle := hle cb M hcb hM
         have hsr' := tempTargetRatio_pos hamax hpos p t
         generalize tempTargetRatio p t = sr at hsr' ⊢
@@ -143,7 +158,12 @@ theorem sensitivityRatio_range {inp : DBInputs} (hv : ValidInput inp) {p : Profi
           · apply rts_nonneg (by decide); split <;> grind
           · have hm : (if y ≤ amax then y else amax) ≤ amax := by split <;> grind
             have := rts_mono (s := 100) (by decide) hm
-            rw [hn] at this; rw [rts100_grid, ← hn] at this
+            have hn41 : (n : Rat) ≤ 2 ^ 41 := by
+              have : (n : Rat) ≤ ((2 ^ 41 : Int) : Rat) := Rat.intCast_le_intCast.mpr (by omega)
+              rw [show ((2 ^ 41 : Int) : Rat) = 2 ^ 41 by decide +kernel] at this; exact this
+            have hfix := rts_grid_fix (s := 100) (by decide) (by decide) hn0 hn41
+            rw [← hn] at hfix
+            rw [hfix] at this
             have := Rat.mul_le_mul_of_nonneg_left this (Rat.le_of_lt hcb0)
             grind
   · -- autosens branch
@@ -153,32 +173,48 @@ theorem sensitivityRatio_range {inp : DBInputs} (hv : ValidInput inp) {p : Profi
       right; right; exact ⟨r, hr, Rat.le_of_lt hr0, hra cb M hcb hM⟩
     · left; rfl
 
-/-- The adjusted basal (lines 142-143, 282-290) is a multiple of 0.025 between 0
-    and `round_basal(maxSafeBasal)`, for valid input. -/
+/-- The adjusted basal (lines 142-143, 282-290) is an output of `round_basal` (the
+    double nearest to `n/s`, `s ∈ {10, 20, 40}`) between 0 and
+    `round_basal(maxSafeBasal)`, which `round_basal` leaves unchanged, for valid input. -/
 theorem adjustedBasal_bound {inp : DBInputs} (hv : ValidInput inp) {p : Profile} (hp : inp.profile = some p)
     {M : Rat} (hM : getMaxSafeBasal p = .fin M) (t : JsNum) :
     ∃ b, adjustedBasal p (sensitivityRatioOf p inp.autosens_data t) = .fin b ∧ 0 ≤ b ∧
-      (∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40) ∧ b ≤ rbR M p.model ∧ rbR b p.model = b := by
+      (∃ n : Int, ∃ s : Rat, 0 ≤ n ∧ (s = 10 ∨ s = 20 ∨ s = 40) ∧ b = rd ((n : Rat) / s)) ∧
+      b ≤ rbR M p.model ∧ rbR b p.model = b := by
   have vp := hv.validProfile hp
   obtain ⟨cb, hcb, hcb0⟩ := vp.current_basal
   obtain ⟨hcbM, -⟩ := maxSafeBasal_ge vp hM hcb
-  have base : ∃ b, profileCurrentBasal p = .fin b ∧ 0 ≤ b ∧
-      (∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40) ∧ b ≤ rbR M p.model ∧ rbR b p.model = b := by
-    refine ⟨rbR cb p.model, ?_, rbR_nonneg _ (by grind), rbR_grid _ (by grind), rbR_mono _ hcbM,
-      rbR_idem _ (by grind)⟩
-    simp [profileCurrentBasal, hcb, roundBasal_fin]
+  obtain ⟨hMd, hM30⟩ := maxSafeBasal_double vp hM
+  have base : ∀ y : Rat, 0 ≤ y → y ≤ M → ∃ b, JsNum.fin (rbR y p.model) = .fin b ∧ 0 ≤ b ∧
+      (∃ n : Int, ∃ s : Rat, 0 ≤ n ∧ (s = 10 ∨ s = 20 ∨ s = 40) ∧ b = rd ((n : Rat) / s)) ∧
+      b ≤ rbR M p.model ∧ rbR b p.model = b := by
+    intro y hy0 hyM
+    obtain ⟨n, s, hn, hs, he⟩ := rbR_form p.model hy0
+    exact ⟨rbR y p.model, rfl, rbR_nonneg _ hy0, ⟨n, s, hn, hs, he⟩, rbR_mono _ hyM,
+      rbR_idem _ hy0 (by grind)⟩
+  have hcbase : ∃ b, profileCurrentBasal p = .fin b ∧ 0 ≤ b ∧
+      (∃ n : Int, ∃ s : Rat, 0 ≤ n ∧ (s = 10 ∨ s = 20 ∨ s = 40) ∧ b = rd ((n : Rat) / s)) ∧
+      b ≤ rbR M p.model ∧ rbR b p.model = b := by
+    have e : profileCurrentBasal p = .fin (rbR cb p.model) := by
+      simp [profileCurrentBasal, hcb, roundBasal_fin]
+    rw [e]; exact base cb (by grind) hcbM
   unfold adjustedBasal
   rcases sensitivityRatio_range hv hp hcb hcb0 hM t with h | h | ⟨x, h, hx0, hcx⟩
-  · rw [h]; simp only [Option.truthyN]; exact base
-  · rw [h]; simp only [Option.truthyN, JsNum.truthy]; exact base
+  · rw [h]; simp only [Option.truthyN]; exact hcbase
+  · rw [h]; simp only [Option.truthyN, JsNum.truthy]; exact hcbase
   · rw [h]
     by_cases hx : x = 0
-    · subst hx; simp only [Option.truthyN, JsNum.truthy]; simp; exact base
+    · subst hx
+      rw [ite_cond_eq_false _ _ (by simp [Option.truthyN, JsNum.truthy])]; exact hcbase
     · have ht : (some (JsNum.fin x)).truthyN = true := by simp [Option.truthyN, JsNum.truthy, hx]
       rw [ite_eq_left_iff.mpr (fun h => absurd ht h)]
       have hcx0 : 0 ≤ cb * x := Rat.mul_nonneg (by grind) hx0
-      refine ⟨rbR (cb * x) p.model, ?_, rbR_nonneg _ hcx0, rbR_grid _ hcx0, rbR_mono _ hcx, rbR_idem _ hcx0⟩
-      simp [hcb, roundBasal_fin]
+      have e : roundBasal ((some (JsNum.fin cb)).js * (some (JsNum.fin x)).js) p.model
+          = .fin (rbR (rd (cb * x)) p.model) := by
+        simp [roundBasal_fin]
+      simp only [hcb, e]
+      have h1 : rd (cb * x) ≤ M := by have := rd_mono hcx; rwa [hMd] at this
+      exact base _ (rd_nonneg hcx0) h1
 
 /-- A valid profile has a finite, positive `maxSafeBasal` at least `current_basal`. -/
 theorem maxSafeBasal_exists {p : Profile} (vp : ValidProfile p) :
