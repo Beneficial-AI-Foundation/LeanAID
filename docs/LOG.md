@@ -493,3 +493,10 @@ similar): a binary64 multiplication error in `3 × max_daily_basal`, which the
 `Math.round` tie detector cannot see. Not a transcription error (FINDINGS F-14).
 Regression inputs saved in `scripts/difftest/regression-no-tie.jsonl`; they become
 Lean conformance cases once the core models binary64 (step 3).
+
+## Second review, step 2: dose differences recorded
+
+**Time:** 2026-11-18 15:40 (from `date`)
+
+FINDINGS F-15: 82/100,000 rate differences (76 higher in aid-lean, 3 lower, 3 one-sided),
+worst inputs listed and saved in `scripts/difftest/worst-rate-diffs.jsonl`.

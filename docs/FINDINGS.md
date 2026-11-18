@@ -163,3 +163,20 @@ prints these, aid-lean (exact arithmetic) printed 3.9, 4.44, 7.56, 11.4. The iss
 agree. Cause: binary64 rounding of a multiplication, not a tie and not a transcription
 error. The inputs and oref0 outputs are kept in `scripts/difftest/regression-no-tie.jsonl`
 as regression cases for the IEEE-754 model (LOG, step 3 of the second review).
+
+### F-15 — With exact arithmetic, aid-lean's dose differs from oref0's in 82/100,000 cases, usually higher
+Differential testing (seed 7, 100,000 valid random inputs): the issued temp basal rate
+differs in 82 cases. aid-lean's rate is higher in 76, lower in 3, and in 3 one side
+issues no rate. Differences range from −0.06 to +0.8 U/h (median +0.05). Cause: an exact
+rounding tie that oref0's doubles round the other way (F-13), at a decision point: the
+hypo threshold comparison (`minGuardBG 82 < 83` in oref0, 83 in aid-lean), the carb
+impact `ci > 0` that switches COB/UAM predictions on, or the 0.05 U/h rate grid. The worst
+cases are oref0 zero temps where aid-lean issues insulin:
+- case 90274: oref0 0 U/h, aid-lean 0.8 U/h (30 min). BG 267 (prev 274, 283), current_basal 1.7, sens 77, carb_ratio 19.6, min/max_bg 126/146, iob 1.823, activity 0.0214, autosens 1.1, mealCOB 0/0, SMB allowed true, UAM false.
+- case 15683: oref0 0 U/h, aid-lean 0.575 U/h (30 min). BG 262 (prev 270, 281), current_basal 0.8, sens 106, carb_ratio 16.1, min/max_bg 129/142, iob 0.055, activity 0.0296, autosens 0.73, mealCOB 47/61, SMB allowed true, UAM false.
+- case 41082: oref0 0 U/h, aid-lean 0.475 U/h (30 min). BG 349 (prev 354, 359), current_basal 0.5, sens 40, carb_ratio 10.3, min/max_bg 118/124, iob 5.571, activity 0.024, autosens 0.95, mealCOB 5/79, SMB allowed false, UAM true.
+Full inputs: `scripts/difftest/worst-rate-diffs.jsonl` (top 5 by difference).
+**Safety reading:** each aid-lean decision still satisfies the proved safety theorems
+(they hold for every valid input), but aid-lean is not a drop-in equivalent of oref0 on
+these inputs, and its deviation is more often towards more insulin. This is the reason
+for modelling binary64 exactly (second review, step 3).
