@@ -301,6 +301,13 @@ footer li { margin: 3px 0; }
       <li><b>Requirements.</b> 23 requirements traced to the 2010 FDA-authored hazard analysis, the 2011 generic safety requirements and 21 CFR 862.1356 / 880.5730, then to theorems and tests.</li>
       <li><b>Binary.</b> <code>aid-lean determine-basal</code> has the same command-line interface and JSON format as <code>oref0-determine-basal</code>; <code>--safe</code> rejects the known unsafe inputs; <code>aid_step</code> is exported for C.</li>
     </ul>
+    <h3 style="margin:28px 0 8px;font-size:1.05rem">Reproduce</h3>
+    <pre style="background:var(--code-bg);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:0.82rem;line-height:1.5;margin:0"><code style="background:none;padding:0">git clone https://github.com/Beneficial-AI-Foundation/LeanAID.git
+cd LeanAID
+lake build                         # transcription, all proofs, conformance checks
+lake test                          # build + aid-lean selftest + forbidden-construct check
+.lake/build/bin/aid-lean selftest  # replays oref0's test cases</code></pre>
+    <p class="note">Comparing with the original JavaScript needs oref0 at commit <code>88cf032</code> and Node; see <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REPORT.md">REPORT</a>.</p>
   </div>
 </section>
 
