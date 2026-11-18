@@ -1,0 +1,154 @@
+{
+ "DB-06": {
+  "theorem": "dbDose_neutral (DB_06_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_06_test)"
+ },
+ "DB-08": {
+  "theorem": "low_eventual_rate_le_basal (DB_08_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_08_test)"
+ },
+ "DB-09": {
+  "theorem": "DB_09_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-10": {
+  "theorem": "dbDose_neutral (DB_10_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_10_test)"
+ },
+ "DB-13": {
+  "theorem": "low_eventual_rate_le_basal (DB_13_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_13_test)"
+ },
+ "DB-14": {
+  "theorem": "low_eventual_rate_le_basal (DB_14_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_14_test)"
+ },
+ "DB-17": {
+  "theorem": "DB_17_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-18": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_18_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_18_test)"
+ },
+ "DB-19": {
+  "theorem": "DB_19_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-20": {
+  "theorem": "DB_20_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-22": {
+  "theorem": "iob_at_max (DB_22_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_22_test)"
+ },
+ "DB-23": {
+  "theorem": "low_glucose_suspend (DB_23_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_23_test)"
+ },
+ "DB-24": {
+  "theorem": "low_glucose_suspend (DB_24_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_24_test)"
+ },
+ "DB-25": {
+  "theorem": "low_glucose_suspend (DB_25_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_25_test)"
+ },
+ "DB-26": {
+  "theorem": "low_eventual_rate_le_basal (DB_26_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_26_test)"
+ },
+ "DB-27": {
+  "theorem": "low_eventual_rate_le_basal (DB_27_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_27_test)"
+ },
+ "DB-28": {
+  "theorem": "low_eventual_rate_le_basal (DB_28_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_28_test)"
+ },
+ "DB-31": {
+  "theorem": "dbDose_neutral (DB_31_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_31_test)"
+ },
+ "DB-32": {
+  "theorem": "dbDose_neutral (DB_32_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_32_test)"
+ },
+ "DB-33": {
+  "theorem": "dbDose_neutral (DB_33_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_33_test)"
+ },
+ "DB-34": {
+  "theorem": "low_eventual_rate_le_basal (DB_34_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_34_test)"
+ },
+ "DB-35": {
+  "theorem": "DB_35_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-36": {
+  "theorem": "dbDose_neutral (DB_36_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_36_test)"
+ },
+ "DB-37": {
+  "theorem": "dbDose_neutral (DB_37_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_37_test)"
+ },
+ "DB-38": {
+  "theorem": "dbDose_neutral (DB_38_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_38_test)"
+ },
+ "DB-39": {
+  "theorem": "DB_39_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-43": {
+  "theorem": "missing_current_basal (DB_43_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_43_test)"
+ },
+ "DB-44": {
+  "theorem": "cgmError_no_increase (DB_44_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_44_test)"
+ },
+ "DB-45": {
+  "theorem": "cgmError_no_increase (DB_45_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_45_test)"
+ },
+ "DB-46": {
+  "theorem": "DB_46_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-47": {
+  "theorem": "DB_47_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-64": {
+  "theorem": "low_eventual_rate_le_basal (DB_64_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_64_test)"
+ },
+ "DB-65": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_65_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_65_test)"
+ },
+ "DB-66": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_66_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_66_test)"
+ },
+ "DB-67": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_67_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_67_test)"
+ },
+ "DB-68": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_68_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_68_test)"
+ },
+ "DB-69": {
+  "theorem": "dbDose_neutral (DB_69_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_69_test)"
+ },
+ "DB-70": {
+  "theorem": "dbDose_neutral (DB_70_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_70_test)"
+ }
+}

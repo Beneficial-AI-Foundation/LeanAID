@@ -163,8 +163,7 @@ theorem low_glucose_suspend {inp : DBInputs} (hv : ValidInput inp) {pre : Pre} (
   have hp := stProfile_ok h1
   have vp := hv.validProfile hp
   obtain ⟨cb, hcb, hcb0⟩ := vp.current_basal
-  obtain ⟨amax, cb', M, -, -, -, -, hM, -⟩ := vp.autosens_max
-  obtain ⟨-, hMpos⟩ := maxSafeBasal_ge vp hM hcb
+  obtain ⟨cb'', M, hcb'', -, hM, -, hMpos⟩ := maxSafeBasal_exists vp
   have hct' : inp.currenttemp = some ct := stPumpHistory_ok h5
   unfold determineBasal
   rw [hpre]

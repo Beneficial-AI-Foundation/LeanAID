@@ -20,9 +20,8 @@ theorem units_needs_prelude {inp : DBInputs} (hv : ValidInput inp) {u : JsNum}
     have hM : ∀ p, inp.profile = some p → ∃ M, getMaxSafeBasal p = .fin M ∧ 0 ≤ M := by
       intro p hp
       have vp := hv.validProfile hp
-      obtain ⟨cb, hcb, -⟩ := vp.current_basal
-      obtain ⟨-, -, M, -, -, -, -, hM, -⟩ := vp.autosens_max
-      exact ⟨M, hM, Rat.le_of_lt (maxSafeBasal_ge vp hM hcb).2⟩
+      obtain ⟨-, M, -, -, hM, -, hMpos⟩ := maxSafeBasal_exists vp
+      exact ⟨M, hM, Rat.le_of_lt hMpos⟩
     obtain ⟨hn, -⟩ := prelude_error hpre hM
     rw [hn] at hu; cases hu
 
@@ -92,9 +91,7 @@ theorem iob_at_max {inp : DBInputs} (hv : ValidInput inp) {pre : Pre} (hpre : db
   obtain ⟨p, g, mm, io, ct, meal, h1, -, -, -, -, -, hpp, -, -, -, -, -, hbasal, -, -⟩ := prelude_ok hpre
   have hp := stProfile_ok h1
   have vp := hv.validProfile hp
-  obtain ⟨cb, hcb, -⟩ := vp.current_basal
-  obtain ⟨-, -, M, -, -, -, -, hM, -⟩ := vp.autosens_max
-  obtain ⟨-, hMpos⟩ := maxSafeBasal_ge vp hM hcb
+  obtain ⟨cb, M, hcb, -, hM, -, hMpos⟩ := maxSafeBasal_exists vp
   obtain ⟨b, hb, hb0, hbg, hbM, hbid⟩ := adjustedBasal_bound hv hp hM ((mm.1 + mm.2) / 2)
   have hinc : ∀ x : Rat, (dbPredict inp pre).p.bolus_increment = some (.fin x) → 0 < x := by
     show ∀ x : Rat, pre.p.bolus_increment = some (.fin x) → 0 < x

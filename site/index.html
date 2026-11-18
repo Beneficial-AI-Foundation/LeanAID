@@ -150,11 +150,11 @@ footer li { margin: 3px 0; }
 <header class="hero" id="top">
   <div class="wrap">
     <span class="pill">Beneficial AI Foundation · Lean 4 · in progress</span>
-    <h1>oref0, written and proved in Lean</h1>
+    <h1>A verified controller for automated insulin delivery</h1>
     <p class="lede">
-      An agent transcribes <strong>oref0</strong>, the open-source insulin dosing algorithm behind Trio and AndroidAPS,
-      into Lean. Its unit tests become theorems for every input, its safety limits are proved and traced to FDA sources,
-      and it compiles to a binary checked against the original.
+      We rewrite <strong>oref0</strong>, an open-source insulin dosing algorithm tested in a randomized clinical trial,
+      in the Lean proof assistant, and prove that its doses stay within its safety limits for every possible glucose
+      reading.
     </p>
     <div class="buttons">
       <a class="btn primary" href="#proved">What we prove</a>
@@ -175,11 +175,11 @@ footer li { margin: 3px 0; }
 <section id="why">
   <div class="wrap">
     <h2>Why oref0</h2>
-    <p class="sub">People dose themselves with it every day, and no regulator has reviewed its code.</p>
+    <p class="sub">A real dosing algorithm, clinically tested, whose code anyone can inspect.</p>
     <div class="why">
-      <div class="prop"><b class="big">2 apps</b><h3>Inside the main open-source systems</h3><p>oref0's logic runs in AndroidAPS (Android) and Trio (iPhone). They are not in app stores: each user builds the app from source.</p></div>
       <div class="prop"><b class="big">+14 pts</b><h3>Tested in a randomized trial</h3><p>Its 0.7.0 release raised time in range by 14 percentage points, with no severe hypoglycaemia (<a href="https://pubmed.ncbi.nlm.nih.gov/36069869/">NEJM 2022</a>).</p></div>
-      <div class="prop"><b class="big">0</b><h3>Regulatory code reviews</h3><p>People choose it for better control, device choice and access. Clinicians support it (<a href="https://pubmed.ncbi.nlm.nih.gov/34785000/">Lancet D&amp;E 2022</a>), but no one independently checks the code. LeanAID does.</p></div>
+      <div class="prop"><b class="big">Open</b><h3>Code anyone can check</h3><p>Commercial dosing algorithms are closed. oref0 is fully open (MIT), so every proof here can be compared with the original.</p></div>
+      <div class="prop"><b class="big">2 apps</b><h3>Real, not a toy</h3><p>Its logic runs in AndroidAPS and Trio, the main open-source automated insulin delivery systems (<a href="https://pubmed.ncbi.nlm.nih.gov/34785000/">clinical consensus, Lancet D&amp;E 2022</a>).</p></div>
     </div>
   </div>
 </section>

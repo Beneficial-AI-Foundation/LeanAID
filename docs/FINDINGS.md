@@ -81,3 +81,21 @@ differential testing (M10).
 
 - **F-09** Exact arithmetic and doubles disagree at rounding ties (DESIGN D2): 2 of 51
   IOB test calls differ in `activity` by 0.0001 because the exact value is a tie.
+
+## Found during M6
+
+### F-10 — The bilinear insulin curve gives negative IOB for a positive dose
+The post-peak IOB polynomial `0.001323·x² − 0.054233·x + 0.55556` (iob/calculate.js
+line 81) has its minimum at x ≈ 20.5, where it is about −0.00023. With DIA 3 h a dose
+given 177 minutes ago contributes −0.00021 × dose: −0.0021 U for 10 U, visible after
+oref0's 3-decimal rounding. Proved: `bilinear_negative`. So "IOB is never negative for
+non-negative doses" (R18) is false for oref0's bilinear curve; the strongest version is
+"≥ −0.00023 × dose" (not yet proved).
+
+### Tests that were not generalised (M6)
+| test | why |
+|---|---|
+| DB-17, DB-35, DB-39 ("high-temp when eventual BG is high": rate above basal) | The natural general claim, "eventualBG ≥ max_bg and IOB < max_iob ⇒ rate ≥ basal", is false: `insulinReq` uses `min(minPredBG, eventualBG)`, so a low `minPredBG` gives a rate below basal even when eventualBG is high (and an SMB-enabled run can set an SMB zero temp). A true version needs `min(minPredBG, eventualBG) ≥ target_bg`, no SMB and no running temp; it is plausible but was not proved. The tests' own assertions are proved by evaluation. |
+| DB-19 (a running temp > 2× insulinReq is replaced) | branch-specific; only the concrete check is proved |
+| IOB-24, IOB-25 (temps with no duration / percent temps add no IOB) | would need a theorem about the whole pump-history pipeline (history.js); checked by conformance only |
+| BAS-02 (basalLookup) | `basalLookup` sorts with `List.mergeSort`, which the kernel cannot evaluate; checked by conformance (`native_decide`) only |

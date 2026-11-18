@@ -112,37 +112,45 @@ theorem tempTargetRatio_pos {p : Profile} {amax : Rat} (hamax : p.autosens_max =
           exact div_pos_of_neg_neg hneg1 hneg2
 
 /-- The sensitivity ratio oref0 uses (lines 250-281) is missing, NaN, or a number
-    in `[0, autosens_max]`, for valid input. -/
+    `x ≥ 0` with `current_basal · x ≤ maxSafeBasal`, for valid input. -/
 theorem sensitivityRatio_range {inp : DBInputs} (hv : ValidInput inp) {p : Profile} (hp : inp.profile = some p)
-    {amax : Rat} (hamax : p.autosens_max = some (.fin amax)) (t : JsNum) :
+    {cb M : Rat} (hcb : p.current_basal = some (.fin cb)) (hcb0 : 0 < cb) (hM : getMaxSafeBasal p = .fin M)
+    (t : JsNum) :
     sensitivityRatioOf p inp.autosens_data t = none ∨ sensitivityRatioOf p inp.autosens_data t = some .nan ∨
-    ∃ x, sensitivityRatioOf p inp.autosens_data t = some (.fin x) ∧ 0 ≤ x ∧ x ≤ amax := by
+    ∃ x, sensitivityRatioOf p inp.autosens_data t = some (.fin x) ∧ 0 ≤ x ∧ cb * x ≤ M := by
   have vp := hv.validProfile hp
-  obtain ⟨amax', cb, M, hamax', hpos, ⟨n, hn⟩, -, -, -⟩ := vp.autosens_max
-  rw [hamax] at hamax'; cases hamax'
   unfold sensitivityRatioOf
   simp only
   split
   · -- temp-target branch
     right
-    have hsr' := tempTargetRatio_pos hamax hpos p t
-    generalize tempTargetRatio p t = sr at hsr' ⊢
-    rcases hsr' with h0 | ⟨y, hy, hy0⟩
-    · subst h0; left; simp [rnd, JsNum.round, JsNum.min, hamax, Option.js, JsNum.ofOpt]
-    · subst hy
-      right
-      simp only [hamax, Option.js, JsNum.ofOpt, JsNum.min, rnd, JsNum.round, pow10_two]
-      refine ⟨_, rfl, ?_, ?_⟩
-      · apply rts_nonneg (by decide); split <;> grind
-      · have hm : (if y ≤ amax then y else amax) ≤ amax := by split <;> grind
-        have := rts_mono (s := 100) (by decide) hm
-        rw [hn] at this ⊢; rw [rts100_grid] at this; exact this
+    cases hamax : p.autosens_max with
+    | none => left; simp [rnd, JsNum.round]
+    | some av =>
+      cases av with
+      | nan => left; simp [rnd, JsNum.round]
+      | fin amax =>
+        obtain ⟨hpos, ⟨n, hn⟩, hle⟩ := vp.autosens_max amax hamax
+        have hle := hle cb M hcb hM
+        have hsr' := tempTargetRatio_pos hamax hpos p t
+        generalize tempTargetRatio p t = sr at hsr' ⊢
+        rcases hsr' with h0 | ⟨y, hy, hy0⟩
+        · subst h0; left; simp [rnd, JsNum.round]
+        · subst hy
+          right
+          simp only [Option.js_some, JsNum.min_fin, rnd, rnd_fin, pow10_two]
+          refine ⟨_, rfl, ?_, ?_⟩
+          · apply rts_nonneg (by decide); split <;> grind
+          · have hm : (if y ≤ amax then y else amax) ≤ amax := by split <;> grind
+            have := rts_mono (s := 100) (by decide) hm
+            rw [hn] at this; rw [rts100_grid, ← hn] at this
+            have := Rat.mul_le_mul_of_nonneg_left this (Rat.le_of_lt hcb0)
+            grind
   · -- autosens branch
     split
     · rename_i a ha
-      obtain ⟨r, amax', hr, hamax', hr0, hra⟩ := hv.autosens p a hp ha
-      rw [hamax] at hamax'; cases hamax'
-      right; right; exact ⟨r, hr, Rat.le_of_lt hr0, hra⟩
+      obtain ⟨r, hr, hr0, hra⟩ := hv.autosens p a hp ha
+      right; right; exact ⟨r, hr, Rat.le_of_lt hr0, hra cb M hcb hM⟩
     · left; rfl
 
 /-- The adjusted basal (lines 142-143, 282-290) is a multiple of 0.025 between 0
@@ -153,17 +161,14 @@ theorem adjustedBasal_bound {inp : DBInputs} (hv : ValidInput inp) {p : Profile}
       (∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40) ∧ b ≤ rbR M p.model ∧ rbR b p.model = b := by
   have vp := hv.validProfile hp
   obtain ⟨cb, hcb, hcb0⟩ := vp.current_basal
-  obtain ⟨amax, cb', M', hamax, -, -, hcb', hM', hle⟩ := vp.autosens_max
-  rw [hcb] at hcb'; cases hcb'
-  rw [hM] at hM'; cases hM'
   obtain ⟨hcbM, -⟩ := maxSafeBasal_ge vp hM hcb
   have base : ∃ b, profileCurrentBasal p = .fin b ∧ 0 ≤ b ∧
       (∃ k : Int, 0 ≤ k ∧ b = (k : Rat) / 40) ∧ b ≤ rbR M p.model ∧ rbR b p.model = b := by
     refine ⟨rbR cb p.model, ?_, rbR_nonneg _ (by grind), rbR_grid _ (by grind), rbR_mono _ hcbM,
       rbR_idem _ (by grind)⟩
-    simp [profileCurrentBasal, hcb, Option.js, JsNum.ofOpt, roundBasal_fin]
+    simp [profileCurrentBasal, hcb, roundBasal_fin]
   unfold adjustedBasal
-  rcases sensitivityRatio_range hv hp hamax t with h | h | ⟨x, h, hx0, hxa⟩
+  rcases sensitivityRatio_range hv hp hcb hcb0 hM t with h | h | ⟨x, h, hx0, hcx⟩
   · rw [h]; simp only [Option.truthyN]; exact base
   · rw [h]; simp only [Option.truthyN, JsNum.truthy]; exact base
   · rw [h]
@@ -172,11 +177,25 @@ theorem adjustedBasal_bound {inp : DBInputs} (hv : ValidInput inp) {p : Profile}
     · have ht : (some (JsNum.fin x)).truthyN = true := by simp [Option.truthyN, JsNum.truthy, hx]
       rw [ite_eq_left_iff.mpr (fun h => absurd ht h)]
       have hcx0 : 0 ≤ cb * x := Rat.mul_nonneg (by grind) hx0
-      have hcx : cb * x ≤ M := by
-        have : cb * x ≤ cb * amax := Rat.mul_le_mul_of_nonneg_left hxa (by grind)
-        grind
       refine ⟨rbR (cb * x) p.model, ?_, rbR_nonneg _ hcx0, rbR_grid _ hcx0, rbR_mono _ hcx, rbR_idem _ hcx0⟩
-      simp [hcb, Option.js, JsNum.ofOpt, HMul.hMul, Mul.mul, JsNum.mul, roundBasal_fin]
+      simp [hcb, roundBasal_fin]
+
+/-- A valid profile has a finite, positive `maxSafeBasal` at least `current_basal`. -/
+theorem maxSafeBasal_exists {p : Profile} (vp : ValidProfile p) :
+    ∃ cb M : Rat, p.current_basal = some (.fin cb) ∧ 0 < cb ∧ getMaxSafeBasal p = .fin M ∧ cb ≤ M ∧ 0 < M := by
+  obtain ⟨cb, hcb, hpos⟩ := vp.current_basal
+  obtain ⟨mb, cb1, hmb, hcb1, -⟩ := vp.max_basal
+  obtain ⟨mdb, cb2, hmdb, hcb2, -⟩ := vp.max_daily_basal
+  obtain ⟨m3, hm3, -⟩ := multiplierOr_ge (d := 3) (by decide) vp.max_daily_safety_multiplier
+  obtain ⟨m4, hm4, -⟩ := multiplierOr_ge (d := 4) (by decide) vp.current_basal_safety_multiplier
+  have hfin : ∃ M, getMaxSafeBasal p = .fin M := by
+    unfold getMaxSafeBasal
+    rw [hmb, hmdb, hcb, hm3, hm4]
+    simp only [Option.js_some, JsNum.fin_mul, JsNum.min3_fin, JsNum.min_fin]
+    exact ⟨_, rfl⟩
+  obtain ⟨M, hM⟩ := hfin
+  obtain ⟨h1, h2⟩ := maxSafeBasal_ge vp hM hcb
+  exact ⟨cb, M, hcb, hpos, hM, h1, h2⟩
 
 /-! ### H1: the temp basal ceiling -/
 

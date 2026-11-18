@@ -22,11 +22,11 @@ structure ValidProfile (p : Profile) : Prop where
   /-- the safety multipliers, when set to a number, are at least 1 (V4) -/
   max_daily_safety_multiplier : ∀ x : Rat, p.max_daily_safety_multiplier = some (.fin x) → 1 ≤ x
   current_basal_safety_multiplier : ∀ x : Rat, p.current_basal_safety_multiplier = some (.fin x) → 1 ≤ x
-  /-- `autosens_max` is a positive number with at most two decimals, and the basal
-      rate scaled by it is within `maxSafeBasal` (V5) -/
-  autosens_max : ∃ amax cb M : Rat, p.autosens_max = some (.fin amax) ∧ 0 < amax ∧
+  /-- `autosens_max`, when it is a number, is positive with at most two decimals, and
+      the basal rate scaled by it is within `maxSafeBasal` (V5) -/
+  autosens_max : ∀ amax : Rat, p.autosens_max = some (.fin amax) → 0 < amax ∧
     (∃ n : Int, amax = (n : Rat) / 100) ∧
-    p.current_basal = some (.fin cb) ∧ getMaxSafeBasal p = .fin M ∧ cb * amax ≤ M
+    ∀ cb M : Rat, p.current_basal = some (.fin cb) → getMaxSafeBasal p = .fin M → cb * amax ≤ M
   /-- `max_iob` is a non-negative number (V6) -/
   max_iob : ∃ mi : Rat, p.max_iob = some (.fin mi) ∧ 0 ≤ mi
   /-- `bolus_increment`, when set to a number, is positive (V7) -/
@@ -38,9 +38,10 @@ structure ValidProfile (p : Profile) : Prop where
 structure ValidInput (inp : DBInputs) : Prop where
   /-- a valid profile is given (V0) -/
   profile : ∃ p, inp.profile = some p ∧ ValidProfile p
-  /-- the autosens ratio, when autosens data is given, is a positive number no
-      larger than `autosens_max` (V9) -/
+  /-- the autosens ratio, when autosens data is given, is a positive number, and the
+      basal rate scaled by it is within `maxSafeBasal` (V9) -/
   autosens : ∀ p a, inp.profile = some p → inp.autosens_data = some a →
-    ∃ r amax : Rat, a.ratio = some (.fin r) ∧ p.autosens_max = some (.fin amax) ∧ 0 < r ∧ r ≤ amax
+    ∃ r : Rat, a.ratio = some (.fin r) ∧ 0 < r ∧
+      ∀ cb M : Rat, p.current_basal = some (.fin cb) → getMaxSafeBasal p = .fin M → cb * r ≤ M
 
 end LeanAID

@@ -21,3 +21,8 @@ import LeanAID.Proofs.Hypo
 import LeanAID.Proofs.MaxIob
 import LeanAID.Proofs.Smb
 import LeanAID.Proofs.Headline
+import LeanAID.Proofs.ValidCheck
+import LeanAID.Proofs.Lifted
+
+import LeanAID.Proofs.Tests
+import LeanAID.Proofs.TestsSmall

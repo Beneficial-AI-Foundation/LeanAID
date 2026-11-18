@@ -1,0 +1,406 @@
+{
+ "DB-01": {
+  "theorem": "roundBasal_nearest (DB_01_general); roundBasal_tests",
+  "status": "proved: general theorem + instance; test values by evaluation"
+ },
+ "DB-02": {
+  "theorem": "roundBasal_nearest; roundBasal_tests",
+  "status": "proved: general theorem; test values by evaluation"
+ },
+ "DB-03": {
+  "theorem": "roundBasal_nearest, lowestRateScale_x23 (DB_03_general); roundBasal_tests",
+  "status": "proved: general theorem + instance; test values by evaluation"
+ },
+ "DB-04": {
+  "theorem": "roundBasal_nearest; roundBasal_tests",
+  "status": "proved: general theorem; test values by evaluation"
+ },
+ "DB-05": {
+  "theorem": "roundBasal_nearest; roundBasal_tests",
+  "status": "proved: general theorem; test values by evaluation (6 cases)"
+ },
+ "DB-06": {
+  "theorem": "dbDose_neutral (DB_06_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_06_test)"
+ },
+ "DB-07": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-08": {
+  "theorem": "low_eventual_rate_le_basal (DB_08_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_08_test)"
+ },
+ "DB-09": {
+  "theorem": "setTempBasal_rate_cases (a close-enough running temp is kept)",
+  "status": "general lemma proved; test assertion by evaluation (DB_09_test)"
+ },
+ "DB-10": {
+  "theorem": "dbDose_neutral (DB_10_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_10_test)"
+ },
+ "DB-11": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-12": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-13": {
+  "theorem": "low_eventual_rate_le_basal (DB_13_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_13_test)"
+ },
+ "DB-14": {
+  "theorem": "low_eventual_rate_le_basal (DB_14_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_14_test)"
+ },
+ "DB-15": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-16": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-17": {
+  "theorem": "DB_17_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-18": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_18_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_18_test)"
+ },
+ "DB-19": {
+  "theorem": "DB_19_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-20": {
+  "theorem": "setTempBasal_rate_cases",
+  "status": "general lemma proved; test assertion by evaluation (DB_20_test)"
+ },
+ "DB-21": {
+  "status": "concrete check: conformance and evaluation"
+ },
+ "DB-22": {
+  "theorem": "iob_at_max (DB_22_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_22_test)"
+ },
+ "DB-23": {
+  "theorem": "low_glucose_suspend (DB_23_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_23_test)"
+ },
+ "DB-24": {
+  "theorem": "low_glucose_suspend (DB_24_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_24_test)"
+ },
+ "DB-25": {
+  "theorem": "low_glucose_suspend (DB_25_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_25_test)"
+ },
+ "DB-26": {
+  "theorem": "low_eventual_rate_le_basal (DB_26_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_26_test)"
+ },
+ "DB-27": {
+  "theorem": "low_eventual_rate_le_basal (DB_27_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_27_test)"
+ },
+ "DB-28": {
+  "theorem": "low_eventual_rate_le_basal (DB_28_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_28_test)"
+ },
+ "DB-29": {
+  "status": "concrete check: conformance and evaluation"
+ },
+ "DB-30": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-31": {
+  "theorem": "dbDose_neutral (DB_31_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_31_test)"
+ },
+ "DB-32": {
+  "theorem": "dbDose_neutral (DB_32_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_32_test)"
+ },
+ "DB-33": {
+  "theorem": "dbDose_neutral (DB_33_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_33_test)"
+ },
+ "DB-34": {
+  "theorem": "low_eventual_rate_le_basal (DB_34_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_34_test)"
+ },
+ "DB-35": {
+  "theorem": "DB_35_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-36": {
+  "theorem": "dbDose_neutral (DB_36_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_36_test)"
+ },
+ "DB-37": {
+  "theorem": "dbDose_neutral (DB_37_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_37_test)"
+ },
+ "DB-38": {
+  "theorem": "dbDose_neutral (DB_38_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_38_test)"
+ },
+ "DB-39": {
+  "theorem": "DB_39_test",
+  "status": "test assertions proved by evaluation; general theorem not proved (planned)"
+ },
+ "DB-40": {
+  "status": "concrete check: conformance and evaluation"
+ },
+ "DB-41": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-42": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-43": {
+  "theorem": "missing_current_basal (DB_43_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_43_test)"
+ },
+ "DB-44": {
+  "theorem": "cgmError_no_increase (DB_44_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_44_test)"
+ },
+ "DB-45": {
+  "theorem": "cgmError_no_increase (DB_45_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_45_test)"
+ },
+ "DB-46": {
+  "theorem": "missing_targets",
+  "status": "general theorem proved; test assertion by evaluation (DB_46_test)"
+ },
+ "DB-47": {
+  "theorem": "missing_iob",
+  "status": "general theorem proved; test assertion by evaluation (DB_47_test)"
+ },
+ "DB-48": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-49": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-50": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-51": {
+  "status": "concrete check: conformance and evaluation"
+ },
+ "DB-52": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-53": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-54": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-55": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-56": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-57": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-58": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-59": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-60": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-61": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-62": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-63": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "DB-64": {
+  "theorem": "low_eventual_rate_le_basal (DB_64_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_64_test)"
+ },
+ "DB-65": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_65_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_65_test)"
+ },
+ "DB-66": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_66_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_66_test)"
+ },
+ "DB-67": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_67_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_67_test)"
+ },
+ "DB-68": {
+  "theorem": "rate_le_roundBasal_maxSafeBasal (DB_68_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_68_test)"
+ },
+ "DB-69": {
+  "theorem": "dbDose_neutral (DB_69_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_69_test)"
+ },
+ "DB-70": {
+  "theorem": "dbDose_neutral (DB_70_general)",
+  "status": "proved: general theorem + instance; test assertions by evaluation (DB_70_test)"
+ },
+ "IOB-01": {
+  "theorem": "bilinear_at_zero, bilinear_after_dia (IOB_01_general)",
+  "status": "proved: general theorem + instance; full test checked by conformance (iob_exact)"
+ },
+ "IOB-02": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-03": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-04": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-05": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-06": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-07": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-08": {
+  "theorem": "curveSetup_dia (IOB_08_general)",
+  "status": "proved: general theorem + instance; test checked by conformance"
+ },
+ "IOB-09": {
+  "status": "disabled upstream; inputs run in conformance"
+ },
+ "IOB-10": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-11": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-12": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-13": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-14": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-15": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-16": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-17": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-18": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-19": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-20": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-21": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-22": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-23": {
+  "status": "concrete check: conformance"
+ },
+ "IOB-24": {
+  "status": "conformance only (iob_exact); general theorem not proved"
+ },
+ "IOB-25": {
+  "status": "conformance only (iob_exact); general theorem not proved"
+ },
+ "IOB-26": {
+  "status": "concrete check: conformance"
+ },
+ "STB-01": {
+  "theorem": "setTempBasal_no_temp; setTempBasal_tests",
+  "status": "proved: general theorem; test values by evaluation"
+ },
+ "STB-02": {
+  "theorem": "setTempBasal_no_temp; setTempBasal_tests",
+  "status": "proved: general theorem; test values by evaluation"
+ },
+ "STB-03": {
+  "theorem": "setTempBasal_no_temp; setTempBasal_tests",
+  "status": "proved: general theorem; test values by evaluation"
+ },
+ "STB-04": {
+  "theorem": "setTempBasal_skip_neutral; setTempBasal_tests",
+  "status": "proved: general theorem; test values by evaluation"
+ },
+ "STB-05": {
+  "theorem": "setTempBasal_rate_bound; setTempBasal_tests",
+  "status": "proved: general theorem (H1 for setTempBasal); test values by evaluation"
+ },
+ "STB-06": {
+  "theorem": "setTempBasal_rate_bound; setTempBasal_tests",
+  "status": "proved: general theorem (H1 for setTempBasal); test values by evaluation"
+ },
+ "STB-07": {
+  "theorem": "setTempBasal_rate_bound; setTempBasal_tests",
+  "status": "proved: general theorem (H1 for setTempBasal); test values by evaluation"
+ },
+ "STB-08": {
+  "theorem": "setTempBasal_rate_bound; setTempBasal_tests",
+  "status": "proved: general theorem (H1 for setTempBasal); test values by evaluation"
+ },
+ "STB-09": {
+  "theorem": "setTempBasal_rate_bound; setTempBasal_tests",
+  "status": "proved: general theorem (H1 for setTempBasal); test values by evaluation"
+ },
+ "STB-10": {
+  "theorem": "setTempBasal_rate_bound; setTempBasal_tests",
+  "status": "proved: general theorem (H1 for setTempBasal); test values by evaluation"
+ },
+ "STB-11": {
+  "status": "concrete check: conformance"
+ },
+ "STB-12": {
+  "status": "concrete check: conformance"
+ },
+ "BAS-01": {
+  "theorem": "maxDailyBasal_ge; maxDailyBasal_tests",
+  "status": "proved: general theorem; test value by evaluation"
+ },
+ "BAS-02": {
+  "status": "conformance only (basal_conforms, native_decide); general theorem not proved"
+ },
+ "GLG-01": {
+  "status": "concrete check: conformance"
+ },
+ "GLG-02": {
+  "status": "concrete check: conformance"
+ },
+ "GLG-03": {
+  "status": "concrete check: conformance"
+ },
+ "GLG-04": {
+  "status": "concrete check: conformance"
+ },
+ "GLG-05": {
+  "status": "concrete check: conformance"
+ },
+ "COBH-01": {
+  "status": "concrete check: conformance"
+ }
+}

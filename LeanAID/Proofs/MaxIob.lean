@@ -89,25 +89,28 @@ theorem rateOk_stb_le {rate dur : JsNum} {p : Profile} {rT : Result} {ct : Optio
       rw [← hbid]; exact rbR_mono _ this
 
 /-- Hypotheses for H4 about a dose context. -/
-structure IobHyp (c : Ctx) (M b : Rat) : Prop extends DoseHyp c M b where
+structure BasalHyp (c : Ctx) (M b : Rat) : Prop extends DoseHyp c M b where
   hbid : rbR b c.p.model = b
+
+/-- Hypotheses for H4 about a dose context. -/
+structure IobHyp (c : Ctx) (M b : Rat) : Prop extends BasalHyp c M b where
   hiob : ∃ i mi : Rat, c.iobd.iob = some (.fin i) ∧ c.max_iob = .fin mi ∧ mi ≤ i
   hinc : ∀ x : Rat, c.p.bolus_increment = some (.fin x) → 0 < x
 
-theorem IobHyp.basalReq {c : Ctx} {M b : Rat} (H : IobHyp c M b) :
+theorem BasalHyp.basalReq {c : Ctx} {M b : Rat} (H : BasalHyp c M b) :
     c.basal = .nan ∨ ∃ x, c.basal = .fin x ∧ x ≤ b := Or.inr ⟨b, H.hb, Rat.le_refl⟩
 
 theorem zeroReq (b : Rat) (hb0 : 0 ≤ b) : (0 : JsNum) = .nan ∨ ∃ x, (0 : JsNum) = .fin x ∧ x ≤ b :=
   Or.inr ⟨0, rfl, hb0⟩
 
-theorem neutralTemp_le {c : Ctx} {M b : Rat} (H : IobHyp c M b) (rT : Result) :
+theorem neutralTemp_le {c : Ctx} {M b : Rat} (H : BasalHyp c M b) (rT : Result) :
     RateOk b (neutralTemp c rT) rT.rate := by
   unfold neutralTemp
   split
   · exact rateOk_self _ _
   · exact rateOk_stb_le H.hM H.hM0 H.hb0 H.hbid H.basalReq
 
-theorem lowEventualBG_le {c : Ctx} {M b : Rat} (H : IobHyp c M b) (rT : Result) :
+theorem lowEventualBG_le {c : Ctx} {M b : Rat} (H : BasalHyp c M b) (rT : Result) :
     RateOk b (lowEventualBG c rT) rT.rate := by
   have hreq : ∀ ir : JsNum, NonPos ir → (roundBasal (c.basal + 2 * ir) c.p.model = .nan ∨
       ∃ x, roundBasal (c.basal + 2 * ir) c.p.model = .fin x ∧ x ≤ b) := by
@@ -159,7 +162,7 @@ theorem capped_nonPos (ir0 : JsNum) {w : Rat} (hw : w ≤ 0) : NonPos (capInsuli
     | nan => left; rfl
     | fin v => right; refine ⟨v, rfl, ?_⟩; simp at hc; grind
 
-theorem highTempSet_le {c : Ctx} {M b : Rat} (H : IobHyp c M b) (rT : Result) (rate ir : JsNum)
+theorem highTempSet_le {c : Ctx} {M b : Rat} (H : BasalHyp c M b) (rT : Result) (rate ir : JsNum)
     (hreq : rate = .nan ∨ ∃ x, rate = .fin x ∧ x ≤ b) :
     RateOk b (highTempSet c rT rate ir) rT.rate := by
   unfold highTempSet
@@ -215,11 +218,11 @@ theorem highTemp_le {c : Ctx} {M b : Rat} (H : IobHyp c M b) (rT : Result) :
     simp only
     split
     · intro r h
-      rcases highTempSet_le H _ _ _ (hreqM (by assumption)) r h with h1 | h1
+      rcases highTempSet_le H.toBasalHyp _ _ _ (hreqM (by assumption)) r h with h1 | h1
       · left; rw [← hr]; simpa using h1
       · right; exact h1
     · intro r h
-      rcases highTempSet_le H _ _ _ hrate r h with h1 | h1
+      rcases highTempSet_le H.toBasalHyp _ _ _ hrate r h with h1 | h1
       · left; rw [← hr]; exact h1
       · right; exact h1
 
@@ -231,8 +234,8 @@ theorem dbDoseRest_le {c : Ctx} {M b : Rat} (H : IobHyp c M b) (rT : Result) :
   all_goals first
     | exact rateOk_self _ _
     | exact rateOk_stb_le H.hM H.hM0 H.hb0 H.hbid (zeroReq b H.hb0)
-    | exact neutralTemp_le H _
-    | exact lowEventualBG_le H _
+    | exact neutralTemp_le H.toBasalHyp _
+    | exact lowEventualBG_le H.toBasalHyp _
     | exact highTemp_le H _
 
 theorem dbDose_le {c : Ctx} {M b : Rat} (H : IobHyp c M b) : RateOk b (dbDose c) c.rT.rate := by
