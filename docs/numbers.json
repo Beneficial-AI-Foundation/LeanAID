@@ -1,0 +1,68 @@
+{
+ "generated": "2026-11-18T12:30:00.188Z",
+ "oref0": "88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (0.7.1)",
+ "tests": {
+  "blocks": 116,
+  "byFile": {
+   "determine-basal.test.js": 70,
+   "iob.test.js": 26,
+   "set-temp-basal.test.js": 12,
+   "basal.test.js": 2,
+   "get-last-glucose.test.js": 5,
+   "cobhistory.test.js": 1
+  },
+  "byClass": {
+   "A": 48,
+   "D": 24,
+   "B": 11,
+   "C": 33
+  },
+  "classAB": 59,
+  "liftedToGeneralTheorems": 52,
+  "notLifted": [
+   "DB-17",
+   "DB-19",
+   "DB-35",
+   "DB-39",
+   "IOB-24",
+   "IOB-25",
+   "BAS-02"
+  ]
+ },
+ "theorems": {
+  "total": 215,
+  "headline": 13,
+  "headlineNames": [
+   "LeanAID.Proofs.rate_le_roundBasal_maxSafeBasal",
+   "LeanAID.Proofs.rate_le_maxSafeBasal_of_grid",
+   "LeanAID.Proofs.microbolus_limits",
+   "LeanAID.Proofs.low_glucose_suspend",
+   "LeanAID.Proofs.iob_at_max",
+   "LeanAID.Proofs.cgmError_no_increase",
+   "LeanAID.Proofs.missing_current_basal",
+   "LeanAID.Proofs.missing_targets",
+   "LeanAID.Proofs.missing_iob",
+   "LeanAID.Proofs.rate_can_exceed_maxSafeBasal",
+   "LeanAID.Proofs.roundBasal_overshoot",
+   "LeanAID.Proofs.roundBasal_monotone",
+   "LeanAID.Proofs.setTempBasal_rate_bound"
+  ]
+ },
+ "axioms": [
+  "Classical.choice",
+  "Quot.sound",
+  "propext"
+ ],
+ "sorry": 0,
+ "checkShOk": true,
+ "conformance": {
+  "passed": 148,
+  "total": 148,
+  "atRoundingTies": 2
+ },
+ "linesOfLean": {
+  "core": 2594,
+  "proofs": 2857,
+  "spec": 96
+ }
+}

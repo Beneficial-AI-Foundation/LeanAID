@@ -2,11 +2,17 @@
 
 All times are local (EET, UTC+2). One agent session (Claude Opus 5.5 in Claude Code).
 
+*Correction (14:27):* the start/end times first written for M0–M6 were my estimates
+and were wrong (they ran to the next morning). They have been replaced by times taken
+from the git commit timestamps. Note also that my M6 commit (7b9290f) accidentally
+included an uncommitted 14-line edit of `site/index.html` made by the maintainer
+during the session (`git add -A`); from M7 on I stage only my own files.
+
 ---
 
 ## M0 – Setup
 
-**Start:** 2026-11-18 12:05 · **End:** 2026-11-18 12:55
+**Start:** 2026-11-18 12:05 · **End:** 2026-11-18 12:20
 
 ### What was done
 - Cloned `https://github.com/openaps/oref0` into `vendor/oref0`, checked out
@@ -70,7 +76,7 @@ get-last-glucose, basal lookup, cob history) passes under Node.
 
 ## M1 – Test inventory
 
-**Start:** 2026-11-18 12:55 · **End:** 2026-11-18 13:35
+**Start:** 2026-11-18 12:20 · **End:** 2026-11-18 12:25
 
 ### What was done
 - `scripts/inventory.js` extracts every `it(...)` block (active or commented out) from
@@ -121,7 +127,7 @@ get-last-glucose, basal lookup, cob history) passes under Node.
 
 ## M2 – Requirements and traceability
 
-**Start:** 2026-11-18 13:35 · **End:** 2026-11-18 14:05
+**Start:** 2026-11-18 12:25 · **End:** 2026-11-18 12:31
 
 ### What was done
 - Located the two FDA papers on PMC (PMC2864162, PMC3262707). PMC marks both as free
@@ -147,7 +153,7 @@ get-last-glucose, basal lookup, cob history) passes under Node.
 
 ## M3 – Transcription
 
-**Start:** 2026-11-18 14:05 · **End:** 2026-11-18 16:40
+**Start:** 2026-11-18 12:31 · **End:** 2026-11-18 13:01
 
 ### What was done
 Transcribed into `LeanAID/Core` (pure, Lean core only, no forbidden constructs):
@@ -203,7 +209,7 @@ compared with numbers; Q8 in-place mutation of aliased temp events.
 
 ## M4 – Conformance
 
-**Start:** 2026-11-18 15:20 (overlapping M3) · **End:** 2026-11-18 16:45
+**Start:** 2026-11-18 12:42 (overlapping M3) · **End:** 2026-11-18 13:01
 
 ### What was done
 - `scripts/gen_conformance.js` turns the captured calls into Lean data
@@ -246,7 +252,7 @@ exact tie. This is the expected cost of exact arithmetic (DESIGN D2).
 
 ## M5 – Safety envelope (headline theorems)
 
-**Start:** 2026-11-18 16:45 · **End:** 2026-11-18 21:30
+**Start:** 2026-11-18 13:01 · **End:** 2026-11-18 14:08
 
 ### Results (all checked by `lake build`, no `sorry`, axioms: propext, Classical.choice, Quot.sound)
 | id | theorem | statement |
@@ -298,7 +304,7 @@ F-04 (0.83 → 0.85 U/h) and F-06 (`rate: null`, reason "setting NaNU/hr").
 
 ## M6 – Tests lifted to theorems
 
-**Start:** 2026-11-18 21:30 · **End:** 2026-11-19 00:40
+**Start:** 2026-11-18 14:08 · **End:** 2026-11-18 14:22
 
 ### Results
 - **52 of 59 class A/B tests** are instances of proved general theorems. For each
@@ -326,3 +332,38 @@ F-04 (0.83 → 0.85 U/h) and F-06 (`rate: null`, reason "setting NaNU/hr").
 - I first grouped DB-10/31/32 with "low eventual BG"; the kernel refused the
   hypothesis because their eventual BG (111, 119) is above min_bg 110. They take the
   in-range branch and are instances of `dbDose_neutral`.
+
+---
+
+## M7 – Binary (minimum result)
+
+**Start:** 2026-11-18 14:22 · **End:** 2026-11-18 14:45
+
+### What was done
+- `App/Json.lean`: JSON → core inputs using the toolchain's `Lean.Json` (numbers are
+  exact decimals, so no floating point anywhere), and ECMAScript `Date.parse` for ISO
+  strings (local time without a zone).
+- `App/Main.lean`: `aid-lean determine-basal <iob> <currenttemp> <glucose> <profile>
+  [<autosens>] [<meal>]` plus oref0's options `--auto-sens --meal --reservoir
+  --currentTime --microbolus` (same behaviour: `--microbolus` needs an `autotune`
+  directory), JSON on stdout or the error on stderr; `--safe` (not in oref0) refuses
+  input outside the valid domain. `aid-lean selftest` reruns all 148 conformance
+  cases: **148/148 (2 at rounding ties)**.
+- `LeanAID/Core/Step.lean`: `step`, exported to C as `aid_step` (checked in the
+  generated C: `LEAN_EXPORT lean_object* aid_step(lean_object*)`).
+- `lake test` builds everything (all proofs and native_decide conformance checks),
+  runs `aid-lean selftest` and `scripts/check.sh`: passes.
+- First end-to-end comparison with `oref0-determine-basal` on an input that exercises
+  the prediction loop, COB and UAM (none of oref0's tests do): **byte-identical output**.
+- `scripts/report.js` → `docs/numbers.json`: 116 test blocks, 52/59 class A/B tests
+  lifted, 215 theorems (13 headline), axioms propext/Classical.choice/Quot.sound,
+  0 sorry, conformance 148/148.
+- `site/index.html` updated with these numbers, theorem names, a findings section and
+  revised limits. The maintainer was editing the same file during the session, so I
+  applied my changes on top of their working copy and **left the file uncommitted**
+  for them to review.
+
+### Minimum result (M0–M7) reached, with these gaps
+- `lib/meal/total.js` and `cob.js` (COB calculation) not transcribed (see M3).
+- R4 (duration bounds) and the IOB/exp error bounds not proved.
+- 7 of 59 class A/B tests not generalised (FINDINGS).

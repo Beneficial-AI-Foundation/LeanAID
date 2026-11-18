@@ -40,7 +40,7 @@ oref0 issues `{"rate": null, "duration": 30}` with reason "no temp, setting NaNU
 ```
 A pump driver receiving `rate: null` may reject or misinterpret the command. This is the
 kind of out-of-bounds input CFR862 (b)(3)(iv) is about (R14). Our theorems are stated for
-finite issued rates, and the `aid-lean` shell rejects such inputs (M7).
+finite issued rates. `aid-lean determine-basal --safe` refuses such inputs (exit code 2); without `--safe` it reproduces oref0's output, NaN included.
 
 ### F-01 — oref0's tests never reach the prediction, COB, UAM or SMB code
 All 42 determine-basal test calls pass a single IOB object, on which the prediction

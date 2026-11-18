@@ -8,6 +8,9 @@ package LeanAID where
 lean_lib LeanAID where
   roots := #[`LeanAID]
 
+lean_lib App where
+  roots := #[`App.Json]
+
 @[default_target]
 lean_exe «aid-lean» where
   root := `App.Main
