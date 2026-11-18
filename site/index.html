@@ -138,6 +138,7 @@ footer li { margin: 3px 0; }
       <a href="#controller">Controller</a>
       <a href="#assurance">Assurance</a>
       <a href="#proved">Proofs</a>
+      <a href="#findings">Findings</a>
       <a href="#limits">Limits</a>
       <a href="https://github.com/Beneficial-AI-Foundation/LeanAID">GitHub</a>
     </div>
@@ -150,11 +151,11 @@ footer li { margin: 3px 0; }
 <header class="hero" id="top">
   <div class="wrap">
     <span class="pill">Beneficial AI Foundation · Lean 4 · in progress</span>
-    <h1>A verified controller for automated insulin delivery</h1>
+    <h1>Formally verifying an insulin dosing algorithm</h1>
     <p class="lede">
       We rewrite <strong>oref0</strong>, an open-source insulin dosing algorithm tested in a randomized clinical trial,
-      in the Lean proof assistant, and prove that its doses stay within its safety limits for every possible glucose
-      reading.
+      in the Lean proof assistant, and prove that each dose it chooses stays within its safety limits. Where oref0 does not
+      meet a limit exactly, or a proof needs extra conditions, we say so and report the gap.
     </p>
     <div class="buttons">
       <a class="btn primary" href="#proved">What we prove</a>
@@ -164,10 +165,10 @@ footer li { margin: 3px 0; }
       </a>
     </div>
     <div class="stats">
-      <div class="stat"><b>96</b><span>oref0 unit tests to lift to theorems</span></div>
-      <div class="stat"><b>0</b><span><code>sorry</code> allowed, standard axioms only</span></div>
-      <div class="stat"><b>4</b><span>FDA and safety sources traced to proofs</span></div>
-      <div class="stat"><b>1</b><span>native binary, <code>aid-lean</code>, compiled via C</span></div>
+      <div class="stat"><b>52 / 59</b><span>generalisable oref0 unit tests (of 116 inventoried) proved as instances of general theorems</span></div>
+      <div class="stat"><b>0</b><span><code>sorry</code>; 220 theorems, standard axioms only</span></div>
+      <div class="stat"><b>146 / 148</b><span>oref0 test calls reproduced exactly; the other 2 differ at a rounding tie</span></div>
+      <div class="stat"><b>1</b><span>native binary, <code>aid-lean</code>, with the same interface and JSON format as <code>oref0-determine-basal</code></span></div>
     </div>
   </div>
 </header>
@@ -175,12 +176,11 @@ footer li { margin: 3px 0; }
 <section id="why">
   <div class="wrap">
     <h2>Why oref0</h2>
-    <p class="sub">A real dosing algorithm, clinically tested, whose code anyone can inspect.</p>
-    <div class="why">
-      <div class="prop"><b class="big">+14 pts</b><h3>Tested in a randomized trial</h3><p>Its 0.7.0 release raised time in range by 14 percentage points, with no severe hypoglycaemia (<a href="https://pubmed.ncbi.nlm.nih.gov/36069869/">NEJM 2022</a>).</p></div>
-      <div class="prop"><b class="big">Open</b><h3>Code anyone can check</h3><p>Commercial dosing algorithms are closed. oref0 is fully open (MIT), so every proof here can be compared with the original.</p></div>
-      <div class="prop"><b class="big">2 apps</b><h3>Real, not a toy</h3><p>Its logic runs in AndroidAPS and Trio, the main open-source automated insulin delivery systems (<a href="https://pubmed.ncbi.nlm.nih.gov/34785000/">clinical consensus, Lancet D&amp;E 2022</a>).</p></div>
-    </div>
+    <ul class="limits">
+      <li><b>Why it appeared.</b> Insulin pumps have existed for decades, but they followed schedules set by the user. In 2015, before any commercial wearable system could adjust doses automatically from glucose readings, people with type 1 diabetes built their own. The OpenAPS project published its dosing algorithm, oref0, as open source. The first commercial system of this kind was <a href="https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=P160017">approved by the FDA in September 2016</a>.</li>
+      <li><b>Where it is used.</b> Its logic runs in AndroidAPS and Trio, the main open-source insulin delivery apps, and it was the algorithm in a <a href="https://pubmed.ncbi.nlm.nih.gov/36069869/">2022 randomized clinical trial</a>.</li>
+      <li><b>Not checked by regulators.</b> These apps are not approved medical devices: each user builds the app from the source code, and no regulator has reviewed that code.</li>
+    </ul>
   </div>
 </section>
 
@@ -201,18 +201,18 @@ footer li { margin: 3px 0; }
 <section id="assurance">
   <div class="wrap">
     <h2>Three layers of assurance</h2>
-    <p class="sub">Every result will be checked by Lean's kernel or by a test against the original JavaScript.</p>
+    <p class="sub">Lean checks the proofs. That the Lean version behaves like the original oref0 is checked by running both on the same inputs.</p>
     <div class="layer"><span class="num">1</span><div>
-      <h3>Tests lifted to theorems <span class="tag">Planned</span></h3>
-      <p>Each oref0 unit test checks one input. We prove the general rule behind it for every input, and the original test follows as a corollary.</p>
+      <h3>Tests lifted to theorems <span class="tag ok">52 of 59</span></h3>
+      <p>Each oref0 unit test checks one input. We prove the general rule behind it for every input, and the original test follows as a corollary. 116 test blocks were inventoried (70 determine-basal, 26 IOB and 20 others); 59 generalise, and 52 of those are now instances of proved theorems. The other 7 are checked on their inputs only; for 3 of them the obvious general rule is false (see Findings).</p>
     </div></div>
     <div class="layer"><span class="num">2</span><div>
-      <h3>Safety bounds traced to FDA sources <span class="tag">Planned</span></h3>
-      <p>For any sequence of glucose readings, the insulin commanded stays within oref0's limits. Each requirement is traced to an FDA hazard analysis or regulation clause.</p>
+      <h3>Safety bounds traced to FDA sources <span class="tag ok">One decision: proved</span> <span class="tag">Over time: planned</span></h3>
+      <p>For every valid input, each decision stays within oref0's limits, with the gaps listed under What we prove. 23 requirements are traced to an FDA hazard analysis or regulation clause; bounds over a sequence of decisions are planned.</p>
     </div></div>
     <div class="layer"><span class="num">3</span><div>
-      <h3>Conformance with oref0 <span class="tag">Planned</span></h3>
-      <p>Exact agreement on oref0's own tests, differential testing on random inputs, and side-by-side runs on virtual patients.</p>
+      <h3>Conformance with oref0 <span class="tag ok">oref0's tests: done</span> <span class="tag ok">Random inputs: done</span> <span class="tag">Virtual patients: planned</span></h3>
+      <p>Every call that oref0's own tests make to the dose code (148 calls, including the inputs of 23 disabled tests) gives the same output, down to the reason strings, except two IOB values where exact arithmetic and JavaScript's floating point round an exact tie differently. These checks are evaluated with <code>native_decide</code>, so they trust the Lean compiler; the safety theorems do not. oref0's own tests never reach the glucose predictions, carbs on board or microboluses, so for that half of the algorithm agreement rests on differential testing: on 100,000 random valid inputs, 83% of outputs are byte-identical. All but 4 of the differences coincide with a floating-point rounding tie or with how JavaScript prints a number; the 4 others are not yet explained. No transcription error has been found. In 82 cases the dose itself differs, and in most of them the Lean version gives more insulin than oref0. Side-by-side runs on virtual patients are planned.</p>
     </div></div>
   </div>
 </section>
@@ -220,27 +220,48 @@ footer li { margin: 3px 0; }
 <section class="alt" id="proved">
   <div class="wrap">
     <h2>What we prove</h2>
-    <p class="sub">Target theorems, each about the transcribed oref0 functions and stated for every valid input.</p>
+    <p class="sub">Each theorem is about the transcribed oref0 functions and holds for every valid input: every glucose reading, any IOB and meal data, and a profile whose limits are consistent (defined in <code>docs/DESIGN.md</code>).</p>
     <div class="props">
-      <div class="prop"><h3>Basal never above the safe maximum</h3><p>The rate is between 0 and oref0's <code>maxSafeBasal</code>.</p></div>
-      <div class="prop"><h3>No insulin when glucose is low</h3><p>Below oref0's threshold and not rising, the rate is zero and no microbolus is given.</p></div>
-      <div class="prop"><h3>No stacking</h3><p>Insulin on board never goes above <code>max_iob</code>, in one step or over any run.</p></div>
-      <div class="prop"><h3>Bad data fails safe</h3><p>Stale, missing or error-coded glucose never increases insulin.</p></div>
-      <div class="prop"><h3>Rounding is safe</h3><p>Rounding to pump increments never pushes a dose above a limit.</p></div>
-      <div class="prop"><h3>Insulin on board is exact</h3><p>The computed value equals its mathematical definition, within a proved bound.</p></div>
+      <div class="prop"><h3>Basal never above the safe maximum <span class="tag ok">Proved, with a gap</span></h3><p>Every issued numeric rate is between 0 and <code>maxSafeBasal</code> rounded to the pump increment, so it can exceed <code>maxSafeBasal</code> by up to half an increment. On some inputs oref0 issues no number at all (NaN). <code>rate_le_roundBasal_maxSafeBasal</code></p></div>
+      <div class="prop"><h3>No insulin when glucose is low <span class="tag ok">Proved</span></h3><p>Glucose or predicted glucose below oref0's threshold, and not rising: a zero temp, no microbolus. <code>low_glucose_suspend</code></p></div>
+      <div class="prop"><h3>No stacking in one step <span class="tag ok">Proved</span></h3><p>A microbolus never takes insulin on board above <code>max_iob</code>, and at <code>max_iob</code> no rate exceeds the basal. <code>microbolus_limits</code>, <code>iob_at_max</code>. Over a run: <span class="tag">Planned</span></p></div>
+      <div class="prop"><h3>Bad data fails safe <span class="tag ok">Proved, with a gap</span></h3><p>Error-coded, noisy, flat, or dated-and-stale glucose never increases insulin. <code>cgm_unreliable_no_increase</code>. A reading with no date is never treated as stale, and oref0 can give the maximum rate on it (finding below).</p></div>
+      <div class="prop"><h3>Rounding is safe <span class="tag">Not true as stated</span></h3><p>Rounding can push a rate above a limit that is not on the pump's grid, by at most half an increment (0.83 becomes 0.85 U/h). Proved: <code>rate_can_exceed_maxSafeBasal</code>, <code>roundBasal_overshoot</code></p></div>
+      <div class="prop"><h3>Insulin on board is exact <span class="tag">Planned</span></h3><p>Transcribed and tested (49 of 51 test calls exact, 2 at rounding ties). Found: the bilinear curve gives slightly negative IOB for a positive dose.</p></div>
     </div>
+  </div>
+</section>
+
+<section id="findings">
+  <div class="wrap">
+    <h2>Findings so far</h2>
+    <p class="sub">Facts about oref0 0.7.1 found by transcribing, testing and proving. Each is reproduced under Node or proved in Lean. Details and commands: <code>docs/FINDINGS.md</code>.</p>
+    <ul class="limits">
+      <li><b>Rounding can exceed the safe maximum.</b> The temp basal is clamped to <code>maxSafeBasal</code> and then rounded, which can round up: with <code>max_basal</code> 0.83 U/h, oref0 issues 0.85 U/h.</li>
+      <li><b>An undated glucose reading is never stale.</b> Without a date, the staleness check is skipped: for a reading of 250 mg/dL and rising, oref0 issues its maximum rate, 3.5 U/h, however old the reading is.</li>
+      <li><b>No maximum means no clamp.</b> If <code>max_basal</code> or <code>max_daily_basal</code> is missing, the safety maximum is NaN and the clamp never applies: 5.9 U/h for a scheduled basal of 0.9 U/h. <code>aid-lean --safe</code> refuses such input.</li>
+      <li><b>A rate of NaN.</b> With carbs on board but no <code>lastCarbTime</code>, oref0 issues <code>"rate": null</code> for 30 minutes ("setting NaNU/hr").</li>
+      <li><b>The SMB low temp skips the clamp.</b> It is not passed through the <code>maxSafeBasal</code> clamp; it stays within the sensitivity-adjusted basal, which our valid-input conditions keep within the limit.</li>
+      <li><b>Negative insulin on board.</b> The bilinear insulin curve dips below zero just before the end of insulin action: a 10 U dose 177 minutes ago counts as −0.002 U.</li>
+      <li><b>Half the algorithm is untested upstream.</b> No determine-basal test reaches the glucose predictions, carbs-on-board logic or microboluses: the tests pass a single IOB object, the prediction loop throws on it, and the error is caught.</li>
+      <li><b>Test-suite issues.</b> 23 of 70 determine-basal test blocks are disabled; one active test passes only because of a typo (<code>"max_bg "</code>); the profile tests fail against the current code.</li>
+      <li><b>Hidden state in insulin history.</b> Suspend handling mutates shared objects, so the reported last temp basal can have a negative duration (−15 min in one oref0 test).</li>
+    </ul>
   </div>
 </section>
 
 <section id="limits">
   <div class="wrap">
     <h2>Assumptions and limits</h2>
-    <p class="sub">What the results will not cover.</p>
+    <p class="sub">What the results do not cover.</p>
     <ul class="limits">
       <li><b>Research artifact.</b> Not a medical device and not for dosing insulin.</li>
-      <li><b>The algorithm, not the body.</b> Proofs cover what the controller decides. Glucose outcomes are tested on simulated patients, not proved.</li>
-      <li><b>Trusted base.</b> The Lean compiler and runtime, the C compiler, and the input/output shell are not verified.</li>
-      <li><b>Conformance is tested.</b> Agreement with the JavaScript rests on its tests, differential testing and simulation.</li>
+      <li><b>The algorithm, not the body.</b> Proofs cover what the controller decides. Glucose outcomes are not proved; tests on simulated patients are planned.</li>
+      <li><b>Valid input.</b> The safety theorems assume a consistent profile (for example <code>max_basal</code> at least the scheduled basal). Glucose, insulin on board and meal data are unconstrained. They cover finite rates: oref0 can issue a NaN rate on inconsistent meal data.</li>
+      <li><b>Exact arithmetic.</b> The Lean code computes with exact fractions where JavaScript uses floating point. Results usually agree; near rounding ties they can differ, and the Lean version then tends to give slightly more insulin than oref0.</li>
+      <li><b>Not yet transcribed.</b> The carbs-on-board calculation (<code>lib/meal/total.js</code>, <code>cob.js</code>) is an input to the decision, as in <code>oref0-determine-basal</code>, and is not transcribed yet. The error bound of the exponential insulin curve is not proved yet.</li>
+      <li><b>Trusted base.</b> The Lean compiler and runtime, the C compiler, and the input/output shell are not verified. The conformance checks use <code>native_decide</code>, which trusts the compiler; the safety proofs do not.</li>
+      <li><b>Conformance is tested.</b> Agreement with the JavaScript rests on its tests and on differential testing; simulation is planned. Exact fractions and floating point disagree at rounding ties, sometimes in the decision itself.</li>
       <li><b>Next steps.</b> Running on seL4, verified pump firmware, and verified compilation.</li>
     </ul>
   </div>
@@ -252,13 +273,12 @@ footer li { margin: 3px 0; }
     <ol>
       <li><a href="https://github.com/openaps/oref0">OpenAPS oref0</a>, release 0.7.1 (MIT).</li>
       <li>Burnside et al., <a href="https://pubmed.ncbi.nlm.nih.gov/36069869/">Open-source automated insulin delivery in type 1 diabetes</a>, N. Engl. J. Med. 387(10):869–881, 2022.</li>
-      <li>Braune et al., <a href="https://pubmed.ncbi.nlm.nih.gov/34785000/">Open-source automated insulin delivery: international consensus statement and practical guidance for health-care professionals</a>, Lancet Diabetes Endocrinol., 2022.</li>
       <li>Zhang, Jones, Jetley, <a href="https://pubmed.ncbi.nlm.nih.gov/20307387/">A hazard analysis for a generic insulin infusion pump</a>, J. Diabetes Sci. Technol., 2010.</li>
       <li>Zhang, Jetley, Jones, Ray, <a href="https://pubmed.ncbi.nlm.nih.gov/22226258/">Generic safety requirements for developing safe insulin pump software</a>, J. Diabetes Sci. Technol., 2011.</li>
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-862/subpart-B/section-862.1356">21 CFR 862.1356</a>, interoperable automated glycemic controller.</li>
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-880/subpart-F/section-880.5730">21 CFR 880.5730</a>, alternate controller enabled infusion pump.</li>
     </ol>
-    LeanAID · Beneficial AI Foundation
+    LeanAID · Beneficial AI Foundation · Numbers from <code>scripts/report.js</code> (<code>docs/numbers.json</code>), 18 November 2026.
   </div>
 </footer>
 
