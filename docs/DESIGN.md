@@ -88,15 +88,20 @@ theorems assume exactly this and nothing else:
 | V2 | `max_basal` is a number ≥ `current_basal` | a maximum below the scheduled rate is a configuration error; oref0-get-profile derives it from pump settings |
 | V3 | `max_daily_basal` is a number ≥ `current_basal` | by definition it is the largest scheduled rate |
 | V4 | safety multipliers, when set to numbers, are ≥ 1 | a multiplier below 1 would make the scheduled basal itself "unsafe"; oref0 documents defaults 3 and 4 |
-| V5 | `autosens_max` is a number > 0 with at most two decimals, and `current_basal × autosens_max ≤ maxSafeBasal` | the sensitivity-adjusted basal must itself be allowed; FINDINGS F-05 shows what happens otherwise |
+| V5 | `autosens_max`, when it is a number, is > 0, has at most two decimals, and `current_basal × autosens_max ≤ maxSafeBasal` | the sensitivity-adjusted basal must itself be allowed (F-05); if `autosens_max` is missing, temp targets give a NaN ratio and no adjustment |
 | V6 | `max_iob` is a number ≥ 0 | the user's IOB ceiling |
 | V7 | `bolus_increment`, when set to a number, is > 0 | a pump increment |
 | V8 | `sens` (ISF) is a number > 0 | a correction factor |
-| V9 | the autosens ratio, when autosens data is given, is a number in (0, `autosens_max`] | autosens clamps its ratio to `[autosens_min, autosens_max]` |
+| V9 | the autosens ratio, when autosens data is given, is a number r > 0 with `current_basal × r ≤ maxSafeBasal` | the adjusted basal must be allowed; autosens itself keeps r within [autosens_min, autosens_max] |
+
+These are exactly the fields of `LeanAID.ValidInput` / `ValidProfile` (decided by
+`validInputB`, proved sound by `validInputB_sound`).
 
 Glucose, deltas, IOB, meal data, current temp and clock are *not* constrained: the
 theorems hold for any values, including missing and NaN ones (that is how H5 can
-talk about bad data). Where a theorem needs more (e.g. H4 needs IOB to be a number at
+talk about bad data). Rate theorems speak about *finite* issued rates: with valid
+profile but inconsistent meal data oref0 can issue a NaN rate (F-06), which they do not
+bound. Where a theorem needs more (e.g. H4 needs IOB to be a number at
 least `max_iob`), the extra condition is a hypothesis of that theorem.
 
 ## Exponential insulin curve

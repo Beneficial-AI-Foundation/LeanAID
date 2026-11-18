@@ -33,37 +33,51 @@ current_basal_safety_multiplier × current_basal)` (multipliers default to 3 and
 up to pump-increment rounding as stated in R3.
 *Sources:* SR2011 1.2.5 (temporary basal rate shall not exceed x U/h); HA2010 1.1
 (overdose), 2.14 (unexpected delivery of insulin); CFR880 (b)(7)(ii) (maximum basal
-rate is a pump parameter the controller must respect). *Status:* to prove (H1).
+rate is a pump parameter the controller must respect). *Status:* **proved for finite
+rates, up to rounding**: `rate_le_roundBasal_maxSafeBasal` bounds every *finite* issued
+rate by round_basal(maxSafeBasal), which can exceed maxSafeBasal by half a pump
+increment (F-04); `rate_le_maxSafeBasal_of_grid` gives R1 exactly when maxSafeBasal is on
+the pump grid. A NaN rate (`"rate": null`) is not bounded: oref0 can issue one (F-06).
+The bound is relative to the implementation's `getMaxSafeBasal` (mutation M04).
 
 **R2 – No negative rate.** For valid input, every issued rate is ≥ 0.
 *Sources:* SR2011 1.7.1 (no reverse delivery: a negative rate is not a deliverable
-command); SR2011 1.2.1 (basal rates are programmed from 0.05 U/h upward in 0.05 increments; a zero temp is the controller's "suspend"). *Status:* to prove (H1).
+command); SR2011 1.2.1 (basal rates are programmed from 0.05 U/h upward in 0.05 increments; a zero temp is the controller's "suspend"). *Status:* **proved for finite rates** (`rate_le_roundBasal_maxSafeBasal`, 0 ≤ r). A NaN
+rate is not covered (F-06).
 
 **R3 – Rounding never pushes a rate above a limit.** Rounding a rate to the pump's
 increment (`round_basal`) shall not produce a value above the limit the rate was
 clamped to. *Sources:* SR2011 1.2.1 (rates in fixed increments); CFR880 (b)(7)(ii)
-(increment size); HA2010 1.1. *Status:* to prove (H6). If oref0 violates it, record
+(increment size); HA2010 1.1. *Status:* **does not hold (finding F-04)**; proved: the
+counterexample `rate_can_exceed_maxSafeBasal`, the overshoot bound `roundBasal_overshoot`
+(≤ half an increment) and monotonicity `roundBasal_monotone`. Original note: if oref0 violates it, record
 the counterexample (FINDINGS) and prove the strongest true bound.
 
 **R4 – Temp basal duration.** Every issued duration is 0 (cancel) or between 30 and 120
 minutes. *Sources:* SR2011 1.2.5 (duration of a temporary basal shall not exceed y
-hours). *Status:* to prove.
+hours). *Status:* not proved (planned). Durations can be NaN for inputs inside V0–V9
+with inconsistent meal data (F-06).
 
 **R5 – Microbolus limits.** For valid input, an issued microbolus (`units`) is positive,
 at most `maxBolus` (oref0's `maxSMBBasalMinutes` / `maxUAMSMBBasalMinutes` worth of
 `current_basal`, default 30 minutes), at most half of `insulinReq`, and a multiple of
 the bolus increment. *Sources:* SR2011 1.3.1 (maximum bolus dosage limit), 1.3.2
-(bolus increments); HA2010 1.1. *Status:* to prove (H2).
+(bolus increments); HA2010 1.1. *Status:* **partly proved**: `microbolus_limits` states
+`u > 0` and `u ≤ maxBolus`. It does **not** state "at most half of insulinReq" or "a
+multiple of the bolus increment". Half of insulinReq is proved as a lemma
+(`smbMicroBolus_le`) but is not part of the headline statement; the increment property
+is not proved.
 
 **R6 – Microbolus never exceeds max IOB.** For valid input, if a microbolus is issued
 then `iob + units ≤ max_iob`. *Sources:* SR2011 1.3.16 (adapted: it requires the unabsorbed part of an extended
 bolus to be counted as insulin on board; we generalise to "account for all insulin on
-board"); HA2010 3.1.3 (incorrect IOB), 1.1. *Status:* to prove (H2).
+board"); HA2010 3.1.3 (incorrect IOB), 1.1. *Status:* **proved** (`microbolus_limits`:
+`iob + u ≤ max_iob` for a finite microbolus u).
 
 **R7 – Microbolus spacing.** A microbolus is issued only if the last bolus was more than
 `SMBInterval` minutes ago (default 3, clamped to 1–10). *Sources:* SR2011 1.3.5 (adapted: it forbids
 starting a bolus while another is in progress; oref0's analogue is a minimum spacing
-between microboluses). *Status:* to prove.
+between microboluses). *Status:* **proved** (`microbolus_limits`: lastBolusAge > SMBInterval).
 
 ## B. Hypoglycaemia protection
 
@@ -72,19 +86,20 @@ if BG is below oref0's `threshold` (computed by oref0 from `min_bg`, after its o
 adjustments) and BG is not rising (`minDelta ≤ 0`), then the controller commands a
 zero temp (or leaves a running zero temp in place) and issues no microbolus.
 *Sources:* HA2010 1.1 (overdose leading to hypoglycaemia); SR2011 1.3.14 (no
-correction when BG is below target). *Status:* to prove (H3).
+correction when BG is below target). *Status:* **proved** (`low_glucose_suspend`), relative
+to oref0's computed threshold (mutation M10).
 
 **R9 – Predicted low suspend.** Under the same conditions, if oref0's predicted
 `minGuardBG` is below `threshold` (whatever the current BG), the controller commands a
-zero temp and issues no microbolus. *Sources:* as R8. *Status:* to prove (H3).
+zero temp and issues no microbolus. *Sources:* as R8. *Status:* **proved** (`low_glucose_suspend`).
 
 **R10 – Low eventual BG never raises insulin.** For valid input, if oref0's `eventualBG`
 is below `min_bg`, any issued rate is at most the (sensitivity-adjusted) basal.
-*Sources:* HA2010 1.1. *Status:* to prove (lifted from class B tests).
+*Sources:* HA2010 1.1. *Status:* **proved** for finite rates (`low_eventual_rate_le_basal`).
 
 **R11 – IOB at or above max_iob.** For valid input, if `iob ≥ max_iob` then any issued
 rate is at most the (sensitivity-adjusted) scheduled basal and no microbolus is issued.
-*Sources:* SR2011 1.3.16; HA2010 3.1.3, 1.1. *Status:* to prove (H4).
+*Sources:* SR2011 1.3.16; HA2010 3.1.3, 1.1. *Status:* **proved** for finite rates (`iob_at_max`).
 
 ## C. Bad or missing data
 
@@ -101,7 +116,8 @@ oref0 does not meet R12 for undated readings: finding F-11.
 
 **R13 – Missing required inputs.** If `current_basal`, `min_bg`/`max_bg`, or the IOB data
 (or its `iob`/`activity` fields) are missing, the controller returns an error and no
-command. *Sources:* CFR862 (b)(3)(iv). *Status:* to prove (H5).
+command. *Sources:* CFR862 (b)(3)(iv). *Status:* **proved** (`missing_current_basal`,
+`missing_targets`, `missing_iob`).
 
 **R14 – Other out-of-bounds inputs.** Inputs outside the valid domain (non-numeric or
 non-finite values, zero or negative sensitivity, etc.) shall not lead to an insulin
@@ -113,17 +129,20 @@ which rejects such input with an error. The shell is not verified.
 disagrees with the last temp in pump history (oref0's check at determine-basal.js
 lines 380–392), the controller cancels the temp (rate 0, duration 0).
 *Sources:* HA2010 4.6.3 (synchronisation error between components); CFR862
-(b)(3)(iii) (sharing of state information). *Status:* to prove.
+(b)(3)(iii) (sharing of state information). *Status:* proved as a lemma about the stage
+(`stPumpHistory_error`: that early return is `setTempBasal(0, 0)`); no headline theorem.
 
 ## D. Insulin on board
 
 **R16 – DIA lower bounds.** IOB is computed with a duration of insulin action of at
 least 3 h, and at least 5 h for the exponential curves. *Sources:* SR2011 1.3.11;
-HA2010 3.1.3. *Status:* to prove.
+HA2010 3.1.3. *Status:* **proved** (`curveSetup_dia`).
 
 **R17 – IOB of a single dose.** For a single non-negative dose, IOB is between 0 and the
 dose, equals the dose at the time of delivery, and is 0 once DIA has elapsed.
-*Sources:* HA2010 3.1.3. *Status:* to prove (bilinear curve: M5/M6; exponential curve:
+*Sources:* HA2010 3.1.3. *Status:* **partly proved, partly false**: bilinear IOB equals the
+dose at t = 0 and is 0 after DIA (`bilinear_at_zero`, `bilinear_after_dia`), but it is
+**not** always ≥ 0 (finding F-10, `bilinear_negative`). Original plan: (bilinear curve: M5/M6; exponential curve:
 M8 with the proved bound on the `exp` approximation).
 
 **R18 – IOB agrees with its specification.** Computed IOB equals the specification's

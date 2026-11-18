@@ -500,3 +500,13 @@ Lean conformance cases once the core models binary64 (step 3).
 
 FINDINGS F-15: 82/100,000 rate differences (76 higher in aid-lean, 3 lower, 3 one-sided),
 worst inputs listed and saved in `scripts/difftest/worst-rate-diffs.jsonl`.
+
+## Second review, step 4: requirement statuses and validity table
+
+**Time:** 2026-11-18 15:41 (from `date`)
+
+REQUIREMENTS: every status now says what is proved, for finite rates only where that
+applies (R1, R2, R10, R11; NaN rates are F-06), R3 marked as not holding (F-04), R5 marked
+partly proved (the headline theorem omits "at most half of insulinReq" and "a multiple of
+the bolus increment"), R10 proved, R16 proved, R17 partly proved and partly false (F-10).
+DESIGN: V5/V9 now match `Spec/Valid.lean` (they were stricter in the text than in Lean).
