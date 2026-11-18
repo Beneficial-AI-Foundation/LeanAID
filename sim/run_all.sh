@@ -6,7 +6,6 @@
 set -u
 cd "$(dirname "$0")/.."
 mkdir -p sim/out
-export TZ=UTC
 echo "$(date)  run_all.sh started in $(pwd)"
 test -x .lake/build/bin/aid-lean || { echo "$(date)  aid-lean not built (lake build aid-lean)"; exit 1; }
 test -x .venv/bin/python || { echo "$(date)  .venv missing (see sim/requirements.txt)"; exit 1; }
