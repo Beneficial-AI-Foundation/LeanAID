@@ -12,3 +12,6 @@ LeanAID.Proofs.rate_can_exceed_maxSafeBasal
 LeanAID.Proofs.roundBasal_overshoot
 LeanAID.Proofs.roundBasal_monotone
 LeanAID.Proofs.setTempBasal_rate_bound
+LeanAID.Proofs.cgm_unreliable_no_increase
+LeanAID.Proofs.undated_glucose_max_rate
+LeanAID.Proofs.missing_max_basal_no_clamp

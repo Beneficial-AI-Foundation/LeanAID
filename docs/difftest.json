@@ -1,0 +1,22 @@
+{
+ "cases": 2000,
+ "seed": 1,
+ "identical": 1645,
+ "reasonOnly": 12,
+ "valueDiff": 343,
+ "fieldsDiffering": {
+  "predBGs": 341,
+  "reason": 38,
+  "insulinReq": 2,
+  "carbsReq": 1,
+  "eventualBG": 3,
+  "rate": 3,
+  "ISF": 1
+ },
+ "paths": {
+  "smbUnits": 77,
+  "errors": 0,
+  "rateNull": 0
+ },
+ "aidLeanSeconds": 3.358
+}

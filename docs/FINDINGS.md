@@ -67,7 +67,7 @@ differential testing (M10).
 | id | where | behaviour |
 |---|---|---|
 | Q1 | determine-basal.js 573–644 | `iobArray.forEach` on a single object throws; caught; predictions empty |
-| Q2 | 149–150 | missing glucose `date` → `minAgo` NaN → staleness check skipped (every oref0 test) |
+| Q2 | 149–150 | missing glucose `date` → `minAgo` NaN → staleness check skipped (every oref0 test). Safety consequence: F-11 |
 | Q3 | 596, 610 | `COBpredBG`, `UAMpredBG` are implicit globals |
 | Q4 | 636 | `maxCOBPredBG` is updated when COBpredBG exceeds `maxIOBPredBG` (not `maxCOBPredBG`) |
 | Q5 | 500 | missing `lastCarbTime` → NaN `remainingCATime` (see F-06) |
@@ -80,7 +80,8 @@ differential testing (M10).
 ## Arithmetic
 
 - **F-09** Exact arithmetic and doubles disagree at rounding ties (DESIGN D2): 2 of 51
-  IOB test calls differ in `activity` by 0.0001 because the exact value is a tie.
+  IOB test calls differ in `activity` by 0.0001 because the exact value is a tie. The
+  effect of a tie can be much larger than one unit when it feeds a later decision: F-13.
 
 ## Found during M6
 
@@ -99,3 +100,43 @@ non-negative doses" (R18) is false for oref0's bilinear curve; the strongest ver
 | DB-19 (a running temp > 2× insulinReq is replaced) | branch-specific; only the concrete check is proved |
 | IOB-24, IOB-25 (temps with no duration / percent temps add no IOB) | would need a theorem about the whole pump-history pipeline (history.js); checked by conformance only |
 | BAS-02 (basalLookup) | `basalLookup` sorts with `List.mergeSort`, which the kernel cannot evaluate; checked by conformance (`native_decide`) only |
+
+## Found or sharpened by the independent review (2026-11-18, of commit a95cea8)
+
+### F-11 — An undated glucose reading disables the staleness check (safety)
+Previously listed only as quirk Q2. If `glucose_status` has no `date` (or the CGM entry
+has no `date`, `display_time` or `dateString`, so `getLastGlucose` returns NaN), then
+`minAgo` is NaN, `minAgo > 12 || minAgo < -5` is false, and the reading is used however
+old it is. Concrete input: BG 250 mg/dL, delta/short/long avgdelta +5, no date, test
+profile (`current_basal` 0.9, `max_basal` 3.5), IOB 0, autosens 1, no temp running →
+oref0 issues **3.5 U/h for 30 min** (its maximum). The same reading dated 60 minutes
+earlier is refused as stale.
+```
+node -e '…determine_basal({glucose:250,delta:5,short_avgdelta:5,long_avgdelta:5},{duration:0,rate:0,temp:"absolute"},{iob:0,activity:0},prof,{ratio:1},{},t,false,null,now)'
+→ rate 3.5, duration 30, "adj. req. rate: 5.9 to maxSafeBasal: 3.5, no temp, setting 3.5U/hr."
+```
+Proved: `undated_glucose_max_rate` (both the 3.5 U/h result and the stale refusal when
+dated) and `undated_never_stale` (no undated reading is ever stale). R12 is therefore
+stated only for dated readings (`cgm_unreliable_no_increase`).
+
+### F-12 — Missing `max_basal` / `max_daily_basal` disables the clamp (R14)
+`getMaxSafeBasal` is `Math.min(max_basal, 3·max_daily_basal, 4·current_basal)`; with
+either input missing it is NaN, `rate > maxSafeBasal` is always false, and no clamp is
+applied. Concrete input: test profile without `max_basal` and `max_daily_basal`, BG 300
+and rising, IOB 0 → oref0 issues **5.9 U/h** (basal 0.9 + 2 × max_iob 2.5), 6.6 × the
+scheduled basal. Reproduced in Node. Proved: `missing_max_basal_no_clamp`, which also
+shows `validInputB` is false for this input, so `aid-lean --safe` refuses it (exit 2).
+Without `--safe`, aid-lean reproduces oref0's 5.9 U/h.
+
+### F-13 — Exact and floating-point IOB differ by more than one rounding unit
+F-09 understated this. A tie in an *intermediate* value can change a later integer
+decision. Example (iob/history.js lines 545-548): a temp of 0.05 U/h against a basal of
+0.2 U/h for 30 min. Exactly, `netBasalRate·30·10/6 = −7.5`, `Math.round` gives −7,
+`netBasalAmount = −0.07`, `tempBolusCount = round(1.4) = 1` temp bolus. In JavaScript
+`0.05 − 0.2 = −0.15000000000000002`, the product is −7.500000000000001, which rounds to
+−8, giving 2 temp boluses: 0.05 U more negative insulin. The reviewer counted 1302 such
+(temp, basal, duration) combinations. Differential testing of determine_basal (pilot,
+2000 random inputs) also shows ties in the 2-decimal prediction sums propagating into
+`minGuardBG`, `eventualBG`, `insulinReq` and, in 3 cases, the issued rate (e.g. 3.15
+vs 3.2 U/h). The divergence is still caused by exact ties, but its effect on outputs is
+not bounded by one unit of the final rounding.

@@ -37,7 +37,7 @@ rate is a pump parameter the controller must respect). *Status:* to prove (H1).
 
 **R2 – No negative rate.** For valid input, every issued rate is ≥ 0.
 *Sources:* SR2011 1.7.1 (no reverse delivery: a negative rate is not a deliverable
-command); SR2011 1.2.1 (rates range from 0 upward). *Status:* to prove (H1).
+command); SR2011 1.2.1 (basal rates are programmed from 0.05 U/h upward in 0.05 increments; a zero temp is the controller's "suspend"). *Status:* to prove (H1).
 
 **R3 – Rounding never pushes a rate above a limit.** Rounding a rate to the pump's
 increment (`round_basal`) shall not produce a value above the limit the rate was
@@ -56,12 +56,14 @@ the bolus increment. *Sources:* SR2011 1.3.1 (maximum bolus dosage limit), 1.3.2
 (bolus increments); HA2010 1.1. *Status:* to prove (H2).
 
 **R6 – Microbolus never exceeds max IOB.** For valid input, if a microbolus is issued
-then `iob + units ≤ max_iob`. *Sources:* SR2011 1.3.16 (account for unabsorbed
-insulin); HA2010 3.1.3 (incorrect IOB), 1.1. *Status:* to prove (H2).
+then `iob + units ≤ max_iob`. *Sources:* SR2011 1.3.16 (adapted: it requires the unabsorbed part of an extended
+bolus to be counted as insulin on board; we generalise to "account for all insulin on
+board"); HA2010 3.1.3 (incorrect IOB), 1.1. *Status:* to prove (H2).
 
 **R7 – Microbolus spacing.** A microbolus is issued only if the last bolus was more than
-`SMBInterval` minutes ago (default 3, clamped to 1–10). *Sources:* SR2011 1.3.5 (no
-bolus while another is in progress). *Status:* to prove.
+`SMBInterval` minutes ago (default 3, clamped to 1–10). *Sources:* SR2011 1.3.5 (adapted: it forbids
+starting a bolus while another is in progress; oref0's analogue is a minimum spacing
+between microboluses). *Status:* to prove.
 
 ## B. Hypoglycaemia protection
 
@@ -94,7 +96,8 @@ shortens a long zero temp to 30 minutes, or issues nothing; it never issues a
 microbolus. *Sources:* HA2010 3.1.2 ("calculator uses obsolete BG readings"); SR2011
 1.3.12 (age of the BG reading); CFR862 (b)(3)(iv) (safe operation when data is
 outside the specified bounds), (b)(1)(vi) (safe therapy when communication is lost).
-*Status:* to prove (H5).
+*Status:* proved for readings that carry a date (`cgm_unreliable_no_increase`).
+oref0 does not meet R12 for undated readings: finding F-11.
 
 **R13 – Missing required inputs.** If `current_basal`, `min_bg`/`max_bg`, or the IOB data
 (or its `iob`/`activity` fields) are missing, the controller returns an error and no

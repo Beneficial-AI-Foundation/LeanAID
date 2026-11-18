@@ -367,3 +367,53 @@ F-04 (0.83 → 0.85 U/h) and F-06 (`rate: null`, reason "setting NaNU/hr").
 - `lib/meal/total.js` and `cob.js` (COB calculation) not transcribed (see M3).
 - R4 (duration bounds) and the IOB/exp error bounds not proved.
 - 7 of 59 class A/B tests not generalised (FINDINGS).
+
+---
+
+## Review fixes (independent review of commit a95cea8)
+
+**Start:** 2026-11-18 14:50 · **End:** 2026-11-18 15:25
+
+The maintainer ran an independent reviewer (`prompts/review.md`) and asked for six
+remaining issues to be addressed:
+
+1. **Undated glucose (F-11).** Promoted from quirk Q2 to a safety finding.
+   `undated_glucose_max_rate` (kernel-evaluated): BG 250 rising, no date → 3.5 U/h for
+   30 min; the same reading dated 60 min earlier → refused as stale.
+   `undated_never_stale`: no undated reading is ever stale. Reproduced in Node.
+2. **R12 restated** as `cgm_unreliable_no_increase`, with hypotheses on the raw input
+   (BG ≤ 10 or = 38, noise ≥ 3, dated and age ≥ 12.05 min or < −5.05 min, or oref0's
+   flat-data condition) instead of the implementation predicate `cgmError`. The 0.05
+   min margin is oref0's rounding of the age to 0.1 min (an age of 12.04 min rounds to
+   12.0, which oref0 does not treat as stale). Its docstring states that undated
+   readings and NaN noise are not covered.
+3. **Missing max_basal (F-12).** `missing_max_basal_no_clamp`: maxSafeBasal NaN, 5.9 U/h
+   for current_basal 0.9, and `validInputB` false, so `aid-lean --safe` refuses it.
+4. **IOB arithmetic (F-13).** Confirmed the reviewer's example in Node
+   (−7.500000000000001 → 2 temp boluses; exact −7.5 → 1). **Correction:** M4 and
+   DESIGN D2 said exact and floating-point results differ "only at ties". The cause is
+   always an exact tie, but its effect is not limited to one unit of the final
+   rounding: a tie in an intermediate value can change a later integer decision (a
+   whole temp bolus), and in determine_basal it can change minGuardBG, eventualBG and the
+   issued rate (difftest pilot). DESIGN D2 and FINDINGS F-09 are corrected.
+5. **Sources.** PMC serves the PDFs only behind a browser JavaScript check (Europe PMC
+   returned 403), which I did not try to circumvent. Stored instead: the text of the
+   PMC full-text pages, `refs/HA2010-PMC2864162.txt` and `refs/SR2011-PMC3262707.txt`.
+   PMC marks both as free to read but not open-access licensed; flagged in
+   `refs/README.md` for the maintainer to decide before publishing. Every cited
+   HA2010/SR2011 ID was checked against the text: all exist. Corrections: R2's
+   paraphrase of SR2011 1.2.1 was wrong (it says rates from 0.05 U/h, not "from 0");
+   SR2011 1.3.16 (extended-bolus remainder counted as IOB) and 1.3.5 (no bolus while one
+   is running) are now marked as adaptations where cited for R6 and R7.
+6. **Project page.** States the counts produced by the build (52 of 59 generalisable
+   tests, 116 inventoried), that conformance checks use `native_decide`, that oref0's
+   tests never reach the prediction/SMB code (F-01), and adds F-11, F-12; "bad data
+   fails safe" is now "proved, with a gap". The file again includes the maintainer's
+   own uncommitted edits, so I leave it uncommitted for review.
+
+### Difftest pilot (M10, in progress), recorded here because it informed item 4
+2000 random valid inputs: 1645 identical, 12 differ only in the reason text, 343 differ
+in values. 306 of those are prediction arrays differing by ±1 at rounding ties; the rest
+include 3 different issued rates. One case is **not** a tie: oref0 eventualBG −147 vs
+aid-lean 162 (aid-lean also reports a UAMpredBG oref0 does not). This looks like a
+transcription bug in the COB/UAM eventualBG update; to investigate next.

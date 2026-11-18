@@ -128,6 +128,51 @@ def determineBasalCmd (args : List String) : IO UInt32 := do
   | none => IO.println (JsonOut.result r)
   return 0
 
+/-- One case of `aid-lean batch`: a JSON object with the contents of the CLI's input
+    files (`iob`, `currenttemp`, `glucose`, `profile`, optional `autosens`, `meal`),
+    `microBolusAllowed` and `currentTime` (epoch ms). -/
+def batchCase (j : Json) : String :=
+  let tz : Int := 0
+  let get := fun k => (field j k).getD .null
+  let entries := match get "glucose" with
+    | .arr a => a.toList.map (entryOf · tz)
+    | _ => []
+  match Glucose.getLastGlucose entries with
+  | none => "{\"error\":\"no glucose\"}"
+  | some gs =>
+    let now : Int := match num j "currentTime" with
+      | some (.fin q) => q.floor
+      | _ => 0
+    let inp : DBInputs :=
+      { glucose_status := some gs, currenttemp := some (currentTempOf (get "currenttemp")),
+        iob_data := some (iobInputOf (get "iob") tz), profile := some (profileOf (get "profile")),
+        autosens_data := (field j "autosens").bind fun a => match a with
+          | .obj _ => some { ratio := num a "ratio" } | _ => none,
+        meal_data := some (match field j "meal" with | some m => mealOf m | none => {}),
+        microBolusAllowed := (bool j "microBolusAllowed").getD false, reservoir_data := .null,
+        clock := { now, tzOffsetMin := tz } }
+    let r := determineBasal inp
+    match r.error with
+    | some e => JsonOut.obj [("error", some (JsonOut.str e))]
+    | none => JsonOut.result r
+
+/-- `aid-lean batch <cases.jsonl>`: one output line per input line (time zone UTC). -/
+def batch (path : String) : IO UInt32 := do
+  let h ← IO.FS.Handle.mk path .read
+  let out ← IO.getStdout
+  let rec loop (fuel : Nat) : IO Unit := do
+    match fuel with
+    | 0 => pure ()
+    | fuel + 1 =>
+      let line ← h.getLine
+      if line.isEmpty then pure () else
+      match Json.parse line with
+      | .ok j => out.putStrLn (batchCase j)
+      | .error e => out.putStrLn s!"{JsonOut.obj [("parseError", some (JsonOut.str e))]}"
+      loop fuel
+  loop 100000000
+  return 0
+
 def selftest : IO UInt32 := do
   let db := DetermineBasalData.all
   let dis := DetermineBasalData.disabled
@@ -167,6 +212,7 @@ def main (args : List String) : IO UInt32 := do
   match args with
   | "determine-basal" :: rest => App.determineBasalCmd rest
   | ["selftest"] => App.selftest
+  | ["batch", f] => App.batch f
   | _ =>
     IO.eprintln "usage: aid-lean determine-basal <iob.json> <currenttemp.json> <glucose.json> <profile.json> [<autosens.json>] [<meal.json>] [options]\n       aid-lean selftest\nResearch artifact. Not for dosing insulin."
     return 1

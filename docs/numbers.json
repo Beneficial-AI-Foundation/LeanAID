@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T12:30:00.188Z",
+ "generated": "2026-11-18T12:47:50.098Z",
  "oref0": "88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (0.7.1)",
  "tests": {
   "blocks": 116,
@@ -30,8 +30,8 @@
   ]
  },
  "theorems": {
-  "total": 215,
-  "headline": 13,
+  "total": 220,
+  "headline": 16,
   "headlineNames": [
    "LeanAID.Proofs.rate_le_roundBasal_maxSafeBasal",
    "LeanAID.Proofs.rate_le_maxSafeBasal_of_grid",
@@ -45,7 +45,10 @@
    "LeanAID.Proofs.rate_can_exceed_maxSafeBasal",
    "LeanAID.Proofs.roundBasal_overshoot",
    "LeanAID.Proofs.roundBasal_monotone",
-   "LeanAID.Proofs.setTempBasal_rate_bound"
+   "LeanAID.Proofs.setTempBasal_rate_bound",
+   "LeanAID.Proofs.cgm_unreliable_no_increase",
+   "LeanAID.Proofs.undated_glucose_max_rate",
+   "LeanAID.Proofs.missing_max_basal_no_clamp"
   ]
  },
  "axioms": [
@@ -62,7 +65,7 @@
  },
  "linesOfLean": {
   "core": 2594,
-  "proofs": 2857,
+  "proofs": 2976,
   "spec": 96
  }
 }

@@ -52,7 +52,7 @@ terminating decimal (all values oref0 prints after rounding).
 | id | difference | consequence |
 |---|---|---|
 | D1 | `x / 0` is `NaN` here, `±Infinity` in JavaScript | none for valid input (no division by zero there) |
-| D2 | doubles round every operation; we do not | at an exact rounding tie oref0 may round down where we round up. Seen in 2 of 51 IOB test calls (activity 0.00125 → 0.0013 here, 0.0012 in oref0), never in determine-basal tests. Measured by differential testing (M10). |
+| D2 | doubles round every operation; we do not | at an exact rounding tie oref0 may round down where we round up. Seen in 2 of 51 IOB test calls (activity 0.00125 → 0.0013 here, 0.0012 in oref0), never in determine-basal tests. A tie in an intermediate value can change a later decision, so output differences are *not* limited to one rounding unit (FINDINGS F-13: one extra 0.05 U temp bolus; different issued rates in difftest). Measured by differential testing (M10). |
 | D3 | `-0` is not modelled | unobservable in outputs (`-0` prints as `0`) |
 | D4 | JSON `null` is read as `undefined` | in JavaScript `null` is 0 in arithmetic; only matters for invalid input |
 | D5 | `Math.exp` is a rational approximation (`Core/Exp.lean`) | differences beyond the 15th digit; rounded away by oref0's `round(…,3/4)` except at ties |

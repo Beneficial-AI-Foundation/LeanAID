@@ -21,9 +21,9 @@ Theorem names refer to `LeanAID/Proofs/*.lean`. Status: **proved** (checked by
 | HA2010 1.1 | R9 predicted low suspend | `low_glucose_suspend` | none in oref0's suite (F-01) | proved |
 | HA2010 1.1 | R10 low eventualBG | (M6) | DB-08, 13, 14, 26–28, 34, 64 | planned |
 | SR2011 1.3.16; HA2010 3.1.3 | R11 IOB ≥ max_iob | `iob_at_max` | DB-22 | proved |
-| HA2010 3.1.2; SR2011 1.3.12; CFR862 (b)(3)(iv), (b)(1)(vi) | R12 unreliable glucose | `cgmError_no_increase` | DB-44, DB-45 | proved |
+| HA2010 3.1.2; SR2011 1.3.12; CFR862 (b)(3)(iv), (b)(1)(vi) | R12 unreliable glucose | `cgm_unreliable_no_increase` (independent hypotheses), `cgmError_no_increase` | DB-44, DB-45 | proved for dated readings; **undated readings not covered, finding F-11** (`undated_glucose_max_rate`) |
 | CFR862 (b)(3)(iv) | R13 missing inputs → error | `missing_current_basal`, `missing_targets`, `missing_iob` | DB-43, DB-46, DB-47 | proved |
-| CFR862 (b)(3)(iv) | R14 other out-of-bounds input | — | differential tests on invalid input (M10) | finding F-06 (oref0 issues rate NaN); `aid-lean --safe` refuses inputs outside the valid domain (shell, not verified) |
+| CFR862 (b)(3)(iv) | R14 other out-of-bounds input | `missing_max_basal_no_clamp` (finding) | differential tests on invalid input (M10) | finding F-06 (oref0 issues rate NaN); `aid-lean --safe` refuses inputs outside the valid domain (shell, not verified) |
 | HA2010 4.6.3; CFR862 (b)(3)(iii) | R15 pump state disagreement | `stPumpHistory_error` (lemma: the early return is `setTempBasal(0,0)`) | none in oref0's suite | proved as lemma |
 | SR2011 1.3.11; HA2010 3.1.3 | R16 DIA lower bounds | (M6) | IOB-08 | planned |
 | HA2010 3.1.3 | R17 IOB of one dose | (M6/M8) | IOB-01–07 | planned |
