@@ -60,9 +60,10 @@ get-last-glucose, basal lookup, cob history) passes under Node.
   only.
 
 ### What was hard / surprises
-- The kickoff counts 70 determine-basal tests; the file has 52 active `it(...)`
-  (10 round_basal + 42 determine-basal) and 18 commented-out ones (9 with `//it(`
-  and 9 inside a `/* ... */` block). 52 + 18 = 70. All 70 are inventoried in M1.
+- The kickoff counts 70 determine-basal tests. The file has 70 `it(...)` blocks:
+  47 active and 23 disabled (12 with `//it(`, 11 inside two `/* ... */` blocks). One
+  active block is a loop that mocha runs as 6 tests, hence mocha's 52.
+  (Corrected during M1; my first count at M0 was 52 + 18.)
 - `iob.test.js` has 25 active tests and 1 commented out (26 total).
 
 ---
