@@ -116,3 +116,29 @@ get-last-glucose, basal lookup, cob history) passes under Node.
 - An attempt to auto-uncomment the disabled tests and run them under Node was
   abandoned: the heuristic also re-enabled commented-out assertions inside active
   tests, so its pass/fail counts were meaningless.
+
+---
+
+## M2 – Requirements and traceability
+
+**Start:** 2026-11-18 13:35 · **End:** 2026-11-18 14:05
+
+### What was done
+- Located the two FDA papers on PMC (PMC2864162, PMC3262707). PMC marks both as free
+  to read but **not open access**, so I read them from PMC but did not store copies in
+  `refs/` (the repository is meant to be pushed publicly). `refs/README.md` cites them
+  with links and lists the table/requirement IDs used.
+- Downloaded 21 CFR 862.1356 and 880.5730 (public domain) from the eCFR API into
+  `refs/` as text. (First attempts failed: the renderer endpoint 404s and the
+  versioner endpoint requires `Accept-Encoding`; `curl --compressed` worked.)
+- `docs/REQUIREMENTS.md`: 23 numbered requirements (R1–R23) plus an out-of-scope
+  table, each with sources and status. The pump-oriented requirements of SR2011 are
+  adapted to a controller ("shall not deliver" → "shall not command").
+- `docs/TRACEABILITY.md`: source → requirement → theorem → test table; theorem
+  column to be filled at M5/M6.
+
+### Decisions
+- "Valid input" is deferred to M5 and will be one Lean definition (`ValidInput`) used
+  by every theorem, documented in `docs/DESIGN.md`.
+- Out-of-bounds input (R14) is handled in `aid-lean` by shell-side validation, which is
+  not verified; for oref0 it is a testing question, and I expect findings (NaN paths).
