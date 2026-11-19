@@ -44,6 +44,7 @@ STYLE = f"""
     .nm {{ font-size: 28px; font-weight: 700; fill: {MUTED}; }}
     .no {{ font-size: 28px; font-weight: 700; fill: {ORANGE}; }}
     .big {{ font-size: 40px; font-weight: 700; fill: {GREEN}; }}
+    .bigs {{ font-size: 34px; font-weight: 700; fill: {GREEN}; }}
     .bigo {{ font-size: 34px; font-weight: 700; fill: {ORANGE}; }}
     .pill {{ font-size: 18px; font-weight: 700; }}
     .line {{ stroke: {LINE}; stroke-width: 2.5; fill: none; }}
@@ -130,26 +131,48 @@ def did():
 
 # 3. Tested against oref0 --------------------------------------------------------
 def tested():
-    b = text(0, 30, "h", "Tested against oref0")
-    b += box(0, 76, 190, 60, "same input")
-    b += box(300, 52, 220, 52, "oref0")
-    b += box(300, 112, 220, 52, "lean-oref0", main=True)
-    b += arrow("M190 98 L292 80") + arrow("M190 114 L292 136")
-    b += text(560, 122, "t", "same output?")
-    b += text(560, 152, "s", "every number, word for word")
-    tiles = [("oref0’s own test cases", "148", "of 148 identical"),
-             ("random inputs", "100,000", "of 100,000 identical"),
-             ("30 virtual patients, 12 h", "220,608", "of 220,608 decisions identical")]
-    for k, (lab, big, sub) in enumerate(tiles):
-        x = k * 320
-        w = 300
-        b += f'  <rect class="box" x="{x}" y="196" width="{w}" height="170" rx="12"/>\n'
-        b += text(x + 20, 234, "s", lab)
-        b += text(x + 20, 292, "big", big)
-        b += text(x + 20, 330, "s", sub)
-    return svg(b, "Tested against oref0: the same input goes to oref0 and lean-oref0. oref0's own test cases: 148 of 148 "
-                  "identical. Random inputs: 100,000 of 100,000 identical. 30 virtual patients over 12 hours of computing: "
-                  "220,608 of 220,608 decisions identical.", h=370)
+    b = text(0, 30, "h", "How we tested against oref0")
+
+    def pair(x0, top):
+        """oref0 above lean-oref0, fed from the left, '=' on the right."""
+        r = box(x0 + 190, top, 170, 46, "oref0")
+        r += box(x0 + 190, top + 58, 170, 46, "lean-oref0", main=True)
+        r += f'  <text class="t" x="{x0 + 405}" y="{top + 66}" text-anchor="middle" style="font-size:38px">=</text>\n'
+        return r
+
+    # left: same input, same answer
+    x0 = 0
+    b += f'  <rect class="box" x="{x0}" y="52" width="455" height="372" rx="12"/>\n'
+    b += text(x0 + 227, 90, "t", "Same input, same answer?", "middle")
+    b += box(x0 + 20, 136, 110, 52, "input")
+    b += pair(x0, 112)
+    b += arrow(f"M{x0 + 130} 154 L{x0 + 182} 137") + arrow(f"M{x0 + 130} 170 L{x0 + 182} 193")
+    b += f'  <line x1="{x0 + 20}" y1="272" x2="{x0 + 435}" y2="272" stroke="{STROKE}" stroke-width="2"/>\n'
+    b += text(x0 + 20, 304, "s", "oref0’s own test cases")
+    b += (f'  <text x="{x0 + 20}" y="342"><tspan class="bigs">148 / 148</tspan>'
+          f'<tspan class="s" dx="12">identical</tspan></text>\n')
+    b += text(x0 + 20, 376, "s", "random inputs")
+    b += (f'  <text x="{x0 + 20}" y="412"><tspan class="bigs">100,000 / 100,000</tspan>'
+          f'<tspan class="s" dx="12">identical</tspan></text>\n')
+
+    # right: virtual patients in a closed loop
+    x0 = 485
+    b += f'  <rect class="box" x="{x0}" y="52" width="455" height="372" rx="12"/>\n'
+    b += text(x0 + 227, 90, "t", "Virtual patients", "middle")
+    b += box(x0 + 20, 126, 120, 72, "Patient", "simulator")
+    b += pair(x0, 112)
+    b += arrow(f"M{x0 + 140} 154 L{x0 + 182} 137") + arrow(f"M{x0 + 140} 170 L{x0 + 182} 193")
+    b += arrow(f"M{x0 + 275} 216 V232 H{x0 + 80} V206")
+    b += text(x0 + 180, 258, "s", "insulin: lean-oref0’s dose", "middle")
+    b += f'  <line x1="{x0 + 20}" y1="272" x2="{x0 + 435}" y2="272" stroke="{STROKE}" stroke-width="2"/>\n'
+    b += text(x0 + 20, 304, "s", "30 patients, 512 runs, 12 hours of computing")
+    b += text(x0 + 20, 330, "s", "with sensor faults and missed meals")
+    b += text(x0 + 20, 384, "bigs", "220,608 / 220,608")
+    b += text(x0 + 20, 412, "s", "decisions identical")
+    return svg(b, "How we tested against oref0. Same input, same answer: oref0's own test cases, 148 of 148 identical; "
+                  "random inputs, 100,000 of 100,000 identical. Virtual patients in a closed loop: at every step oref0 and "
+                  "lean-oref0 decide on the same glucose history and lean-oref0's dose is given; 30 patients, 512 runs, "
+                  "12 hours of computing, 220,608 of 220,608 decisions identical.", h=430)
 
 
 # 4. What we found ---------------------------------------------------------------

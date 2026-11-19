@@ -24,6 +24,7 @@
     .nm { font-size: 28px; font-weight: 700; fill: #a7b0bd; }
     .no { font-size: 28px; font-weight: 700; fill: #ff9f43; }
     .big { font-size: 40px; font-weight: 700; fill: #3ee08f; }
+    .bigs { font-size: 34px; font-weight: 700; fill: #3ee08f; }
     .bigo { font-size: 34px; font-weight: 700; fill: #ff9f43; }
     .pill { font-size: 18px; font-weight: 700; }
     .line { stroke: #7d8794; stroke-width: 2.5; fill: none; }
