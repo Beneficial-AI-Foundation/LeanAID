@@ -837,3 +837,29 @@ What changed against the plan: the future-reading boundary (−5.05 minutes) is 
 the examples. `decide` gets stuck on rounding a negative age; it is covered by the
 existing `cgm_unreliable_no_increase`. The undated-reading case did not reproduce F-11
 in a run (recorded under F-11 in FINDINGS).
+
+## Timing T3: per-cycle properties lifted to runs
+
+**Start:** 17:06 UTC · **End:** 17:08 UTC
+
+`LeanAID/Time/Lift.lean`. All theorems assume a legal run (`Legal`) and valid input
+at every cycle (`ValidRun`), and speak about issued values.
+- `p1_faithful`: a cycle that issues a microbolus or a rate above
+  `profile_current_basal` (`Increase`) has a glucose status, equal to
+  `getLastGlucose` of the run's readings, with `cgmStale` false.
+- `p1_derived`: if moreover the status date is a whole number d of milliseconds, the
+  real age is in [−5.05, 12.05) minutes.
+- `p2_rate_bound`: every finite issued rate is in [0, round_basal(maxSafeBasal)].
+- `p5_faithful`: a cycle that issues a finite microbolus has `lastBolusAge >
+  SMBInterval` (rounded age, as oref0 checks it).
+Helper lemmas: `increase_prelude_ok`, `increase_cgm_ok`, `profileCurrentBasal_nonneg`.
+
+Not proved, and why. The plan's P1 says "its reading is dated". That is false per call
+(F-11): an undated status has a NaN age, which is never stale. In the run model the
+status comes from `getLastGlucose` of the readings, and T0 shows that undated readings
+give flat data there, but proving "dated" needs a lemma about `getLastGlucose` that is
+not done. So P1 faithful states `cgmStale = false`, which includes the NaN case, and
+P1 derived assumes a whole-number date as a hypothesis. When `getLastGlucose`
+averages two readings less than 2.5 minutes apart, the date can be a half millisecond,
+and P1 derived does not apply. Recorded here; the statement of the plan is not
+weakened silently.

@@ -33,3 +33,4 @@ import LeanAID.Time.System
 import LeanAID.Time.Build
 import LeanAID.Time.Examples
 import LeanAID.Conformance.TimeRuns
+import LeanAID.Time.Lift
