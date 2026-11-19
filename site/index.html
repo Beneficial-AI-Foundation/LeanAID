@@ -185,10 +185,8 @@ footer li { margin: 3px 0; }
     <h1>Formally verifying an insulin dosing algorithm</h1>
     <p class="lede">
       <strong>oref0</strong> is open-source software that decides insulin doses for people with type 1 diabetes.
-      An AI agent rewrote it in <strong>Lean</strong>, a programming language in which you can also write mathematical
-      proofs about your code. For 10 safety rules from FDA research on insulin pumps, it proved that the Lean version,
-      <strong>lean-oref0</strong>, follows the rule for every input with consistent settings, not only in the cases someone tested. Where a rule does not hold,
-      we found out and say so.
+      With an AI agent, we rewrote it in <strong>Lean 4</strong> and proved safety rules from FDA research on insulin pumps.
+      We tested the compiled Lean program against the original on 100,000 cases and 30 virtual patients.
     </p>
     <div class="buttons">
       <a class="btn primary" href="#findings">What we found</a>
