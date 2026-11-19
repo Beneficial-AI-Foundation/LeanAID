@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 60 1200 550" width="1200" height="550" role="img" aria-label="What we found: three gaps in oref0's safety checks. A reading with no timestamp counts as fresh: its age is NaN (not a number), and in JavaScript the check NaN > 12 minutes is false, so it is never too old. Severity medium. A missing maximum basal setting switches the limit off: the limit is computed as min(…, NaN), which is NaN, so the cap never applies. Severity medium. Rounding can go over the limit: a limit of 0.83 U/h gives 0.85 U/h. Severity low. Each is proved in Lean and reproduced by running the original oref0.">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
+      <feFlood flood-color="#3ee08f" flood-opacity="0.45"/>
+      <feComposite in2="b" operator="in" result="g"/>
+      <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <style>
+    text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #eef2f6; }
+    .card { fill: #10151c; stroke: #3a4350; stroke-width: 2; }
+    .hot { fill: #2e1a08; stroke: #ff9f43; stroke-width: 3; }
+    .heading { font-size: 40px; font-weight: 700; }
+    .title { font-size: 27px; font-weight: 700; }
+    .body { font-size: 22px; fill: #a7b0bd; }
+    .big { font-size: 44px; font-weight: 700; fill: #ff9f43; }
+    .note { font-size: 22px; fill: #a7b0bd; }
+    .pill { font-size: 20px; font-weight: 700; }
+    .strong { font-size: 26px; font-weight: 700; }
+  </style>
+  <text class="note" x="600" y="92" text-anchor="middle">Three gaps in oref0’s own safety checks. Each is proved in Lean and reproduced by running the original.</text>
+
+  <!-- card 1 -->
+  <rect class="card" x="40" y="125" width="355" height="370" rx="18"/>
+  <text class="title" x="70" y="218">Old reading</text>
+  <text class="title" x="70" y="252">treated as new</text>
+  <text class="body" x="70" y="298">With no timestamp, a glucose</text>
+  <text class="body" x="70" y="328">reading’s age is NaN (not a</text>
+  <text class="body" x="70" y="358">number): never too old.</text>
+  <text class="big" x="70" y="430">NaN &gt; 12</text>
+  <text class="body" x="70" y="466">is false in JavaScript</text>
+
+  <rect x="70" y="147" width="190" height="34" rx="17" fill="#2e1a08"/>
+  <text class="pill" x="86" y="171" style="fill:#ff9f43">Severity: medium</text>
+
+  <!-- card 2 -->
+  <rect class="card" x="422" y="125" width="355" height="370" rx="18"/>
+  <text class="title" x="452" y="218">Missing setting turns</text>
+  <text class="title" x="452" y="252">the limit off</text>
+  <text class="body" x="452" y="298">Without a maximum basal</text>
+  <text class="body" x="452" y="328">setting, the limit is computed</text>
+  <text class="body" x="452" y="358">from a missing value.</text>
+  <text class="big" x="452" y="430">min(…, NaN)</text>
+  <text class="body" x="452" y="466">is NaN: the cap never applies</text>
+
+  <rect x="452" y="147" width="190" height="34" rx="17" fill="#2e1a08"/>
+  <text class="pill" x="468" y="171" style="fill:#ff9f43">Severity: medium</text>
+
+  <!-- card 3 -->
+  <rect class="card" x="805" y="125" width="355" height="370" rx="18"/>
+  <text class="title" x="835" y="218">Rounding goes over</text>
+  <text class="title" x="835" y="252">the limit</text>
+  <text class="body" x="835" y="298">The dose is capped first,</text>
+  <text class="body" x="835" y="328">then rounded to the pump’s</text>
+  <text class="body" x="835" y="358">step, which can round up.</text>
+  <text class="big" x="835" y="430">0.83 → 0.85</text>
+  <text class="body" x="835" y="466">U/h, above the limit</text>
+
+  <rect x="835" y="147" width="160" height="34" rx="17" fill="#222a33"/>
+  <text class="pill" x="851" y="171" style="fill:#a7b0bd">Severity: low</text>
+
+  <text class="note" x="600" y="554" text-anchor="middle">Severity is our estimate. Medium: a large overdose is possible, but the apps normally supply the data.</text>
+  <text class="note" x="600" y="584" text-anchor="middle">Low: the overshoot is at most half a pump step (0.025 U/h).</text>
+</svg>

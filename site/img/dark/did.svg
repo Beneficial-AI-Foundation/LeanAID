@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 88 1200 542" width="1200" height="542" role="img" aria-label="What we did. An AI agent rewrote oref0 from JavaScript into Lean, compiled the Lean version into a binary via C. On the Lean version it proved two kinds of theorems. Safety rules from FDA research on insulin pumps: 10 proved for every valid input, 4 in part, 1 does not hold (a finding), 6 still to prove. oref0’s tests, generalized: of 116 tests, 59 state a general rule; 52 are proved for every valid input and 7 are still to prove.">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
+      <feFlood flood-color="#3ee08f" flood-opacity="0.45"/>
+      <feComposite in2="b" operator="in" result="g"/>
+      <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7d8794"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #eef2f6; }
+    .box { fill: #10151c; stroke: #3a4350; stroke-width: 2; }
+    .main { fill: #0c2a1d; stroke: #3ee08f; filter: url(#glow); stroke-width: 3; }
+    .heading { font-size: 40px; font-weight: 700; }
+    .title { font-size: 32px; font-weight: 700; }
+    .sub { font-size: 22px; fill: #a7b0bd; }
+    .label { font-size: 24px; fill: #a7b0bd; }
+    .accent { fill: #3ee08f; }
+    .warn { fill: #ff9f43; }
+    .num { font-size: 30px; font-weight: 700; }
+    .item { font-size: 24px; }
+    .line { stroke: #7d8794; stroke-width: 3; fill: none; }
+    .dash { stroke-dasharray: 10 8; }
+  </style>
+
+  <g transform="translate(0 -60)">
+  <!-- row -->
+  <rect class="box" x="40" y="170" width="280" height="120" rx="16"/>
+  <text class="title" x="180" y="222" text-anchor="middle">oref0</text>
+  <text class="sub" x="180" y="256" text-anchor="middle">the original, JavaScript</text>
+
+  <rect class="main" x="460" y="170" width="280" height="120" rx="16"/>
+  <text class="title accent" x="600" y="222" text-anchor="middle">lean-oref0</text>
+  <text class="sub" x="600" y="256" text-anchor="middle">the same logic, in Lean</text>
+
+  <rect class="box" x="880" y="170" width="280" height="120" rx="16"/>
+  <text class="title" x="1020" y="222" text-anchor="middle">Binary</text>
+  <text class="sub" x="1020" y="256" text-anchor="middle">compiled via C</text>
+
+  <path class="line" d="M320 230 H452" marker-end="url(#head)"/>
+  <text class="label" x="388" y="214" text-anchor="middle">AI agent</text>
+  <text class="label" x="388" y="266" text-anchor="middle">rewrites</text>
+  <path class="line" d="M740 230 H872" marker-end="url(#head)"/>
+  <text class="label" x="808" y="214" text-anchor="middle">compile</text>
+
+  <!-- prove -->
+  <path class="line" d="M600 290 V328 M310 328 H890 M310 328 V362 M890 328 V362"/>
+  <path class="line" d="M310 344 V362" marker-end="url(#head)"/>
+  <path class="line" d="M890 344 V362" marker-end="url(#head)"/>
+  <text class="label" x="614" y="317">AI agent proves</text>
+
+  <!-- safety rules -->
+  <rect class="main" x="40" y="370" width="540" height="290" rx="16"/>
+  <text class="title accent" x="310" y="416" text-anchor="middle">Safety rules</text>
+  <text class="sub" x="310" y="448" text-anchor="middle">from FDA safety research on insulin pumps</text>
+  <line x1="70" y1="468" x2="550" y2="468" stroke="#3ee08f" stroke-opacity="0.35" stroke-width="2"/>
+  <text class="num accent" x="120" y="512" text-anchor="end">10</text>
+  <text class="item" x="140" y="510">proved for every valid input</text>
+  <text class="num accent" x="120" y="554" text-anchor="end">4</text>
+  <text class="item" x="140" y="552">proved in part</text>
+  <text class="num warn" x="120" y="596" text-anchor="end">1</text>
+  <text class="item" x="140" y="594">does not hold: a finding</text>
+  <text class="num" x="120" y="638" text-anchor="end" style="fill:#a7b0bd">6</text>
+  <text class="item" x="140" y="636">still to prove</text>
+
+  <!-- generalized tests -->
+  <rect class="main" x="620" y="370" width="540" height="290" rx="16"/>
+  <text class="title accent" x="890" y="416" text-anchor="middle">oref0’s tests, generalized</text>
+  <text class="sub" x="890" y="448" text-anchor="middle">oref0 has 116 tests; 59 state a general rule</text>
+  <line x1="650" y1="468" x2="1130" y2="468" stroke="#3ee08f" stroke-opacity="0.35" stroke-width="2"/>
+  <text class="num accent" x="700" y="512" text-anchor="end">52</text>
+  <text class="item" x="720" y="510">proved for every valid input</text>
+  <text class="num" x="700" y="554" text-anchor="end" style="fill:#a7b0bd">7</text>
+  <text class="item" x="720" y="552">still to prove</text>
+  </g>
+</svg>

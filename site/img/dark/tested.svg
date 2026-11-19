@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 68 1200 632" width="1200" height="632" role="img" aria-label="How we tested against oref0. Same input, same answer: on oref0's own test cases, 148 of 148 identical; on random inputs, 100,000 of 100,000 identical. Virtual patients in a closed loop: at every step oref0 and lean-oref0 both decide on the same glucose history and lean-oref0’s dose is given; 30 simulated patients, 512 runs over 12 hours of computing, 220,608 dosing decisions, all identical between oref0 and lean-oref0.">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
+      <feFlood flood-color="#3ee08f" flood-opacity="0.45"/>
+      <feComposite in2="b" operator="in" result="g"/>
+      <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7d8794"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #eef2f6; }
+    .panel { fill: #10151c; stroke: #3a4350; stroke-width: 2; }
+    .box { fill: #10151c; stroke: #3a4350; stroke-width: 2; }
+    .main { fill: #0c2a1d; stroke: #3ee08f; filter: url(#glow); stroke-width: 3; }
+    .heading { font-size: 40px; font-weight: 700; }
+    .ptitle { font-size: 30px; font-weight: 700; }
+    .title { font-size: 26px; font-weight: 700; }
+    .sub { font-size: 22px; fill: #a7b0bd; }
+    .label { font-size: 22px; fill: #a7b0bd; }
+    .accent { fill: #3ee08f; }
+    .big { font-size: 40px; font-weight: 700; fill: #3ee08f; }
+    .item { font-size: 24px; }
+    .line { stroke: #7d8794; stroke-width: 3; fill: none; }
+  </style>
+
+  <!-- LEFT PANEL -->
+  <rect class="panel" x="40" y="90" width="540" height="580" rx="18"/>
+  <text class="ptitle" x="310" y="140" text-anchor="middle">Same input, same answer?</text>
+
+  <rect class="box" x="70" y="200" width="140" height="70" rx="12"/>
+  <text class="title" x="140" y="244" text-anchor="middle">input</text>
+  <rect class="box" x="290" y="170" width="200" height="60" rx="12"/>
+  <text class="title" x="390" y="209" text-anchor="middle">oref0</text>
+  <rect class="main" x="290" y="250" width="200" height="60" rx="12"/>
+  <text class="title accent" x="390" y="289" text-anchor="middle">lean-oref0</text>
+  <path class="line" d="M210 225 L282 202" marker-end="url(#head)"/>
+  <path class="line" d="M210 245 L282 274" marker-end="url(#head)"/>
+  <text class="title" x="535" y="250" text-anchor="middle" style="font-size:44px">=</text>
+
+  <line x1="70" y1="350" x2="550" y2="350" stroke="#3a4350" stroke-width="2"/>
+
+  <text class="item" x="70" y="402">oref0’s own test cases</text>
+  <text class="big" x="70" y="452">148 / 148</text>
+  <text class="sub" x="70" y="484">identical</text>
+
+  <text class="item" x="70" y="542">Random inputs</text>
+  <text class="big" x="70" y="592">100,000 / 100,000</text>
+  <text class="sub" x="70" y="624">identical, word for word</text>
+
+  <!-- RIGHT PANEL -->
+  <rect class="panel" x="620" y="90" width="540" height="580" rx="18"/>
+  <text class="ptitle" x="890" y="140" text-anchor="middle">Virtual patients</text>
+
+  <rect class="box" x="650" y="195" width="150" height="90" rx="12"/>
+  <text class="title" x="725" y="235" text-anchor="middle">Patient</text>
+  <text class="sub" x="725" y="265" text-anchor="middle">simulator</text>
+  <rect class="box" x="880" y="170" width="200" height="60" rx="12"/>
+  <text class="title" x="980" y="209" text-anchor="middle">oref0</text>
+  <rect class="main" x="880" y="250" width="200" height="60" rx="12"/>
+  <text class="title accent" x="980" y="289" text-anchor="middle">lean-oref0</text>
+  <path class="line" d="M800 225 L872 202" marker-end="url(#head)"/>
+  <path class="line" d="M800 245 L872 274" marker-end="url(#head)"/>
+  <text class="label" x="830" y="180" text-anchor="middle">glucose</text>
+  <text class="title" x="1115" y="250" text-anchor="middle" style="font-size:44px">=</text>
+  <path class="line" d="M980 310 V336 H725 V293" marker-end="url(#head)"/>
+  <text class="label" x="852" y="362" text-anchor="middle">insulin: lean-oref0’s dose</text>
+
+  <line x1="650" y1="384" x2="1130" y2="384" stroke="#3a4350" stroke-width="2"/>
+
+  <text class="item" x="650" y="420">30 patients: children, teens, adults</text>
+  <text class="item" x="650" y="458">512 runs, 12 hours of computing</text>
+  <text class="item" x="650" y="496">with sensor faults and missed meals</text>
+
+  <text class="big" x="650" y="572">220,608 / 220,608</text>
+  <text class="sub" x="650" y="606">decisions identical</text>
+  <text class="sub" x="650" y="638">so the glucose curves are identical too</text>
+</svg>

@@ -44,11 +44,10 @@
   <text class="label" x="808" y="214" text-anchor="middle">compile</text>
 
   <!-- prove -->
-  <path class="line" d="M600 290 V320 M310 320 H890 M310 320 V362 M890 320 V362"/>
-  <path class="line" d="M310 340 V362" marker-end="url(#head)"/>
-  <path class="line" d="M890 340 V362" marker-end="url(#head)"/>
-  <rect x="510" y="304" width="180" height="32" fill="#fbfbfa"/>
-  <text class="label" x="600" y="328" text-anchor="middle">AI agent proves</text>
+  <path class="line" d="M600 290 V328 M310 328 H890 M310 328 V362 M890 328 V362"/>
+  <path class="line" d="M310 344 V362" marker-end="url(#head)"/>
+  <path class="line" d="M890 344 V362" marker-end="url(#head)"/>
+  <text class="label" x="614" y="317">AI agent proves</text>
 
   <!-- safety rules -->
   <rect class="main" x="40" y="370" width="540" height="290" rx="16"/>

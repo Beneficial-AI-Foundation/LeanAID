@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 84 1200 596" width="1200" height="596" role="img" aria-label="Automated insulin delivery (AID). A glucose sensor sends readings to the controller, which sends an insulin dose to the pump. The controller runs oref0: open source, written in JavaScript, used in do-it-yourself systems, not checked by the FDA.">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
+      <feFlood flood-color="#3ee08f" flood-opacity="0.45"/>
+      <feComposite in2="b" operator="in" result="g"/>
+      <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7d8794"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #eef2f6; }
+    .box { fill: #10151c; stroke: #3a4350; stroke-width: 2; }
+    .main { fill: #0c2a1d; stroke: #3ee08f; filter: url(#glow); stroke-width: 3; }
+    .heading { font-size: 40px; font-weight: 700; }
+    .title { font-size: 34px; font-weight: 700; }
+    .sub { font-size: 22px; fill: #a7b0bd; }
+    .label { font-size: 24px; fill: #a7b0bd; }
+    .accent { fill: #3ee08f; }
+    .item { font-size: 26px; }
+    .line { stroke: #7d8794; stroke-width: 3; fill: none; }
+  </style>
+
+  <g transform="translate(0 70)">
+  <!-- Sensor -->
+  <rect class="box" x="40" y="70" width="260" height="140" rx="16"/>
+  <text class="title" x="170" y="135" text-anchor="middle">Sensor</text>
+  <text class="sub" x="170" y="172" text-anchor="middle">reads glucose</text>
+
+  <!-- Controller -->
+  <rect class="main" x="460" y="70" width="280" height="140" rx="16"/>
+  <text class="title accent" x="600" y="135" text-anchor="middle">Controller</text>
+  <text class="sub" x="600" y="172" text-anchor="middle">decides the dose</text>
+
+  <!-- Pump -->
+  <rect class="box" x="900" y="70" width="260" height="140" rx="16"/>
+  <text class="title" x="1030" y="135" text-anchor="middle">Pump</text>
+  <text class="sub" x="1030" y="172" text-anchor="middle">delivers insulin</text>
+
+  <!-- Arrows -->
+  <path class="line" d="M300 140 H452" marker-end="url(#head)"/>
+  <text class="label" x="380" y="122" text-anchor="middle">glucose</text>
+  <path class="line" d="M740 140 H892" marker-end="url(#head)"/>
+  <text class="label" x="816" y="122" text-anchor="middle">insulin dose</text>
+
+  <text class="label" x="600" y="46" text-anchor="middle">every 5 minutes</text>
+
+  <!-- oref0 -->
+  <path class="line" d="M600 300 V218" marker-end="url(#head)"/>
+  <text class="label" x="616" y="266">runs</text>
+  <rect class="main" x="360" y="300" width="480" height="290" rx="16"/>
+  <text class="title accent" x="600" y="350" text-anchor="middle">oref0</text>
+  <line x1="390" y1="374" x2="810" y2="374" stroke="#3ee08f" stroke-opacity="0.35" stroke-width="2"/>
+  <text class="item" x="400" y="420">•  open source</text>
+  <text class="item" x="400" y="465">•  written in JavaScript</text>
+  <text class="item" x="400" y="510">•  used in do-it-yourself systems</text>
+  <text class="item" x="400" y="555">•  not checked by the FDA</text>
+</g>
+</svg>
