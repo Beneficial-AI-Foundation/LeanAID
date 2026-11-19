@@ -337,16 +337,16 @@ footer li { margin: 3px 0; }
     <h2>Details</h2>
     <p class="sub">Numbers from <code>scripts/report.js</code>. Full write-up: <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REPORT.md">REPORT</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/FINDINGS.md">FINDINGS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REQUIREMENTS.md">REQUIREMENTS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/TRACEABILITY.md">TRACEABILITY</a>.</p>
     <div class="stats">
-      <div class="stat"><b>52 / 59</b><span>generalisable oref0 unit tests (of 116 inventoried) proved as instances of general theorems</span></div>
+      <div class="stat"><b>52 / 59</b><span>generalizable oref0 unit tests (of 116 inventoried) proved as instances of general theorems</span></div>
       <div class="stat"><b>274</b><span>theorems, no <code>sorry</code>, standard axioms only</span></div>
       <div class="stat"><b>148 / 148</b><span>oref0 test calls reproduced exactly</span></div>
       <div class="stat"><b>24 / 24</b><span>planted bugs caught by the build (mutation testing)</span></div>
     </div>
     <ul class="limits" style="margin-top:16px">
       <li><b>Transcription.</b> oref0 0.7.1 (commit <code>88cf032</code>): determine-basal, setTempBasal, round_basal, IOB, basal lookup, glucose status and meal history. Values are exact rationals rounded after every operation to the nearest IEEE-754 double, as in JavaScript, with JavaScript's NaN semantics; no <code>Float</code> in the core.</li>
-      <li><b>Conformance.</b> oref0's tests are captured under Node and replayed in Lean; these checks use <code>native_decide</code>, so they trust the compiler, while the safety theorems are kernel-checked. oref0's tests never reach predictions, COB, UAM or SMB; for those, agreement rests on differential testing over 100,000 random valid inputs.</li>
+      <li><b>Conformance.</b> oref0's tests are captured under Node and replayed in Lean; these checks use <code>native_decide</code>, so they trust the compiler, while the safety theorems are kernel-checked. oref0's tests never reach predictions, COB, UAM or SMB; for those, agreement rests on differential testing: 100,000 random valid inputs and 220,608 decisions with virtual patients, all identical.</li>
       <li><b>Requirements.</b> 23 requirements traced to the 2010 FDA-authored hazard analysis, the 2011 generic safety requirements and 21 CFR 862.1356 / 880.5730, then to theorems and tests.</li>
-      <li><b>Binary.</b> <code>aid-lean determine-basal</code> has the same command-line interface and JSON format as <code>oref0-determine-basal</code>; <code>--safe</code> rejects the known unsafe inputs; <code>aid_step</code> is exported for C.</li>
+      <li><b>Binary.</b> <code>aid-lean determine-basal</code> has the same command-line interface and JSON format as <code>oref0-determine-basal</code>; <code>--safe</code> rejects inputs with an undated glucose reading, a missing maximum basal setting or carbs with no meal time; <code>aid_step</code> is exported for C.</li>
     </ul>
     <h3 style="margin:28px 0 8px;font-size:1.05rem">Reproduce</h3>
     <pre style="background:var(--code-bg);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:0.82rem;line-height:1.5;margin:0"><code style="background:none;padding:0">git clone https://github.com/Beneficial-AI-Foundation/LeanAID.git
