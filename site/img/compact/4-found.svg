@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -4 960 434" width="960" height="434" role="img" aria-label="What we found in oref0, proved in Lean and reproduced in JavaScript. Medium: an old reading with no timestamp is treated as new, because its age is NaN and NaN > 12 is false. Medium: a missing max basal setting turns the limit off, because min with NaN is NaN. Low: rounding goes over the limit, 0.83 becomes 0.85 U/h. Severity is our estimate.">
+  <defs>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7d8794"/>
+    </marker>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="b"/>
+      <feFlood flood-color="#3ee08f" flood-opacity="0.45"/>
+      <feComposite in2="b" operator="in" result="g"/>
+      <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <style>
+    text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #eef2f6; }
+    .box { fill: #10151c; stroke: #3a4350; stroke-width: 2; }
+    .main { fill: #0c2a1d; stroke: #3ee08f; stroke-width: 2.5; filter: url(#glow); }
+    .hot { fill: #10151c; stroke: #ff9f43; stroke-width: 2; }
+    .h { font-size: 28px; font-weight: 700; fill: #3ee08f; letter-spacing: 0.5px; }
+    .t { font-size: 26px; font-weight: 700; }
+    .tg { font-size: 26px; font-weight: 700; fill: #3ee08f; }
+    .s { font-size: 20px; fill: #a7b0bd; }
+    .i { font-size: 22px; }
+    .n { font-size: 28px; font-weight: 700; fill: #3ee08f; }
+    .nm { font-size: 28px; font-weight: 700; fill: #a7b0bd; }
+    .no { font-size: 28px; font-weight: 700; fill: #ff9f43; }
+    .big { font-size: 40px; font-weight: 700; fill: #3ee08f; }
+    .bigo { font-size: 34px; font-weight: 700; fill: #ff9f43; }
+    .pill { font-size: 18px; font-weight: 700; }
+    .line { stroke: #7d8794; stroke-width: 2.5; fill: none; }
+  </style>
+  <text class="h" x="0" y="30" text-anchor="start">What we found in oref0</text>
+  <text class="s" x="940" y="30" text-anchor="end">proved in Lean, reproduced in JavaScript</text>
+  <rect class="hot" x="0" y="52" width="300" height="316" rx="12"/>
+  <rect x="20" y="70" width="104" height="28" rx="14" fill="#2e1a08"/>
+  <text class="pill" x="34" y="90" style="fill:#ff9f43">medium</text>
+  <text class="t" x="20" y="136" text-anchor="start">Old reading</text>
+  <text class="t" x="20" y="166" text-anchor="start">treated as new</text>
+  <text class="s" x="20" y="204" text-anchor="start">No timestamp: its age</text>
+  <text class="s" x="20" y="230" text-anchor="start">is NaN, never too old</text>
+  <text class="bigo" x="20" y="290" text-anchor="start">NaN > 12</text>
+  <text class="s" x="20" y="326" text-anchor="start">is false in JavaScript</text>
+  <rect class="hot" x="320" y="52" width="300" height="316" rx="12"/>
+  <rect x="340" y="70" width="104" height="28" rx="14" fill="#2e1a08"/>
+  <text class="pill" x="354" y="90" style="fill:#ff9f43">medium</text>
+  <text class="t" x="340" y="136" text-anchor="start">Missing setting</text>
+  <text class="t" x="340" y="166" text-anchor="start">turns the limit off</text>
+  <text class="s" x="340" y="204" text-anchor="start">No max basal: the limit</text>
+  <text class="s" x="340" y="230" text-anchor="start">uses a missing value</text>
+  <text class="bigo" x="340" y="290" text-anchor="start">min(…, NaN)</text>
+  <text class="s" x="340" y="326" text-anchor="start">is NaN: no cap at all</text>
+  <rect class="box" x="640" y="52" width="300" height="316" rx="12"/>
+  <rect x="660" y="70" width="70" height="28" rx="14" fill="#222a33"/>
+  <text class="pill" x="674" y="90" style="fill:#a7b0bd">low</text>
+  <text class="t" x="660" y="136" text-anchor="start">Rounding goes</text>
+  <text class="t" x="660" y="166" text-anchor="start">over the limit</text>
+  <text class="s" x="660" y="204" text-anchor="start">Capped first, then</text>
+  <text class="s" x="660" y="230" text-anchor="start">rounded up to a step</text>
+  <text class="bigo" x="660" y="290" text-anchor="start">0.83 → 0.85</text>
+  <text class="s" x="660" y="326" text-anchor="start">U/h, above the limit</text>
+  <text class="s" x="470" y="400" text-anchor="middle">Severity is our estimate: medium = large overdose possible, but apps normally supply the data.</text>
+
+</svg>
