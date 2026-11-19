@@ -15,7 +15,7 @@
     .box { fill: #10151c; stroke: #3a4350; stroke-width: 2; }
     .main { fill: #0c2a1d; stroke: #3ee08f; stroke-width: 2.5; filter: url(#glow); }
     .hot { fill: #10151c; stroke: #ff9f43; stroke-width: 2; }
-    .h { font-size: 28px; font-weight: 700; fill: #3ee08f; letter-spacing: 0.5px; }
+    .h { font-size: 28px; font-weight: 700; fill: #b69cff; letter-spacing: 0.5px; }
     .t { font-size: 26px; font-weight: 700; }
     .tg { font-size: 26px; font-weight: 700; fill: #3ee08f; }
     .s { font-size: 20px; fill: #a7b0bd; }

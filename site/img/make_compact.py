@@ -35,7 +35,7 @@ STYLE = f"""
     .box {{ fill: {BOX}; stroke: {STROKE}; stroke-width: 2; }}
     .main {{ fill: {GREEN_FILL}; stroke: {GREEN}; stroke-width: 2.5; filter: url(#glow); }}
     .hot {{ fill: {BOX}; stroke: {ORANGE}; stroke-width: 2; }}
-    .h {{ font-size: 28px; font-weight: 700; fill: {GREEN}; letter-spacing: 0.5px; }}
+    .h {{ font-size: 28px; font-weight: 700; fill: #b69cff; letter-spacing: 0.5px; }}
     .t {{ font-size: 26px; font-weight: 700; }}
     .tg {{ font-size: 26px; font-weight: 700; fill: {GREEN}; }}
     .s {{ font-size: 20px; fill: {MUTED}; }}
