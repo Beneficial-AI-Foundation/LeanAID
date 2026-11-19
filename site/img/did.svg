@@ -81,6 +81,4 @@
   <text class="item" x="720" y="552">general rule is false</text>
   <text class="num" x="700" y="596" text-anchor="end" style="fill:#5e636e">4</text>
   <text class="item" x="720" y="594">still to prove</text>
-  <text class="sub" x="650" y="642">A test checks one example.</text>
-  <text class="sub" x="650" y="674">A theorem covers every valid input.</text>
 </svg>
