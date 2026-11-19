@@ -704,3 +704,39 @@ Part 4: `sim/report.py` (2 min) → `sim/out/report.json`, `sim/out/plots/`; `do
   the maintainer's commit `b11824f` (made while part 4 was in progress); this entry and
   `docs/SIM.md` describe them.
 - `site/index.html` not edited (part 4 rule).
+
+## Timing properties: plan (extends M9)
+
+`docs/timing-plan.md`. No Lean code changed, nothing new is proved.
+- Sources checked for timing clauses: SR2011 (full text on PMC, 2026-11-19), 21 CFR
+  862.1356 and 880.5730 (`refs/`). Neither CFR section gives a number. The IEC
+  standards (60601-2-24, 60601-1-8) are paywalled and are marked "not checked".
+- Libraries checked: CSLib has untimed `LeadsTo` and BTL, no MTL. No Lean 4 MTL or MLTL
+  library found. Isabelle (AFP MLTL entries, VeriMon) and Rocq (lattice-mtl) have one.
+- Decision: shallow embedding over timed event traces, `Int` milliseconds, pointwise
+  semantics, no Mathlib. Seven properties P1–P7, of which P6 and P7 are R20 and R21.
+
+## Timing properties: plan revised after review
+
+`docs/timing-plan.md`, section 7. No Lean code changed, nothing new is proved.
+- An adversarial review of the first version. Its code citations were checked against
+  `LeanAID/Core/DetermineBasal.lean`, `Iob.lean` and `sim/harness.py`.
+- P4 as first written was false: zero temps last up to 120 minutes (lines 741, 898), so
+  a stopped loop can leave the pump below the scheduled basal for 120 minutes. P4 is
+  split into P4a (expiry) and P4b (bound by rate).
+- P1 and P5 now have a faithful statement with oref0's rounded comparisons and a
+  derived real-time statement with explicit slack. P6 and P7 are defined precisely.
+- The event model separates issued, sent, accepted and lost commands.
+
+## Timing properties: plan revised after second review
+
+`docs/timing-plan.md`, section 7, round 2. No Lean code changed, nothing new is proved.
+- The first milestone now uses a fixed profile and atomic cycles (decide, then accept
+  or lose the whole command, at most one cycle per step). This closes two gaps that
+  the review found in P5 and P6.
+- R21: section 4.2 states two candidate invariants. I1 (lifted guard) is expected to
+  hold. I2 (microbolus IOB at most `max_iob`) is expected to fail because of negative
+  IOB from zero temps. T0 builds that run first.
+- P1 uses `profileCurrentBasal` (rounded), as the existing theorem does.
+- Review citations checked: `profileCurrentBasal` rounds (line 125), `enableSmb` needs
+  a profile flag (line 47), `run_id` omits the SMB mode, F-13 is resolved.
