@@ -14,6 +14,7 @@ controller is the baseline.
 | `monitor.py` | the per-step safety monitor (requirements R1, R2, R4, R6, R8–R12) |
 | `oref0_server.js` | oref0 as one long-lived Node process (lib/profile, lib/meal, lib/iob, determine-basal) |
 | `run_all.py`, `run_all.sh` | the overnight job list (part 3) |
+| `report.py` | the report (part 4): `sim/out/report.json` and `sim/out/plots/`, written up in `docs/SIM.md` |
 | `requirements.txt` | exact Python package versions (`.venv`, Python 3.9.6) |
 | `regression-future-carbs.json` | an input on which aid-lean and oref0 differ (FINDINGS F-17) |
 

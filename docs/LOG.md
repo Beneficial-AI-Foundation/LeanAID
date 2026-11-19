@@ -671,3 +671,36 @@ baseline runs add minutes). Item 4: a 7-day aid-lean run ≈ 40 min, so one meal
 `docs/numbers.json` was not regenerated: the theorem count is now higher than its 274
 (the equalities in `Core/Binary64Impl.lean` and `Core/Exp.lean` and the
 `taylor_eq_horner_samples` check); the project page is not edited (part 4 rule).
+
+## M11 virtual patients, parts 3 and 4: overnight run and report
+
+**Time:** part 3 2026-11-18 21:55:20 – 2026-11-19 09:55:22 EET (`sim/out/progress.log`,
+from `date`); part 4 2026-11-19 13:53–14:10 EET.
+
+Part 3 (`sim/run_all.sh`, 7 workers, git `5650f43`): 512 runs finished, 0 failed, in
+12.0 h. Items 1–3 (390 runs) ended at 03:22:33, 5 h 27 min (estimate: 5 h); then 7-day
+runs: meal seed 1 complete (60), seed 2 58 of 60, seed 3 4 of 60. At the deadline the 7
+runs in progress were 7-day aid-lean runs and were discarded and logged (child#009 and
+child#010 of seed 2, adolescent#001–#005 of seed 3). Time per simulated day with 7 in
+parallel: aid-lean 363–388 s, oref0 9–10 s, baseline 3 s.
+
+Part 4: `sim/report.py` (2 min) → `sim/out/report.json`, `sim/out/plots/`; `docs/SIM.md`.
+- aid-lean = oref0 at every step: 220,608 / 220,608 decisions byte-identical and IOB
+  arrays identical over 238 aid-lean runs; all 238 aid-lean runs identical step by step
+  to the paired oref0 runs (true BG, CGM, insulin, decision).
+- Main (30 patients, 2 days): TIR 88.8 % (oref0 = aid-lean) against 83.2 % (baseline);
+  below 70: 3.2 % against 7.4 %.
+- Monitor: R1 1,064 decisions per arm, all in F-12 runs (up to 9.8 × the configured
+  `max_basal`); R8 16 oref0 decisions (13 in the paired aid-lean runs), all in oref0's
+  flat-CGM branch: new finding **F-18**. No theorem is contradicted (`low_glucose_suspend`
+  assumes the prelude succeeds, which excludes flat data), but REQUIREMENTS R8 did not
+  say so; its text now states the scope (not a change to any theorem). The monitor keeps
+  checking the stronger statement.
+- F-11 in a closed loop: harmless here (the undated copy is flat, F-18's branch catches
+  it). F-12: time below 54 mg/dL 4.8 % against 1.6 %, 18/30 patients more time below 70.
+- Simulator artefact: in 4 runs per arm (child#003 and child#008) simglucose's glucose
+  reaches 0 and stays there through later meals; reported, not removed from the tables.
+- The F-18 text in FINDINGS and REQUIREMENTS and the monitor comment were committed by
+  the maintainer's commit `b11824f` (made while part 4 was in progress); this entry and
+  `docs/SIM.md` describe them.
+- `site/index.html` not edited (part 4 rule).
