@@ -30,3 +30,6 @@ import LeanAID.Core.Step
 import LeanAID.Proofs.ReviewFindings
 import LeanAID.Time.Run
 import LeanAID.Time.System
+import LeanAID.Time.Build
+import LeanAID.Time.Examples
+import LeanAID.Conformance.TimeRuns

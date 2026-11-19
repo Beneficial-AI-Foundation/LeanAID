@@ -275,3 +275,52 @@ not flat data; the text now states the exclusion. Consequence in these runs: sma
 episode ends at the next reading that differs), but the insulin is given when BG is
 already low. Not yet checked: whether a stuck sensor reading low for longer can keep the
 basal running for longer (the flat check needs `delta` = 0 exactly, so noise ends it).
+
+## Found by the timing work (2026-11-19, `docs/timing-plan.md`)
+
+### F-19 — With an unrounded basal, a stale reading can still give a rate above the schedule (P1)
+With `current_basal = 0.83` U/h, oref0 compares with and issues
+`profile_current_basal = round_basal(0.83) = 0.85` U/h. On a stale reading (20 minutes
+old) with a 2 U/h temp running, the CGM-error branch replaces the temp with 0.85 U/h,
+which is above the scheduled 0.83 U/h. Checked by `decide` in
+`LeanAID/Time/Examples.lean` (`staleInput`). P1 is stated, as the plan says, against
+the rounded basal; the gap to the schedule is at most half a pump increment (F-04).
+
+### F-20 — A stopped loop can leave a zero temp running for 120 minutes (P4b)
+oref0 issues zero temps of up to 120 minutes (lines 741 and 898; `durationReq` is
+rounded to 30-minute steps and capped at 120). If the loop stops right after such a
+temp is accepted, the pump delivers nothing for 120 minutes before the schedule
+resumes. This is low delivery, not overdose. Run `zeroRun` in
+`LeanAID/Conformance/TimeRuns.lean`: glucose 80, 70, 60 mg/dL, the cycle at minute 10
+issues 0 U/h for 120 minutes, and the pump rate is 0 until minute 130 and then the
+scheduled 1 U/h (`zeroRun_cycle`, `zeroRun_pump`, by `native_decide`).
+
+### F-21 — R21 in the plain reading (form I2) does not hold: microboluses can stack past `max_iob`
+The microbolus guard compares the *computed* IOB, which includes the negative IOB of
+temps below the scheduled basal. After two hours of zero temps the computed IOB is about
+−1.2 U, and the guard then allows microboluses whose own IOB exceeds `max_iob`. Run
+`i2Run` in `LeanAID/Conformance/TimeRuns.lean`: `max_iob` 0.5 U, microboluses of 0.5 U
+(minute 130) and 0.2 U (minute 135); at minute 140 the IOB of these two microboluses
+alone is above 0.69 U (`i2_fails`). At each microbolus the guard of form I1 held
+(`i2Run_I1`). So R21 holds at most in form I1 (the lifted guard), not in form I2.
+
+### F-22 — `Iob.generate` cannot be evaluated by the kernel or reasoned about
+`calcTempTreatments` (lib/iob/history.js, transcribed in `LeanAID/Core/Iob.lean`) uses a
+`while` loop (line 495), which Lean compiles to a `partial` function that is opaque to
+the kernel, and `sortByKey` and `basalLookup` use `List.mergeSort`, which `decide` does
+not unfold. So no theorem can state what IOB or `lastBolusTime` `generate` returns for a
+given history, and concrete runs that call it can only be checked by `native_decide`.
+Not a bug in oref0; a limit of the transcription for proofs. A refactor of the loop
+into structural recursion (with the existing fuel bound) and of the sort into a
+structural sort would remove it; that is a change of `LeanAID/Core` and is left to the
+maintainer. The timing theorems that need a fact about `generate` take it as an
+explicit hypothesis (see `docs/LOG.md`, T5 and T6).
+
+### F-11 in the run model
+In the T2 run model the glucose status is `getLastGlucose` of dated or undated CGM
+entries. When the entries carry no date, every age is NaN, `getLastGlucose` finds no
+deltas and returns delta 0, and the flat-CGM check (F-18) stops any increase
+(`undated_flat` in `LeanAID/Conformance/TimeRuns.lean`). The F-11 input (undated, with
+non-zero deltas) does not arise from these entries. It can still arise from entries
+with a `display_time` or `dateString` that do not parse, or from other sources of
+`glucose_status`.

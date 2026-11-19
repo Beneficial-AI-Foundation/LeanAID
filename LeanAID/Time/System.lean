@@ -178,12 +178,16 @@ def applyStep (s : PState) (st : Step Event) : PState := st.events.foldl (applyE
 /-- The pump state after the steps at or before `t`. -/
 def pumpAt (env : Env) (r : Run Event) (t : Int) : PState := stateAt env.init applyStep r t
 
+/-- The rate of the temp running at time `k` in state `s`, or `none` when the
+    schedule runs (no temp, or the temp reached its deadline). -/
+def tempRate (s : PState) (k : Int) : Option Rat :=
+  match s.temp with
+  | some tp => if k < tp.deadline then some tp.rate else none
+  | none => none
+
 /-- The rate (U/h) the pump runs at time `k` in state `s`: the temp until its
     deadline, then the scheduled basal. -/
-def rateIn (env : Env) (s : PState) (k : Int) : Rat :=
-  match s.temp with
-  | some tp => if k < tp.deadline then tp.rate else env.sched k
-  | none => env.sched k
+def rateIn (env : Env) (s : PState) (k : Int) : Rat := (tempRate s k).getD (env.sched k)
 
 /-- The pump rate at time `k` of a run. Temp expiry is a change of this function,
     not an event. -/

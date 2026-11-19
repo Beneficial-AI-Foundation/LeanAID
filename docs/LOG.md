@@ -751,7 +751,7 @@ each breakpoint. Review rounds stop here.
 
 ## Timing properties: implementation setup
 
-**Start:** 2026-11-19 16:49 UTC · **End:** 16:56 UTC
+**Start:** 2026-11-19 16:49 UTC · **End:** 16:54 UTC
 
 Branch `timing-impl` from the plan commits on `origin/timing-plan`. Cloud session.
 - `vendor/oref0` cloned at 88cf032, `npm install --no-save` inside it.
@@ -763,7 +763,7 @@ Branch `timing-impl` from the plan commits on `origin/timing-plan`. Cloud sessio
 
 ## Timing T1: run type and helpers
 
-**Start:** 16:56 UTC · **End:** 17:05 UTC
+**Start:** 16:54 UTC · **End:** 16:55 UTC
 
 `LeanAID/Time/Run.lean`: `Step`, `Run`, `Status` (closed or observed), `Increasing`,
 `upTo`, `before`, `stateAt`, `stateBefore`, and the integral of a rate over a half-open
@@ -775,7 +775,7 @@ lists `LeanAID/Time/`.
 
 ## Timing T2: transition system
 
-**Start:** 17:05 UTC · **End:** 17:35 UTC
+**Start:** 16:55 UTC · **End:** 16:58 UTC
 
 `LeanAID/Time/System.lean`. Events: `reading` (value, true time, recorded date),
 `userBolus`, `cycle` (inputs, result, outcome accepted or lost). Validation `validate`:
@@ -809,3 +809,31 @@ uses a `while` loop (line 495, a `partial` definition, opaque to the kernel), an
 - No theorem can look inside `generate`. A property that needs to know what IOB or
   `lastBolusTime` `generate` returns for a history can only be proved with that fact
   as an explicit hypothesis. See T5 and T6.
+
+## Timing T0: counterexample runs
+
+**Start:** 16:58 UTC · **End:** 17:05 UTC
+
+*Correction:* the start and end times first written for T1, T2 and T0 were estimates
+and were wrong. They are replaced by the commit times (UTC).
+
+`LeanAID/Time/Build.lean`: `build` makes a run from a script (times, readings, user
+boluses, and per cycle the free inputs and the outcome); each cycle's inputs are
+computed from the pump state. `build_legal`: a built run with increasing times is legal.
+
+`LeanAID/Time/Examples.lean` (checked by `decide`): a reading 12.04 minutes old is not
+stale and 12.05 is; the 0.83/0.85 case (F-19); the SMB age boundary (3.05 minutes
+passes with interval 3, 3.04 does not, so the real spacing is at least I + 0.05, not
+only I − 0.05 as the plan expected); a replacement temp one minute before the old
+deadline; a lost replacement; a rejected NaN-rate command; a cancel.
+
+`LeanAID/Conformance/TimeRuns.lean` (checked by `native_decide`, because the cycles call
+`generate`, F-22): the 120-minute zero temp and stopped loop (F-20); a reading 12.04
+minutes old giving the maximum rate 3 U/h; undated readings giving flat data, not F-11;
+a user bolus and a microbolus with the same timestamp both kept by
+`calcTempTreatments`; the I2 counterexample (F-21) with I1 holding at each microbolus.
+
+What changed against the plan: the future-reading boundary (−5.05 minutes) is not in
+the examples. `decide` gets stuck on rounding a negative age; it is covered by the
+existing `cgm_unreliable_no_increase`. The undated-reading case did not reproduce F-11
+in a run (recorded under F-11 in FINDINGS).
