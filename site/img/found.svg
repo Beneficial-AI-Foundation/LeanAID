@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="1200" height="700" role="img" aria-label="What we found: three gaps in oref0's safety checks. A reading with no timestamp counts as fresh: 3.5 U/h, the maximum rate, however old the reading. A missing maximum basal setting switches the limit off: 5.9 U/h for a usual rate of 0.9 U/h. Rounding can go over the limit: a limit of 0.83 U/h gives 0.85 U/h. Each is proved in Lean and reproduced by running the original oref0. In the virtual patients, the missing setting tripled the time in severe low glucose, from 1.6% to 4.8%.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="1200" height="700" role="img" aria-label="What we found: three gaps in oref0's safety checks. A reading with no timestamp counts as fresh: its age is NaN (not a number), and in JavaScript the check NaN > 12 minutes is false, so it is never too old. A missing maximum basal setting switches the limit off: 5.9 U/h for a usual rate of 0.9 U/h. Rounding can go over the limit: a limit of 0.83 U/h gives 0.85 U/h. Each is proved in Lean and reproduced by running the original oref0. In the virtual patients, the missing setting tripled the time in severe low glucose, from 1.6% to 4.8%.">
   <style>
     text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #1b1d21; }
     .card { fill: #ffffff; stroke: #c9ccd1; stroke-width: 2; }
@@ -19,11 +19,11 @@
   <rect class="card" x="40" y="125" width="355" height="330" rx="18"/>
   <text class="title" x="70" y="178">Old reading</text>
   <text class="title" x="70" y="212">treated as new</text>
-  <text class="body" x="70" y="258">A glucose reading with no</text>
-  <text class="body" x="70" y="288">timestamp is never seen</text>
-  <text class="body" x="70" y="318">as out of date.</text>
-  <text class="big" x="70" y="390">3.5 U/h</text>
-  <text class="body" x="70" y="426">maximum rate, however old</text>
+  <text class="body" x="70" y="258">With no timestamp, a glucose</text>
+  <text class="body" x="70" y="288">reading’s age is NaN (not a</text>
+  <text class="body" x="70" y="318">number): never too old.</text>
+  <text class="big" x="70" y="390">NaN &gt; 12</text>
+  <text class="body" x="70" y="426">is false in JavaScript</text>
 
   <!-- card 2 -->
   <rect class="card" x="422" y="125" width="355" height="330" rx="18"/>
