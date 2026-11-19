@@ -772,3 +772,40 @@ the exact integral of a rate that changes only at integer milliseconds, which ho
 the pump model of T2. Lemmas: `sumFrom_mono`, `sumFrom_const`, `sumFrom_nonneg`,
 `sumFrom_add`, `integral_le_const`, `integral_nonneg`. `docs/DESIGN.md` layout table
 lists `LeanAID/Time/`.
+
+## Timing T2: transition system
+
+**Start:** 17:05 UTC · **End:** 17:35 UTC
+
+`LeanAID/Time/System.lean`. Events: `reading` (value, true time, recorded date),
+`userBolus`, `cycle` (inputs, result, outcome accepted or lost). Validation `validate`:
+the whole command is rejected if the rate or bolus is non-finite or negative, if a rate
+comes without a duration or the reverse, or if the duration is not 0 or 30 to 120
+minutes. The pump state `PState` holds the last accepted temp (rate, start, deadline),
+the accepted actions newest first, the readings and the rejected cycles. `rateIn` and
+`rateAt` give the pump rate at a millisecond: the temp before its deadline, then the
+schedule. `LegalCycle` fixes the inputs of a cycle as the plan says (clock, profile with
+`current_basal` from `basalLookup` on the schedule, `Iob.generate` on the encoded
+history, `currenttemp` from the pump state, `getLastGlucose` on the readings), and
+`Legal` adds increasing times, nonempty steps and "environment events, then at most
+one cycle". Proved: `Legal.cycle`, every cycle of a legal run is legal.
+
+Decisions and deviations from the plan, all small:
+- The pump also rejects durations that are not whole minutes and negative values. oref0
+  never issues either when the value is finite. Whole minutes keep every deadline an
+  integer millisecond, so the integral of T1 is exact.
+- `currenttemp.duration` is the remaining time rounded up to whole minutes.
+- History records use the decimal millisecond time as the `timestamp` string, so a
+  `TempBasal` and its `TempBasalDuration` match. The order is newest first, as in
+  `sim/harness.py`. This matters: `calcTempTreatments` skips a record that is newer than
+  the one before it (`Iob.lean` line 446).
+
+Problem found: `Iob.generate` cannot be evaluated by the kernel. `calcTempTreatments`
+uses a `while` loop (line 495, a `partial` definition, opaque to the kernel), and
+`sortByKey` and `basalLookup` use `List.mergeSort` (well-founded recursion, which
+`decide` does not unfold). Consequences:
+- Concrete runs whose cycles call `generate` cannot be checked by `decide`. They are
+  checked by `native_decide` in `LeanAID/Conformance/`, where `check.sh` allows it.
+- No theorem can look inside `generate`. A property that needs to know what IOB or
+  `lastBolusTime` `generate` returns for a history can only be proved with that fact
+  as an explicit hypothesis. See T5 and T6.
