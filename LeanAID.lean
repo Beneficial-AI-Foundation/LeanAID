@@ -36,3 +36,4 @@ import LeanAID.Conformance.TimeRuns
 import LeanAID.Time.Lift
 import LeanAID.Time.Duration
 import LeanAID.Time.Pump
+import LeanAID.Time.Delivery

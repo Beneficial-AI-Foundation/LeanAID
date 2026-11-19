@@ -27,3 +27,5 @@ LeanAID.Time.p3_temp_ok
 LeanAID.Time.p4a_expiry
 LeanAID.Time.temp_bound
 LeanAID.Time.p4b_fail_safe
+LeanAID.Time.rate_envelope
+LeanAID.Time.p6_basal

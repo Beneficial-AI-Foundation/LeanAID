@@ -894,3 +894,71 @@ Plan versus result: P3b is stated with "d = 30 and r ≥ 0" instead of "d = 30 a
 the case r = 0 with d = 30 is in the second disjunct anyway, so the two are equivalent.
 The initial-temp assumption of T2 is the hypothesis `InvTemp env.init` (bound on the
 duration from the temp's start, not on its remaining duration).
+
+## Timing T5 (part): rate envelope and the basal part of P6
+
+**Start:** 17:14 UTC · **End:** 17:16 UTC
+
+`LeanAID/Time/Delivery.lean`:
+- `rate_envelope`: in a legal run with valid input, if `round_basal(maxSafeBasal)` is
+  at most B at every time (`RateCap env B`), the schedule is at most B and the initial
+  temp's rate is at most B (`InvRate B env.init`), then `rateAt env r k ≤ B` for every
+  millisecond k. With B = max(M, S) this is the rate part of the plan's envelope. The
+  proof uses P2 on each accepted temp and pump validation.
+- `p6_basal`: hence `integral (rateAt env r) t n ≤ B · n / 3 600 000` for every window
+  [t, t + n) ms. This is the rate term of B(W) in plan section 4.1, without the slack
+  term ε_rate, because P2 already bounds the rounded rate by round_basal(M).
+
+Not done: the microbolus term of P6 and P5 derived. Both need that `Iob.generate`
+reports every earlier accepted bolus in `lastBolusTime`. See the handoff below.
+
+## Handoff (timing implementation), 2026-11-19 17:16 UTC
+
+Branch `timing-impl`, pushed. All commits build with `lake build` (128 jobs) and pass
+`scripts/check.sh` (29 headline theorems, standard axioms only).
+
+### Done
+| item | content |
+|---|---|
+| setup | Lean 4.36.0 from the GitHub release (elan's server is blocked by the network policy), oref0 at 88cf032 |
+| T1 | `Time/Run.lean`: `Step`, `Run`, `Status`, `Increasing`, `upTo`, `stateAt`, `integral` and its lemmas |
+| T2 | `Time/System.lean`: events, validation, pump state, `rateAt`, `LegalCycle`, `Legal`, `cycles`, `Legal.cycle` |
+| T0 | `Time/Build.lean` (`build`, `build_legal`), `Time/Examples.lean` (`decide`), `Conformance/TimeRuns.lean` (`native_decide`); findings F-19 to F-22 |
+| T3 | `Time/Lift.lean`: `p1_faithful`, `p1_derived`, `p2_rate_bound`, `p5_faithful` |
+| T4 | `Time/Duration.lean`: `issued_temp_ok` (R4/P3 per call), `p3_temp_ok`; `Time/Pump.lean`: `p4a_expiry`, `accepted_temp`, `temp_bound`, `p4b_fail_safe` |
+| T5 part | `Time/Delivery.lean`: `rate_envelope`, `p6_basal` |
+
+Findings recorded: F-19 (stale reading, 0.85 above an unrounded 0.83), F-20 (zero temp
+for 120 minutes after a stopped loop), F-21 (R21 form I2 fails; I1 holds in the run),
+F-22 (`Iob.generate` is opaque to the kernel), F-11 in the run model (undated readings
+give flat data), and the P1 "dated" gap.
+
+### In progress / next
+1. **T5 rest: P5 derived and the microbolus term of P6.** Both need a fact about
+   `Iob.generate`: for a cycle at time t whose history holds an accepted bolus at time
+   tb ≤ t, `lastBolusTime ≥ tb`. The kernel cannot prove this (F-22). Two ways:
+   (a) the maintainer allows a refactor of `calcTempTreatments` (the `while` loop at
+   `Core/Iob.lean` line 495 into structural recursion with its existing fuel; the sort
+   into a structural sort), checked by the conformance suite and difftest; then prove
+   the lemma; or (b) state P5 derived and P6 with that fact as an explicit hypothesis
+   (`BolusSeen`), record it in FINDINGS, and check it on the T0 runs with
+   `native_decide`. Then: from `p5_faithful`, rounded age > I gives real gap
+   > I − 0.05 minutes minus double-rounding slack (T0 shows the code's real bound is
+   I + 0.05), then count microboluses in a window (⌊W/g⌋ + 1) and add to `p6_basal`.
+2. **T6.** The frozen accounting lemma can be stated on `iobTotal` (kernel-reducible),
+   not on `generate`. I1 is a direct lift of `microbolus_limits` (as `p5_faithful`
+   lifts its last part). I2 counterexample is done (`i2_fails`). Then update R21.
+3. **T7.** Monitor: decidable checker over finite runs, agreement theorem, window
+   reduction lemma, sim harness with SMB on. Not started.
+4. **T8.** REQUIREMENTS (new P1, P3, P4a, P4b, P5 entries; R4 now proved for finite
+   durations by `issued_temp_ok`; R20 partly by `p6_basal`; R21 per F-21),
+   TRACEABILITY, `site/index.html` (only built results). Not started; FINDINGS and LOG
+   are up to date.
+
+### Open questions for the maintainer
+- F-22: may `LeanAID/Core/Iob.lean` be refactored so that `generate` is provable?
+  This decides how P5 derived, P6 and the accounting lemma are done.
+- P6 constants: `RateCap` takes B as a hypothesis on every profile the schedule gives
+  (because `maxSafeBasal` depends on `current_basal`). Is that the intended M?
+- The pump model rejects non-whole-minute durations and negative values, beyond the
+  plan's list. Acceptable?
