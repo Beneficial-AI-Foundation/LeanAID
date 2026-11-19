@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="1200" height="700" role="img" aria-label="How we tested against oref0. Same input, same answer: on oref0's own test cases, 148 of 148 identical; on random inputs, 100,000 of 100,000 identical. Virtual patients in a closed loop: at every step oref0 and Lean oref0 both decide on the same glucose history and Lean oref0’s dose is given; 30 simulated patients, 512 runs over 12 hours of computing, 220,608 dosing decisions, all identical between oref0 and Lean oref0.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="1200" height="700" role="img" aria-label="How we tested against oref0. Same input, same answer: on oref0's own test cases, 148 of 148 identical; on random inputs, 100,000 of 100,000 identical. Virtual patients in a closed loop: at every step oref0 and lean-oref0 both decide on the same glucose history and lean-oref0’s dose is given; 30 simulated patients, 512 runs over 12 hours of computing, 220,608 dosing decisions, all identical between oref0 and lean-oref0.">
   <defs>
     <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="#5e636e"/>
@@ -32,7 +32,7 @@
   <rect class="box" x="290" y="170" width="200" height="60" rx="12"/>
   <text class="title" x="390" y="209" text-anchor="middle">oref0</text>
   <rect class="main" x="290" y="250" width="200" height="60" rx="12"/>
-  <text class="title accent" x="390" y="289" text-anchor="middle">Lean oref0</text>
+  <text class="title accent" x="390" y="289" text-anchor="middle">lean-oref0</text>
   <path class="line" d="M210 225 L282 202" marker-end="url(#head)"/>
   <path class="line" d="M210 245 L282 274" marker-end="url(#head)"/>
   <text class="title" x="535" y="250" text-anchor="middle" style="font-size:44px">=</text>
@@ -57,13 +57,13 @@
   <rect class="box" x="880" y="170" width="200" height="60" rx="12"/>
   <text class="title" x="980" y="209" text-anchor="middle">oref0</text>
   <rect class="main" x="880" y="250" width="200" height="60" rx="12"/>
-  <text class="title accent" x="980" y="289" text-anchor="middle">Lean oref0</text>
+  <text class="title accent" x="980" y="289" text-anchor="middle">lean-oref0</text>
   <path class="line" d="M800 225 L872 202" marker-end="url(#head)"/>
   <path class="line" d="M800 245 L872 274" marker-end="url(#head)"/>
   <text class="label" x="830" y="180" text-anchor="middle">glucose</text>
   <text class="title" x="1115" y="250" text-anchor="middle" style="font-size:44px">=</text>
   <path class="line" d="M980 310 V336 H725 V293" marker-end="url(#head)"/>
-  <text class="label" x="852" y="362" text-anchor="middle">insulin: Lean oref0’s dose</text>
+  <text class="label" x="852" y="362" text-anchor="middle">insulin: lean-oref0’s dose</text>
 
   <line x1="650" y1="384" x2="1130" y2="384" stroke="#c9ccd1" stroke-width="2"/>
 

@@ -34,7 +34,7 @@
   <text class="sub" x="180" y="256" text-anchor="middle">the original, JavaScript</text>
 
   <rect class="main" x="460" y="170" width="280" height="120" rx="16"/>
-  <text class="title accent" x="600" y="222" text-anchor="middle">Lean oref0</text>
+  <text class="title accent" x="600" y="222" text-anchor="middle">lean-oref0</text>
   <text class="sub" x="600" y="256" text-anchor="middle">the same logic, in Lean</text>
 
   <rect class="box" x="880" y="170" width="280" height="120" rx="16"/>
