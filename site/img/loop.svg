@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-label="A glucose sensor sends readings to the controller, which sends an insulin dose to the pump. The controller runs oref0: open source, written in JavaScript, used in do-it-yourself systems, not checked by the FDA.">
+  <defs>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#5e636e"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #1b1d21; }
+    .box { fill: #ffffff; stroke: #c9ccd1; stroke-width: 2; }
+    .main { fill: #e0f2ef; stroke: #0f766e; stroke-width: 3; }
+    .title { font-size: 34px; font-weight: 700; }
+    .sub { font-size: 22px; fill: #5e636e; }
+    .label { font-size: 24px; fill: #5e636e; }
+    .accent { fill: #0f766e; }
+    .item { font-size: 26px; }
+    .line { stroke: #5e636e; stroke-width: 3; fill: none; }
+  </style>
+
+  <rect width="1200" height="600" fill="#fbfbfa"/>
+
+  <!-- Sensor -->
+  <rect class="box" x="40" y="70" width="260" height="140" rx="16"/>
+  <text class="title" x="170" y="135" text-anchor="middle">Sensor</text>
+  <text class="sub" x="170" y="172" text-anchor="middle">reads glucose</text>
+
+  <!-- Controller -->
+  <rect class="main" x="460" y="70" width="280" height="140" rx="16"/>
+  <text class="title accent" x="600" y="135" text-anchor="middle">Controller</text>
+  <text class="sub" x="600" y="172" text-anchor="middle">decides the dose</text>
+
+  <!-- Pump -->
+  <rect class="box" x="900" y="70" width="260" height="140" rx="16"/>
+  <text class="title" x="1030" y="135" text-anchor="middle">Pump</text>
+  <text class="sub" x="1030" y="172" text-anchor="middle">delivers insulin</text>
+
+  <!-- Arrows -->
+  <path class="line" d="M300 140 H452" marker-end="url(#head)"/>
+  <text class="label" x="380" y="122" text-anchor="middle">glucose</text>
+  <path class="line" d="M740 140 H892" marker-end="url(#head)"/>
+  <text class="label" x="816" y="122" text-anchor="middle">insulin dose</text>
+
+  <!-- every 5 minutes loop note -->
+  <text class="label" x="600" y="46" text-anchor="middle">every 5 minutes</text>
+
+  <!-- oref0 -->
+  <path class="line" d="M600 300 V218" marker-end="url(#head)"/>
+  <text class="label" x="616" y="266">runs</text>
+  <rect class="main" x="500" y="300" width="200" height="72" rx="14"/>
+  <text class="title accent" x="600" y="348" text-anchor="middle">oref0</text>
+
+  <!-- facts -->
+  <g class="item">
+    <text class="item" x="440" y="430">•  open source</text>
+    <text class="item" x="440" y="470">•  written in JavaScript</text>
+    <text class="item" x="440" y="510">•  used in do-it-yourself systems</text>
+    <text class="item" x="440" y="550">•  not checked by the FDA</text>
+  </g>
+</svg>
