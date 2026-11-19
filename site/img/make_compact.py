@@ -85,12 +85,13 @@ def aid():
     b += arrow("M590 105 H712") + text(655, 95, "s", "insulin", "middle")
     b += arrow("M470 212 V158") + text(482, 190, "s", "runs")
     b += '  <rect class="main" x="190" y="214" width="560" height="150" rx="12"/>\n'
-    b += text(470, 252, "tg", "oref0", "middle")
+    b += ('  <text x="470" y="252" text-anchor="middle"><tspan class="tg">oref0</tspan>'
+          '<tspan class="s" dx="14">from the OpenAPS project</tspan></text>\n')
     b += f'  <line x1="214" y1="270" x2="726" y2="270" stroke="{GREEN}" stroke-opacity="0.35" stroke-width="2"/>\n'
     b += text(220, 308, "i", "•  open source") + text(490, 308, "i", "•  JavaScript")
     b += text(220, 344, "i", "•  do-it-yourself systems") + text(490, 344, "i", "•  not checked by the FDA")
     return svg(b, "Automated insulin delivery: every 5 minutes a sensor sends glucose to the controller, "
-                  "which sends an insulin dose to the pump. The controller runs oref0: open source, JavaScript, "
+                  "which sends an insulin dose to the pump. The controller runs oref0, from the OpenAPS project: open source, JavaScript, "
                   "used in do-it-yourself systems, not checked by the FDA.", h=370)
 
 

@@ -47,7 +47,7 @@
   <path class="line" d="M470 212 V158" marker-end="url(#head)"/>
   <text class="s" x="482" y="190" text-anchor="start">runs</text>
   <rect class="main" x="190" y="214" width="560" height="150" rx="12"/>
-  <text class="tg" x="470" y="252" text-anchor="middle">oref0</text>
+  <text x="470" y="252" text-anchor="middle"><tspan class="tg">oref0</tspan><tspan class="s" dx="14">from the OpenAPS project</tspan></text>
   <line x1="214" y1="270" x2="726" y2="270" stroke="#3ee08f" stroke-opacity="0.35" stroke-width="2"/>
   <text class="i" x="220" y="308" text-anchor="start">•  open source</text>
   <text class="i" x="490" y="308" text-anchor="start">•  JavaScript</text>
