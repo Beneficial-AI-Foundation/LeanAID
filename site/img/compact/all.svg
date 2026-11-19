@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -4 1944 898" width="1944" height="898" role="img" aria-label="LeanAID in four diagrams">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -4 2004 898" width="2004" height="898" role="img" aria-label="LeanAID in four diagrams">
   <defs>
     <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="#7d8794"/>
@@ -55,7 +55,7 @@
   <text class="i" x="490" y="344" text-anchor="start">•  not checked by the FDA</text>
 
 </g>
-<g transform="translate(980 0)">
+<g transform="translate(1040 0)">
   <text class="h" x="0" y="30" text-anchor="start">What we did</text>
   <rect class="box" x="0" y="52" width="230" height="84" rx="12"/>
   <text class="t" x="115.0" y="90.0" text-anchor="middle">oref0</text>
@@ -120,7 +120,7 @@
   <text class="s" x="660" y="330" text-anchor="start">of 220,608 decisions identical</text>
 
 </g>
-<g transform="translate(980 460)">
+<g transform="translate(1040 460)">
   <text class="h" x="0" y="30" text-anchor="start">What we found in oref0</text>
   <text class="s" x="940" y="30" text-anchor="end">proved in Lean, reproduced in JavaScript</text>
   <rect class="hot" x="0" y="52" width="300" height="316" rx="12"/>

@@ -195,14 +195,14 @@ def main():
         render(name, content)
     # composite: 2 x 2 grid, 1920 x 880
     import re
-    cells = [(0, 0), (980, 0), (0, 460), (980, 460)]
+    cells = [(0, 0), (1040, 0), (0, 460), (1040, 460)]
     inner = ""
     defs_done = False
     for (x, y), content in zip(cells, parts.values()):
         m = re.search(r'viewBox="0 0 (\d+) (\d+)"', content)
         body = content[content.index("</style>") + len("</style>"):content.rindex("</svg>")]
         inner += f'<g transform="translate({x} {y})">{body}</g>\n'
-    allsvg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -4 1944 898" width="1944" height="898" '
+    allsvg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -4 2004 898" width="2004" height="898" '
               f'role="img" aria-label="LeanAID in four diagrams">{STYLE}\n{inner}</svg>\n')
     render("all", allsvg)
     print("wrote", ", ".join(list(parts) + ["all"]))
