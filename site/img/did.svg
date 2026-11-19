@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720" role="img" aria-label="What we did. An AI agent rewrote oref0 from JavaScript into Lean, then compiled the Lean version into a program and compared it with the original. On the Lean version it proved safety rules taken from FDA research: of 23 rules, 10 are proved for every input, 4 in part, 1 does not hold (a finding), 6 are still to prove and 2 are covered by design or testing.">
+  <defs>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#5e636e"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #1b1d21; }
+    .box { fill: #ffffff; stroke: #c9ccd1; stroke-width: 2; }
+    .main { fill: #e0f2ef; stroke: #0f766e; stroke-width: 3; }
+    .heading { font-size: 40px; font-weight: 700; }
+    .title { font-size: 32px; font-weight: 700; }
+    .sub { font-size: 22px; fill: #5e636e; }
+    .label { font-size: 24px; fill: #5e636e; }
+    .accent { fill: #0f766e; }
+    .warn { fill: #b45309; }
+    .num { font-size: 30px; font-weight: 700; }
+    .item { font-size: 24px; }
+    .line { stroke: #5e636e; stroke-width: 3; fill: none; }
+    .dash { stroke-dasharray: 10 8; }
+  </style>
+
+  <rect id="bg" width="1200" height="720" fill="#fbfbfa"/>
+  <text class="heading" x="600" y="52" text-anchor="middle">What we did</text>
+
+  <!-- compare arc -->
+  <path class="line dash" d="M1020 170 V130 H180 V162" marker-end="url(#head)"/>
+  <rect x="380" y="112" width="440" height="36" fill="#fbfbfa"/>
+  <text class="label" x="600" y="139" text-anchor="middle">compare: same input, same output?</text>
+
+  <!-- row -->
+  <rect class="box" x="40" y="170" width="280" height="120" rx="16"/>
+  <text class="title" x="180" y="222" text-anchor="middle">oref0</text>
+  <text class="sub" x="180" y="256" text-anchor="middle">the original, JavaScript</text>
+
+  <rect class="main" x="460" y="170" width="280" height="120" rx="16"/>
+  <text class="title accent" x="600" y="222" text-anchor="middle">Lean oref0</text>
+  <text class="sub" x="600" y="256" text-anchor="middle">the same logic, in Lean</text>
+
+  <rect class="box" x="880" y="170" width="280" height="120" rx="16"/>
+  <text class="title" x="1020" y="222" text-anchor="middle">Program</text>
+  <text class="sub" x="1020" y="256" text-anchor="middle">compiled from Lean</text>
+
+  <path class="line" d="M320 230 H452" marker-end="url(#head)"/>
+  <text class="label" x="388" y="214" text-anchor="middle">AI agent</text>
+  <text class="label" x="388" y="266" text-anchor="middle">rewrites</text>
+  <path class="line" d="M740 230 H872" marker-end="url(#head)"/>
+  <text class="label" x="808" y="214" text-anchor="middle">compile</text>
+
+  <!-- prove -->
+  <path class="line" d="M600 290 V362" marker-end="url(#head)"/>
+  <text class="label" x="616" y="334">AI agent proves</text>
+
+  <rect class="main" x="300" y="370" width="600" height="320" rx="16"/>
+  <text class="title accent" x="600" y="416" text-anchor="middle">23 safety rules</text>
+  <text class="sub" x="600" y="448" text-anchor="middle">from FDA safety research on insulin pumps</text>
+  <line x1="330" y1="468" x2="870" y2="468" stroke="#0f766e" stroke-opacity="0.35" stroke-width="2"/>
+
+  <text class="num accent" x="400" y="512" text-anchor="end">10</text>
+  <text class="item" x="424" y="510">proved for every valid input</text>
+  <text class="num accent" x="400" y="554" text-anchor="end">4</text>
+  <text class="item" x="424" y="552">proved in part</text>
+  <text class="num warn" x="400" y="596" text-anchor="end">1</text>
+  <text class="item" x="424" y="594">does not hold: a finding</text>
+  <text class="num" x="400" y="638" text-anchor="end" style="fill:#5e636e">6</text>
+  <text class="item" x="424" y="636">still to prove</text>
+  <text class="num" x="400" y="680" text-anchor="end" style="fill:#5e636e">2</text>
+  <text class="item" x="424" y="678">covered by design or by testing</text>
+</svg>

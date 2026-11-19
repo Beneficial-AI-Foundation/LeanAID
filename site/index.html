@@ -93,6 +93,7 @@ h2 { font-size: 1.7rem; letter-spacing: -0.02em; margin: 0 0 8px; }
 .arrow::after { content: "→"; display: block; font-size: 1.3rem; }
 .diagram { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 12px; }
 .diagram + .flow { display: none; }
+.diagram.fig { margin: 0 0 24px; }
 @media (max-width: 680px) {
   .diagram { display: none; }
   .diagram + .flow { display: grid; }
@@ -199,6 +200,7 @@ footer li { margin: 3px 0; }
   <div class="wrap">
     <h2>What we did</h2>
     <p class="sub">Three steps, all carried out by an AI agent and checked by a computer.</p>
+    <img class="diagram fig" src="img/did.svg" width="1200" height="720" alt="An AI agent rewrote oref0 from JavaScript into Lean, compiled the Lean version into a program and compared it with the original. Of 23 safety rules from FDA research, 10 are proved for every valid input, 4 in part, 1 does not hold (a finding), 6 are still to prove, and 2 are covered by design or by testing.">
     <div class="layer"><span class="num">1</span><div>
       <h3>Rewrote oref0 from JavaScript in Lean</h3>
       <p>Function by function, so every piece of the Lean code matches a piece of the original. It compiles to a program, <code>aid-lean</code>, that takes the same inputs and gives the same kind of answer as the original.</p>
@@ -230,6 +232,7 @@ footer li { margin: 3px 0; }
   <div class="wrap">
     <h2>What we found</h2>
     <p class="sub">Problems in oref0 0.7.1 that its own tests did not catch. Each one is reproduced by running the original.</p>
+    <img class="diagram fig" src="img/found.svg" width="1200" height="700" alt="Three gaps: a reading with no timestamp counts as fresh (3.5 U/h, the maximum rate); a missing maximum basal setting switches the limit off (5.9 U/h for a usual 0.9 U/h); rounding goes over the limit (0.83 U/h becomes 0.85 U/h). In the virtual patients, the missing setting tripled time in severe low glucose, from 1.6% to 4.8%.">
     <div class="props three">
       <div class="prop"><h3>A reading with no timestamp counts as fresh</h3><p>The program never treats it as old. For a reading of 250 mg/dL and rising, it gives its maximum rate, 3.5 U/h, however old the reading is.</p></div>
       <div class="prop"><h3>A missing setting switches the limit off</h3><p>If the maximum basal setting is missing, the safety limit is never applied: 5.9 U/h for a usual rate of 0.9 U/h.</p></div>
@@ -267,6 +270,7 @@ footer li { margin: 3px 0; }
   <div class="wrap">
     <h2>How we tested</h2>
     <p class="sub">Proofs show the Lean version is safe. Tests show it behaves like the original: we ran the compiled Lean program and the original JavaScript on the same inputs.</p>
+    <img class="diagram fig" src="img/tested.svg" width="1200" height="700" alt="oref0 test cases: 148 of 148 identical. Random inputs: 100,000 of 100,000 identical. Virtual patients: 30 patients, 512 runs over 12 hours of computing, 220,608 of 220,608 decisions identical.">
     <div class="props">
       <div class="prop"><h3>oref0's own test cases <span class="tag ok">148 of 148 identical</span></h3><p>Including 2 that differed while the Lean version computed with exact fractions instead of JavaScript's rounded numbers.</p></div>
       <div class="prop"><h3>Planted bugs <span class="tag ok">24 of 24 caught</span></h3><p>We deliberately broke the Lean code in 24 ways, such as removing a safety cap. Every change made a proof or a test fail.</p></div>
@@ -281,7 +285,7 @@ footer li { margin: 3px 0; }
       </table></div>
       <p>These cases test the dose decision. The insulin still active in the body is one of its inputs, so that calculation is checked separately, on oref0's 51 test cases (all identical). The Lean version rounds every arithmetic operation exactly as JavaScript does, except the exponential function (see Details). An earlier version computed with exact fractions instead: on the same 100,000 cases it gave identical output in 83,089 and a different insulin rate in 82, usually slightly more insulin.</p>
     </div>
-    <p class="note">Planned: running both versions on simulated patients over several days.</p>
+    <p class="note">Virtual patients: simglucose, an open reimplementation of the 2008 UVA/Padova simulator, not accepted by the FDA as evidence. The profiles are derived from the simulator, not set by a clinician. Full report in preparation.</p>
   </div>
 </section>
 

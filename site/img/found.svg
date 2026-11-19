@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="1200" height="700" role="img" aria-label="What we found: three gaps in oref0's safety checks. A reading with no timestamp counts as fresh: 3.5 U/h, the maximum rate, however old the reading. A missing maximum basal setting switches the limit off: 5.9 U/h for a usual rate of 0.9 U/h. Rounding can go over the limit: a limit of 0.83 U/h gives 0.85 U/h. Each is proved in Lean and reproduced by running the original oref0. In the virtual patients, the missing setting tripled the time in severe low glucose, from 1.6% to 4.8%.">
+  <style>
+    text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; fill: #1b1d21; }
+    .card { fill: #ffffff; stroke: #c9ccd1; stroke-width: 2; }
+    .hot { fill: #fdf3e7; stroke: #b45309; stroke-width: 3; }
+    .heading { font-size: 40px; font-weight: 700; }
+    .title { font-size: 27px; font-weight: 700; }
+    .body { font-size: 22px; fill: #5e636e; }
+    .big { font-size: 44px; font-weight: 700; fill: #b45309; }
+    .note { font-size: 22px; fill: #5e636e; }
+    .strong { font-size: 26px; font-weight: 700; }
+  </style>
+
+  <rect id="bg" width="1200" height="700" fill="#fbfbfa"/>
+  <text class="heading" x="600" y="52" text-anchor="middle">What we found</text>
+  <text class="note" x="600" y="92" text-anchor="middle">Three gaps in oref0’s own safety checks. Each is proved in Lean and reproduced by running the original.</text>
+
+  <!-- card 1 -->
+  <rect class="card" x="40" y="125" width="355" height="330" rx="18"/>
+  <text class="title" x="70" y="178">Old reading</text>
+  <text class="title" x="70" y="212">treated as new</text>
+  <text class="body" x="70" y="258">A glucose reading with no</text>
+  <text class="body" x="70" y="288">timestamp is never seen</text>
+  <text class="body" x="70" y="318">as out of date.</text>
+  <text class="big" x="70" y="390">3.5 U/h</text>
+  <text class="body" x="70" y="426">maximum rate, however old</text>
+
+  <!-- card 2 -->
+  <rect class="card" x="422" y="125" width="355" height="330" rx="18"/>
+  <text class="title" x="452" y="178">Missing setting turns</text>
+  <text class="title" x="452" y="212">the limit off</text>
+  <text class="body" x="452" y="258">Without a maximum basal</text>
+  <text class="body" x="452" y="288">setting, the cap is never</text>
+  <text class="body" x="452" y="318">applied.</text>
+  <text class="big" x="452" y="390">5.9 U/h</text>
+  <text class="body" x="452" y="426">for a usual rate of 0.9 U/h</text>
+
+  <!-- card 3 -->
+  <rect class="card" x="805" y="125" width="355" height="330" rx="18"/>
+  <text class="title" x="835" y="178">Rounding goes over</text>
+  <text class="title" x="835" y="212">the limit</text>
+  <text class="body" x="835" y="258">The dose is capped first,</text>
+  <text class="body" x="835" y="288">then rounded to the pump’s</text>
+  <text class="body" x="835" y="318">step, which can round up.</text>
+  <text class="big" x="835" y="390">0.83 → 0.85</text>
+  <text class="body" x="835" y="426">U/h, above the limit</text>
+
+  <!-- simulation strip -->
+  <rect class="hot" x="40" y="490" width="1120" height="170" rx="18"/>
+  <text class="strong" x="70" y="540">In the virtual patients: the missing setting, in a closed loop</text>
+  <text class="body" x="70" y="578">Time in severe low glucose (below 54 mg/dL), average over 30 patients, 2 days each</text>
+  <text class="big" x="70" y="634">1.6% → 4.8%</text>
+  <text class="body" x="390" y="630">three times as much, with the limit off</text>
+</svg>
