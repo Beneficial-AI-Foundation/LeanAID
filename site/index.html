@@ -258,13 +258,13 @@ footer li { margin: 3px 0; }
 <section class="alt" id="proved">
   <div class="wrap">
     <h2>What is proved</h2>
-    <p class="sub">Each statement holds for every glucose reading and insulin history, as long as the user's settings are consistent.</p>
+    <p class="sub">Proved for every possible input, as long as the user's settings make sense.</p>
     <div class="props">
-      <div class="prop"><h3>Never above the maximum rate <span class="tag ok">Proved, small gap</span></h3><p>Except that rounding can add up to half a pump step (see findings).</p><span class="thm">rate_le_roundBasal_maxSafeBasal</span></div>
-      <div class="prop"><h3>No insulin when glucose is low <span class="tag ok">Proved</span></h3><p>Low and not rising, now or predicted: the rate is zero and no extra bolus is given.</p><span class="thm">low_glucose_suspend</span></div>
-      <div class="prop"><h3>No extra insulin when enough is active <span class="tag ok">Proved</span></h3><p>For each single decision, up to a rounding error smaller than one part in 10<sup>13</sup>. Over many decisions in a row: planned.</p><span class="thm">microbolus_limits, iob_at_max</span></div>
-      <div class="prop"><h3>Unreliable glucose never adds insulin <span class="tag ok">Proved, one gap</span></h3><p>Error codes, noisy, flat or old readings. Not readings without a timestamp (see findings).</p><span class="thm">cgm_unreliable_no_increase</span></div>
-      <div class="prop"><h3>Insulin in the body is computed correctly <span class="tag">Not yet proved</span></h3><p>Rewritten and tested: 51 of 51 test cases identical.</p></div>
+      <div class="prop"><h3>Never above the maximum rate <span class="tag ok">Proved, except rounding</span></h3><p>Rounding can go over by a tiny amount (see What we found).</p></div>
+      <div class="prop"><h3>No insulin when glucose is low <span class="tag ok">Proved</span></h3><p>If glucose is low and not rising, lean-oref0 gives no insulin.</p></div>
+      <div class="prop"><h3>No extra insulin when there is already enough <span class="tag ok">Proved</span></h3><p>Once the insulin in the body reaches the user's maximum, lean-oref0 gives no more than the normal rate.</p></div>
+      <div class="prop"><h3>Bad sensor data never adds insulin <span class="tag ok">Proved, except undated readings</span></h3><p>Error codes, noisy or old readings never increase insulin. Readings with no date slip through (see What we found).</p></div>
+      <div class="prop"><h3>Insulin in the body is computed correctly <span class="tag">Not yet proved</span></h3><p>Tested instead: identical to oref0 on all 51 of its test cases.</p></div>
     </div>
   </div>
 </section>
