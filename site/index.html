@@ -243,10 +243,9 @@ footer li { margin: 3px 0; }
     </div>
     <p class="note">Severity is our estimate. Medium: a large overdose is possible, but the apps normally supply the data. Low: the overshoot is at most half a pump step (0.025 U/h). lean-oref0 keeps all three on purpose, so that it decides exactly like the original; the optional <code>--safe</code> mode refuses inputs with an undated reading or a missing setting. Proved fixes are planned.</p>
     <details class="more">
-      <summary>Six smaller findings</summary>
+      <summary>Five smaller findings</summary>
       <ul class="limits">
         <li><b>No number at all.</b> With carbohydrates recorded but no time for the last meal, the program outputs an invalid rate (NaN) for 30 minutes.</li>
-        <li><b>One low-glucose rate skips the cap.</b> It stays safe only while the user's settings are consistent.</li>
         <li><b>Negative insulin.</b> One insulin model counts a 10 U dose given 177 minutes ago as −0.002 U.</li>
         <li><b>Half the program is never tested.</b> No dosing test reaches the glucose predictions, the carbohydrate logic or the small automatic boluses.</li>
         <li><b>Test-suite problems.</b> 23 of 70 dosing tests are switched off, one passes only because of a typo, and the profile tests fail.</li>
