@@ -89,6 +89,10 @@ h2 { font-size: 1.7rem; letter-spacing: -0.02em; margin: 0 0 8px; }
 .node b { display: block; color: var(--text); font-size: 0.98rem; margin-bottom: 2px; }
 .node.here { border: 2px solid var(--accent); background: var(--accent-soft); }
 .node.here b { color: var(--accent); }
+.tag.warn { color: #b45309; background: #fdf3e7; }
+.tag.low { color: var(--muted); background: var(--code-bg); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tag.warn { color: #ffb36b; background: #3a2410; } }
+:root[data-theme="dark"] .tag.warn { color: #ffb36b; background: #3a2410; }
 .arrow { color: var(--muted); font-size: 0.78rem; text-align: center; line-height: 1.3; }
 .arrow::after { content: "→"; display: block; font-size: 1.3rem; }
 .diagram { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 12px; }
@@ -182,8 +186,8 @@ footer li { margin: 3px 0; }
     <p class="lede">
       <strong>oref0</strong> is open-source software that decides insulin doses for people with type 1 diabetes.
       An AI agent rewrote it in <strong>Lean</strong>, a programming language in which you can also write mathematical
-      proofs about your code. For 10 of the 23 safety rules we wrote down, it proved that the Lean version follows the
-      rule for every input with consistent settings, not only in the cases someone tested. Where a rule does not hold,
+      proofs about your code. For 10 safety rules from FDA research on insulin pumps, it proved that the Lean version,
+      <strong>lean-oref0</strong>, follows the rule for every input with consistent settings, not only in the cases someone tested. Where a rule does not hold,
       we found out and say so.
     </p>
     <div class="buttons">
@@ -200,18 +204,19 @@ footer li { margin: 3px 0; }
   <div class="wrap">
     <h2>What we did</h2>
     <p class="sub">Three steps, all carried out by an AI agent and checked by a computer.</p>
-    <img class="diagram fig" src="img/did.svg" width="1200" height="630" alt="An AI agent rewrote oref0 from JavaScript into Lean, compiled the Lean version into a binary via C, and compared it with the original. It proved two kinds of theorems. Safety rules from FDA research on insulin pumps: 10 proved for every valid input, 4 in part, 1 does not hold (a finding), 6 still to prove. oref0’s tests, generalized: of 116 tests, 59 state a general rule; 52 are proved for every valid input and 7 are still to prove.">
+    <img class="diagram fig" src="img/did.svg" width="1200" height="630" alt="An AI agent rewrote oref0 from JavaScript into Lean, compiled the Lean version, lean-oref0, into a binary via C. On lean-oref0 it proved two kinds of theorems. Safety rules from FDA research on insulin pumps: 10 proved for every valid input, 4 in part, 1 does not hold (a finding), 6 still to prove. oref0’s tests, generalized: of 116 tests, 59 state a general rule; 52 are proved for every valid input and 7 are still to prove.">
     <div class="layer"><span class="num">1</span><div>
       <h3>Rewrote oref0 from JavaScript in Lean</h3>
-      <p>Function by function, so every piece of the Lean code matches a piece of the original. It compiles to a program, <code>aid-lean</code>, that takes the same inputs and gives the same kind of answer as the original.</p>
+      <p>Function by function, so every piece of the Lean code matches a piece of the original. We call the Lean version lean-oref0. It compiles via C to a binary, <code>aid-lean</code>, that takes the same inputs and gives the same kind of answer as the original.</p>
     </div></div>
     <div class="layer"><span class="num">2</span><div>
-      <h3>Proved its safety rules hold for every possible input</h3>
+      <h3>Proved safety rules and generalized tests for every possible input</h3>
       <p>We wrote down 23 safety rules, such as "never give more than the maximum rate" and "give no insulin when glucose is low". Most are limits oref0 already tries to enforce, and each is backed by FDA safety research on insulin pumps. Then we proved that the Lean version follows 10 of the rules for every input with consistent settings, and 4 more in part. One rule does not hold (see the findings). Of the other 8, 6 are still to be proved, and 2 are covered by how the program is built and by testing.</p>
+      <p>The agent also generalized oref0's own tests. oref0 has 116 tests; 59 of them state a general rule, such as "no insulin when glucose is low", rather than one exact number. 52 of those are now proved for every valid input, and 7 are still to prove.</p>
     </div></div>
     <div class="layer"><span class="num">3</span><div>
       <h3>Checked that the Lean version decides like the original</h3>
-      <p>We ran the compiled Lean program and the original JavaScript side by side on the same inputs. On oref0's own test cases, 148 of 148 answers are identical. On 100,000 randomly generated cases, all 100,000 answers are identical word for word.</p>
+      <p>We ran the compiled Lean program and the original JavaScript side by side on the same inputs. On oref0's own test cases, 148 of 148 answers are identical. On 100,000 randomly generated cases, all 100,000 answers are identical word for word. With 30 virtual patients, all 220,608 decisions are identical.</p>
     </div></div>
   </div>
 </section>
@@ -221,23 +226,24 @@ footer li { margin: 3px 0; }
     <h2>Testing versus proving</h2>
     <p class="sub">The difference this project is about.</p>
     <div class="compare">
-      <div class="box"><span class="label">A test</span><p class="example">Glucose 60 mg/dL and falling → no insulin.</p><p>Checks one situation. oref0 has about 100 tests like this.</p></div>
+      <div class="box"><span class="label">A test</span><p class="example">Glucose 60 mg/dL and falling → no insulin.</p><p>Checks one situation. oref0 has 116 tests like this.</p></div>
       <div class="box proof"><span class="label">A proof</span><p class="example">For every glucose reading below the low threshold that is not rising → no insulin.</p><p>Covers every situation at once, and a computer checks the proof.</p></div>
     </div>
-    <p class="note">We turned 52 of oref0's tests into proofs like this. Most of the others are switched off upstream or check one exact number with no general rule behind it. For 3 tests, the general rule turned out to be false, and that became a finding.</p>
+    <p class="note">59 of oref0's tests state a general rule. We turned 52 of them into proofs like this; 7 are still to prove. Most of the other tests are switched off upstream or check one exact number with no general rule behind it.</p>
   </div>
 </section>
 
 <section id="findings">
   <div class="wrap">
     <h2>What we found</h2>
-    <p class="sub">Problems in oref0 0.7.1 that its own tests did not catch. Each one is reproduced by running the original.</p>
-    <img class="diagram fig" src="img/found.svg" width="1200" height="610" alt="Three gaps: a reading with no timestamp counts as fresh (3.5 U/h, the maximum rate); a missing maximum basal setting switches the limit off (5.9 U/h for a usual 0.9 U/h); rounding goes over the limit (0.83 U/h becomes 0.85 U/h).">
+    <p class="sub">Problems in oref0 0.7.1 that its own tests did not catch. Each one is proved in Lean and reproduced by running the original.</p>
+    <img class="diagram fig" src="img/found.svg" width="1200" height="610" alt="Three gaps in oref0's safety checks. An old reading is treated as new: with no timestamp, its age is NaN, and in JavaScript NaN &gt; 12 is false, so it is never too old (severity medium). A missing setting turns the limit off: the limit is min(…, NaN), which is NaN, so the cap never applies (severity medium). Rounding goes over the limit: a limit of 0.83 U/h gives 0.85 U/h (severity low).">
     <div class="props three">
-      <div class="prop"><h3>A reading with no timestamp counts as fresh</h3><p>The program never treats it as old. For a reading of 250 mg/dL and rising, it gives its maximum rate, 3.5 U/h, however old the reading is.</p></div>
-      <div class="prop"><h3>A missing setting switches the limit off</h3><p>If the maximum basal setting is missing, the safety limit is never applied: 5.9 U/h for a usual rate of 0.9 U/h.</p></div>
-      <div class="prop"><h3>Rounding can go over the limit</h3><p>The dose is capped and then rounded to the pump's step, which can round up: a limit of 0.83 U/h gives 0.85 U/h.</p></div>
+      <div class="prop"><h3>A reading with no timestamp counts as fresh <span class="tag warn">Medium</span></h3><p>Its age is NaN ("not a number"), and in JavaScript <code>NaN &gt; 12</code> is false, so the program never treats it as old. For a reading of 250 mg/dL and rising, it gives its maximum rate, 3.5 U/h, however old the reading is. A dated reading over 12 minutes old would be refused, and the program would fall back to the normal rate.</p></div>
+      <div class="prop"><h3>A missing setting switches the limit off <span class="tag warn">Medium</span></h3><p>If the maximum basal setting is missing, the limit is computed as <code>min(…, NaN)</code>, which is NaN, and the cap is never applied: 5.9 U/h for a usual rate of 0.9 U/h.</p></div>
+      <div class="prop"><h3>Rounding can go over the limit <span class="tag low">Low</span></h3><p>The dose is capped and then rounded to the pump's step, which can round up: a limit of 0.83 U/h gives 0.85 U/h.</p></div>
     </div>
+    <p class="note">Severity is our estimate. Medium: a large overdose is possible, but the apps normally supply the data. Low: the overshoot is at most half a pump step (0.025 U/h). lean-oref0 keeps all three on purpose, so that it decides exactly like the original; the optional <code>--safe</code> mode refuses inputs with an undated reading or a missing setting. Proved fixes are planned.</p>
     <details class="more">
       <summary>Six smaller findings</summary>
       <ul class="limits">
@@ -269,7 +275,7 @@ footer li { margin: 3px 0; }
 <section id="tested">
   <div class="wrap">
     <h2>How we tested</h2>
-    <p class="sub">Proofs show the Lean version is safe. Tests show it behaves like the original: we ran the compiled Lean program and the original JavaScript on the same inputs.</p>
+    <p class="sub">Proofs show what the Lean version guarantees. Tests show it behaves like the original: we ran the compiled Lean program and the original JavaScript on the same inputs.</p>
     <img class="diagram fig" src="img/tested.svg" width="1200" height="700" alt="oref0 test cases: 148 of 148 identical. Random inputs: 100,000 of 100,000 identical. Virtual patients: 30 patients, 512 runs over 12 hours of computing, 220,608 of 220,608 decisions identical.">
     <div class="props">
       <div class="prop"><h3>oref0's own test cases <span class="tag ok">148 of 148 identical</span></h3><p>Including 2 that differed while the Lean version computed with exact fractions instead of JavaScript's rounded numbers.</p></div>
@@ -285,7 +291,11 @@ footer li { margin: 3px 0; }
       </table></div>
       <p>These cases test the dose decision. The insulin still active in the body is one of its inputs, so that calculation is checked separately, on oref0's 51 test cases (all identical). The Lean version rounds every arithmetic operation exactly as JavaScript does, except the exponential function (see Details). An earlier version computed with exact fractions instead: on the same 100,000 cases it gave identical output in 83,089 and a different insulin rate in 82, usually slightly more insulin.</p>
     </div>
-    <p class="note">Virtual patients: simglucose, an open reimplementation of the 2008 UVA/Padova simulator, not accepted by the FDA as evidence. The profiles are derived from the simulator, not set by a clinician. Full report in preparation.</p>
+    <div class="prop" style="margin-top:12px">
+      <h3>Virtual patients <span class="tag ok">220,608 of 220,608 identical</span></h3>
+      <p>30 simulated patients (adults, adolescents and children), each over 2 to 7 days with meals, in a closed loop. 512 runs in all, 12 hours of computing. In the runs driven by lean-oref0, oref0 decided at every 5-minute step on the same glucose history, and all 220,608 decisions and insulin-on-board values were identical. Without faults, time in range (70–180 mg/dL) was 88.8%, against 83.2% for simglucose's standard basal-bolus controller. With the maximum basal setting removed (the second finding), time below 54 mg/dL rose from 1.6% to 4.8%, the same with oref0 and with lean-oref0.</p>
+    </div>
+    <p class="note">Virtual patients: simglucose, an open reimplementation of the 2008 UVA/Padova simulator, not accepted by the FDA as evidence. The profiles are derived from the simulator, not set by a clinician. Numbers from <code>sim/run_all.py</code>; the run data and full report are in preparation.</p>
   </div>
 </section>
 
@@ -293,7 +303,7 @@ footer li { margin: 3px 0; }
   <div class="wrap">
     <h2>Background</h2>
     <p class="sub">The project covers only the part that decides the dose: glucose readings in, an insulin amount out.</p>
-    <img class="diagram" src="img/loop.svg" width="1200" height="680" alt="A glucose sensor sends readings to the controller, which sends an insulin dose to the pump, every 5 minutes. The controller runs oref0: open source, written in JavaScript, used in do-it-yourself systems, not checked by the FDA.">
+    <img class="diagram" src="img/loop.svg" width="1200" height="680" alt="Automated insulin delivery (AID). A glucose sensor sends readings to the controller, which sends an insulin dose to the pump, every 5 minutes. The controller runs oref0, from the OpenAPS project: open source, written in JavaScript, used in do-it-yourself systems, not checked by the FDA.">
     <div class="flow">
       <div class="node"><b>Glucose sensor</b>a reading every 5 min</div>
       <div class="arrow">glucose</div>
@@ -302,7 +312,7 @@ footer li { margin: 3px 0; }
       <div class="node"><b>Insulin pump</b>delivers the dose</div>
     </div>
     <ul class="limits" style="margin-top:16px">
-      <li><b>Why oref0 appeared.</b> Insulin pumps have existed for decades, but they followed schedules set by the user. In 2015, before any commercial wearable system could adjust doses automatically from glucose readings, people with type 1 diabetes built their own and published the algorithm, oref0, as open source. The first commercial system of this kind was <a href="https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=P160017">approved by the FDA in September 2016</a>.</li>
+      <li><b>Why oref0 appeared.</b> Insulin pumps have existed for decades, but they followed schedules set by the user. In 2015, before any commercial wearable system could adjust doses automatically from glucose readings, people with type 1 diabetes built their own. Dana Lewis, Scott Leibrand and the OpenAPS community published the algorithm, oref0, as open source. The first commercial system of this kind was <a href="https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=P160017">approved by the FDA in September 2016</a>.</li>
       <li><b>Where it is used.</b> Its logic runs in AndroidAPS and Trio, the main open-source insulin delivery apps, and it was the algorithm in a <a href="https://pubmed.ncbi.nlm.nih.gov/36069869/">2022 randomized clinical trial</a>.</li>
       <li><b>Not checked by regulators.</b> These apps are not approved medical devices: each user builds the app from the source code, and no regulator has reviewed that code.</li>
     </ul>
@@ -320,7 +330,7 @@ footer li { margin: 3px 0; }
       <li><b>Rounding.</b> The Lean version rounds every arithmetic operation exactly as JavaScript does, so two proved limits (the extra-bolus cap and the cap on active insulin) hold up to a rounding error smaller than one part in 10<sup>13</sup>. JavaScript's exponential function is not exactly rounded and ours is: an independent reviewer measured a difference in the last digit for 8% of the values oref0 uses. The exponential is only used to compute the insulin still active in the body; on oref0's 51 test cases for that calculation, the results are identical. The 100,000 random cases do not use it.</li>
       <li><b>Not everything is rewritten.</b> The calculation of carbohydrates still being absorbed is taken as an input, as in the original command-line tool.</li>
       <li><b>Trusted tools.</b> We rely on Lean's compiler and on the C compiler being correct.</li>
-      <li><b>Next steps.</b> Proofs over many decisions in a row, tests on simulated patients, and running on a verified operating system (seL4).</li>
+      <li><b>Next steps.</b> Proved fixes for the three findings, proofs over many decisions in a row, the remaining safety rules, and running on a verified operating system (seL4).</li>
     </ul>
   </div>
 </section>
@@ -362,7 +372,7 @@ lake test                          # build + aid-lean selftest + forbidden-const
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-862/subpart-B/section-862.1356">21 CFR 862.1356</a>, interoperable automated glycemic controller.</li>
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-880/subpart-F/section-880.5730">21 CFR 880.5730</a>, alternate controller enabled infusion pump.</li>
     </ol>
-    LeanAID · Beneficial AI Foundation · Numbers from <code>scripts/report.js</code> (<code>docs/numbers.json</code>), 18 November 2026.
+    LeanAID · Beneficial AI Foundation · Numbers from <code>scripts/report.js</code> (<code>docs/numbers.json</code>), 18 November 2026; virtual patients from <code>sim/run_all.py</code>, 19 November 2026.
   </div>
 </footer>
 
