@@ -232,7 +232,7 @@ footer li { margin: 3px 0; }
   <div class="wrap">
     <h2>What we found</h2>
     <p class="sub">Problems in oref0 0.7.1 that its own tests did not catch. Each one is reproduced by running the original.</p>
-    <img class="diagram fig" src="img/found.svg" width="1200" height="700" alt="Three gaps: a reading with no timestamp counts as fresh (3.5 U/h, the maximum rate); a missing maximum basal setting switches the limit off (5.9 U/h for a usual 0.9 U/h); rounding goes over the limit (0.83 U/h becomes 0.85 U/h). In the virtual patients, the missing setting tripled time in severe low glucose, from 1.6% to 4.8%.">
+    <img class="diagram fig" src="img/found.svg" width="1200" height="800" alt="Three gaps: a reading with no timestamp counts as fresh (3.5 U/h, the maximum rate); a missing maximum basal setting switches the limit off (5.9 U/h for a usual 0.9 U/h); rounding goes over the limit (0.83 U/h becomes 0.85 U/h). In the virtual patients, the missing setting tripled time in severe low glucose, from 1.6% to 4.8%.">
     <div class="props three">
       <div class="prop"><h3>A reading with no timestamp counts as fresh</h3><p>The program never treats it as old. For a reading of 250 mg/dL and rising, it gives its maximum rate, 3.5 U/h, however old the reading is.</p></div>
       <div class="prop"><h3>A missing setting switches the limit off</h3><p>If the maximum basal setting is missing, the safety limit is never applied: 5.9 U/h for a usual rate of 0.9 U/h.</p></div>
