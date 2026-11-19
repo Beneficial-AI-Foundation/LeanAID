@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720" role="img" aria-label="What we did. An AI agent rewrote oref0 from JavaScript into Lean, then compiled the Lean version into a program and compared it with the original. On the Lean version it proved safety rules taken from FDA research: of 23 rules, 10 are proved for every input, 4 in part, 1 does not hold (a finding), 6 are still to prove and 2 are covered by design or testing.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720" role="img" aria-label="What we did. An AI agent rewrote oref0 from JavaScript into Lean, then compiled the Lean version into a binary, through C, and compared it with the original. On the Lean version it proved safety rules taken from FDA research: of 23 rules, 10 are proved for every input, 4 in part, 1 does not hold (a finding), 6 are still to prove and 2 are covered by design or testing.">
   <defs>
     <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="#5e636e"/>
@@ -38,8 +38,8 @@
   <text class="sub" x="600" y="256" text-anchor="middle">the same logic, in Lean</text>
 
   <rect class="box" x="880" y="170" width="280" height="120" rx="16"/>
-  <text class="title" x="1020" y="222" text-anchor="middle">Program</text>
-  <text class="sub" x="1020" y="256" text-anchor="middle">compiled from Lean</text>
+  <text class="title" x="1020" y="222" text-anchor="middle">Binary</text>
+  <text class="sub" x="1020" y="256" text-anchor="middle">compiled via C</text>
 
   <path class="line" d="M320 230 H452" marker-end="url(#head)"/>
   <text class="label" x="388" y="214" text-anchor="middle">AI agent</text>
