@@ -748,3 +748,27 @@ Review round 3 found no critical concerns. Three major ones are fixed in
 step is an ordered list (environment events, then at most one cycle) to match the
 simulation's meal boluses, and the P6 window reduction includes starts 1 ms around
 each breakpoint. Review rounds stop here.
+
+## Timing properties: implementation setup
+
+**Start:** 2026-11-19 16:49 UTC · **End:** 16:56 UTC
+
+Branch `timing-impl` from the plan commits on `origin/timing-plan`. Cloud session.
+- `vendor/oref0` cloned at 88cf032, `npm install --no-save` inside it.
+- elan could not download the toolchain: the session's network policy denies
+  `release.lean-lang.org`. The same release (`lean-4.36.0-linux.zip`) was downloaded from
+  the Lean GitHub release page and linked with `elan toolchain link`.
+- Baseline before any change: `lake build` passes (110 jobs, 1 min 41 s);
+  `scripts/check.sh` OK, 16 headline theorems with the standard axioms only.
+
+## Timing T1: run type and helpers
+
+**Start:** 16:56 UTC · **End:** 17:05 UTC
+
+`LeanAID/Time/Run.lean`: `Step`, `Run`, `Status` (closed or observed), `Increasing`,
+`upTo`, `before`, `stateAt`, `stateBefore`, and the integral of a rate over a half-open
+interval of milliseconds, `integral f a n = Σ_{k=a}^{a+n-1} f k / 3 600 000`. This is
+the exact integral of a rate that changes only at integer milliseconds, which holds for
+the pump model of T2. Lemmas: `sumFrom_mono`, `sumFrom_const`, `sumFrom_nonneg`,
+`sumFrom_add`, `integral_le_const`, `integral_nonneg`. `docs/DESIGN.md` layout table
+lists `LeanAID/Time/`.

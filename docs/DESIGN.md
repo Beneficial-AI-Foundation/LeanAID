@@ -8,6 +8,7 @@
 | `LeanAID/Spec/` | the definition of valid input | Lean core |
 | `LeanAID/Proofs/` | theorems about the core | Lean core (no Mathlib needed so far) |
 | `LeanAID/Conformance/` | oref0's test calls as Lean data, checked by `native_decide` | Lean core |
+| `LeanAID/Time/` | runs over time: run type, pump model, temporal properties (`docs/timing-plan.md`) | Lean core |
 | `App/` | the `aid-lean` shell: JSON, files, clock | Lean core |
 
 `scripts/check.sh` enforces: no `sorry` anywhere; no `partial`, `unsafe`, `@[extern]`,
