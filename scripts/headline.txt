@@ -22,3 +22,8 @@ LeanAID.Time.p1_faithful
 LeanAID.Time.p1_derived
 LeanAID.Time.p2_rate_bound
 LeanAID.Time.p5_faithful
+LeanAID.Time.issued_temp_ok
+LeanAID.Time.p3_temp_ok
+LeanAID.Time.p4a_expiry
+LeanAID.Time.temp_bound
+LeanAID.Time.p4b_fail_safe

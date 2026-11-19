@@ -324,3 +324,11 @@ deltas and returns delta 0, and the flat-CGM check (F-18) stops any increase
 non-zero deltas) does not arise from these entries. It can still arise from entries
 with a `display_time` or `dateString` that do not parse, or from other sources of
 `glucose_status`.
+
+### P1 "dated" is not proved (statement recorded, not weakened silently)
+The plan's P1 says that a cycle that increases insulin has a dated reading. Per call
+this is false (F-11). In the run model it would need a lemma about `getLastGlucose`
+that is not done. So `p1_faithful` states that `cgmStale` is false, which includes a
+NaN age, and `p1_derived` takes a whole-number date as a hypothesis. A status date that
+`getLastGlucose` averages from two readings less than 2.5 minutes apart can be a half
+millisecond; `p1_derived` then does not apply. See `docs/LOG.md`, T3.

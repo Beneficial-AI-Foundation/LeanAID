@@ -863,3 +863,34 @@ P1 derived assumes a whole-number date as a hypothesis. When `getLastGlucose`
 averages two readings less than 2.5 minutes apart, the date can be a half millisecond,
 and P1 derived does not apply. Recorded here; the statement of the plan is not
 weakened silently.
+
+## Timing T4: R4, P3, P4a, P4b
+
+**Start:** 17:08 UTC · **End:** 17:14 UTC
+
+`LeanAID/Time/Duration.lean` (R4 and P3, per call and over runs):
+- `TempOk res`: a finite duration d is 0 or in [30, 120]; with a finite rate r as well,
+  d = 0, or d in [30, 120] with r = 0, or d = 30 with r ≥ 0.
+- `issued_temp_ok`: for valid input, `determineBasal inp` is `TempOk`. The proof
+  follows the existing rate proofs (`DurOk`, one lemma per branch): `stb_durOk` for
+  `setTempBasal`, `steps30` for `min C (max 0 (round(y) · 30))`, `smbLowTemp_tempOk`
+  for the SMB low temp, `prelude_error_tempOk` for the early returns.
+- `p3_temp_ok`: every cycle of a legal run with valid input is `TempOk`.
+
+`LeanAID/Time/Pump.lean` (P4a and P4b on the pump model):
+- `p4a_expiry`: in an increasing run, if no step in (t, k] sets or cancels a temp
+  (`setsTemp`; a microbolus alone does not), the pump's temp at k is the one at t, and
+  the rate at k is that temp's rate before its deadline and the schedule after it.
+  `accepted_temp`: an accepted temp with d minutes starts at the step time and has the
+  deadline t + d minutes; d = 0 cancels.
+- `temp_bound`: in a legal run with valid input whose initial temp obeys the bound,
+  every temp of every pump state lasts at most 120 minutes, and at most 30 minutes if
+  its rate is positive. It combines P3 with pump validation (`validate_temp`).
+- `p4b_fail_safe`: hence at any time k, the schedule runs if the current temp started
+  at least 30 minutes before k with a positive rate, or at least 120 minutes before k.
+  On a closed run this is the fail-safe bound; F-20 is the 120-minute case.
+
+Plan versus result: P3b is stated with "d = 30 and r ≥ 0" instead of "d = 30 and r > 0";
+the case r = 0 with d = 30 is in the second disjunct anyway, so the two are equivalent.
+The initial-temp assumption of T2 is the hypothesis `InvTemp env.init` (bound on the
+duration from the temp's start, not on its remaining duration).
