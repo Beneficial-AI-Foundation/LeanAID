@@ -165,11 +165,14 @@ than on the temporal operators. So the order is:
 
 Time is `Int` milliseconds since the epoch, the same unit as `clock.now`.
 
-The first milestone uses an atomic cycle. A cycle (one loop iteration) is one step of
-the run: at one time, the loop reads the inputs, decides, and the pump accepts the
-whole command or loses the whole command. Steps have strictly increasing times. A
-step is either a cycle or a step with no loop run (a CGM reading or a user bolus).
-There is at most one loop run per step, so two decisions never see the same history.
+The first milestone uses an atomic cycle. Steps have strictly increasing times. A
+step is an ordered list of events at one time: first environment events (CGM readings,
+user boluses, carb entries), then at most one cycle. In a cycle, the loop reads the
+inputs, decides, and the pump accepts or loses the whole command. The inputs of a cycle
+come from all earlier steps and from the environment events before it in the same
+step. This matches `sim/harness.py`, which records a meal bolus at `now` and then calls
+the controller at the same `now`. There is at most one cycle per step, so two
+decisions never see the same history.
 Delayed or uncertain execution is a later extension.
 
 ```lean
@@ -225,7 +228,7 @@ at every cycle (`LeanAID.ValidInput`).
 |---|---|---|---|---|
 | P1 | issued | freshness. Faithful: when a cycle issues a rate above `profileCurrentBasal` (the profile basal rounded to the pump increment, oref0 line 142) or a microbolus, its reading is dated and the rounded age is in [−5, 12]. Derived: the real age is in [−5.05, 12.05) | SR2011 1.3.12 (report the age), HA2010 3.1.2 → bound 12 min, chosen by oref0 | `cgm_unreliable_no_increase` (uses `profileCurrentBasal`). F-11 gives a counterexample run with an undated reading. A rate of 0.85 above an unrounded basal of 0.83 with a stale reading is allowed by the code: record that gap |
 | P2 | issued | every finite issued rate is at most `round_basal(maxSafeBasal)` of its cycle | R1, SR2011 1.2.5 | `rate_le_roundBasal_maxSafeBasal`. F-04, F-06, F-12 stay findings |
-| P3 | issued | every finite issued duration is 0, or in [30, 120] with rate 0, or exactly 30 with a positive rate. NaN durations are a finding (F-06) | R4, SR2011 1.2.5 | R4 is not proved |
+| P3 | issued | (a) every finite issued duration is 0 or in [30, 120]. (b) If the rate is also finite, the duration is 0, or in [30, 120] with rate 0, or exactly 30 with a positive rate. F-06 (NaN rate with duration 30) and NaN durations stay findings | R4, SR2011 1.2.5 | R4 is not proved |
 | P4a | pump | an accepted temp with duration d ends exactly d minutes after it was accepted, unless a later accepted temp or cancel replaces it. A microbolus does not end a temp. After the end, the pump runs the scheduled basal until the next accepted temp | 862.1356 (b)(1)(vi), 880.5730 (b)(4), SR2011 1.2.6 → pump model | T2. A lost command changes nothing |
 | P4b | pump | on a closed run whose last accepted temp was at time t, the pump runs the scheduled basal from t + 30 at the latest for a positive rate, and from t + 120 at the latest for a zero temp | same | P3 for accepted temps, P4a, the T2 bound on the initial temp. Finding: a stopped loop can leave a zero temp running for 120 minutes (low delivery, not overdose) |
 | P5 | issued and accepted | spacing. Faithful: every issued microbolus has rounded `lastBolusAge > smbInterval` at its cycle. Derived: two different accepted microboluses at times t1 ≤ t2 satisfy t2 − t1 > I − 0.05, with I the fixed `smbInterval`. With atomic cycles, two accepted microboluses never share a time | R7, SR2011 1.3.5 (adapted) | `microbolus_limits`. Needs the T2 history encoding: the IOB input of each cycle comes from all earlier accepted actions |
@@ -343,8 +346,9 @@ T2. Transition system, before any temporal property.
   30 minutes for a positive rate and at most 120 minutes for a zero temp.
 - History encoding: a function from accepted actions to oref0 pump-history records.
   The IOB input of each cycle equals `Iob.generate` on the initial history plus the
-  encoded actions of earlier steps. The proofs use this pipeline, not an abstract
-  ledger. Strictly increasing step times avoid same-timestamp records.
+  encoded actions of earlier steps and of the earlier events in its own step. The
+  proofs use this pipeline, not an abstract ledger. A user bolus and a microbolus can
+  share a timestamp. T0 checks that `Iob.generate` keeps both records.
 - Legal run: the `Result` of each cycle equals `LeanAID.step` of its inputs. The run
   gives the inputs. The history is the one above. `currenttemp` comes from the pump
   state and the glucose status from the readings. `clock.now` is the step time. The
@@ -369,9 +373,12 @@ there. Then update R21 as described in section 4.2.
 T7. Monitor. A decidable checker over finite runs for P1 to P6, with a theorem that it
 agrees with the `Prop` definitions. For each obligation it reports satisfied, violated
 or pending. Pending obligations of an observed run are never counted as passes. For P6
-it checks a fixed list of window lengths. A lemma reduces "every window start" to
-finitely many starts: the times where the rate changes or a bolus enters or leaves the
-window.
+it checks a fixed list of window lengths, with window starts in integer milliseconds.
+A breakpoint is a time where the rate changes or a bolus is accepted. A lemma reduces
+"every window start" to finitely many starts: each breakpoint b and b − W, and the
+starts 1 ms before and after each of these. The exact breakpoints alone are not enough.
+For example, with a 30-minute window, a 2 U/h temp on [0, 30) and a bolus at minute 30,
+the start at 1 ms gives more insulin than the starts at 0 and 30.
 
 Inputs:
 
@@ -415,7 +422,7 @@ between events.
 
 ## 7. Review history
 
-First version: commit 3b0f6fc. Two Codex reviews on 2026-11-19.
+Three reviews on 2026-11-19.
 
 Round 1 changes:
 
@@ -446,6 +453,14 @@ Round 2 changes:
 - The SMB simulation needs a profile flag, a coverage assertion and its own `run_id`.
 - New modules and theorems are wired into the build and the axiom audit.
 - F-13 is resolved, so section 4.2 no longer cites it as a cause.
+
+Round 3 found no critical concerns. Changes:
+
+- P3 needs a finite rate for the rate-dependent part. F-06 has a NaN rate with a
+  finite duration.
+- A step is an ordered list: environment events first, then at most one cycle. This
+  fits the simulation, which records a meal bolus and runs the loop at the same time.
+- The P6 window reduction includes the starts 1 ms around each breakpoint.
 
 Not taken:
 

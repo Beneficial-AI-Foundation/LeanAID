@@ -740,3 +740,11 @@ Part 4: `sim/report.py` (2 min) → `sim/out/report.json`, `sim/out/plots/`; `do
 - P1 uses `profileCurrentBasal` (rounded), as the existing theorem does.
 - Review citations checked: `profileCurrentBasal` rounds (line 125), `enableSmb` needs
   a profile flag (line 47), `run_id` omits the SMB mode, F-13 is resolved.
+
+## Timing properties: plan, third review
+
+Review round 3 found no critical concerns. Three major ones are fixed in
+`docs/timing-plan.md`: P3 needs a finite rate for its rate-dependent part (F-06), a
+step is an ordered list (environment events, then at most one cycle) to match the
+simulation's meal boluses, and the P6 window reduction includes starts 1 ms around
+each breakpoint. Review rounds stop here.
