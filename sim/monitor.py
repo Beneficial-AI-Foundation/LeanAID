@@ -12,7 +12,10 @@ finding: it is counted and logged, never hidden. Names:
   SMB  a microbolus was issued although SMB is off in these runs (microBolusAllowed false)
   R6   iob + units <= max_iob for an issued microbolus
   R8   fresh, non-error reading, BG < threshold and minDelta <= 0
-       -> a zero temp is issued, or a running zero temp is left in place; no microbolus
+       -> a zero temp is issued, or a running zero temp is left in place; no microbolus.
+       "Non-error" here excludes error codes and noise but NOT oref0's flat-CGM check
+       (delta exactly 0), which the theorem low_glucose_suspend does exclude: the
+       monitor checks the stronger requirement on purpose (FINDINGS F-18)
   R9   minGuardBG < threshold (from oref0's reason text) -> the same
   R10  eventualBG < min_bg -> any issued rate <= current_basal (sensitivityRatio is 1 here)
   R11  iob >= max_iob -> any issued rate <= current_basal; no microbolus

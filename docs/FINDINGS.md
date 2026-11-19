@@ -122,6 +122,11 @@ Proved: `undated_glucose_max_rate` (both the 3.5 U/h result and the stale refusa
 dated) and `undated_never_stale` (no undated reading is ever stale). R12 is therefore
 stated only for dated readings (`cgm_unreliable_no_increase`). `aid-lean --safe` refuses
 undated readings (DESIGN, "What `aid-lean --safe` rejects").
+**In a closed loop** (`docs/SIM.md`, 30 patients × 2 days, the last reading repeated
+without a date during two 45-minute dropouts a day): no harm. The repeated reading has
+delta 0, so oref0's flat-CGM check (F-18) catches it and no temp is raised; against
+plain dropout, mean BG +0.2 mg/dL and insulin −0.05 U/day on average. The F-11 input
+above (an undated reading with non-zero deltas) did not arise in this scenario.
 
 ### F-12 — Missing `max_basal` / `max_daily_basal` disables the clamp (R14)
 `getMaxSafeBasal` is `Math.min(max_basal, 3·max_daily_basal, 4·current_basal)`; with
@@ -131,6 +136,11 @@ and rising, IOB 0 → oref0 issues **5.9 U/h** (basal 0.9 + 2 × max_iob 2.5), 6
 scheduled basal. Reproduced in Node. Proved: `missing_max_basal_no_clamp`, which also
 shows `validInputB` is false for this input, so `aid-lean --safe` refuses it (exit 2).
 Without `--safe`, aid-lean reproduces oref0's 5.9 U/h.
+**In a closed loop** (`docs/SIM.md`, 30 patients × 2 days, profile without `max_basal`,
+both arms identical): 1,064 decisions per arm above the configured `max_basal` (monitor R1),
+up to 9.8 × it (median of the per-patient maxima 3.8 ×); +1.9 U/day insulin and −10 mg/dL
+mean BG on average; time below 54 mg/dL 4.8 % against 1.6 % with the profile intact; 18
+of 30 patients spent more time below 70.
 
 ### F-13 — Exact and floating-point IOB differ by more than one rounding unit
 **Resolved** by modelling binary64 in the core (second review, step 3; DESIGN "Numbers"):
@@ -239,3 +249,29 @@ for meal data, which the validity conditions V0–V10 do not constrain. Future-d
 entries are possible in practice (Nightscout accepts them; a phone clock can be ahead).
 Not yet checked: whether the rate can differ, and whether `--safe` should reject
 `lastCarbTime > currentTime` (as it rejects carbs without `lastCarbTime`, F-06).
+
+### F-18 — Flat CGM data below the threshold: no zero temp (R8 does not cover it)
+**Open.** Found 2026-11-19 by the safety monitor in the overnight closed-loop runs
+(`docs/SIM.md`). determine-basal.js lines 177-185 treat a reading as a CGM error when
+`delta` is exactly 0 and both average deltas are within ±1 (above 60 mg/dL): it then only
+replaces a high temp or shortens a long zero temp, and otherwise does nothing, **whatever
+the glucose**. Two ways this happened at a reading below `threshold` (75 mg/dL here),
+with a non-zero basal running:
+- the first reading after a gap of more than ~40 minutes: `getLastGlucose`
+  (glucose-get-last.js lines 66-84) finds no earlier reading in its windows and returns
+  `delta`, `short_avgdelta` and `long_avgdelta` = 0. 12 decisions (7 in dropout runs,
+  5 in F-11 runs), e.g. adolescent#005 at 15:45 after the 15:00-15:45 dropout: CGM 68,
+  "CGM data is unchanged (68+0)", the scheduled 0.7 U/h runs; the next reading gets a
+  120-min zero temp;
+- a genuinely flat low CGM: 4 decisions (1 in an F-12 run, 3 in a 7-day run), e.g.
+  child#009 (7 days, meal seed 2) at 16:15-16:25 on day 6: CGM 65, 65, 65 with true BG
+  61-63; a neutral 0.4 U/h temp is left running for 15 minutes.
+These 16 are oref0-arm decisions; the paired aid-lean runs made the same 13 (the 7-day
+run's aid-lean twin was discarded at the 12-hour deadline), so the monitor counted 29 R8
+violations in all. **This is not a counterexample to a theorem:** `low_glucose_suspend` assumes `dbPrelude inp = .ok
+pre`, and the prelude fails on `cgmFlat` (part of `cgmError`). But REQUIREMENTS R8/R9 said
+only "fresh, non-error glucose reading", which a reader takes as excluding error codes,
+not flat data; the text now states the exclusion. Consequence in these runs: small (each
+episode ends at the next reading that differs), but the insulin is given when BG is
+already low. Not yet checked: whether a stuck sensor reading low for longer can keep the
+basal running for longer (the flat check needs `delta` = 0 exactly, so noise ends it).

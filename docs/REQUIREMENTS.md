@@ -93,6 +93,13 @@ zero temp (or leaves a running zero temp in place) and issues no microbolus.
 correction when BG is below target). *Status:* **proved** (`low_glucose_suspend`), relative
 to oref0's computed threshold (mutation M10). "A running zero temp" means: a running temp
 whose rate is 0 when it is a double, as every rate read from JSON is (F-16).
+"Non-error" is oref0's own notion (lines 174-198): besides error codes and noise it
+excludes **flat data** (`delta` exactly 0 and both average deltas within ±1, above
+60 mg/dL), including the first reading after a gap of more than ~40 minutes, whose
+deltas `getLastGlucose` sets to 0. For such readings oref0 may leave a non-zero basal
+running at any BG; the closed-loop runs found 16 such decisions by oref0 (F-18). The theorem's
+hypothesis (`dbPrelude` succeeds) excludes them; it was not weakened, this sentence
+makes the scope explicit.
 
 **R9 – Predicted low suspend.** Under the same conditions, if oref0's predicted
 `minGuardBG` is below `threshold` (whatever the current BG), the controller commands a
