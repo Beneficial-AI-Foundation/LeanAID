@@ -18,6 +18,13 @@ LeanAID.Proofs.missing_max_basal_no_clamp
 # Per-call results added by this branch
 LeanAID.Time.issued_temp_ok
 LeanAID.Proofs.rate_double
+# Runs, main results, ranked (docs/timing-results.md)
+LeanAID.Time.p4b_fail_safe
+# Runs, supporting results
+LeanAID.Time.p6_basal
+LeanAID.Time.rate_envelope
+LeanAID.Time.p4a_expiry
+LeanAID.Time.temp_bound
 # Runs, model and input facts
 LeanAID.Time.Legal.cycle
 LeanAID.Time.build_legal
