@@ -15,5 +15,7 @@ LeanAID.Proofs.setTempBasal_rate_bound
 LeanAID.Proofs.cgm_unreliable_no_increase
 LeanAID.Proofs.undated_glucose_max_rate
 LeanAID.Proofs.missing_max_basal_no_clamp
+# Per-call results added by this branch
+LeanAID.Proofs.rate_double
 # Runs, model and input facts
 LeanAID.Iob.sortByKey_eq_merge

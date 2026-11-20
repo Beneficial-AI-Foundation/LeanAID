@@ -567,4 +567,41 @@ theorem double_small {x : Rat} (hd : rd x = x) (h1 : -pow2 (-1074) < x) (h2 : x 
     have : rd (-x) = -x := by rw [rd_neg, hd]
     have := key (-x) hn this; grind
 
+
+/-! ### Doubling and averaging doubles -/
+
+/-- Twice a positive double is a double. -/
+private theorem rd_two_mul_pos {x : Rat} (hp : 0 < x) (h : rd x = x) : rd (2 * x) = 2 * x := by
+  rw [rd_pos_eq hp] at h
+  obtain ⟨N, h1, h2, h3, h4⟩ := rdPos_grid hp
+  have hx : 2 * x = (N : Rat) * pow2 (ulpExp x + 1) := by rw [pow2_succ]; grind
+  rw [hx]; exact rd_grid h1 h2 (by omega)
+
+/-- **Twice a double is a double.** `Binary64.rd` does not model overflow, so no upper
+    bound is needed; doubling a subnormal stays on the grid. -/
+theorem rd_two_mul {x : Rat} (h : rd x = x) : rd (2 * x) = 2 * x := by
+  by_cases h0 : x = 0
+  · subst h0; simp
+  by_cases hp : 0 < x
+  · exact rd_two_mul_pos hp h
+  · have hn : 0 < -x := by grind
+    have h' : rd (-x) = -x := by rw [rd_neg, h]
+    have := rd_two_mul_pos hn h'
+    rw [show 2 * -x = -(2 * x) by grind, rd_neg] at this
+    grind
+
+/-- If `2a ≤ y` for a double `a`, then `a ≤ rd (rd y / 2)`. -/
+theorem le_rd_half {a y : Rat} (ha : rd a = a) (h : 2 * a ≤ y) : a ≤ rd (rd y / 2) := by
+  have h1 := rd_mono h
+  rw [rd_two_mul ha] at h1
+  have h2 := rd_mono (show a ≤ rd y / 2 by grind)
+  rwa [ha] at h2
+
+/-- If `y ≤ 2b` for a double `b`, then `rd (rd y / 2) ≤ b`. -/
+theorem rd_half_le {b y : Rat} (hb : rd b = b) (h : y ≤ 2 * b) : rd (rd y / 2) ≤ b := by
+  have h1 := rd_mono h
+  rw [rd_two_mul hb] at h1
+  have h2 := rd_mono (show rd y / 2 ≤ b by grind)
+  rwa [hb] at h2
+
 end LeanAID.Binary64

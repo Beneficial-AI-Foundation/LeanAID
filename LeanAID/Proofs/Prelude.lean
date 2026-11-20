@@ -71,7 +71,7 @@ theorem cgmResult_rate (inp : DBInputs) (p : Profile) (g : GluVals) :
 theorem stPumpHistory_error {inp : DBInputs} {p : Profile} {iobd : IobTick} {e : Result}
     (h : stPumpHistory inp p iobd = .error e) :
     e = typeError "duration" ∨
-    ∃ rT ct, rT.rate = none ∧ rT.units = none ∧ e = setTempBasal 0 0 p rT (some ct) := by
+    ∃ rT ct, rT.rate = none ∧ rT.units = none ∧ rT.duration = none ∧ e = setTempBasal 0 0 p rT (some ct) := by
   unfold stPumpHistory at h
   cases hct : inp.currenttemp with
   | none => simp [hct] at h; exact Or.inl h.symm
@@ -81,9 +81,9 @@ theorem stPumpHistory_error {inp : DBInputs} {p : Profile} {iobd : IobTick} {e :
     | some lt =>
       simp only [hct, hlt] at h
       split at h
-      · simp at h; exact Or.inr ⟨_, ct, rfl, rfl, h.symm⟩
+      · simp at h; exact Or.inr ⟨_, ct, rfl, rfl, rfl, h.symm⟩
       · split at h
-        · simp at h; exact Or.inr ⟨_, ct, rfl, rfl, h.symm⟩
+        · simp at h; exact Or.inr ⟨_, ct, rfl, rfl, rfl, h.symm⟩
         · simp at h
 
 theorem stPumpHistory_ok {inp : DBInputs} {p : Profile} {iobd : IobTick} {ct : CurrentTemp}
@@ -202,7 +202,7 @@ theorem prelude_error {inp : DBInputs} {e : Result} (h : dbPrelude inp = .error 
   | error e5 =>
     simp only [h5] at h; cases h
     obtain ⟨M, hM1, hM0⟩ := hM p hp
-    rcases stPumpHistory_error h5 with he | ⟨rT, ct, hr, hu, he⟩
+    rcases stPumpHistory_error h5 with he | ⟨rT, ct, hr, hu, -, he⟩
     · subst he; exact ⟨rfl, Or.inl rfl⟩
     · subst he
       refine ⟨by simp; exact hu, ?_⟩
@@ -229,5 +229,78 @@ theorem prelude_error {inp : DBInputs} {e : Result} (h : dbPrelude inp = .error 
 @[simp] theorem dbPredict_rT_units (inp : DBInputs) (pre : Pre) : (dbPredict inp pre).rT.units = none := rfl
 /-- `dbPredict` passes the prelude's values through unchanged. -/
 @[simp] theorem dbPredict_toPre (inp : DBInputs) (pre : Pre) : (dbPredict inp pre).toPre = pre := rfl
+
+/-- Let `P` be a property of results that holds for every result with no rate and no
+    duration, for every CGM-error result `cgmResult inp p g`, and for every cancel
+    `setTempBasal 0 0 p rT (some ct)` with `rT` carrying no rate and no duration, where `p` is
+    the profile of `inp`. Then `P` holds for every error result of `dbPrelude inp`. -/
+theorem prelude_error_induction {inp : DBInputs} {e : Result}
+    (h : dbPrelude inp = .error e) (P : Result → Prop)
+    (hn : ∀ e, e.rate = none → e.duration = none → P e)
+    (hcgm : ∀ p, inp.profile = some p → ∀ g, P (cgmResult inp p g))
+    (hcancel : ∀ p, inp.profile = some p → ∀ rT ct,
+      rT.rate = none → rT.duration = none → P (setTempBasal 0 0 p rT (some ct))) : P e := by
+  unfold dbPrelude at h
+  cases h1 : stProfile inp with
+  | error e1 =>
+    simp only [h1, bind, Except.bind] at h; cases h
+    unfold stProfile at h1
+    split at h1
+    · cases h1; exact hn _ rfl rfl
+    · split at h1 <;> cases h1; exact hn _ rfl rfl
+  | ok p =>
+  have hp := stProfile_ok h1
+  simp only [h1, bind, Except.bind] at h
+  cases h2 : stGlucose inp p with
+  | error e2 =>
+    simp only [h2] at h; cases h
+    unfold stGlucose at h2
+    split at h2
+    · cases h2; exact hn _ rfl rfl
+    · simp only at h2
+      split at h2
+      · cases h2; exact hcgm p hp _
+      · cases h2
+  | ok g =>
+  simp only [h2] at h
+  cases h3 : stTargets p with
+  | error e3 =>
+    simp only [h3] at h; cases h
+    unfold stTargets at h3; split at h3 <;> cases h3; exact hn _ rfl rfl
+  | ok mm =>
+  simp only [h3] at h
+  cases h4 : stIob inp with
+  | error e4 =>
+    simp only [h4] at h; cases h
+    unfold stIob at h4
+    split at h4
+    · cases h4; exact hn _ rfl rfl
+    · simp only at h4
+      split at h4
+      · cases h4; exact hn _ rfl rfl
+      · split at h4 <;> cases h4; exact hn _ rfl rfl
+  | ok io =>
+  simp only [h4] at h
+  cases h5 : stPumpHistory inp p io.1 with
+  | error e5 =>
+    simp only [h5] at h; cases h
+    rcases stPumpHistory_error h5 with he | ⟨rT, ct, hr, -, hd, he⟩
+    · subst he; exact hn _ rfl rfl
+    · subst he
+      exact hcancel p hp rT ct hr hd
+  | ok ct =>
+  simp only [h5] at h
+  split at h
+  · rename_i e6 h6
+    cases h
+    unfold stEventual at h6
+    split at h6 <;> cases h6; exact hn _ rfl rfl
+  · rename_i h6
+    split at h
+    · rename_i e7 h7
+      cases h
+      unfold stMeal at h7
+      split at h7 <;> cases h7; exact hn _ rfl rfl
+    · cases h
 
 end LeanAID.Proofs
