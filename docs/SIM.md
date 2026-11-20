@@ -232,6 +232,69 @@ BG column is the mean and the worst per-patient change.)
 
   ![F-12, child#008](../sim/out/plots/f12_child008.png)
 
+## F-24 (QUIRK Q6): oref0 against oref0 with the fix
+
+`sim/q6_runs.py`, 20 November 2026, git branch `q6-split-timespan`, on Linux with
+Python 3.14.4, simglucose 0.2.11, numpy 2.5.5, pandas 3.1.1, scipy 1.18.1 and
+setuptools 80.10.2 (a new `.venv`; `sim/requirements.txt` lists the macOS set of the M11
+runs). With these versions, the main run of adult#001 (oref0, flat schedule, seed 1)
+reproduces the committed summary: the glucose metrics agree within 2 × 10⁻⁸ (mean
+glucose within 10⁻⁹) and insulin exactly. 360 runs, each with all 576 steps. Report: `sim/q6_report.py` →
+`sim/out/q6-report.json`.
+
+Setup: 30 patients, meal seeds 1 to 3, 2 days, no fault, SMB off, as in the main runs.
+Two basal schedules: `flat`, as in the M11 runs, and `steps`: 0.9, 1.1, 1.0, 0.95, 1.05
+and 1.0 times the steady-state basal from 00:00, 03:00, 07:00, 12:00, 17:00 and 21:00. The
+patient's insulin need stays constant, so `steps` is equally wrong for both arms. The
+controller's `current_basal` follows the schedule at the simulated time (the pump does
+too). Q6 can drop a piece of a temp that crosses a schedule entry, and midnight is an
+entry even in `flat` (probe case H).
+
+Open loop: in each oref0 run, oref0 with the fix (`sim/q6fix.js`) ran on the same input.
+An IOB difference is |IOB now| differing by more than 0.0005 U. An action difference is
+a different temp rate, duration or microbolus.
+
+| schedule | group | runs | steps | steps with an IOB difference | largest | steps with another action | rate, fixed − oref0 |
+|---|---|--:|--:|--:|--:|--:|---|
+| steps | child | 30 | 17,280 | 87 (0.50 %, 2 runs) | 0.099 U | 7 (0.04 %, 2 runs) | mean +0.10, 0.00 to +0.15 U/h (5) |
+| steps | adolescent | 30 | 17,280 | 257 (1.49 %, 6 runs) | 0.345 U | 36 (0.21 %, 5 runs) | mean +0.21, +0.05 to +0.55 U/h (25) |
+| steps | adult | 30 | 17,280 | 466 (2.70 %, 5 runs) | 0.641 U | 119 (0.69 %, 5 runs) | mean +0.19, −0.45 to +1.15 U/h (84) |
+| steps | all | 90 | 51,840 | 810 (1.56 %, 13 runs) | 0.641 U | 162 (0.31 %, 12 runs) | mean +0.19, −0.45 to +1.15 U/h (114) |
+| flat | all | 90 | 51,840 | 0 | | 0 | |
+
+In all 810 steps with a difference, the fixed IOB is lower than oref0's: the dropped
+pieces are pieces of zero or low temps, so oref0 counts too much insulin on board. On
+average the fixed oref0 then sets a higher temp. The rate column covers the 114 steps where
+both arms set a temp. The table does not count differences in the 48-point IOB array
+beyond now, in the forecasts or in the reason text. Counting those too, oref0 and the
+fixed version differ in 7,237 steps of 90 stepped runs, and the suggestion (forecasts,
+reason or action) in 1,250 steps of 84 runs. In the flat runs, every run differs in the
+zero-temp IOB (`iobWithZeroTemp`) at 20:30-20:55: `lib/iob` imagines a 240-minute zero
+temp starting one minute after now for the zero-temp forecast, and from these times it crosses midnight, where
+Q6 cuts it. That is 1,080 steps; the suggestion differs in 69 of them, in 39 runs, and the
+action in none. No delivered temp in the flat runs lost a piece at midnight.
+
+Closed loop: the fixed oref0 doses. Differences fixed − oref0, paired by patient and
+meal seed, schedule `steps`: mean [smallest, largest]. Times are in percentage points,
+glucose in mg/dL, insulin in U/day.
+
+| group | pairs | TIR 70–180 | <70 | <54 | >180 | mean BG | lowest BG | insulin |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| child | 30 | +0.00 [+0.00, +0.00] | +0.00 [+0.00, +0.00] | +0.00 [+0.00, +0.00] | +0.00 [+0.00, +0.00] | −0.01 [−0.19, +0.00] | +0.00 [+0.00, +0.00] | +0.00 [−0.01, +0.02] |
+| adolescent | 30 | +0.02 [+0.00, +0.35] | +0.00 [+0.00, +0.00] | +0.00 [+0.00, +0.00] | −0.02 [−0.35, +0.00] | −0.02 [−0.24, +0.00] | +0.01 [−0.23, +0.51] | +0.00 [+0.00, +0.04] |
+| adult | 30 | +0.02 [+0.00, +0.35] | +0.00 [+0.00, +0.00] | +0.00 [+0.00, +0.00] | −0.02 [−0.35, +0.00] | −0.03 [−0.54, +0.01] | −0.01 [−0.62, +0.31] | +0.00 [−0.03, +0.09] |
+| all | 90 | +0.01 [+0.00, +0.35] | +0.00 [+0.00, +0.00] | +0.00 [+0.00, +0.00] | −0.01 [−0.35, +0.00] | −0.02 [−0.54, +0.01] | −0.00 [−0.62, +0.51] | +0.00 [−0.03, +0.09] |
+
+12 of 90 pairs change at all. One step is 0.17 percentage points of a 2-day run. The
+largest change in a glucose band is 2 steps, from above 180 to the range 70–180. Time
+below 70 and below 54 does not change in any pair. Mean glucose changes by at most
+0.54 mg/dL, the lowest glucose by at most 0.62 mg/dL, and insulin by at most 0.094 U/day.
+Insulin rises in 8 pairs and falls in 4. With the flat schedule, delivered insulin and
+glucose are identical in all 90 pairs. FINDINGS F-24 rates the
+dosing severity low from this. Limits of these runs, in addition to those below: one
+synthetic stepped schedule, 2 days, SMB off, and no manual temps. A long manual high temp
+(probe case F) loses insulin in the other direction and does not occur here.
+
 ## Limits
 
 - simglucose 0.2.11 is an open reimplementation of the 2008 UVA/Padova simulator, not
