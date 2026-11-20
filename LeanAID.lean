@@ -36,3 +36,4 @@ import LeanAID.Time.Examples
 import LeanAID.Time.Duration
 import LeanAID.Time.Pump
 import LeanAID.Time.Delivery
+import LeanAID.Time.Config
