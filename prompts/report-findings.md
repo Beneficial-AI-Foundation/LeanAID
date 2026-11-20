@@ -64,9 +64,14 @@ The three findings, in short:
      (`nightscout/AndroidAPS`, which has ported the algorithm to Kotlin), and any
      other you find referenced from these projects' READMEs or docs;
    - forks of `openaps/oref0` from the GitHub API (`/repos/openaps/oref0/forks`,
-     paginated, sorted by `pushed_at`): keep those pushed in the last 3 years whose
-     `lib/determine-basal/` or `lib/basal-set-temp.js` differ from 0.7.1. Ignore forks
-     identical to upstream; just count them.
+     paginated, sorted by `pushed_at`), keeping those pushed in the last 3 years. For
+     each, compare the files involved in the findings (`lib/determine-basal/`,
+     `lib/basal-set-temp.js`, `lib/round-basal.js`, `lib/glucose-get-last.js`) with
+     0.7.1 by content hash:
+     - **identical**: the findings are present by identity (no need to run the tests);
+       list them with SHA, last push date, stars and whether they look used (releases,
+       issues, recent commits elsewhere in the repository);
+     - **different**: test them as in step 2.
    Verify each claim about what a project uses (for example "Trio bundles oref0's JS")
    from its code, not from memory.
 2. For each target and finding:
