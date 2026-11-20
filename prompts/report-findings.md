@@ -36,13 +36,22 @@ The three findings, in short:
 - Work only inside this repository folder. Do not create, change or delete anything
   outside it (no global `npm install`, no files in the home folder, no system caches you
   can avoid; use `npm ci --ignore-scripts --no-audit --no-fund` inside `upstream/` only).
-- Download as little as possible:
-  - for forks, do not clone: fetch only the four files being compared, from
-    `https://raw.githubusercontent.com/<owner>/<repo>/<sha>/<path>`, into
-    `upstream/forks/<owner>/`;
-  - for the projects you check in full, clone with
-    `git clone --depth 1 --filter=blob:none --sparse` and add only the folders you need
-    with `git sparse-checkout set <paths>`.
+- Download only what the analysis needs. Answering "can the trigger happen in this
+  app?" means tracing how the app builds the algorithm's inputs, so the apps are checked
+  from their **whole source code**; only history and build outputs are left out:
+  - **apps and other projects checked in full** (oref0 `dev`, Trio, iAPS, AndroidAPS,
+    and any project they take their oref code from): `git clone --depth 1` (full source,
+    no history). Do not build them and do not install their dependencies, except as
+    allowed above for running the Part 1 tests on JavaScript.
+  - **forks of oref0**: first compare without downloading, using the GitHub API's tree
+    hashes (`/repos/<owner>/<repo>/git/trees/<sha>?recursive=1`): if a fork's `lib/` and
+    `bin/` trees are identical to 0.7.1, everything about it, including how it builds
+    the inputs, is the same as the original, so the original's results apply. Only a
+    fork whose `lib/` or `bin/` differs is cloned with `git clone --depth 1` (oref0 is a
+    few MB without `node_modules`) and analysed in full like an app.
+  - Unauthenticated GitHub API calls are limited to 60 per hour: keep a log of calls,
+    prefer `raw.githubusercontent.com` and clones where they do the job, and wait for
+    the limit to reset rather than finding ways around it.
 - Keep `upstream/` under 2 GB. Check with `du -sh upstream` after each download; if it
   would go over, stop and ask the maintainer.
 - Before deleting anything, save what must survive into `docs/`: the commit SHAs, the
@@ -87,13 +96,12 @@ The three findings, in short:
      other you find referenced from these projects' READMEs or docs;
    - forks of `openaps/oref0` from the GitHub API (`/repos/openaps/oref0/forks`,
      paginated, sorted by `pushed_at`), keeping those pushed in the last 3 years. For
-     each, compare the files involved in the findings (`lib/determine-basal/`,
-     `lib/basal-set-temp.js`, `lib/round-basal.js`, `lib/glucose-get-last.js`) with
-     0.7.1 by content hash:
-     - **identical**: the findings are present by identity (no need to run the tests);
-       list them with SHA, last push date, stars and whether they look used (releases,
+     each, compare its `lib/` and `bin/` tree hashes with 0.7.1 through the API (see
+     "Disk space"):
+     - **identical**: the findings are present by identity (no need to run the tests),
+       and the original's answer to "can it happen?" applies; list them with SHA, last push date, stars and whether they look used (releases,
        issues, recent commits elsewhere in the repository);
-     - **different**: test them as in step 2.
+     - **different**: clone and analyse in full, as in step 2.
    Verify each claim about what a project uses (for example "Trio bundles oref0's JS")
    from its code, not from memory.
 2. For each target and finding:
