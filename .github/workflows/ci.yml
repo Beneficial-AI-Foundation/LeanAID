@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - '**/*.lean'
+      - 'lean-toolchain'
+      - 'lakefile.lean'
+      - 'lake-manifest.json'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - '**/*.lean'
+      - 'lean-toolchain'
+      - 'lakefile.lean'
+      - 'lake-manifest.json'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "ci-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # The only cache for .lake. Do not add another one: overlapping .lake
+      # caches restored stale builds in secure-messaging (#359 there).
+      - name: Restore Lake cache
+        id: lake-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ./.lake
+          key: lake-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('./lean-toolchain') }}-${{ hashFiles('./lake-manifest.json') }}-${{ github.sha }}
+          restore-keys: |
+            lake-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('./lean-toolchain') }}-${{ hashFiles('./lake-manifest.json') }}
+
+      - uses: leanprover/lean-action@v1
+        id: lean
+        with:
+          auto-config: "false"
+          use-github-cache: "false"
+          build: "true"
+          use-mathlib-cache: "false"
+
+      # lakefile.lean is not lakefile.toml, so the action cannot detect the
+      # libraries. Name them here.
+      - name: Sorry audit
+        id: audit
+        uses: Beneficial-AI-Foundation/veritooling/actions/sorry-audit@v1
+        with:
+          backend: probe
+          annotate-new-sorries: "true"
+          extract-args: "--library LeanAID,App"
+          include-prefix: "LeanAID,App"
+
+      # Save .lake to the cache when:
+      #   - the run is not cancelled, and
+      #   - the build succeeds, and
+      #   - the audit does not fail, and
+      #   - this commit has no entry yet, and
+      #   - either the run is on main, or no entry exists for this toolchain and manifest.
+      - name: Save Lake cache
+        if: >-
+          ${{
+            !cancelled()
+            && steps.lean.outputs.build-status == 'SUCCESS'
+            && steps.audit.outcome != 'failure'
+            && steps.lake-cache.outputs.cache-hit != 'true'
+            && (github.ref == 'refs/heads/main'
+                || steps.lake-cache.outputs.cache-matched-key == '')
+          }}
+        uses: actions/cache/save@v4
+        with:
+          path: ./.lake
+          key: ${{ steps.lake-cache.outputs.cache-primary-key }}
