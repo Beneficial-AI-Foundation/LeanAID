@@ -13,3 +13,8 @@ sim/out/runs/
 sim/out/logs/
 sim/out/**/*.jsonl.gz
 sim/out/**/*.tmp
+
+# agent instructions: kept local only
+AGENTS.md
+CLAUDE.md
+prompts/

@@ -1,4 +1,4 @@
-"""Overnight runner for the virtual-patient experiment (prompts/overnight-sim.md, part 3).
+"""Overnight runner for the virtual-patient experiment (milestone M11).
 
 Runs the job list in priority order with a pool of worker processes:
   1. main:     30 patients, 2 days, seed 1, oref0 / aid-lean / baseline

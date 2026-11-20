@@ -1,4 +1,4 @@
-# Python packages for sim/ (prompts/overnight-sim.md). Python 3.9.6 (macOS system python3),
+# Python packages for sim/ (milestone M11). Python 3.9.6 (macOS system python3),
 # installed 2026-11-18 into .venv with: python3 -m venv .venv && .venv/bin/pip install simglucose matplotlib pandas
 # Exact versions (pip freeze):
 certifi==2026.10.23
