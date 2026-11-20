@@ -100,6 +100,20 @@ pieces were named to keep proofs tractable (`setTempBasal`'s `keepRunning`,
 against oref0's outputs by the conformance suite; the SMB pieces, which no oref0 test
 reaches, are checked by differential testing.
 
+`calcTempTreatments` (history.js lines 161-571) is split the same way, into
+`collectSuspends`, `matchSuspends`, `scanRecords`, `trimTemps`, `splitStage` and
+`tempBolusesOf`. The first transcription was one `Id.run do` block
+with two `while` loops. Lean compiles a `while` loop to a definition that the kernel
+does not unfold, and both loops carried all the mutable state of the block. So no fact
+about the output of `Iob.generate` could be proved, and `decide` could not evaluate a
+run. The run theorems need such facts: an accepted microbolus must reach the treatments
+and `lastBolusTime` (`Legal.bolusSeen`, used by `p5_gap` and `p6_bolus`). Each loop now recurses on a fuel
+bound that the JavaScript loop never reaches, so the results are the same. For the same
+reason `sortByKey` is a structural insertion sort. `sortByKey_eq_merge` proves it equal to
+`List.mergeSort`, and as a `@[csimp]` lemma it keeps the merge sort in compiled code.
+After the change, `TZ=UTC node scripts/difftest/run.js 100000 7` gives 100,000 of
+100,000 outputs identical to oref0.
+
 ## Valid input
 
 Defined in Lean as `LeanAID.ValidInput` (`LeanAID/Spec/Valid.lean`). The safety
