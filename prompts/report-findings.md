@@ -31,6 +31,28 @@ The three findings, in short:
   declares. Ask the maintainer before running anything else from a clone.
 - Do not build Android, iOS or Kotlin/Swift projects. Check those by reading the code.
 
+## Disk space and the rest of the computer
+
+- Work only inside this repository folder. Do not create, change or delete anything
+  outside it (no global `npm install`, no files in the home folder, no system caches you
+  can avoid; use `npm ci --ignore-scripts --no-audit --no-fund` inside `upstream/` only).
+- Download as little as possible:
+  - for forks, do not clone: fetch only the four files being compared, from
+    `https://raw.githubusercontent.com/<owner>/<repo>/<sha>/<path>`, into
+    `upstream/forks/<owner>/`;
+  - for the projects you check in full, clone with
+    `git clone --depth 1 --filter=blob:none --sparse` and add only the folders you need
+    with `git sparse-checkout set <paths>`.
+- Keep `upstream/` under 2 GB. Check with `du -sh upstream` after each download; if it
+  would go over, stop and ask the maintainer.
+- Before deleting anything, save what must survive into `docs/`: the commit SHAs, the
+  quoted lines, test outputs and each suggested fix as a `.patch` file in
+  `docs/upstream/`.
+- At the end, delete `upstream/` and nothing else: run `rm -rf ./upstream` from the
+  repository root, after checking with `pwd` that you are in this repository. Never use
+  `rm -rf` on any other path, and never delete files you did not create in this task.
+  Report the space used at the peak and confirm that `upstream/` is gone.
+
 ## Part 1: reproduction tests (against the pinned oref0)
 
 1. Write `scripts/findings/` with one Node script per finding (`f04.js`, `f11.js`,
