@@ -20,11 +20,14 @@ LeanAID.Time.issued_temp_ok
 LeanAID.Proofs.rate_double
 # Runs, main results, ranked (docs/timing-results.md)
 LeanAID.Time.p4b_fail_safe
+LeanAID.Time.p1_true_age_head
 # Runs, supporting results
 LeanAID.Time.p6_basal
 LeanAID.Time.rate_envelope
 LeanAID.Time.p4a_expiry
 LeanAID.Time.temp_bound
+LeanAID.Time.p1_dated
+LeanAID.Time.p1_true_age
 LeanAID.Time.iobTotal_insert_bolus_num
 # Runs, model and input facts
 LeanAID.Time.Legal.cycle
@@ -34,9 +37,12 @@ LeanAID.Iob.sortByKey_eq_merge
 LeanAID.Time.calcTempTreatments_bolus
 LeanAID.Time.Legal.logOk
 LeanAID.Time.Legal.bolusSeen
+LeanAID.Time.getLastGlucose_dated
+LeanAID.Time.getLastGlucose_date_between
 LeanAID.Time.validEnv_of_schedule
 LeanAID.Time.rateCap_of_schedule
 LeanAID.Time.sched_le_of_schedule
 LeanAID.Time.smbMaxBolus_sched
 LeanAID.Time.autosensOk_of_clamped
 LeanAID.Time.round3_accounting
+LeanAID.Time.getLastGlucose_date_first
