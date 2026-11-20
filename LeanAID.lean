@@ -29,3 +29,7 @@ import LeanAID.Proofs.TestsSmall
 import LeanAID.Core.Step
 import LeanAID.Proofs.ReviewFindings
 import LeanAID.Proofs.RateDouble
+import LeanAID.Time.Run
+import LeanAID.Time.System
+import LeanAID.Time.Build
+import LeanAID.Time.Examples

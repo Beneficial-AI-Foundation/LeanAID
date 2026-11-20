@@ -18,4 +18,6 @@ LeanAID.Proofs.missing_max_basal_no_clamp
 # Per-call results added by this branch
 LeanAID.Proofs.rate_double
 # Runs, model and input facts
+LeanAID.Time.Legal.cycle
+LeanAID.Time.build_legal
 LeanAID.Iob.sortByKey_eq_merge
