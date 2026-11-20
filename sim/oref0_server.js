@@ -1,4 +1,4 @@
-// oref0 (the pinned vendor/oref0, unmodified) as a long-running process for the
+// oref0 (the pinned vendor/oref0, unmodified on disk) as a long-running process for the
 // closed-loop simulation. One JSON object per line on stdin, one per line on stdout.
 //
 //   {"cmd":"profile","inputs":{...}}  -> {"profile": <lib/profile generate(inputs)>}
@@ -16,6 +16,9 @@
 var path = require('path');
 var readline = require('readline');
 var O = path.join(__dirname, '..', 'vendor', 'oref0');
+// OREF0_Q6_FIX=1: oref0 with the fix for QUIRK Q6 / FINDINGS F-24 (sim/q6fix.js, in memory).
+// It must be installed before lib/iob and lib/meal are required.
+if (process.env.OREF0_Q6_FIX === '1') { require('./q6fix').install(O); }
 var generateProfile = require(path.join(O, 'lib/profile'));
 var generateIob = require(path.join(O, 'lib/iob'));
 var generateMeal = require(path.join(O, 'lib/meal'));
