@@ -38,5 +38,7 @@ import LeanAID.Time.Pump
 import LeanAID.Time.Delivery
 import LeanAID.Time.IobFacts
 import LeanAID.Time.Fresh
+import LeanAID.Time.LowGlucose
 import LeanAID.Time.Config
 import LeanAID.Time.IobAccounting
+import LeanAID.Patched.LowGlucose
