@@ -1,0 +1,26 @@
+name = "LeanAID"
+defaultTargets = ["LeanAID", "aid-lean"]
+testDriver = "TestDriver"
+
+[leanOptions]
+autoImplicit = false
+
+[[lean_lib]]
+name = "LeanAID"
+roots = ["LeanAID"]
+
+[[lean_lib]]
+name = "App"
+roots = ["App.Json", "App.Serve"]
+
+[[lean_exe]]
+name = "aid-lean"
+root = "App.Main"
+
+# `lake test` runs this driver: it builds everything (which checks every proof
+# and every conformance case), runs `aid-lean selftest`, then runs
+# `scripts/check.sh`.
+[[lean_exe]]
+name = "TestDriver"
+srcDir = "scripts"
+root = "TestDriver"

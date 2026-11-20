@@ -6,7 +6,7 @@ on:
     paths:
       - '**/*.lean'
       - 'lean-toolchain'
-      - 'lakefile.lean'
+      - 'lakefile.toml'
       - 'lake-manifest.json'
       - '.github/workflows/ci.yml'
   pull_request:
@@ -14,7 +14,7 @@ on:
     paths:
       - '**/*.lean'
       - 'lean-toolchain'
-      - 'lakefile.lean'
+      - 'lakefile.toml'
       - 'lake-manifest.json'
       - '.github/workflows/ci.yml'
   workflow_dispatch:
@@ -54,8 +54,8 @@ jobs:
           build: "true"
           use-mathlib-cache: "false"
 
-      # lakefile.lean is not lakefile.toml, so the action cannot detect the
-      # libraries. Name them here.
+      # Name the libraries: App is not a default target, so the action would
+      # not detect it from lakefile.toml.
       - name: Sorry audit
         id: audit
         uses: Beneficial-AI-Foundation/veritooling/actions/sorry-audit@v1

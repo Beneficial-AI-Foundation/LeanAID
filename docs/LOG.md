@@ -704,3 +704,20 @@ Part 4: `sim/report.py` (2 min) → `sim/out/report.json`, `sim/out/plots/`; `do
   the maintainer's commit `b11824f` (made while part 4 was in progress); this entry and
   `docs/SIM.md` describe them.
 - `site/index.html` not edited (part 4 rule).
+
+## Lake configuration in TOML, CI
+
+**Time:** 2026-11-20 (from `date`).
+
+- `lakefile.lean` replaced by `lakefile.toml`, with the same libraries (`LeanAID`, `App`),
+  executable `aid-lean`, default targets and `autoImplicit = false`. TOML cannot hold the
+  `@[test_driver]` script, so `lake test` now runs the executable `TestDriver`
+  (`scripts/TestDriver.lean`). It runs the same three steps as the script did:
+  `lake build`, `aid-lean selftest`, `scripts/check.sh`.
+  A hyphenated name (`test-driver`) did not work: Lake 4.36 builds that executable but
+  `lake test` reports "unknown script, executable, or library".
+- `.github/workflows/ci.yml`: `lake build` and the veritooling sorry audit on pushes and
+  pull requests to `main`. `.github/workflows/verification-comment.yml` posts the sorry
+  delta on pull requests.
+- The maintainer allowed a `Co-Authored-By` line for Claude in commit messages for this
+  change, which differs from AGENTS.md.
