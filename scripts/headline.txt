@@ -19,15 +19,20 @@ LeanAID.Proofs.missing_max_basal_no_clamp
 LeanAID.Time.issued_temp_ok
 LeanAID.Proofs.rate_double
 # Runs, main results, ranked (docs/timing-results.md)
+LeanAID.Time.p6_delivered_sched
 LeanAID.Time.p4b_fail_safe
 LeanAID.Time.low_glucose_pump
+LeanAID.Time.p5_gap
 LeanAID.Time.p1_true_age_head
 # Runs, supporting results
+LeanAID.Time.p6_delivered
 LeanAID.Time.p6_basal
 LeanAID.Time.rate_envelope
+LeanAID.Time.p6_bolus
 LeanAID.Time.p4a_expiry
 LeanAID.Time.temp_bound
 LeanAID.Time.low_glucose_no_smb
+LeanAID.Time.p5_strict
 LeanAID.Time.p1_dated
 LeanAID.Time.p1_true_age
 LeanAID.Patched.lgs_patched_valid
@@ -45,9 +50,11 @@ LeanAID.Time.getLastGlucose_date_between
 LeanAID.Time.validEnv_of_schedule
 LeanAID.Time.rateCap_of_schedule
 LeanAID.Time.sched_le_of_schedule
+LeanAID.Time.smbCap_of_schedule
 LeanAID.Time.smbMaxBolus_sched
 LeanAID.Time.autosensOk_of_clamped
 LeanAID.Time.doubleRates_of_legal
+LeanAID.Time.smbTraced_run
 LeanAID.Time.round3_accounting
 LeanAID.Time.getLastGlucose_date_first
 LeanAID.Patched.determineBasalPatched_eq

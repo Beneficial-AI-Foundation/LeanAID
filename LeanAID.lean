@@ -40,5 +40,7 @@ import LeanAID.Time.IobFacts
 import LeanAID.Time.Fresh
 import LeanAID.Time.LowGlucose
 import LeanAID.Time.Config
+import LeanAID.Time.Spacing
+import LeanAID.Time.Boluses
 import LeanAID.Time.IobAccounting
 import LeanAID.Patched.LowGlucose
