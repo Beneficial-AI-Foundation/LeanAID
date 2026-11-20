@@ -52,15 +52,26 @@ The three findings, in short:
   - Unauthenticated GitHub API calls are limited to 60 per hour: keep a log of calls,
     prefer `raw.githubusercontent.com` and clones where they do the job, and wait for
     the limit to reset rather than finding ways around it.
-- Keep `upstream/` under 2 GB. Check with `du -sh upstream` after each download; if it
-  would go over, stop and ask the maintainer.
-- Before deleting anything, save what must survive into `docs/`: the commit SHAs, the
-  quoted lines, test outputs and each suggested fix as a `.patch` file in
-  `docs/upstream/`.
-- At the end, delete `upstream/` and nothing else: run `rm -rf ./upstream` from the
-  repository root, after checking with `pwd` that you are in this repository. Never use
-  `rm -rf` on any other path, and never delete files you did not create in this task.
-  Report the space used at the peak and confirm that `upstream/` is gone.
+- **One repository at a time.** Download a target into `upstream/<name>/`, do all the
+  work on it (Part 2, steps 2 and 4 for that target: tests, reading the code, "can it
+  happen?", and the suggested fixes tested on a patched copy for every finding that is
+  PRESENT), save the evidence, then delete `upstream/<name>/` before downloading the
+  next target. Write a fix for each PRESENT finding even before the recommendation in
+  step 3; unneeded patches are simply not used in the drafts.
+- **Evidence to save before each deletion**, in `docs/upstream/<name>/`: the repository
+  URL, branch and commit SHA; the test outputs; the quoted lines with file paths and
+  line numbers; the notes on how the app builds the inputs; and each suggested fix as a
+  `.patch` file with the test results on the patched copy. If you need to look at a
+  deleted target again, download it again at the same SHA.
+- **Space:** a single target must stay under 1 GB (check with `du -sh upstream` after
+  each download); if one would go over, stop and ask the maintainer. Use
+  `vendor/oref0/node_modules` through `NODE_PATH` rather than installing dependencies
+  per target.
+- **Deleting:** only ever run `rm -rf ./upstream/<name>` (one target) or, at the very
+  end, `rm -rf ./upstream`, from the repository root, after checking with `pwd` that you
+  are in this repository. Never use `rm -rf` on any other path, and never delete files
+  you did not create in this task. At the end, report the largest single download and
+  confirm that `upstream/` is gone.
 
 ## Part 1: reproduction tests (against the pinned oref0)
 
@@ -137,8 +148,8 @@ The three findings, in short:
      `!(minAgo <= 12 && minAgo >= -5)` rather than `minAgo > 12 || minAgo < -5`);
    - F-12: if `maxSafeBasal` is not a finite positive number, refuse to raise the rate
      (cancel any high temp and report the error) rather than skipping the cap.
-   Show each suggested fix as a patch against the target's code, applied **only to a
-   copy under `upstream/`**, and run the Part 1 tests on the patched copy: the trigger
+   Use the `.patch` files saved for each target (see "Disk space"). Each was applied
+   **only to a copy under `upstream/`**, and you ran the Part 1 tests on the patched copy: the trigger
    must become ABSENT and oref0's own tests must still pass (`npm test`, with
    `--ignore-scripts` installs only). Never edit `vendor/`.
 5. Commit: "Upstream survey and draft reports". Do not push.
