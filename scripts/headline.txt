@@ -16,8 +16,10 @@ LeanAID.Proofs.cgm_unreliable_no_increase
 LeanAID.Proofs.undated_glucose_max_rate
 LeanAID.Proofs.missing_max_basal_no_clamp
 # Per-call results added by this branch
+LeanAID.Time.issued_temp_ok
 LeanAID.Proofs.rate_double
 # Runs, model and input facts
 LeanAID.Time.Legal.cycle
 LeanAID.Time.build_legal
+LeanAID.Time.validRun_of
 LeanAID.Iob.sortByKey_eq_merge
