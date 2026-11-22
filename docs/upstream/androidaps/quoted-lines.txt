@@ -1,0 +1,289 @@
+# nightscout/AndroidAPS master @ f77abd9b82b308e8fc330da0d7a31370fb4a0f49; dev @ b5b3c1a402d336432d45d8b15cee231b13b56713 differs in the DetermineBasal*.kt files only outside these sites
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/DetermineBasalSMB.kt lines 43-43
+   43      fun round_basal(value: Double): Double = value
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/DetermineBasalSMB.kt lines 132-154
+  132      private fun getMaxSafeBasal(profile: OapsProfile): Double =
+  133          min(profile.max_basal, min(profile.max_daily_safety_multiplier * profile.max_daily_basal, profile.current_basal_safety_multiplier * profile.current_basal))
+  134  
+  135      fun setTempBasal(_rate: Double, duration: Int, profile: OapsProfile, rT: RT, currenttemp: CurrentTemp): RT {
+  136          //var maxSafeBasal = min(profile.max_basal, 3 * profile.max_daily_basal, 4 * profile.current_basal);
+  137  
+  138          val maxSafeBasal = getMaxSafeBasal(profile)
+  139          var rate = _rate
+  140          // A non-finite rate passes both clamps below untouched, because every comparison with NaN is
+  141          // false, and then lands in rT.rate - which DetermineBasalResult turns into a real pump command.
+  142          // Do not invent a dose out of a broken value: fall back to the profile basal, which the
+  143          // `suggestedRate == profile.current_basal` branch below turns into a neutral temp or cancels
+  144          // the running temp. Zero would be worse, because that actively withholds basal for 30 minutes.
+  145          // The interpolated value leaves a literal `setTempBasalRate=NaN` token in consoleError, which is
+  146          // what the reportNonFiniteRtFields tripwire (PersistenceLayerImpl) scans for.
+  147          if (!rate.isFinite()) {
+  148              consoleError.add("setTempBasal: setTempBasalRate=$_rate is not finite, using profile basal instead")
+  149              rate = profile.current_basal
+  150          }
+  151          if (rate < 0) rate = 0.0
+  152          else if (rate > maxSafeBasal) rate = maxSafeBasal
+  153  
+  154          val suggestedRate = round_basal(rate)
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/DetermineBasalSMB.kt lines 236-260
+  236          val systemTime = currentTime
+  237  
+  238          // TODO eliminate
+  239          val bgTime = glucose_status.date
+  240          val minAgo = round((systemTime - bgTime) / 60.0 / 1000.0, 1)
+  241          // TODO eliminate
+  242          val bg = glucose_status.glucose
+  243          // TODO eliminate
+  244          val noise = glucose_status.noise
+  245          // 38 is an xDrip error state that usually indicates sensor failure
+  246          // all other BG values between 11 and 37 mg/dL reflect non-error-code BG values, so we should zero temp for those
+  247          if (bg <= 10 || bg == 38.0 || noise >= 3) {  //Dexcom is in ??? mode or calibrating, or xDrip reports high noise
+  248              rT.reason.append("CGM is calibrating, in ??? state, or noise is high")
+  249          }
+  250          if (minAgo > 12 || minAgo < -5) { // Dexcom data is too old, or way in the future
+  251              rT.reason.append("If current system time $systemTime is correct, then BG data is too old. The last BG data was read ${minAgo}m ago at $bgTime")
+  252              // if BG is too old/noisy, or is changing less than 1 mg/dL/5m for 45m, cancel any high temps and shorten any long zero temps
+  253          } else if (bg > 60 && flatBGsDetected) {
+  254              rT.reason.append("Error: CGM data is unchanged for the past ~45m")
+  255          }
+  256          if (bg <= 10 || bg == 38.0 || noise >= 3 || minAgo > 12 || minAgo < -5 || (bg > 60 && flatBGsDetected)) {
+  257              if (currenttemp.rate > basal) { // high temp is running
+  258                  rT.reason.append(". Replacing high temp basal of ${currenttemp.rate} with neutral temp of $basal")
+  259                  rT.deliverAt = deliverAt
+  260                  rT.duration = 30
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/DetermineBasalSMB.kt lines 1242-1247
+ 1242              val maxSafeBasal = getMaxSafeBasal(profile)
+ 1243  
+ 1244              if (rate > maxSafeBasal) {
+ 1245                  rT.reason.append("adj. req. rate: ${round(rate, 2)} to maxSafeBasal: ${maxSafeBasal.withoutZeros()}, ")
+ 1246                  rate = round_basal(maxSafeBasal)
+ 1247              }
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSAutoISF/DetermineBasalAutoISF.kt lines 39-39
+   39      fun round_basal(value: Double): Double = value
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSAutoISF/DetermineBasalAutoISF.kt lines 128-150
+  128      private fun getMaxSafeBasal(profile: OapsProfileAutoIsf): Double =
+  129          min(profile.max_basal, min(profile.max_daily_safety_multiplier * profile.max_daily_basal, profile.current_basal_safety_multiplier * profile.current_basal))
+  130  
+  131      fun setTempBasal(_rate: Double, duration: Int, profile: OapsProfileAutoIsf, rT: RT, currenttemp: CurrentTemp): RT {
+  132          //var maxSafeBasal = kotlin.math.min(profile.max_basal, 3 * profile.max_daily_basal, 4 * profile.current_basal);
+  133  
+  134          val maxSafeBasal = getMaxSafeBasal(profile)
+  135          var rate = _rate
+  136          // A non-finite rate passes both clamps below untouched, because every comparison with NaN is
+  137          // false, and then lands in rT.rate - which DetermineBasalResult turns into a real pump command.
+  138          // Do not invent a dose out of a broken value: fall back to the profile basal, which the
+  139          // `suggestedRate == profile.current_basal` branch below turns into a neutral temp or cancels
+  140          // the running temp. Zero would be worse, because that actively withholds basal for 30 minutes.
+  141          // The interpolated value leaves a literal `setTempBasalRate=NaN` token in consoleError, which is
+  142          // what the reportNonFiniteRtFields tripwire (PersistenceLayerImpl) scans for.
+  143          if (!rate.isFinite()) {
+  144              consoleError.add("setTempBasal: setTempBasalRate=$_rate is not finite, using profile basal instead")
+  145              rate = profile.current_basal
+  146          }
+  147          if (rate < 0) rate = 0.0
+  148          else if (rate > maxSafeBasal) rate = maxSafeBasal
+  149  
+  150          val suggestedRate = round_basal(rate)
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSAutoISF/DetermineBasalAutoISF.kt lines 237-253
+  237          val minAgo = round((systemTime - bgTime) / 60.0 / 1000.0, 1)
+  238          // TODO eliminate
+  239          val bg = glucose_status.glucose
+  240          // TODO eliminate
+  241          val noise = glucose_status.noise
+  242          // 38 is an xDrip error state that usually indicates sensor failure
+  243          // all other BG values between 11 and 37 mg/dL reflect non-error-code BG values, so we should zero temp for those
+  244          if (bg <= 10 || bg == 38.0 || noise >= 3) {  //Dexcom is in ??? mode or calibrating, or xDrip reports high noise
+  245              rT.reason.append("CGM is calibrating, in ??? state, or noise is high")
+  246          }
+  247          if (minAgo > 12 || minAgo < -5) { // Dexcom data is too old, or way in the future
+  248              rT.reason.append("If current system time $systemTime is correct, then BG data is too old. The last BG data was read ${minAgo}m ago at $bgTime")
+  249              // if BG is too old/noisy, or is changing less than 1 mg/dL/5m for 45m, cancel any high temps and shorten any long zero temps
+  250          } else if (bg > 60 && flatBGsDetected) {
+  251              rT.reason.append("Error: CGM data is unchanged for the past ~45m")
+  252          }
+  253          if (bg <= 10 || bg == 38.0 || noise >= 3 || minAgo > 12 || minAgo < -5 || (bg > 60 && flatBGsDetected)) {
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSAMA/DetermineBasalAMA.kt lines 35-35
+   35      fun round_basal(value: Double): Double = value
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSAMA/DetermineBasalAMA.kt lines 79-90
+   79      private fun getMaxSafeBasal(profile: OapsProfile): Double =
+   80          min(profile.max_basal, min(profile.max_daily_safety_multiplier * profile.max_daily_basal, profile.current_basal_safety_multiplier * profile.current_basal))
+   81  
+   82      fun setTempBasal(_rate: Double, duration: Int, profile: OapsProfile, rT: RT, currenttemp: CurrentTemp): RT {
+   83          //var maxSafeBasal = kotlin.math.min(profile.max_basal, 3 * profile.max_daily_basal, 4 * profile.current_basal);
+   84  
+   85          val maxSafeBasal = getMaxSafeBasal(profile)
+   86          var rate = _rate
+   87          if (rate < 0) rate = 0.0
+   88          else if (rate > maxSafeBasal) rate = maxSafeBasal
+   89  
+   90          val suggestedRate = round_basal(rate)
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/OpenAPSSMBPlugin.kt lines 283-287
+  283          ) return@withContext
+  284          if (!hardLimits.checkHardLimits(profile.getIsfMgdl("OpenAPSSMBPlugin"), InterfacesStrings.profile_sensitivity_value, HardLimits.LIMIT_ISF)) return@withContext
+  285          if (!hardLimits.checkHardLimits(profile.getMaxDailyBasal(), CoreUiStrings.profile_max_daily_basal_value, 0.02, hardLimits.maxBasal())) return@withContext
+  286          if (!hardLimits.checkHardLimits(ch.fromPump(pump.baseBasalRate), CoreUiStrings.current_basal_value, 0.01, hardLimits.maxBasal())) return@withContext
+  287  
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/OpenAPSSMBPlugin.kt lines 374-378
+  374              min_5m_carbimpact = 0.0, // not used
+  375              max_iob = constraintsChecker.getMaxIOBAllowed().also { inputConstraints.copyReasons(it) }.value(),
+  376              max_daily_basal = profile.getMaxDailyBasal(),
+  377              max_basal = constraintsChecker.getMaxBasalAllowed(profile).also { inputConstraints.copyReasons(it) }.value(),
+  378              min_bg = minBg,
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/OpenAPSSMBPlugin.kt lines 407-410
+  407              bolus_increment = pump.pumpDescription.bolusStep,
+  408              carbsReqThreshold = preferences.get(IntKey.ApsCarbsRequestThreshold),
+  409              current_basal = ch.fromPump(activePlugin.activePump.baseBasalRate),
+  410              temptargetSet = isTempTarget,
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/OpenAPSSMBPlugin.kt lines 502-524
+  502      override fun applyBasalConstraints(absoluteRate: Constraint<Double>, profile: Profile): Constraint<Double> {
+  503          if (isEnabled()) {
+  504              var maxBasal = preferences.get(DoubleKey.ApsMaxBasal)
+  505              if (maxBasal < profile.getMaxDailyBasal()) {
+  506                  maxBasal = profile.getMaxDailyBasal()
+  507                  absoluteRate.addReason(rh.gs(ApsStrings.increasing_max_basal), this)
+  508              }
+  509              absoluteRate.setIfSmaller(maxBasal, rh.gs(CoreUiStrings.limitingbasalratio, maxBasal, rh.gs(ApsStrings.maxvalueinpreferences)), this)
+  510  
+  511              // Check percentRate but absolute rate too, because we know real current basal in pump
+  512              val maxBasalMultiplier = preferences.get(DoubleKey.ApsMaxCurrentBasalMultiplier)
+  513              val maxFromBasalMultiplier = floor(maxBasalMultiplier * profile.getBasal() * 100) / 100
+  514              absoluteRate.setIfSmaller(
+  515                  maxFromBasalMultiplier,
+  516                  rh.gs(CoreUiStrings.limitingbasalratio, maxFromBasalMultiplier, rh.gs(ApsStrings.max_basal_multiplier)),
+  517                  this
+  518              )
+  519              val maxBasalFromDaily = preferences.get(DoubleKey.ApsMaxDailyMultiplier)
+  520              val maxFromDaily = floor(profile.getMaxDailyBasal() * maxBasalFromDaily * 100) / 100
+  521              absoluteRate.setIfSmaller(maxFromDaily, rh.gs(CoreUiStrings.limitingbasalratio, maxFromDaily, rh.gs(ApsStrings.max_daily_basal_multiplier)), this)
+  522          }
+  523          return absoluteRate
+  524      }
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSSMB/GlucoseStatusCalculatorSMB.kt lines 32-55
+   32      override fun getGlucoseStatusData(allowOldData: Boolean): GlucoseStatusSMB? {
+   33          val data = iobCobCalculator.ads.getBucketedDataTableCopy() ?: return null
+   34  
+   35          val sizeRecords = data.size
+   36          if (sizeRecords == 0) {
+   37              aapsLogger.debug(LTag.GLUCOSE, "sizeRecords==0")
+   38              return null
+   39          }
+   40          if (data[0].timestamp < dateUtil.now() - 7 * 60 * 1000L && !allowOldData) {
+   41              aapsLogger.debug(LTag.GLUCOSE, "oldData")
+   42              return null
+   43          }
+   44          val now = data[0]
+   45          val nowDate = now.timestamp
+   46          if (sizeRecords == 1) {
+   47              aapsLogger.debug(LTag.GLUCOSE, "sizeRecords==1")
+   48              return GlucoseStatusSMB(
+   49                  glucose = now.recalculated,
+   50                  noise = 0.0,
+   51                  delta = 0.0,
+   52                  shortAvgDelta = 0.0,
+   53                  longAvgDelta = 0.0,
+   54                  date = nowDate,
+   55              ).asRounded()
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/openAPSAMA/OpenAPSAMAPlugin.kt lines 115-135
+  115          aapsLogger.debug(LTag.APS, "invoke from $initiator tempBasalFallback: $tempBasalFallback")
+  116          lastAPSResult = null
+  117          val glucoseStatus = glucoseStatusProvider.glucoseStatusData
+  118          val profile = profileFunction.getProfile()
+  119          val pump = activePlugin.activePump
+  120          if (profile == null) {
+  121              rxBus.send(EventResetOpenAPSGui(rh.gs(CoreUiStrings.no_profile_set)))
+  122              aapsLogger.debug(LTag.APS, rh.gs(CoreUiStrings.no_profile_set))
+  123              return@withContext
+  124          }
+  125          if (!isEnabled()) {
+  126              rxBus.send(EventResetOpenAPSGui(rh.gs(ApsStrings.openapsma_disabled)))
+  127              aapsLogger.debug(LTag.APS, rh.gs(ApsStrings.openapsma_disabled))
+  128              return@withContext
+  129          }
+  130          if (glucoseStatus == null) {
+  131              rxBus.send(EventResetOpenAPSGui(rh.gs(ApsStrings.openapsma_no_glucose_data)))
+  132              aapsLogger.debug(LTag.APS, rh.gs(ApsStrings.openapsma_no_glucose_data))
+  133              return@withContext
+  134          }
+  135          val inputConstraints = ConstraintObject(0.0, aapsLogger) // fake. only for collecting all results
+
+## plugins/aps/src/commonMain/kotlin/app/aaps/plugins/aps/loop/LoopPlugin.kt lines 600-605
+  600              // check rate for constraints
+  601              val resultAfterConstraints = apsResult.newAndClone()
+  602              resultAfterConstraints.rateConstraint = ConstraintObject(resultAfterConstraints.rate, aapsLogger)
+  603              resultAfterConstraints.rate = constraintChecker.applyBasalConstraints(resultAfterConstraints.rateConstraint!!, profile).value()
+  604              resultAfterConstraints.percentConstraint = ConstraintObject(resultAfterConstraints.percent, aapsLogger)
+  605              resultAfterConstraints.percent = constraintChecker.applyBasalPercentConstraints(resultAfterConstraints.percentConstraint!!, profile).value()
+
+## core/interfaces/src/commonMain/kotlin/app/aaps/core/interfaces/aps/GlucoseStatusSMB.kt lines 5-13
+    5  @Serializable
+    6  data class GlucoseStatusSMB(
+    7      override val glucose: Double,
+    8      override val noise: Double = 0.0,
+    9      override val delta: Double = 0.0,
+   10      override val shortAvgDelta: Double = 0.0,
+   11      override val longAvgDelta: Double = 0.0,
+   12      override val date: Long = 0L,
+   13  ) : GlucoseStatus
+
+## core/interfaces/src/commonMain/kotlin/app/aaps/core/interfaces/aps/OapsProfile.kt lines 1-20
+    1  package app.aaps.core.interfaces.aps
+    2  
+    3  import kotlinx.serialization.Serializable
+    4  
+    5  @Serializable
+    6  data class OapsProfile(
+    7      var dia: Double, // AMA only
+    8      var min_5m_carbimpact: Double, // AMA only
+    9      var max_iob: Double,
+   10      var max_daily_basal: Double,
+   11      var max_basal: Double,
+   12      var min_bg: Double,
+   13      var max_bg: Double,
+   14      var target_bg: Double,
+   15      var carb_ratio: Double,
+   16      var sens: Double,
+   17      var autosens_adjust_targets: Boolean, // AMA only
+   18      var max_daily_safety_multiplier: Double,
+   19      var current_basal_safety_multiplier: Double,
+   20      var high_temptarget_raises_sensitivity: Boolean,
+
+## plugins/constraints/src/commonMain/kotlin/app/aaps/plugins/constraints/safety/SafetyPlugin.kt lines 103-122
+  103      override fun applyBasalConstraints(absoluteRate: Constraint<Double>, profile: Profile): Constraint<Double> {
+  104          absoluteRate.setIfGreater(0.0, rh.gs(CoreUiStrings.limitingbasalratio, 0.0, rh.gs(CoreUiStrings.itmustbepositivevalue)), this)
+  105          absoluteRate.setIfSmaller(hardLimits.maxBasal(), rh.gs(CoreUiStrings.limitingbasalratio, hardLimits.maxBasal(), rh.gs(ConstraintsStrings.hardlimit)), this)
+  106          val pump = activePlugin.activePump
+  107          // check for pump max
+  108          if (pump.pumpDescription.tempBasalStyle == PumpDescription.ABSOLUTE) {
+  109              // Concentration-adjusted max (the wrapper scales maxTempAbsolute by concentration); the raw
+  110              // pumpType.tbrSettings().maxDose is in pump units (cU) and would mis-cap an IU rate under U200/diluted.
+  111              val pumpLimit = pump.pumpDescription.maxTempAbsolute
+  112              absoluteRate.setIfSmaller(pumpLimit, rh.gs(CoreUiStrings.limitingbasalratio, pumpLimit, rh.gs(CoreUiStrings.pumplimit)), this)
+  113          }
+  114  
+  115          // do rounding — floor, not round-to-nearest, so a max-constrained rate is never rounded
+  116          // back UP above the limit (and we never enact more basal than allowed). Effect is bounded by
+  117          // one pump step; for already step-aligned values it is a no-op.
+  118          if (pump.pumpDescription.tempBasalStyle == PumpDescription.ABSOLUTE) {
+  119              absoluteRate.set(Round.floorTo(absoluteRate.value(), pump.pumpDescription.tempAbsoluteStep))
+  120          }
+  121          return absoluteRate
+  122      }
+
+    override val glucoseStatusData: GlucoseStatus?
+        get() = getGlucoseStatusData(false)
+
