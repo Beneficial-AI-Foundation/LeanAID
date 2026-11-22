@@ -1,0 +1,3 @@
+newest dated     : glucose_status {"glucose":250,"delta":5,"short_avgdelta":5,"long_avgdelta":5,"date":1795176000000} -> 3.5 U/h for 30 min | Autosens ratio: 1, ISF: 40→40, COB: 0, Dev: 30, BGI: 0, CR: 10, Target: 110, minPredBG 999, minGuardBG 999, IO
+newest undated   : glucose_status {"glucose":250,"delta":0,"short_avgdelta":0,"long_avgdelta":0,"date":null} -> 3.5 U/h for 30 min | Autosens ratio: 1, ISF: 40→40, COB: 0, Dev: 0, BGI: 0, CR: 10, Target: 110, minPredBG 999, minGuardBG 999, IOB
+undated, fakecgm : glucose_status {"glucose":250,"delta":0,"short_avgdelta":0,"long_avgdelta":0,"date":null} -> 3.5 U/h for 30 min | Autosens ratio: 1, ISF: 40→40, COB: 0, Dev: 0, BGI: 0, CR: 10, Target: 110, minPredBG 999, minGuardBG 999, IOB
