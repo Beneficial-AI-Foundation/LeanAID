@@ -725,3 +725,30 @@ F-04 realistic triggers (`scripts/findings/f04-search.js`, output in
 typed with two decimals, the issued rate exceeds the limit in 15.3 % of combinations
 (default pump) / 19.7 % (x23/x54), and in 39.9 % of those where `max_basal` is the binding
 limit. A `max_basal` on the 0.1 U/h grid never rounds up. Largest overshoot 0.02 U/h.
+
+## Reporting the findings, part 2: upstream survey and draft reports
+
+2026-11-22. Full results in `docs/UPSTREAM.md`, evidence per target in `docs/upstream/`.
+- Tested (Part 1 scripts on the target's JS): openaps/oref0 `master` (= pin) and the 16 other
+  relevant branches (all three PRESENT on all); nightscout/trio-oref (PRESENT ×3); iAPS bundles
+  (PRESENT ×3, via `scripts/findings/make-bundle-lib.js`); Artificial-Pancreas/oref0 `iaps` (the
+  apparent source of iAPS's bundles, PRESENT ×3); FreeAPS X bundles (PRESENT ×3); 11 forks whose
+  `lib/`/`bin/` differ from 0.7.1 (PRESENT ×3 each). 36 more forks are identical to 0.7.1.
+- By inspection: Trio's Swift port and AndroidAPS's three Kotlin ports: all three ABSENT (both
+  round down to the pump step; dates and limits are typed so NaN cannot arise; AAPS also caps
+  after the algorithm).
+- Can it happen: oref0 rigs: F-04 yes (autotune basals, x23/x54), F-11 masked by the flat-CGM
+  check, F-12 needs a settings file without `maxBasal`. iAPS: F-04 yes (free-form Max Basal, no
+  app-side cap in closed loop), F-11 no (Swift guards), F-12 only via user middleware.
+- Recommended: report as hardening to openaps/oref0 (F-04, F-11, F-12) and iAPS (F-04, F-12);
+  nothing to Trio, AndroidAPS, trio-oref, FreeAPS X or the forks. Five drafts in `docs/upstream/`.
+- Fixes applied alone to copies of every PRESENT JS target: the fixed finding becomes ABSENT, the
+  others stay PRESENT. F-04 fix differential check: 3,944,160 inputs, changes exactly the 526,342
+  that exceeded the limit. **oref0's mocha suite was not run on the patched copies** (blocked by
+  the session's permission classifier; needs the maintainer's approval).
+- Harness changes: `common.js` passes neutral extra arguments to longer `determine_basal`
+  signatures (trio-oref/iAPS), uses the current time as decision time (N3FM, 2018, ignores
+  `currentTime`) and silences `process.stderr.write`; `f11-pipeline.js` runs F-11 through the
+  target's own `glucose-get-last`. Pin results unchanged.
+- Network: 53 unauthenticated API calls (`docs/upstream/api-calls.log`), clones `--depth 1` one at
+  a time; largest AndroidAPS 263 MB (270 MB with `dev`). `upstream/` deleted.
