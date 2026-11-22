@@ -1,0 +1,252 @@
+# nightscout/Trio main @ 0b29cd53415e7f0e668677749cad8daf81c68c2f (v1.0.2); the files below are identical on dev @ d37fe347e0b0758510e58f9edb0bae14b8a3dc64 except where noted
+
+## Trio/Sources/APS/OpenAPSSwift/DetermineBasal/TempBasalFunctions.swift lines 14-62 (main)
+   14  enum TempBasalFunctions {
+   15      /// Rounds a basal rate down to the nearest rate the paired pump can deliver, mirroring
+   16      /// `PumpManager.roundToSupportedBasalRate`, which is applied again at enactment.
+   17      static func roundBasal(profile: Profile, basalRate: Decimal) -> Decimal {
+   18          // no pump paired: leave the rate alone beyond keeping reason strings readable
+   19          guard !profile.supportedBasalRates.isEmpty else {
+   20              return basalRate.rounded(scale: 3, roundingMode: .down)
+   21          }
+   22  
+   23          return profile.supportedBasalRates.lazy.filter { $0 <= basalRate }.max() ?? 0
+   24      }
+   25  
+   26      /// defines the max safe basal rate given a profile
+   27      static func getMaxSafeBasalRate(profile: Profile) throws -> Decimal {
+   28          // use default values if either of these are NaN
+   29          let maxDailySafetyMultiplier = profile.maxDailySafetyMultiplier.isNaN ? 3 : profile.maxDailySafetyMultiplier
+   30          let currentBasalSafetyMultiplier = profile.currentBasalSafetyMultiplier.isNaN ? 4 : profile.currentBasalSafetyMultiplier
+   31  
+   32          guard let currentBasal = profile.currentBasal, let maxDailyBasal = profile.maxDailyBasal,
+   33                let maxBasal = profile.maxBasal
+   34          else {
+   35              throw TempBasalFunctionError.invalidBasalRateOnProfile
+   36          }
+   37  
+   38          return min(
+   39              maxBasal,
+   40              maxDailySafetyMultiplier * maxDailyBasal,
+   41              currentBasalSafetyMultiplier * currentBasal
+   42          )
+   43      }
+   44  
+   45      static func setTempBasal(
+   46          rate: Decimal,
+   47          duration: Decimal,
+   48          profile: Profile,
+   49          determination: Determination,
+   50          currentTemp: TempBasal
+   51      ) throws -> Determination {
+   52          var determination = determination
+   53          let maxSafeBasal = try getMaxSafeBasalRate(profile: profile)
+   54  
+   55          var rate = rate
+   56          if rate < 0 {
+   57              rate = 0
+   58          } else if rate > maxSafeBasal {
+   59              rate = maxSafeBasal
+   60          }
+   61  
+   62          let suggestedRate = roundBasal(profile: profile, basalRate: rate)
+
+## Trio/Sources/APS/OpenAPSSwift/DetermineBasal/DetermineBasalGenerator.swift lines 585-596 (main)
+  585      static func handleTempBasalCases(
+  586          glucoseStatus: GlucoseStatus,
+  587          profile: Profile,
+  588          currentTemp: TempBasal?,
+  589          currentTime: Date,
+  590          trioCustomOrefVariables: TrioCustomOrefVariables
+  591      ) throws -> Determination? {
+  592          let glucose = glucoseStatus.glucose
+  593          let noise = glucoseStatus.noise
+  594          let bgTime = glucoseStatus.date
+  595          let minAgo = Decimal(currentTime.timeIntervalSince(bgTime) / 60) // minutes
+  596          let shortAvgDelta = glucoseStatus.shortAvgDelta
+
+## Trio/Sources/APS/OpenAPSSwift/DetermineBasal/DetermineBasalGenerator.swift lines 618-642 (main)
+  618              reason = "CGM is calibrating, in ??? state, or noise is high"
+  619          }
+  620          // minAgo (BG age) > 12 or < -5 = old/future BG - can overwrite calibration reason (matches JS)
+  621          if minAgo > 12 || minAgo < -5 {
+  622              reason =
+  623                  "If current system time \(currentTime.jsDateString()) is correct, then BG data is too old. The last BG data was read \(minAgo.jsRounded(scale: 1))m ago at \(bgTime.jsDateString())"
+  624          } else if shortAvgDelta == 0 && longAvgDelta == 0 {
+  625              // CGM data unchanged (flat) - only checked if BG is not too old
+  626              if glucoseStatus.lastCalIndex != nil, glucoseStatus.lastCalIndex! < 3 {
+  627                  reason = "CGM was just calibrated"
+  628              } else {
+  629                  reason =
+  630                      "CGM data is unchanged (\(glucose)+\(delta)) for 5m w/ \(shortAvgDelta) mg/dL ~15m change & \(longAvgDelta) mg/dL ~45m change"
+  631              }
+  632          }
+  633  
+  634          let errorDetected =
+  635              glucose <= 10 ||
+  636              glucose == 38 ||
+  637              noise >= 3 ||
+  638              minAgo > 12 ||
+  639              minAgo < -5
+  640  
+  641          // === IF ERROR, CANCEL/SHORTEN TEMPS ===
+  642          guard errorDetected, let currentTemp = currentTemp else { return nil }
+
+## Trio/Sources/APS/OpenAPSSwift/DetermineBasal/DetermineBasal+Helpers.swift lines 28-45 (main)
+   28      static func getGlucoseStatus(glucoseReadings: [BloodGlucose]) throws -> GlucoseStatus? {
+   29          // FIXME: put this here for now; use implementation in GlucoseStorage later (already implemented and commented out for now)
+   30  
+   31          let glucoseReadings = glucoseReadings.compactMap { reading -> GlucoseReading? in
+   32              guard let glucose = reading.glucose ?? reading.sgv else { return nil }
+   33              return GlucoseReading(glucose: glucose, date: reading.dateString, noise: reading.noise)
+   34          }
+   35  
+   36          guard glucoseReadings.isNotEmpty else {
+   37              return nil
+   38          }
+   39  
+   40          // Sort descending (newest first)
+   41          let sorted = glucoseReadings.sorted { $0.date > $1.date }
+   42  
+   43          guard let mostRecentGlucose = sorted.first else { return nil }
+   44          var mostRecentGlucoseReading = Decimal(mostRecentGlucose.glucose)
+   45          var mostRecentGlucoseDate: Date = mostRecentGlucose.date
+
+## Trio/Sources/APS/OpenAPSSwift/Models/GlucoseStatus.swift lines 17-18 (main)
+   17      /// Timestamp of the “now” reading
+   18      public let date: Date
+
+## Trio/Sources/Models/BloodGlucose.swift lines 100-112 (main)
+  100              }
+  101              // If both attempts fail, sgv remains nil
+  102          }
+  103  
+  104          direction = try container.decodeIfPresent(Direction.self, forKey: .direction)
+  105          dateString = try container.decode(Date.self, forKey: .dateString)
+  106  
+  107          do {
+  108              date = try container.decode(Decimal.self, forKey: .date)
+  109          } catch {
+  110              date = Decimal(dateString.timeIntervalSince1970 * 1000).rounded()
+  111          }
+  112  
+
+## Trio/Sources/Models/BloodGlucose.swift lines 160-164 (main)
+  160      var mbg: Int?
+  161      var direction: Direction?
+  162      let date: Decimal
+  163      let dateString: Date
+  164      let unfiltered: Decimal?
+
+## Trio/Sources/APS/OpenAPSSwift/Profile/ProfileGenerator.swift lines 130-165 (main)
+  130  
+  131          profile.skipNeutralTemps = preferences.skipNeutralTemps
+  132  
+  133          profile.currentBasal = try Basal.basalLookup(basalProfile, now: clock)
+  134          profile.basalprofile = basalProfile
+  135  
+  136          let basalProfile = basalProfile
+  137              .map { BasalProfileEntry(start: $0.start, minutes: $0.minutes, rate: $0.rate.rounded(scale: 3)) }
+  138  
+  139          profile.maxDailyBasal = Basal.maxDailyBasal(basalProfile)
+  140          profile.maxBasal = pumpSettings.maxBasal
+  141  
+  142          // Error check: profile.currentBasal === 0 in Javascript
+  143          if let currentBasal = profile.currentBasal {
+  144              guard currentBasal != 0 else {
+  145                  throw ProfileError.invalidCurrentBasal(value: profile.currentBasal)
+  146              }
+  147          }
+  148  
+  149          // Error check: profile.max_daily_basal === 0 in Javascript
+  150          if let maxDailyBasal = profile.maxDailyBasal {
+  151              guard maxDailyBasal != 0 else {
+  152                  throw ProfileError.invalidMaxDailyBasal(value: profile.maxDailyBasal)
+  153              }
+  154          }
+  155  
+  156          // Error check: profile.max_basal < 0.1 in Javascript
+  157          if let maxBasal = profile.maxBasal {
+  158              guard maxBasal >= 0.1 else {
+  159                  throw ProfileError.invalidMaxBasal(value: profile.maxBasal)
+  160              }
+  161          }
+  162  
+  163          profile.outUnits = bgTargets.userPreferredUnits
+  164          let (updatedTargets, range) = try Targets
+  165              .bgTargetsLookup(targets: bgTargets, tempTargets: tempTargets, profile: profile, now: clock)
+
+## Trio/Sources/Models/PumpSettings.swift lines 1-10 (main)
+    1  import Foundation
+    2  
+    3  struct PumpSettings: JSON {
+    4      let insulinActionCurve: Decimal
+    5      let maxBolus: Decimal
+    6      let maxBasal: Decimal
+    7  }
+    8  
+    9  extension PumpSettings {
+   10      private enum CodingKeys: String, CodingKey {
+
+## Trio/Sources/APS/OpenAPS/OpenAPS.swift lines 689-719 (main)
+  689      private func determineBasal(
+  690          glucose: [BloodGlucose],
+  691          currentTemp: TempBasal,
+  692          iob: [IobResult],
+  693          profile: Profile,
+  694          autosens: Autosens?,
+  695          meal: ComputedCarbs?,
+  696          microBolusAllowed: Bool,
+  697          reservoir: Decimal,
+  698          preferences: Preferences,
+  699          trioCustomOrefVariables: TrioCustomOrefVariables
+  700      ) throws -> Determination? {
+  701          let clock = Date()
+  702  
+  703          guard let meal = meal, let autosens = autosens else {
+  704              throw DeterminationError.missingInputs
+  705          }
+  706  
+  707          return try DeterminationGenerator.generate(
+  708              profile: profile,
+  709              preferences: preferences,
+  710              currentTemp: currentTemp,
+  711              iobData: iob,
+  712              mealData: meal,
+  713              autosensData: autosens,
+  714              reservoirData: reservoir,
+  715              glucose: glucose,
+  716              microBolusAllowed: microBolusAllowed,
+  717              trioCustomOrefVariables: trioCustomOrefVariables,
+  718              currentTime: clock
+  719          )
+
+## Trio/Sources/APS/APSManager.swift lines 826-834 (main)
+  826      private func performBasal(pump: PumpManager, rate: NSDecimalNumber, duration: TimeInterval) async throws {
+  827          // the algorithm already floored this against the pump's own table, so don't floor it
+  828          // again here: the Decimal -> Double hop can land a hair low and cost a whole increment
+  829          let unitsPerHour = rate.decimalValue.nearestDouble
+  830          if pump.roundToSupportedBasalRate(unitsPerHour: unitsPerHour) != unitsPerHour {
+  831              debug(.apsManager, "Temp basal \(unitsPerHour) U/hr is not on the pump's rate table")
+  832          }
+  833          try await pump.enactTempBasal(unitsPerHour: unitsPerHour, for: duration)
+  834      }
+Trio/Sources/APS/OpenAPSSwift/DetermineBasal/TempBasalFunctions.swift: same on dev
+Trio/Sources/APS/OpenAPSSwift/Models/GlucoseStatus.swift: same on dev
+Trio/Sources/APS/APSManager.swift: DIFFERS on dev
+trio-oref/lib/basal-set-temp.js: same on dev
+trio-oref/lib/round-basal.js: same on dev
+trio-oref/lib/determine-basal/determine-basal.js: same on dev
+dev DetermineBasalGenerator.swift:592:        let minAgo = Decimal(currentTime.timeIntervalSince(bgTime) / 60) // minutes
+dev DetermineBasalGenerator.swift:613:        if minAgo > 12 || minAgo < -5 {
+dev DetermineBasalGenerator.swift:630:            minAgo > 12 ||
+840:    private func performBasal(pump: PumpManager, rate: NSDecimalNumber, duration: TimeInterval) async throws {
+841-        // the algorithm already floored this against the pump's own table, so don't floor it
+842-        // again here: the Decimal -> Double hop can land a hair low and cost a whole increment
+843-        let unitsPerHour = rate.decimalValue.nearestDouble
+844-        if pump.roundToSupportedBasalRate(unitsPerHour: unitsPerHour) != unitsPerHour {
+845-            debug(.pump, "Temp basal \(unitsPerHour) U/h is not on the pump's rate table")
+846-        }
+847-        try await pump.enactTempBasal(unitsPerHour: unitsPerHour, for: duration)
+848-    }
+849-

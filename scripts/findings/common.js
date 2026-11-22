@@ -43,11 +43,22 @@ var NOW = new Date('2026-11-20T12:00:00Z');
 function determine(lib, glucose_status, profile) {
   var db = load(lib, 'determine-basal/determine-basal');
   var tbf = load(lib, 'basal-set-temp');
-  return quiet(function () {
-    return db(glucose_status, {duration: 0, rate: 0, temp: 'absolute'},
+  var args = [glucose_status, {duration: 0, rate: 0, temp: 'absolute'},
               {iob: 0, activity: 0, bolussnooze: 0}, profile, {ratio: 1}, emptyMeal(),
-              tbf, false, null, NOW);
-  });
+              tbf, false, null, NOW];
+  // Descendants with a longer signature (trio-oref / iAPS oref2: pumphistory, preferences,
+  // basalprofile, trio_custom_variables or oref2_variables, middleWare) get neutral values:
+  // no override, no dynamic ISF, SMB settings untouched, no middleware.
+  if (db.length > 10) {
+    var custom = {overrideTarget: 0, useOverride: false, smbIsOff: false, smbIsScheduledOff: false,
+      advancedSettings: false, isfAndCr: false, isf: false, cr: false, smbMinutes: 30,
+      uamMinutes: 30, currentTDD: 0, weightedAverage: 0, overridePercentage: 100,
+      unlimited: false, overrideMaxIOB: false, smbIsAlwaysOff: false, duration: 0, date: NOW};
+    var prefs = {useNewFormula: false, sigmoid: false, curve: 'rapid-acting', useCustomPeakTime: false,
+      adjustmentFactor: 0.8, adjustmentFactorSigmoid: 0.5, enableDynamicCR: false};
+    args = args.concat([[], prefs, [], custom, '']);
+  }
+  return quiet(function () { return db.apply(null, args); });
 }
 
 function fmt(r) {
