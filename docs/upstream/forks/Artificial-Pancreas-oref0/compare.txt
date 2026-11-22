@@ -1,0 +1,47 @@
+# https://github.com/Artificial-Pancreas/oref0 branch iaps @ 10bdfe3072b2468073633d2824267c87bb8a66ed (expected 10bdfe3072b2468073633d2824267c87bb8a66ed) — clone size 3.1M
+# last commit: 2026-08-25 11:46:45 +0200 yurique: backport upstream changes 2026 08 (#9)
+
+## lib/ and bin/ compared with oref0 0.7.1 (vendor/oref0)
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/autotune-prep/categorize.js        |  12 +++----
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/basal-set-temp.js                  |   9 +++++
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/calc-glucose-stats.js              |  14 ++++----
+ /dev/null => upstream/fork-Artificial-Pancreas-oref0/lib/date-parse.js                           |  32 ++++++++++++++++++
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/determine-basal/autosens.js        |  10 +++---
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/determine-basal/determine-basal.js | 102 +++++++++++++++++++++++++++-----------------------------
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/glucose-get-last.js                |  75 +++++++++++++++++++++++++++++------------
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/glucose-stats.js                   |   7 ++--
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/iob/history.js                     | 173 ++++++++++++++++++++++++++++++++++++++++++++++++-----------------------------------------------
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/iob/index.js                       |   4 +--
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/meal/index.js                      |   4 +--
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/meal/total.js                      |   9 ++---
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/profile/basal.js                   |  11 +++---
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/profile/index.js                   |  17 +++++-----
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/profile/isf.js                     |   4 +--
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/lib/round-basal.js                     |   4 +--
+ 16 files changed, 278 insertions(+), 209 deletions(-)
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/ns-upload-entries.sh       |   2 +-
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/ns-upload.sh               |   4 ++--
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/openaps-install.sh         |  13 +++---------
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/openaps-packages.sh        |  35 +++++++++++++++++++++-----------
+ /dev/null => upstream/fork-Artificial-Pancreas-oref0/bin/oref0-calculate-full-iob.js     | 112 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/oref0-calculate-iob.js     |  10 +++++-----
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/oref0-cron-every-minute.sh |   4 ++--
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/oref0-get-ns-entries.js    |   2 ++
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/oref0-pump-loop.sh         |   9 +++++++--
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/oref0-pushover.sh          |  12 +++++------
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/oref0-setup.sh             |  85 +++++++++++++++++++++++++++++++++++++++++++++++++++---------------------------
+ {vendor/oref0 => upstream/fork-Artificial-Pancreas-oref0}/bin/oref0_nightscout_check.py  |  17 ++++++++++------
+ 12 files changed, 230 insertions(+), 75 deletions(-)
+
+## input-path files (same = identical to 0.7.1)
+DIFFERS lib/basal-set-temp.js
+DIFFERS lib/round-basal.js
+DIFFERS lib/glucose-get-last.js
+DIFFERS lib/profile/basal.js
+DIFFERS lib/profile/index.js
+DIFFERS lib/determine-basal/determine-basal.js
+same    bin/oref0-determine-basal.js
+same    bin/oref0-get-profile.js
+DIFFERS bin/oref0-pump-loop.sh
+tooflat early exit present: 0 / staleness checks 'minAgo > 12 || minAgo < -5': 0
+valid_settings checks maxBolus only: 1

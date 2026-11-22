@@ -38,7 +38,10 @@ function emptyMeal() {
           allDeviations: [0, 0, 0, 0, 0], bwFound: false};
 }
 
-var NOW = new Date('2026-11-20T12:00:00Z');
+// The decision time. All inputs are relative to it. It is the current time (to the minute)
+// rather than a fixed date because some old descendants (e.g. N3FM/oref0, 2018) ignore determine_basal's
+// currentTime argument and use the system clock.
+var NOW = new Date(Math.floor(Date.now() / 60000) * 60000);
 
 function determine(lib, glucose_status, profile) {
   var db = load(lib, 'determine-basal/determine-basal');

@@ -1,0 +1,9 @@
+lib: upstream/fork-N3FM-oref0/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+# F-11 through this fork's glucose-get-last
+newest dated     : glucose_status {"glucose":250,"delta":5,"short_avgdelta":5,"long_avgdelta":5,"date":1795367700000} -> 3.5 U/h for 30 min | COB: 0, Dev: 30, BGI: 0, ISF: 40, CR: 10, Target: 115, minPredBG 999, minGuard
+newest undated   : glucose-get-last threw: Cannot read properties of undefined (reading 'dateString') -> no glucose_status, no dosing
+undated, fakecgm : glucose-get-last threw: Cannot read properties of undefined (reading 'dateString') -> no glucose_status, no dosing

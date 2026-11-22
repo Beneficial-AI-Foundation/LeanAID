@@ -1,0 +1,49 @@
+diff -ru a/lib/basal-set-temp.js b/lib/basal-set-temp.js
+--- a/lib/basal-set-temp.js	2026-11-22 19:15:55
++++ b/lib/basal-set-temp.js	2026-11-22 19:15:56
+@@ -28,6 +28,11 @@
+     }
+ 
+     var suggestedRate = round_basal(rate, profile);
++    // rounding to the nearest pump increment can go above maxSafeBasal when maxSafeBasal
++    // is not on the pump's grid (e.g. 0.83 -> 0.85): round down instead
++    if (suggestedRate > maxSafeBasal) {
++        suggestedRate = round_basal(maxSafeBasal, profile, 'down');
++    }
+     if (typeof(currenttemp) !== 'undefined' && typeof(currenttemp.duration) !== 'undefined' && typeof(currenttemp.rate) !== 'undefined' && currenttemp.duration > (duration-10) && currenttemp.duration <= 120 && suggestedRate <= currenttemp.rate * 1.2 && suggestedRate >= currenttemp.rate * 0.8 && duration > 0 ) {
+         rT.reason += " "+currenttemp.duration+"m left and " + currenttemp.rate + " ~ req " + suggestedRate + "U/hr: no temp required";
+         return rT;
+diff -ru a/lib/round-basal.js b/lib/round-basal.js
+--- a/lib/round-basal.js	2026-11-22 19:15:55
++++ b/lib/round-basal.js	2026-11-22 19:15:56
+@@ -1,7 +1,10 @@
+ var endsWith = require('lodash/endsWith');
+ 
+-var round_basal = function round_basal(basal, profile) {
++var round_basal = function round_basal(basal, profile, direction) {
+ 
++    // direction 'down': round down to the pump increment (never above basal)
++    var r = (direction === 'down') ? function (x) { return Math.floor(x + 1e-9); } : Math.round;
++
+     /* x23 and x54 pumps change basal increment depending on how much basal is being delivered:
+             0.025u for 0.025 < x < 0.975
+             0.05u for 1 < x < 9.95
+@@ -27,15 +30,15 @@
+     // Shouldn't need to check against 0 as pumps can't deliver negative basal anyway?
+     if (basal < 1)
+     {
+-        rounded_basal = Math.round(basal * lowest_rate_scale) / lowest_rate_scale;
++        rounded_basal = r(basal * lowest_rate_scale) / lowest_rate_scale;
+     }
+     else if (basal < 10)
+     {
+-        rounded_basal = Math.round(basal * 20) / 20;
++        rounded_basal = r(basal * 20) / 20;
+     }
+     else
+     {
+-        rounded_basal = Math.round(basal * 10) / 10;
++        rounded_basal = r(basal * 10) / 10;
+     }
+ 
+     return rounded_basal;

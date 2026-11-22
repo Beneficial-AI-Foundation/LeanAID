@@ -1,0 +1,20 @@
+diff -ru a/lib/determine-basal/determine-basal.js b/lib/determine-basal/determine-basal.js
+--- a/lib/determine-basal/determine-basal.js	2026-11-22 19:15:59
++++ b/lib/determine-basal/determine-basal.js	2026-11-22 19:15:59
+@@ -71,14 +71,14 @@
+     if (bg <= 10 || bg == 38 || noise >= 3) {  //Dexcom is in ??? mode or calibrating, or xDrip reports high noise
+         rT.reason = "CGM is calibrating, in ??? state, or noise is high";
+     }
+-    if (minAgo > 12 || minAgo < -5) { // Dexcom data is too old, or way in the future
++    if (!(minAgo <= 12 && minAgo >= -5)) { // Dexcom data is too old, or way in the future
+         rT.reason = "If current system time "+systemTime+" is correct, then BG data is too old. The last BG data was read "+minAgo+"m ago at "+bgTime;
+     }
+     // if BG is too old/noisy, or is completely unchanging, cancel any high temps and shorten any long zero temps
+     if ( glucose_status.short_avgdelta == 0 && glucose_status.long_avgdelta == 0 ) {
+         rT.reason = "Error: CGM data is unchanged for the past ~45m";
+     }
+-    if (bg <= 10 || bg == 38 || noise >= 3 || minAgo > 12 || minAgo < -5 || ( glucose_status.short_avgdelta == 0 && glucose_status.long_avgdelta == 0 ) ) {
++    if (bg <= 10 || bg == 38 || noise >= 3 || !(minAgo <= 12 && minAgo >= -5) || ( glucose_status.short_avgdelta == 0 && glucose_status.long_avgdelta == 0 ) ) {
+         if (currenttemp.rate >= basal) { // high temp is running
+             rT.reason += ". Canceling high temp basal of "+currenttemp.rate;
+             rT.deliverAt = deliverAt;

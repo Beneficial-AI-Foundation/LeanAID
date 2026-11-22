@@ -1,0 +1,12 @@
+diff -ru a/lib/determine-basal/determine-basal.js b/lib/determine-basal/determine-basal.js
+--- a/lib/determine-basal/determine-basal.js	2026-11-22 19:14:59
++++ b/lib/determine-basal/determine-basal.js	2026-11-22 19:14:59
+@@ -173,7 +173,7 @@
+ 
+ 
+ // Cancel high temps (and replace with neutral) or shorten long zero temps for various error conditions
+-    if (bg <= 10 || bg === 38 || noise >= 3 || minAgo > 12) {
++    if (bg <= 10 || bg === 38 || noise >= 3 || !(minAgo <= 12)) {
+         if (currenttemp.rate > basal) { // high temp is running
+             rT.reason += ". Replacing high temp basal of "+currenttemp.rate+" with neutral temp of "+basal;
+             rT.deliverAt = deliverAt;

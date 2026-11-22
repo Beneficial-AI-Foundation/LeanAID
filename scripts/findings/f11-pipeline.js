@@ -18,7 +18,9 @@ function entries(newestDated, device) {
   return e;
 }
 function show(label, newestDated, device) {
-  var gs = c.quiet(function () { return getLast(entries(newestDated, device)); });
+  var gs;
+  try { gs = c.quiet(function () { return getLast(entries(newestDated, device)); }); }
+  catch (e) { console.log(label + ': glucose-get-last threw: ' + e.message + ' -> no glucose_status, no dosing'); return; }
   var r = c.determine(lib, gs, c.testProfile());
   console.log(label + ': glucose_status ' + JSON.stringify({glucose: gs.glucose, delta: gs.delta,
     short_avgdelta: gs.short_avgdelta, long_avgdelta: gs.long_avgdelta, date: gs.date}) +

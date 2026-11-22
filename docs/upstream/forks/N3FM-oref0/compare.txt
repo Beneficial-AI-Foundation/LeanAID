@@ -1,0 +1,77 @@
+# https://github.com/N3FM/oref0 branch master @ aab29edcf4c517a4d55d27cdaa9a5a155a0cd9af (expected aab29edcf4c517a4d55d27cdaa9a5a155a0cd9af) — clone size 2.4M
+# last commit: 2018-06-20 10:19:13 -0400 N3FM: Update oref0-set-device-clocks.sh
+
+## lib/ and bin/ compared with oref0 0.7.1 (vendor/oref0)
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/autotune-prep/index.js             | 149 +-------------------------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/basal-set-temp.js                  |   6 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/bolus.js                           |   6 +-
+ vendor/oref0/lib/calc-glucose-stats.js => /dev/null                               |  30 ------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/determine-basal/autosens.js        | 186 ++++++++++++++++----------------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/determine-basal/cob.js             |  86 +++++++--------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/determine-basal/determine-basal.js | 642 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--------------------------------------------------------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/glucose-get-last.js                |  28 ++---
+ vendor/oref0/lib/glucose-stats.js => /dev/null                                    | 246 ------------------------------------------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/iob/calculate.js                   |  50 +++------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/iob/history.js                     | 106 +++++++-----------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/iob/index.js                       |   5 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/iob/total.js                       |   6 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/meal/history.js                    |  48 ++++-----
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/meal/index.js                      |   4 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/meal/total.js                      |  23 ++--
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/medtronic-clock.js                 |   1 -
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/alias.json             | 231 ++++++++++++++++++++++++++++++++++++++++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/autotune.json          |   7 ++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/bg_targets_raw.json    |  38 ++++---
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/cgm-loop.json          |  77 ++++++++++++++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/device.json            |  26 +++++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/edisonbattery.json     |  21 ++++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/mdt-cgm.json           |  45 +++++++-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/pancreabble.json       |  18 +++-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/report.json            |  39 +++++++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/supermicrobolus.json   |  15 +++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/oref0-setup/xdrip-cgm.json         |  17 ++-
+ vendor/oref0/lib/percentile.js => /dev/null                                       |  18 ----
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/profile/basal.js                   |   4 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/profile/carbs.js                   |  15 ++-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/profile/index.js                   |  80 ++++++--------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/profile/isf.js                     |  22 ++--
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/profile/targets.js                 |  40 +++----
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/pump.js                            |   3 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/require-utils.js                   |  56 +---------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/round-basal.js                     |   8 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/temps.js                           |   5 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/lib/with-raw-glucose.js                |   5 +-
+ 42 files changed, 1321 insertions(+), 1574 deletions(-)
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0-set-system-clock.sh           |   26 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0-setup.sh                      | 1438 ++++++++++++++++++++++++++++++++++++++++++++++--------------------------------------------------------------
+ vendor/oref0/bin/oref0-shared-node-loop.sh => /dev/null                            |   21 --
+ vendor/oref0/bin/oref0-shared-node-utils.js => /dev/null                           |   50 ----
+ vendor/oref0/bin/oref0-shared-node.js => /dev/null                                 |  297 -----------------------
+ vendor/oref0/bin/oref0-simulator.sh => /dev/null                                   |  184 --------------
+ /dev/null => upstream/fork-N3FM-oref0/bin/oref0-subg-ww-radio-parameters.sh        |   67 +++++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0-tail-log.sh                   |   10 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0-tail-wifi.sh                  |   10 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0-truncate-git-history.sh       |   23 +-
+ vendor/oref0/bin/oref0-upgrade.sh => /dev/null                                     |   20 --
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0-upload-entries.sh             |   10 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0-upload-profile.js             |  148 +++---------
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0-version.sh                    |    8 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0.sh                            |   21 +-
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/oref0_autotune_export_to_xlsx.py    |    9 +-
+ /dev/null => upstream/fork-N3FM-oref0/bin/oref0_init_pump_comms.py                 |   70 ++++++
+ /dev/null => upstream/fork-N3FM-oref0/bin/oref0_subg_ww_radio_parameters.py        |  123 ++++++++++
+ {vendor/oref0 => upstream/fork-N3FM-oref0}/bin/peb-urchin-status.sh                |   14 +-
+ 97 files changed, 2805 insertions(+), 6735 deletions(-)
+
+## input-path files (same = identical to 0.7.1)
+DIFFERS lib/basal-set-temp.js
+DIFFERS lib/round-basal.js
+DIFFERS lib/glucose-get-last.js
+DIFFERS lib/profile/basal.js
+DIFFERS lib/profile/index.js
+DIFFERS lib/determine-basal/determine-basal.js
+DIFFERS bin/oref0-determine-basal.js
+DIFFERS bin/oref0-get-profile.js
+DIFFERS bin/oref0-pump-loop.sh
+tooflat early exit present: 0 / staleness checks 'minAgo > 12 || minAgo < -5': 2
+valid_settings checks maxBolus only: 0

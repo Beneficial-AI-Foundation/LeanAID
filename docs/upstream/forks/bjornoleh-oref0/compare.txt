@@ -1,0 +1,61 @@
+# https://github.com/bjornoleh/oref0 branch bo @ b32929efc145d93de6bfa5ec8a9deee8ea973892 (expected b32929efc145d93de6bfa5ec8a9deee8ea973892) — clone size  14M
+# last commit: 2023-01-11 11:47:24 +0100 Bjørn Ole Haugsgjerd: Add log_basalAdjust back into dISF tddReason
+
+## lib/ and bin/ compared with oref0 0.7.1 (vendor/oref0)
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/autotune/index.js                  |  11 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/autotune-prep/categorize.js        |   6 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/bolus.js                           |   1 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/determine-basal/autosens.js        |  11 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/determine-basal/cob.js             |  10 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/determine-basal/determine-basal.js | 927 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/glucose-get-last.js                |   2 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/iob/calculate.js                   |  42 +----
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/iob/history.js                     |   2 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/iob/index.js                       |  99 ++++++++++--
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/iob/total.js                       |  54 +------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/meal/history.js                    |   2 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/meal/index.js                      |   1 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/meal/total.js                      |  14 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/medtronic-clock.js                 |   1 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/percentile.js                      |   1 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/profile/basal.js                   |   2 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/profile/carbs.js                   |   9 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/profile/index.js                   | 120 +++++++-------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/profile/isf.js                     |  11 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/profile/targets.js                 |  19 +--
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/pump.js                            |   1 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/lib/temps.js                           |   1 -
+ 23 files changed, 971 insertions(+), 376 deletions(-)
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-autotune-core.js         |  16 +++--------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-autotune-prep.js         |  16 +++--------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-autotune.py              | 171 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++----------------------------------------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-autotune.sh              |   2 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-bash-common-functions.sh |   2 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-calculate-iob.js         |  31 ++++++--------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-cron-every-15min.sh      |  16 ++---------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-cron-every-minute.sh     |   2 +-
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-detect-sensitivity.js    |  14 ++++-----
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-get-ns-entries.js        |  67 +++++++++++++------------------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-get-profile.js           | 105 +++++++++++++++++++++++++------------------------------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-meal.js                  |  72 ++++++++++++++++------------------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-normalize-temps.js       |   1 -
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-ns-loop.sh               |  49 ++++++++++---------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-pump-loop.sh             |  45 ++++++-----------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-pushover.sh              |  99 ++++++++++++++++++++-------------------------------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-setup.sh                 |  66 +++++++++---------------------------------
+ vendor/oref0/bin/oref0-shared-node-utils.js => /dev/null                           |  50 --------------------------------
+ {vendor/oref0 => upstream/fork-bjornoleh-oref0}/bin/oref0-shared-node.js           |  89 ++++++---------------------------------------------------
+ 25 files changed, 296 insertions(+), 722 deletions(-)
+
+## input-path files (same = identical to 0.7.1)
+same    lib/basal-set-temp.js
+same    lib/round-basal.js
+DIFFERS lib/glucose-get-last.js
+DIFFERS lib/profile/basal.js
+DIFFERS lib/profile/index.js
+DIFFERS lib/determine-basal/determine-basal.js
+same    bin/oref0-determine-basal.js
+DIFFERS bin/oref0-get-profile.js
+DIFFERS bin/oref0-pump-loop.sh
+tooflat early exit present: 0 / staleness checks 'minAgo > 12 || minAgo < -5': 2
+valid_settings checks maxBolus only: 1
