@@ -1,0 +1,10 @@
+# F-11 fix applied alone to a copy of oref0-dev/lib; Part 1 tests on the patched copy
+lib: oref0-dev-patched/b/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: ABSENT — undated: no temp; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"ABSENT","f12":"PRESENT"}
+# F-11 through glucose-get-last (patched copy)
+newest dated     : glucose_status {"glucose":250,"delta":5,"short_avgdelta":5,"long_avgdelta":5,"date":1795176000000} -> 3.5 U/h for 30 min | COB: 0, Dev: 30, BGI: 0, ISF: 40, CR: 10, minPredBG: 999, minGuardBG: 999, IOBpredBG: 250
+newest undated   : glucose_status {"glucose":250,"delta":0,"short_avgdelta":0,"long_avgdelta":0,"date":null} -> no temp | If current system time Fri Nov 20 2026 14:00:00 GMT+0200 (Eastern European Standard Time) is correct, then BG 
+undated, fakecgm : glucose_status {"glucose":250,"delta":0,"short_avgdelta":0,"long_avgdelta":0,"date":null} -> no temp | If current system time Fri Nov 20 2026 14:00:00 GMT+0200 (Eastern European Standard Time) is correct, then BG 

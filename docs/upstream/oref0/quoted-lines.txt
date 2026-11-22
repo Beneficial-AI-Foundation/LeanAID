@@ -1,0 +1,224 @@
+# openaps/oref0 dev @ d219baf9559d62a8bb0bd42014192a2d7c0839ef (identical at these lines to master 88cf032 unless noted)
+
+## lib/basal-set-temp.js lines 10-37
+   10  tempBasalFunctions.getMaxSafeBasal = function getMaxSafeBasal(profile) {
+   11  
+   12      var max_daily_safety_multiplier = (isNaN(profile.max_daily_safety_multiplier) || profile.max_daily_safety_multiplier === null) ? 3 : profile.max_daily_safety_multiplier;
+   13      var current_basal_safety_multiplier = (isNaN(profile.current_basal_safety_multiplier) || profile.current_basal_safety_multiplier === null) ? 4 : profile.current_basal_safety_multiplier;
+   14  
+   15      return Math.min(profile.max_basal, max_daily_safety_multiplier * profile.max_daily_basal, current_basal_safety_multiplier * profile.current_basal);
+   16  };
+   17  
+   18  tempBasalFunctions.setTempBasal = function setTempBasal(rate, duration, profile, rT, currenttemp) {
+   19      //var maxSafeBasal = Math.min(profile.max_basal, 3 * profile.max_daily_basal, 4 * profile.current_basal);
+   20  
+   21      var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
+   22      var round_basal = require('./round-basal');
+   23  
+   24      if (rate < 0) {
+   25          rate = 0;
+   26      } else if (rate > maxSafeBasal) {
+   27          rate = maxSafeBasal;
+   28      }
+   29  
+   30      var suggestedRate = round_basal(rate, profile);
+   31      if (typeof(currenttemp) !== 'undefined' && typeof(currenttemp.duration) !== 'undefined' && typeof(currenttemp.rate) !== 'undefined' && currenttemp.duration > (duration-10) && currenttemp.duration <= 120 && suggestedRate <= currenttemp.rate * 1.2 && suggestedRate >= currenttemp.rate * 0.8 && duration > 0 ) {
+   32          rT.reason += " "+currenttemp.duration+"m left and " + currenttemp.rate + " ~ req " + suggestedRate + "U/hr: no temp required";
+   33          return rT;
+   34      }
+   35  
+   36      if (suggestedRate === profile.current_basal) {
+   37        if (profile.skip_neutral_temps === true) {
+
+## lib/round-basal.js lines 3-41
+    3  var round_basal = function round_basal(basal, profile) {
+    4  
+    5      /* x23 and x54 pumps change basal increment depending on how much basal is being delivered:
+    6              0.025u for 0.025 < x < 0.975
+    7              0.05u for 1 < x < 9.95
+    8              0.1u for 10 < x
+    9        To round numbers nicely for the pump, use a scale factor of (1 / increment). */
+   10  
+   11      var lowest_rate_scale = 20;
+   12  
+   13      // Has profile even been passed in?
+   14      if (typeof profile !== 'undefined')
+   15      {
+   16          // Make sure optional model has been set
+   17          if (typeof profile.model === 'string')
+   18          {
+   19              if (endsWith(profile.model, "54") || endsWith(profile.model, "23"))
+   20              {
+   21                  lowest_rate_scale = 40;
+   22              }
+   23          }
+   24      }
+   25  
+   26      var rounded_basal = basal;
+   27      // Shouldn't need to check against 0 as pumps can't deliver negative basal anyway?
+   28      if (basal < 1)
+   29      {
+   30          rounded_basal = Math.round(basal * lowest_rate_scale) / lowest_rate_scale;
+   31      }
+   32      else if (basal < 10)
+   33      {
+   34          rounded_basal = Math.round(basal * 20) / 20;
+   35      }
+   36      else
+   37      {
+   38          rounded_basal = Math.round(basal * 10) / 10;
+   39      }
+   40  
+   41      return rounded_basal;
+
+## lib/determine-basal/determine-basal.js lines 145-150
+  145      var systemTime = new Date();
+  146      if (currentTime) {
+  147          systemTime = currentTime;
+  148      }
+  149      var bgTime = new Date(glucose_status.date);
+  150      var minAgo = round( (systemTime - bgTime) / 60 / 1000 ,1);
+
+## lib/determine-basal/determine-basal.js lines 177-212
+  177      var tooflat=false;
+  178      if (bg > 60 && glucose_status.delta == 0 && glucose_status.short_avgdelta > -1 && glucose_status.short_avgdelta < 1 && glucose_status.long_avgdelta > -1 && glucose_status.long_avgdelta < 1) {
+  179          if (glucose_status.device == "fakecgm") {
+  180              console.error("CGM data is unchanged ("+bg+"+"+glucose_status.delta+") for 5m w/ "+glucose_status.short_avgdelta+" mg/dL ~15m change & "+glucose_status.long_avgdelta+" mg/dL ~45m change");
+  181              console.error("Simulator mode detected (",glucose_status.device,"): continuing anyway");
+  182          } else {
+  183              tooflat=true;
+  184          }
+  185      }
+  186  
+  187      var lastTempAge;
+  188      if (typeof iob_data.lastTemp !== 'undefined' ) {
+  189          lastTempAge = round(( new Date(systemTime).getTime() - iob_data.lastTemp.date ) / 60000); // in minutes
+  190      } else if (typeof currenttemp.duration !== 'undefined' ) {
+  191          // the second % 30 converts any lastTempAge of 30 to 0
+  192          lastTempAge = (30 - currenttemp.duration % 30) % 30;
+  193      }
+  194  
+  195      if (minAgo > 12 || minAgo < -5) { // Dexcom data is too old, or way in the future
+  196          rT.reason = "If current system time "+systemTime+" is correct, then BG data is too old. The last BG data was read "+minAgo+"m ago at "+bgTime;
+  197      // if BG is too old/noisy, or is changing less than 1 mg/dL/5m for 45m, cancel any high temps and shorten any long zero temps
+  198      } else if ( tooflat ) {
+  199          if ( glucose_status.last_cal && glucose_status.last_cal < 3 ) {
+  200              rT.reason = "CGM was just calibrated";
+  201          } else {
+  202              rT.reason = "CGM data is unchanged ("+bg+"+"+glucose_status.delta+") for 5m w/ "+glucose_status.short_avgdelta+" mg/dL ~15m change & "+glucose_status.long_avgdelta+" mg/dL ~45m change";
+  203          }
+  204      }
+  205  // Then, for all such error conditions, cancel any running high temp or shorten any long zero temp, and return.
+  206      if ((minAgo > 12 || minAgo < -5) && lastTempAge < 10) {
+  207          rT.reason += ", but lastTempAge of " + lastTempAge + " < 10m; doing nothing. ";
+  208          return rT;
+  209      } else if (bg <= 10 || bg === 38 || noise >= 3 || minAgo > 12 || minAgo < -5 || tooflat ) {
+  210          if (currenttemp.rate > basal) { // high temp is running
+  211              rT.reason += ". Replacing high temp basal of "+currenttemp.rate+" with neutral temp of "+basal;
+  212              rT.deliverAt = deliverAt;
+
+## lib/determine-basal/determine-basal.js lines 1173-1178
+ 1173          var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
+ 1174  
+ 1175          if (rate > maxSafeBasal) {
+ 1176              rT.reason += "adj. req. rate: "+rate+" to maxSafeBasal: "+maxSafeBasal+", ";
+ 1177              rate = round_basal(maxSafeBasal, profile);
+ 1178          }
+
+## lib/glucose-get-last.js lines 1-20
+    1  function getDateFromEntry(entry) {
+    2    return entry.date || Date.parse(entry.display_time) || Date.parse(entry.dateString);
+    3  }
+    4  
+    5  var getLastGlucose = function (data) {
+    6      data = data.filter(function(obj) {
+    7        return obj.glucose || obj.sgv;
+    8      }).map(function prepGlucose (obj) {
+    9          //Support the NS sgv field to avoid having to convert in a custom way
+   10          obj.glucose = obj.glucose || obj.sgv;
+   11          if ( obj.glucose !== null ) {
+   12              return obj;
+   13          }
+   14      });
+   15  
+   16      var now = data[0];
+   17      var now_date = getDateFromEntry(now);
+   18      var change;
+   19      var last_deltas = [];
+   20      var short_deltas = [];
+
+## lib/glucose-get-last.js lines 79-88
+   79      return {
+   80          delta: Math.round( last_delta * 100 ) / 100
+   81          , glucose: Math.round( now.glucose * 100 ) / 100
+   82          , noise: Math.round(now.noise)
+   83          , short_avgdelta: Math.round( short_avgdelta * 100 ) / 100
+   84          , long_avgdelta: Math.round( long_avgdelta * 100 ) / 100
+   85          , date: now_date
+   86          , last_cal: last_cal
+   87          , device: now.device
+   88      };
+
+## lib/profile/basal.js lines 33-43
+   33  function maxDailyBasal (inputs) {
+   34      var maxRate = _.maxBy(inputs.basals,function(o) { return Number(o.rate); });
+   35      return (Number(maxRate.rate) *1000)/1000;
+   36  }
+   37  
+   38  /*Return maximum daily basal rate(U / hr) from profile.basals */
+   39  
+   40  function maxBasalLookup (inputs) {
+   41      return inputs.settings.maxBasal;
+   42  }
+   43  
+
+## lib/profile/index.js lines 130-150
+  130    profile.current_basal = basal.basalLookup(inputs.basals);
+  131    profile.basalprofile = inputs.basals;
+  132    
+  133    _.forEach(profile.basalprofile, function(basalentry) {
+  134      basalentry.rate = +(Math.round(basalentry.rate + "e+3")  + "e-3");		
+  135    });
+  136    
+  137    profile.max_daily_basal = basal.maxDailyBasal(inputs);
+  138    profile.max_basal = basal.maxBasalLookup(inputs);
+  139    if (profile.current_basal === 0) {
+  140        console_error(final_result, "current_basal of",profile.current_basal,"is not supported");
+  141        return -1;
+  142    }
+  143    if (profile.max_daily_basal === 0) {
+  144        console_error(final_result, "max_daily_basal of",profile.max_daily_basal,"is not supported");
+  145        return -1;
+  146    }
+  147    if (profile.max_basal < 0.1) {
+  148        console_error(final_result, "max_basal of",profile.max_basal,"is not supported");
+  149        return -1;
+  150    }
+
+## bin/oref0-get-profile.js lines 236-244
+  236      inputs.model = model_data;
+  237      inputs.autotune = autotune_data;
+  238  
+  239      if (autotune_data) {
+  240          if (autotune_data.basalprofile) { inputs.basals = autotune_data.basalprofile; }
+  241          if (autotune_data.isfProfile) { inputs.isf = autotune_data.isfProfile; }
+  242          if (autotune_data.carb_ratio) { inputs.carbratio.schedule[0].ratio = autotune_data.carb_ratio; }
+  243      }
+  244      var profile = generate(final_result, inputs);
+
+## lib/autotune/index.js lines 186-189
+  186          var zeroPadHour = ("000"+i).slice(-2);
+  187          hourlyBasalProfile[i].start=zeroPadHour + ":00:00";
+  188          hourlyBasalProfile[i].rate=Math.round(hourlyBasalProfile[i].rate*1000)/1000
+  189          // pump basal profile
+
+## bin/oref0-pump-loop.sh lines 951-959
+  951  function read_settings() {
+  952    set -o pipefail
+  953    mdt settings 2>&3 | tee settings/settings.json && valid_settings
+  954  }
+  955  function valid_settings() {
+  956    set -o pipefail
+  957    local FILE="${1:-settings/settings.json}"
+  958    [ -s $FILE ] && cat $FILE | jq .maxBolus | grep -e "[0-9]\+"
+  959  }

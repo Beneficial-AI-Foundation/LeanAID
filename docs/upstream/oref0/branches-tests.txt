@@ -1,0 +1,102 @@
+### openaps/oref0 branch master @ 88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (last commit 2022-06-18)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch carbsreq-parse-error @ 8ce1f26b079d8747b0dd38388cc40655a27d89f7 (last commit 2022-02-15)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch dependabot/pip/requests-2.32.0 @ 73646a26d5178e1977a09c233e6f535c2450c1ae (last commit 2024-05-21)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch ChanceHarrison-chance/fix-1436 @ 80493da410ff9c102c02794c08a706af02fabc3b (last commit 2022-12-08)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch atomic-pumphistory-refresh @ 6562d3c8a892d25b68c62979599cc8d379998da8 (last commit 2026-07-17)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch codex/ble-bg-cache-latency @ a38312cbe087004efed0e1ba5a5033a936882c11 (last commit 2026-09-28)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch codex/bounded-offline-notification @ a07e66371643f9152a351a890391c92ac0e687f0 (last commit 2026-10-05)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch codex/device-authorization @ 33428cbae1db1fec2c2db69a782d74392a95ee6d (last commit 2026-09-13)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch codex/local-glucose-input-retry @ 598d9a1a93bc6b5fea0c114e85147abdca249f2a (last commit 2026-10-17)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch codex/rig-admission-retry @ 6c57854056c600429c165038cdb4028ce8ac5438 (last commit 2026-10-15)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch codex/rig-offline-loop-test @ 883850990dc1779ee25dafb5b0bd2008798bd090 (last commit 2026-09-29)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch dev @ d219baf9559d62a8bb0bd42014192a2d7c0839ef (last commit 2026-03-09)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch floating-carbs @ 32e288bb14c7a9038cf411edb7136d87f3ff5be1 (last commit 2026-11-09)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch pr/1455 @ 091f81f49c58a8b89692a58b625261cf5290312d (last commit 2026-11-09)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch stretch-archive @ 880c985c4ef0bfb32c6d26b1dce10ae66d834400 (last commit 2026-11-09)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch stretch-archived @ df8ac4657f4a91ac2de415dfd3aba09813772135 (last commit 2026-03-09)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}
+### openaps/oref0 branch upgrade-debian @ 8ec6a2e5f008e188fe80cee21594b7b8715a218a (last commit 2023-08-26)
+lib: upstream/oref0-br/lib
+F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
+F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
+F-12: PRESENT — no max_basal, no max_daily_basal: 5.9 U/h for 30 min; no max_basal: 5.9 U/h for 30 min; no max_daily_basal: 5.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
+summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}

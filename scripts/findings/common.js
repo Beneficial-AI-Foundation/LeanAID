@@ -15,9 +15,12 @@ function libDir() {
 // oref0 logs its reasoning with console.error; keep the verdict line clean
 // unless VERBOSE is set.
 function quiet(fn) {
-  var saved = console.error, savedLog = console.log;
-  if (!process.env.VERBOSE) { console.error = function () {}; console.log = function () {}; }
-  try { return fn(); } finally { console.error = saved; console.log = savedLog; }
+  var saved = console.error, savedLog = console.log, savedW = process.stderr.write;
+  if (!process.env.VERBOSE) {
+    console.error = function () {}; console.log = function () {};
+    process.stderr.write = function () { return true; };
+  }
+  try { return fn(); } finally { console.error = saved; console.log = savedLog; process.stderr.write = savedW; }
 }
 
 function load(lib, rel) { return require(path.join(lib, rel)); }
