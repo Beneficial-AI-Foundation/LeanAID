@@ -704,3 +704,24 @@ Part 4: `sim/report.py` (2 min) → `sim/out/report.json`, `sim/out/plots/`; `do
   the maintainer's commit `b11824f` (made while part 4 was in progress); this entry and
   `docs/SIM.md` describe them.
 - `site/index.html` not edited (part 4 rule).
+
+## Reporting the findings, part 1: reproduction tests
+
+`scripts/findings/` (`f04.js`, `f11.js`, `f12.js`, `run.js`): each takes an oref0-style
+`lib/` (default `vendor/oref0/lib`) and runs the trigger and control inputs of its
+finding; dependencies come from `vendor/oref0/node_modules` through `NODE_PATH`.
+Against `vendor/oref0` (`88cf032`, 0.7.1), all three PRESENT:
+- F-04: `max_basal` 0.83 → 0.85 U/h (control 0.85 → 0.85); also end to end through
+  determine_basal.
+- F-11: undated BG 250 → 3.5 U/h; the same reading dated 60 min ago → no temp.
+- F-12: without `max_basal`, `max_daily_basal` or both → 5.9 U/h; control → 3.5 U/h.
+
+`run.js` is in `scripts/check.sh` (no network, 0.4 s) and must give PRESENT for all three.
+
+F-04 realistic triggers (`scripts/findings/f04-search.js`, output in
+`f04-search.out.txt`; 4.5 s, not in check.sh): a limit off the pump grid rounds up in about
+40 % of two-decimal values (`max_basal` 0.05–10.00: 398/996; `4 × current_basal` 0.05–3.00:
+118/296). With the scheduled basals on the pump grid (as a pump requires) and `max_basal`
+typed with two decimals, the issued rate exceeds the limit in 15.3 % of combinations
+(default pump) / 19.7 % (x23/x54), and in 39.9 % of those where `max_basal` is the binding
+limit. A `max_basal` on the 0.1 U/h grid never rounds up. Largest overshoot 0.02 U/h.

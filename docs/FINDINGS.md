@@ -21,6 +21,10 @@ every issued rate is ≤ `round_basal(maxSafeBasal)` (`rate_le_roundBasal_maxSaf
 which exceeds `maxSafeBasal` by at most 0.025 U/h below 10 U/h (`roundBasal_overshoot`);
 and when `maxSafeBasal` is on the grid the bound is `maxSafeBasal` itself
 (`rate_le_maxSafeBasal_of_grid`). R1 is therefore met only up to half a pump increment.
+How common (`scripts/findings/f04-search.js`): with scheduled basals on the pump grid and
+`max_basal` typed with two decimals, the issued rate exceeds the limit in 15–20 % of
+combinations (40 % of those where `max_basal` is the binding limit); never when
+`max_basal` is a multiple of 0.1 U/h. Overshoot at most 0.02 U/h in these ranges.
 
 ### F-05 — The SMB low temp is not clamped to `maxSafeBasal`
 The SMB branch returns `rate = round(basal × durationReq/30, 2)` directly (line 1155),

@@ -1,0 +1,18 @@
+Pump model: default (0.05 step below 1 U/h)
+  current_basal, two decimals 0.05-3.00: 4 x current_basal rounds up: 118/296 (39.9%)
+  current_basal on the pump grid 0.05-3.00: 4 x current_basal rounds up: 0/60 (0.0%)
+  max_basal, two decimals 0.05-10.00: rounds up: 398/996 (40.0%)
+  max_daily_basal, two decimals 0.05-3.00: 3 x max_daily_basal rounds up: 118/296 (39.9%)
+  all (current_basal, max_basal, max_daily_basal) two-decimal combinations with max_daily_basal >= current_basal: limit rounds up: 17540228/43780176 (40.1%), largest overshoot 0.0200 U/h
+  example (setTempBasal, request 10 U/h): current_basal 2.01, max_basal 8.03, max_daily_basal 2.68: maxSafeBasal 8.03, issued 8.05 U/h
+  typical: current_basal and max_daily_basal on the pump grid 0.05-3.00, max_basal two decimals 0.05-10.00: limit rounds up: 278580/1822680 (15.3%); among those where max_basal is the binding limit: 278580/698133 (39.9%)
+  typical: max_basal values 0.05-10.00 on the 0.1 U/h grid (e.g. 2.0, 3.5) that round up: 0/100 (0.0%)
+Pump model: x23/x54 (0.025 step below 1 U/h)
+  current_basal, two decimals 0.05-3.00: 4 x current_basal rounds up: 118/296 (39.9%)
+  current_basal on the pump grid 0.05-3.00: 4 x current_basal rounds up: 0/119 (0.0%)
+  max_basal, two decimals 0.05-10.00: rounds up: 398/996 (40.0%)
+  max_daily_basal, two decimals 0.05-3.00: 3 x max_daily_basal rounds up: 117/296 (39.5%)
+  all (current_basal, max_basal, max_daily_basal) two-decimal combinations with max_daily_basal >= current_basal: limit rounds up: 17528507/43780176 (40.0%), largest overshoot 0.0200 U/h
+  example (setTempBasal, request 10 U/h): current_basal 2.01, max_basal 8.03, max_daily_basal 2.68: maxSafeBasal 8.03, issued 8.05 U/h
+  typical: current_basal and max_daily_basal on the pump grid 0.05-3.00, max_basal two decimals 0.05-10.00: limit rounds up: 1397783/7111440 (19.7%); among those where max_basal is the binding limit: 1088717/2730467 (39.9%)
+  typical: max_basal values 0.05-10.00 on the 0.1 U/h grid (e.g. 2.0, 3.5) that round up: 0/100 (0.0%)

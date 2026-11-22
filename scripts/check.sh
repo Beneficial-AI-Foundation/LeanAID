@@ -67,4 +67,14 @@ if [ -s scripts/headline.txt ]; then
   n=$(grep -cvE '^\s*(#|$)' scripts/headline.txt)
   echo "check.sh: $n headline theorems use only propext, Classical.choice, Quot.sound"
 fi
+# Reproductions of F-04, F-11, F-12 against the pinned oref0 (no network, < 1 s).
+if [ -d vendor/oref0/lib ]; then
+  out=$(node scripts/findings/run.js vendor/oref0/lib); rc=$?
+  echo "$out"
+  if [ $rc -ne 0 ] || ! echo "$out" | grep -q '^summary: {"f04":"PRESENT","f11":"PRESENT","f12":"PRESENT"}$'; then
+    echo "check.sh: finding reproductions did not all give PRESENT against vendor/oref0"; exit 1
+  fi
+else
+  echo "check.sh: vendor/oref0 missing, finding reproductions skipped"
+fi
 echo "check.sh: OK"
