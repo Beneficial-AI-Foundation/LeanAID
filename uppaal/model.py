@@ -256,6 +256,8 @@ def build(mutations=(), witnesses=False, contract=False, relaxed=False):
                 "int[0,1] wUb;         // a user bolus in this step",
                 "int[0,1] mb2;         // a second accepted microbolus",
                 "int[0,1] f20;         // the obligation is a zero temp of 120 min from a cycle",
+                "int[0,3] nRead;       // readings so far, up to 3 (U3b witnesses)",
+                "int[0,1] wOdd;        // an issued output that the U3b runs do not give",
             ]
 
     # The five reasons of validate to reject a command (section 5 of the plan).
@@ -490,6 +492,17 @@ def add_contract(m, step, mutations, witnesses):
              update="err5 = 1"),
     ]
 
+    if witnesses:
+        # count readings up to 3 on the reading edges
+        counted = []
+        for e in [e for e in step.edges if e.sync == "read!"]:
+            step.edges.remove(e)
+            counted += [Edge(e.src, e.dst, sync=e.sync, guard=f"({e.guard} && (nRead < 3))",
+                             update=join(e.update, "nRead = nRead + 1")),
+                        Edge(e.src, e.dst, sync=e.sync, guard=f"({e.guard} && (nRead == 3))",
+                             update=e.update)]
+        step.edges += counted
+
     # Controller: the contract of section 5
     blocks = ranges(lambda r, k, v: contract_temp(r, k, v, "p3_positive_120" in mutations))
     fresh = (f"(age < {FRESH_AGE})" if "p1_no_hasreading" in mutations
@@ -521,8 +534,23 @@ def add_contract(m, step, mutations, witnesses):
                 sel.append(f"u : int[{us[0]},{us[-1]}]")
             vv = "v" if lo != hi else str(lo)
             uu = "u" if len(us) > 1 else str(us[0])
-            edges.append(Edge("C", "C", select=", ".join(sel), guard=g, sync="decide?",
-                              update=f"rc = {rr}, dk = {dd}, dv = {vv}, uk = {uu}"))
+            upd = f"rc = {rr}, dk = {dd}, dv = {vv}, uk = {uu}"
+            if witnesses:
+                # U3b: the outputs that oref0 gives in the T2 runs of the replay: none,
+                # and after three readings a high temp of 30 min with a microbolus, a
+                # low temp of 30 min, a zero temp of 120 min, or a microbolus alone
+                # after an earlier accepted microbolus.
+                # Any other output sets wOdd.
+                shapes = " || ".join(f"(({vv} == {v}) && ({uu} == {u}))"
+                                     for (r_, d_, v, u) in ((5, 3, 30, 3), (4, 3, 30, 0), (3, 3, 120, 0),
+                                                            (0, 0, 0, 3))
+                                     if (r_, d_) == (rr, dd))
+                # a microbolus alone only after an earlier accepted one (mb1)
+                more = " && (mb1 == 1)" if (rr, dd) == (0, 0) else ""
+                ok = "true" if (rr, dd) == (0, 0) and us == (0,) else \
+                    (f"((nRead == 3){more} && ({shapes}))" if shapes else "false")
+                upd += f", wOdd = ({ok}) ? wOdd : 1"
+            edges.append(Edge("C", "C", select=", ".join(sel), guard=g, sync="decide?", update=upd))
     controller = Template("Controller", "C", locs=[Loc("C")], edges=edges)
     cgm = Template("CGM", "G", locs=[Loc("G")], edges=[
         Edge("G", "G", guard="(hasReading == 0)", sync="read?", update="age = 0, hasReading = 1"),
@@ -590,4 +618,18 @@ def without_pump(m):
                 e.sync = ""
             parts = [x.strip() for x in e.update.split(",") if x.strip()]
             e.update = ", ".join(x for x in parts if x.split("=")[0].strip() not in P4_VARS)
+    return m
+
+
+def without_boluses(m):
+    """The variant of a contract model without user boluses, without the pre-run bolus
+    and without controller outputs that carry units. It removes edges only, so it has
+    fewer behaviors than the main model: a reachable witness transfers to it."""
+    m.templates = [t for t in m.templates if t.name != "User"]
+    for t in m.templates:
+        if t.name == "Step":
+            t.edges = [e for e in t.edges
+                       if e.sync != "ubolus!" and not (e.src == "Pre" and e.dst == "Pre")]
+        if t.name == "Controller":
+            t.edges = [e for e in t.edges if "uk = 0" in e.update]
     return m

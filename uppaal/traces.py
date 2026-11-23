@@ -30,7 +30,7 @@ import check as C  # noqa: E402
 import model as M  # noqa: E402
 
 OUT = HERE / "traces"
-TIMEOUT = 600
+TIMEOUT = 1800
 
 RATE = {0: "absent", 1: "NaN", 2: "negative", 3: "zero", 4: "low", 5: "high"}
 UNITS = {0: "absent", 1: "NaN", 2: "≤ 0", 3: "microbolus"}

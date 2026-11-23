@@ -16,7 +16,9 @@ Research artifact. Nothing here is fit for dosing insulin.
 | U1a | `Step`, `Channel` and `Pump` with a free command choice | done: every query gives its expected result |
 | U1b | contract, `Controller`, `CGM`, `User`, Lean SMB lemma | done: every query gives its expected result |
 | U2 | SVG timelines of the witness traces and counterexamples (`traces/`) | done |
-| U3 to U5 | replay, Munta run, extensions | planned |
+| U3a | replay of the U1a traces on the T2 pump (`replay.py`, `../LeanAID/Conformance/UppaalReplay.lean`) | done |
+| U3b | replay of the U1b traces on legal T2 runs (`../LeanAID/Conformance/UppaalReplayU1b.lean`) | done, see "Replay on T2 (U3b)" |
+| U4, U5 | Munta run, extensions | planned |
 
 ## How to run
 
@@ -52,6 +54,8 @@ answer. The plan's status `unsupported` is for the Munta run of U4. The status `
 | `results.json` | the results of the last full run |
 | `traces.py` | U2: writes a shortest trace and an SVG timeline for each witness and counterexample |
 | `traces/` | the traces, the timelines and `index.md` |
+| `replay.py` | U3a: writes the Lean replay of the U1a traces, and `replay.json` |
+| `replay.json` | the replay result of each trace |
 | `u0b/` | work item U0b |
 | `../LeanAID/Time/SmbSpacing.lean` | the SMB lemmas of U1b, checked by `lake build` |
 
@@ -296,6 +300,7 @@ relation to the main model for each result.
 |---|---|---|
 | `contract` | the main U1b model | itself |
 | `nopump` | the main model without `Pump` and the P4a observer | same runs on its variables. `Pump` never blocks `Step`: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. This is an argument, not a check |
+| `nobolus` | the main model without user boluses, the pre-run bolus and outputs with units | fewer behaviors: a reachable result transfers. Used for R-F-20 (U3b) |
 | `relaxed` | the U1a model, with the command choice limited to the field domains and `TempOk` of the contract | more behaviors on the pump, the P4a observer and the close: it has no freshness or spacing guard, and readings, user boluses and observers change no pump variable. An `A[]` result that holds transfers |
 
 The witnesses F-20, `prerun-w-t0` and `prerun-w-old` run on the full contract
@@ -362,6 +367,121 @@ The traces show the model and its variants, not T2 runs. A mutation trace shows 
 mutant. U3 replays the traces on T2. In the 38 traces, every delay is a whole
 number of seconds.
 
+## Replay on T2 (U3a)
+
+```bash
+python3 -I uppaal/replay.py
+lake build LeanAID.Conformance.UppaalReplay
+```
+
+U1a traces have free commands, which no legal controller run gives. So each U1a
+trace is replayed on the T2 pump alone (section 7, level 2 of the plan).
+`replay.py` reads the trace and writes `LeanAID/Conformance/UppaalReplay.lean`:
+
+- a T2 environment with the initial temp that the trace installs before t0,
+- a T2 run with one step for each cycle of the trace, at the same time, with the
+  issued fields as the result and the channel outcome of the trace,
+- the projection that the trace shows: for each cycle, its outcome, the pump action
+  and whether a bolus is delivered; and the delivered rate at the end of each group
+  of transitions between steps (and at the end of the trace after a completed
+  execution), and 1 ms before and at each deadline inside a delay,
+- a theorem that `traceMatch` of the run and the projection is `true` (realized) or
+  `false` (not realized), and a theorem that the schedule is 1 U/h at every
+  checkpoint.
+
+`LeanAID/Time/Replay.lean` defines the projection on the T2 side: `obsOf` executes a
+cycle as `applyEvent` does, and `rateObs` is `rateAt`, the temp or the schedule. The
+environment has a schedule of 1 U/h. Classes are rates: the schedule 1, `zero` 0,
+`low` 1/2, `high` 2. `rateAt` reads the schedule with `basalLookup`, which the kernel
+does not reduce (F-22), so the theorems use `native_decide`, which
+`scripts/check.sh` allows in `LeanAID/Conformance/` only. Model time s is T2
+time T0 + 1000·(s − t0) ms. A trace that ends before t0 takes its end as t0.
+
+| trace | result |
+|---|---|
+| the 9 U1a witnesses, P4b-30-free | realized |
+| the 6 U1a mutations other than M-missing-reject | not realized, as expected |
+| M-missing-reject | not replayed: deadlock is a property of the automata |
+
+For each mutation, the T2 projection differs from the trace exactly at the fault:
+T2 rejects the 121-minute temp (M-no-upper-bound), ends the temp on a cancel
+(M-ignore-cancel), keeps the initial temp on a rejection (M-reject-initial), sets the
+valid temp (M-drop-temp), gives no bolus on a rejection (M-reject-bolus), and runs the
+new temp from its own start (M-no-y-reset).
+
+The runs are not legal runs: their results are given, not computed by
+`LeanAID.step`. The U1b traces are replayed in U3b, where the controller output must
+come from `LeanAID.step`.
+
+## Replay on T2 (U3b)
+
+U1b traces come from the contract model, so their T2 runs must be legal: `build`
+makes each run from a script at the times of the trace, and `LeanAID.step` computes
+every issued output. `replay.py` chooses the script: readings that rise from
+150 mg/dL by 20 (profile `profS`, microboluses on) or, if the trace issues a zero
+temp, fall from 80 mg/dL by 10 (profile `prof`); a user bolus of 1 U; the channel
+outcome of the trace. The profiles and free inputs are those of
+`LeanAID/Conformance/TimeRuns.lean`. For each trace,
+`LeanAID/Conformance/UppaalReplayU1b.lean` checks:
+
+- `legal_*`: the run is legal (`build_legal`),
+- `replay_*`: the projection of the run equals the trace. Per step: a reading, a
+  positive user bolus, the issued classes (`Issued`: rate class against
+  `profileCurrentBasal`, as `Increase` counts it; duration kind and value; units
+  class), and the execution with the temp rate as its class. When the model has a
+  pump, also the delivered rate at the checkpoints. If a trace ends inside a cycle,
+  only its issued classes are compared,
+- `ru_*`: the conditions of R_U (section 3) as the proposition `RU`: `ValidRun`, a
+  valid profile and a positive constant schedule at every time, the rate cap
+  (`RateCap`, B = 3 U/h, and the schedule at most B), `InvTemp` and `InvRate` of the
+  initial state, an initial temp that starts at or before t0 with a rate ≥ 0, and
+  steps at or after t0. A one-entry schedule makes `profileAt` the same at every time
+  (`profileAt_single`, proved), so one check covers every time,
+- `inRU_*`: the Boolean check behind `ru_*`, which also checks BolusSeen (with the
+  boluses of the initial history), dated readings at positive times at least 150 s
+  apart with values above 38, and an SMB interval of 3 minutes,
+- `pred_*`: the T2 predicate of the trace's query, for example an issued Increase with
+  a non-stale glucose status (P1-w-inc), finite units at least 183 s after the newest
+  earlier bolus (P5-w-spaced), two accepted microboluses (P5-pair-w), a zero temp of
+  120 minutes still delivered 7199 s after the close (F-20), or the last bolus that
+  `Iob.generate` finds 3600 s before t0 (prerun-w-t0).
+
+The checks use `native_decide`, because `Iob.generate` and `basalLookup` do not reduce
+in the kernel (F-22). `replay.py` first evaluates every obligation of each candidate
+with Lean, writes theorems only for a candidate that meets all of them, and stops if
+Lean fails or the generated file does not build.
+
+Most shortest U1b witnesses issue outputs that oref0 does not give in these runs, for
+example NaN units or a microbolus after one reading. So `check.py` has strengthened
+witnesses `R-*` (work item U3b). Each needs three readings and keeps the controller to
+the outputs that the T2 runs give, by the witness flag `wOdd`: no output; and after
+three readings a high temp of 30 minutes with a microbolus, a low temp of 30 minutes,
+a zero temp of 120 minutes, or a microbolus alone after an earlier one.
+
+R-F-20 needs the pump, so it cannot run on `nopump`. A shortest trace on the full
+contract model did not finish in 1800 s. So it runs on the variant `nobolus`: the
+contract model without user boluses, without the pre-run bolus and without
+controller outputs that carry units. It only removes edges, so it has fewer
+behaviors than the main model, and a reachable witness transfers to the main model.
+
+| U1b trace | result |
+|---|---|
+| P1-w-noread, P5-w-early, P5-w-user-cycle, cgm-w, prerun-w-t0, prerun-w-old | realized as found |
+| R-P1-w-inc, R-P5-w-first, R-P5-w-spaced, R-P5-w-early, R-P5-pair-w, R-P5-w-bolus, R-P5-w-user-cycle, R-F-20 | realized |
+| P1-w-inc, P5-w-first, P5-w-spaced, P5-pair-w, P5-w-bolus, F-20 | unresolved as found: with the replay inputs, T2 issues other outputs. The `R-` witness of the same name is realized |
+| M-P1-rejected-high, M-P1-nan-units, M-P1-no-hasreading | not realizable: `p1_faithful` |
+| M-P3-positive-120, M-P4b-30 | not realizable: `p3_temp_ok` |
+| M-P5-user, M-P5-user-w | not realizable: `p5_faithful` with `smb_spacing`, under BolusSeen |
+| M-P5-clock | observable part realized (a cycle with no issued fields, lost); the clock fault has no T2 counterpart |
+| M-cgm-first | not replayed: a fault of the model's CGM bookkeeping |
+
+"Unresolved" follows section 7 of the plan: other inputs could realize these traces,
+so they are not shown spurious. "Not realizable" rests on a Lean theorem about every
+legal run with `ValidRun` (BolusSeen as a hypothesis for P5), not on a search.
+
+A pre-run checkpoint before the initial temp starts is not compared: T2 has no pre-run
+phase, and `tempRate` applies an initial temp also before its start.
+
 ## Notes for Munta (U4)
 
 The model uses three features that Munta lacks, found in U0b: `select`, a clock
@@ -392,11 +512,12 @@ U0b found more limits that apply to this model:
 
 ## Results
 
-With UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075), all 50 queries give their
-expected status: 21 of U1a and 29 of U1b. On U1a, P4a, P4b-120, `bolus` and the
-deadlock query take 43 to 107 s. On U1b, P1, P3, P5-issued, P5-clock, P5-pair,
-`cgm` and the deadlock query take 24 to 83 s on the `nopump` variant, and P4b-30
-takes 5 s on the `relaxed` variant. Every other query takes less than 2 s. `results.json` has
+With UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075), all 58 queries give their
+expected status: 21 of U1a, 29 of U1b and 8 of U3b. On U1a, P4a, P4b-120, `bolus` and
+the deadlock query take 47 to 127 s. On U1b, P1, P3, P5-issued, P5-clock, P5-pair,
+`cgm` and the deadlock query take 25 to 76 s on the `nopump` variant, and P4b-30
+takes 4 s on the `relaxed` variant. The U3b witnesses take up to 52 s. Every other
+query takes less than 2 s. `results.json` has
 the full record.
 
 These are results about the model and its variants. The `nopump` relation is an

@@ -180,6 +180,40 @@ QUERIES_U1B = [
      "at t0 an old temp runs, and the last bolus was recent", ""),
 ]
 
+# U3b: witnesses that a T2 run can realize. Each needs three readings and issues
+# what oref0 issues in the T2 runs of LeanAID/Conformance/UppaalReplayU1b.lean:
+# a high temp of 30 minutes with a microbolus (SMB), or a low temp of 30 minutes.
+SMB = "(rc == 5) && (dk == 3) && (dv == 30) && (uk == 3)"
+LOWT = "(rc == 4) && (dk == 3) && (dv == 30) && (uk == 0)"
+QUERIES_U3B = [
+    ("R-P1-w-inc", "U3b", "witness", "nopump", (),
+     f"E<> (Step.Iss && {SMB} && {FRESH} && (nRead == 3) && (wOdd == 0))", "reachable",
+     "P1-w-inc with a realizable output: a microbolus with a fresh reading", ""),
+    ("R-P5-w-first", "U3b", "witness", "nopump", (),
+     f"E<> (Step.O3 && {SMB} && (prior == 0) && (nRead == 3) && (wOdd == 0))", "reachable",
+     "P5-w-first with a realizable output: a first microbolus without history", ""),
+    ("R-P5-w-spaced", "U3b", "witness", "nopump", (),
+     f"E<> (Step.O3 && (uk == 3) && (prior == 1) && (mb1 == 1) && (p5c >= {M.SPACING}) && (nRead == 3) "
+     f"&& (wOdd == 0))",
+     "reachable", "P5-w-spaced with a realizable output: a microbolus after an earlier one", ""),
+    ("R-P5-w-early", "U3b", "witness", "nopump", (),
+     f"E<> (Step.O3 && {LOWT} && (prior == 1) && (p5c < {M.SPACING}) && (nRead == 3) && (wOdd == 0))", "reachable",
+     "P5-w-early with a realizable output: a cycle soon after a user bolus issues no units", ""),
+    ("R-P5-pair-w", "U3b", "witness", "nopump", (),
+     f"E<> (Step.End && (mb2 == 1) && (bolusDone == 1) && (nRead == 3) && (wOdd == 0))", "reachable",
+     "P5-pair-w with realizable outputs: two accepted microboluses, both executed", ""),
+    ("R-P5-w-bolus", "U3b", "witness", "nopump", (),
+     f"E<> (Step.End && (bolusDone == 1) && (err5 == 0) && (errPair == 0) && (rc == 5) && (dk == 3) "
+     f"&& (dv == 30) && (nRead == 3) && (wOdd == 0))", "reachable",
+     "P5-w-bolus with a realizable output: an executed microbolus with a high temp", ""),
+    ("R-P5-w-user-cycle", "U3b", "witness", "nopump", (),
+     f"E<> (Step.O3 && (wUb == 1) && {LOWT} && (nRead == 3) && (wOdd == 0))", "reachable",
+     "P5-w-user-cycle with a realizable output: a user bolus and a cycle in one step", ""),
+    ("R-F-20", "U3b", "witness", "nobolus", (),
+     f"E<> (Step.Closed && (f20 == 1) && {EFF} && (tcls == 3) && (obs >= 7199) && (nRead == 3) && (wOdd == 0))",
+     "reachable", "F-20 with three readings before the cycle", ""),
+]
+
 # How the model of a result relates to the main model of its work item.
 MODEL_RELATION = {
     "free": "the U1a model (Step and Pump with a free command choice), with its "
@@ -193,6 +227,10 @@ MODEL_RELATION = {
               "same runs, projected on its variables, and its results, the deadlock "
               "result included, are taken for the main U1b model. This is an "
               "argument, not a check",
+    "nobolus": "the main U1b model without user boluses, without the pre-run bolus, and "
+               "without controller outputs that carry units. It has fewer behaviors than "
+               "the main U1b model, so a reachable result transfers to it. An unreachable "
+               "or A[] result does not",
     "relaxed": "the U1a model with the command choice limited to the field domains "
                "and TempOk of the contract, without the freshness and spacing guards. "
                "Readings, user boluses and the issue observers change no pump "
@@ -223,11 +261,13 @@ def build(model, muts, wit):
     if model == "relaxed":
         return M.build(muts, witnesses=wit, relaxed=True)
     m = M.build(muts, witnesses=wit, contract=True)
+    if model == "nobolus":
+        return M.without_boluses(m)
     return M.without_pump(m) if model == "nopump" else m
 
 
 # every query: the U1a queries run on the free model with breadth-first search
-ALL = [(q[0], q[1], q[2], "free", *q[3:], "") for q in QUERIES] + QUERIES_U1B
+ALL = [(q[0], q[1], q[2], "free", *q[3:], "") for q in QUERIES] + QUERIES_U1B + QUERIES_U3B
 
 
 def sha256(p):
