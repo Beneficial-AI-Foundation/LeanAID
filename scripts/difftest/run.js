@@ -8,12 +8,8 @@
 'use strict';
 var fs = require('fs');
 var path = require('path');
-var cp = require('child_process');
-var ROOT = path.resolve(__dirname, '../..');
-var O = path.join(ROOT, 'vendor/oref0');
-var getLastGlucose = require(path.join(O, 'lib/glucose-get-last'));
-var determine_basal = require(path.join(O, 'lib/determine-basal/determine-basal'));
-var tempBasalFunctions = require(path.join(O, 'lib/basal-set-temp'));
+var common = require('./common');
+var ROOT = common.ROOT;
 
 if (process.env.TZ !== 'UTC') { console.error('run with TZ=UTC'); process.exit(1); }
 var N = parseInt(process.argv[2] || '100000', 10);
@@ -102,69 +98,24 @@ function genCase() {
            meal: meal, microBolusAllowed: chance(0.5), currentTime: now };
 }
 
-// Flag Math.round calls whose argument lies within 1e-9 (relative) of a .5 tie: there,
-// double rounding and exact arithmetic can go different ways (DESIGN D2, FINDINGS F-13).
-var realRound = Math.round, nearTie = false;
-Math.round = function (x) {
-  var f = x - Math.floor(x);
-  if (Math.abs(f - 0.5) <= 1e-9 * Math.max(1, Math.abs(x))) nearTie = true;
-  return realRound(x);
-};
-function runNode(c) {
-  nearTie = false;
-  var gs = getLastGlucose(JSON.parse(JSON.stringify(c.glucose)));
-  var autosens = c.autosens ? JSON.parse(JSON.stringify(c.autosens)) : null;
-  var rT = determine_basal(gs, JSON.parse(JSON.stringify(c.currenttemp)), JSON.parse(JSON.stringify(c.iob)),
-    JSON.parse(JSON.stringify(c.profile)), autosens, JSON.parse(JSON.stringify(c.meal)), tempBasalFunctions,
-    c.microBolusAllowed, null, new Date(c.currentTime));
-  var out = typeof rT.error === 'undefined' ? JSON.stringify(rT) : JSON.stringify({ error: rT.error });
-  return { out: out, nearTie: nearTie };
-}
-
 var OUT = path.join(__dirname, 'out');
 fs.mkdirSync(OUT, { recursive: true });
 var casesFile = path.join(OUT, 'chunk.jsonl');
-var stats = { cases: N, seed: parseInt(process.argv[3] || '1', 10), identical: 0, reasonOnly: 0, valueDiff: 0,
-  predOnlyPlusMinus1: 0, rateDiffers: 0, mismatchWithNearTie: 0, mismatchWithoutNearTie: 0, casesWithNearTie: 0, fieldsDiffering: {}, paths: { smbUnits: 0, errors: 0, rateNull: 0 },
-  aidLeanSeconds: 0 };
+var stats = common.newStats({ cases: N, seed: parseInt(process.argv[3] || '1', 10) });
+stats.aidLeanSeconds = 0;
 var mm = fs.openSync(path.join(OUT, 'mismatches.jsonl'), 'w');
 var CHUNK = 10000;
-function predOnly1(eo, lo, diff) {
-  if (diff.some(function (f) { return f !== 'predBGs' && f !== 'reason'; })) return false;
-  return ['IOB', 'ZT', 'COB', 'UAM'].every(function (k) {
-    var a = (eo.predBGs || {})[k] || [], b = (lo.predBGs || {})[k] || [];
-    return a.length === b.length && a.every(function (x, i) { return Math.abs(x - b[i]) <= 1; });
-  });
-}
 for (var base = 0; base < N; base += CHUNK) {
   var m = Math.min(CHUNK, N - base);
   var cases = [], expected = [];
-  var origErr = console.error; console.error = function () {};
-  var origWrite = process.stderr.write.bind(process.stderr); process.stderr.write = function () { return true; };
-  for (var n = 0; n < m; n++) { var c = genCase(); cases.push(JSON.stringify(c)); expected.push(runNode(c)); }
-  console.error = origErr; process.stderr.write = origWrite;
+  for (var n = 0; n < m; n++) { var c = genCase(); cases.push(JSON.stringify(c)); expected.push(common.runNodeQuiet(c)); }
   fs.writeFileSync(casesFile, cases.join('\n') + '\n');
   var t0 = Date.now();
-  var lean = cp.execFileSync(path.join(ROOT, '.lake/build/bin/aid-lean'), ['batch', casesFile],
-    { encoding: 'utf8', maxBuffer: 1 << 30 }).split('\n');
+  var lean = common.runLean(casesFile);
   stats.aidLeanSeconds += (Date.now() - t0) / 1000;
   for (n = 0; n < m; n++) {
-    var e = expected[n].out, l = lean[n], tie = expected[n].nearTie;
-    if (tie) stats.casesWithNearTie++;
-    var eo = JSON.parse(e);
-    if (eo.units !== undefined) stats.paths.smbUnits++;
-    if (eo.error !== undefined) stats.paths.errors++;
-    if (eo.rate === null) stats.paths.rateNull++;
-    if (e === l) { stats.identical++; continue; }
-    if (tie) stats.mismatchWithNearTie++; else stats.mismatchWithoutNearTie++;
-    var lo; try { lo = JSON.parse(l); } catch (err) { lo = {}; }
-    var keys = {}; Object.keys(eo).concat(Object.keys(lo)).forEach(function (k) { keys[k] = 1; });
-    var diff = Object.keys(keys).filter(function (k) { return JSON.stringify(eo[k]) !== JSON.stringify(lo[k]); });
-    if (diff.length === 1 && diff[0] === 'reason') stats.reasonOnly++;
-    else { stats.valueDiff++; if (predOnly1(eo, lo, diff)) stats.predOnlyPlusMinus1++; }
-    if (diff.indexOf('rate') >= 0) stats.rateDiffers++;
-    diff.forEach(function (k) { stats.fieldsDiffering[k] = (stats.fieldsDiffering[k] || 0) + 1; });
-    fs.writeSync(mm, JSON.stringify({ n: base + n, nearTie: tie, fields: diff, oref0: eo, aidLean: lo, input: JSON.parse(cases[n]) }) + '\n');
+    var d = common.compare(stats, expected[n].out, lean[n], expected[n].nearTie);
+    if (d) { d.n = base + n; d.input = JSON.parse(cases[n]); fs.writeSync(mm, JSON.stringify(d) + '\n'); }
   }
 }
 fs.closeSync(mm);
