@@ -473,3 +473,35 @@ covered by the runs: long manual high temps, which lose insulin in the other dir
 clinical outcome in simulation for their whole Swift port, which fixes this bug among
 others, so their result does not rate this bug alone.
 `LeanAID/Core` is unchanged.
+
+## Found by the Munta run (U4, 2026-11-20, `uppaal/u4/`)
+
+F-23 and F-24 are about the verified model checker Munta (commit `62cb1a4`, built by
+`uppaal/u0b/setup_munta.sh`), not about oref0. Neither makes Munta give a wrong
+answer in its own semantics. Both matter when a network is translated from UPPAAL
+to Munta.
+
+### F-23 — In Munta, time can pass in a committed location
+In UPPAAL, time cannot pass while a process is in a committed location. In Munta,
+"committed" only limits which process moves next. The network
+`uppaal/u4/committed_delay.muntax` (UPPAAL: `committed_delay.xml`) resets `x` and enters
+a committed location whose only edge out needs `x >= 5`. UPPAAL finds `E<> P.L2`
+unreachable, and Munta finds it reachable. With the location also urgent, Munta
+finds it unreachable. Before the fix, Munta reported P1 as not satisfied on the
+lowered `nopump` network, with a path that lets time pass inside a step
+(`uppaal/u4/p1_munta_smallest.muntax`). The U0b test `committed_chain` checked only
+which process moves, so U0b missed this difference. Fix: the Munta writer
+(`uppaal/munta.py`, `write_munta`) marks every committed location also as urgent.
+`uppaal/u0b/README.md` records it as item 7 of "Semantic differences".
+
+### F-24 — Munta's local clock ceilings can be too small, and Munta then rejects the network
+On the 12-location network `uppaal/u4/ceiling_minimal.muntax`, with one clock guard
+`x < 183`, Munta's own precondition "Ceiling resets" fails, and Munta prints "Input
+invalid" with no result. UPPAAL accepts the network. A patched copy of Munta that
+printed the ceilings (during U4, not committed) showed the cause: `local_ceiling`
+gives ceiling 0 at the two entry locations, from which the guard is reachable
+without a reset of `x`. So Munta refuses the input; it gives no wrong answer. Workaround in
+`uppaal/munta.py` (`ceiling_loops`): every location gets a self-loop whose guard has
+a contradictory data atom and every clock at its largest constant. The loop never
+fires, so the behavior does not change, and UPPAAL checks the same network.
+`uppaal/u0b/README.md` records it as input limit 17.

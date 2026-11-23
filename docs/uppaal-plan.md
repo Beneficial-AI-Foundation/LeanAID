@@ -445,6 +445,13 @@ Then check P4b and P5. These traces cannot be T2 runs, because T2 excludes these
 behaviors. They are reported as candidate findings that wait for an extended T2 in
 Lean. Optional: a discrete-tick P6 instance.
 
+U5b. A smaller pump for Munta. In U4, Munta timed out on every query that needs the
+U1a pump (122 locations, about 11,500 edges after lowering). Build a pump with fewer
+durations, in the way U4 reduced the durations of `nopump`, and state its relation to
+the U1a pump: which answers transfer, and why. Then run the pump queries in Munta and
+compare with `uppaal/results.json`. This item does not depend on U5. It uses the U1a
+pump, not the U5 extensions.
+
 U6. Documents:
 
 - the layout table in `docs/DESIGN.md`,

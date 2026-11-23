@@ -26,3 +26,4 @@ prompts/
 scripts/coverage/out/
 
 uppaal/out/
+uppaal/u4/out/

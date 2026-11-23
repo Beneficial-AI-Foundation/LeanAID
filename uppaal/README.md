@@ -18,7 +18,8 @@ Research artifact. Nothing here is fit for dosing insulin.
 | U2 | SVG timelines of the witness traces and counterexamples (`traces/`) | done |
 | U3a | replay of the U1a traces on the T2 pump (`replay.py`, `../LeanAID/Conformance/UppaalReplay.lean`) | done |
 | U3b | replay of the U1b traces on legal T2 runs (`../LeanAID/Conformance/UppaalReplayU1b.lean`) | done, see "Replay on T2 (U3b)" |
-| U4, U5 | Munta run, extensions | planned |
+| U4 | Munta run (`u4/`) | done: Munta confirms 21 data-only queries, times out on the pump networks. See "Munta run (U4)" |
+| U5 | extensions | planned |
 
 ## How to run
 
@@ -43,13 +44,16 @@ model, and what the result says about the main model. A mutation result is about
 the mutant only. An `A[]` query `holds` or `fails`. An `E<>` query is
 `reachable` or `unreachable`. The status `parse error` means that UPPAAL rejected
 the model or the query. The status `error` means any other run without exactly one
-answer. The plan's status `unsupported` is for the Munta run of U4. The status `timeout` means 1800 s passed.
+answer. The status `unsupported` is used only by the Munta run of U4. The status `timeout` means 1800 s passed.
 
 ## Files
 
 | file | content |
 |---|---|
-| `model.py` | the model as Python data, and a writer for UPPAAL XML. U4 adds a Munta writer |
+| `model.py` | the model as Python data, and a writer for UPPAAL XML |
+| `munta.py` | U4: the lowering for Munta, its reductions, and the Munta JSON writer |
+| `munta_order.sh` | U4: builds a diagnostic copy of Munta that prints its variable order |
+| `u4/` | work item U4: `run_u4.py`, `results.json`, `test_lower.py`, and the networks of the two Munta findings |
 | `check.py` | the queries with their expected status, the runner and the `results.json` writer |
 | `results.json` | the results of the last full run |
 | `traces.py` | U2: writes a shortest trace and an SVG timeline for each witness and counterexample |
@@ -482,33 +486,129 @@ legal run with `ValidRun` (BolusSeen as a hypothesis for P5), not on a search.
 A pre-run checkpoint before the initial temp starts is not compared: T2 has no pre-run
 phase, and `tempRate` applies an initial temp also before its start.
 
-## Notes for Munta (U4)
+## Munta run (U4)
 
-The model uses three features that Munta lacks, found in U0b: `select`, a clock
-bound that depends on a variable (`y <= dur * 60`), and clocks in queries. U4 must
-encode them. `select` becomes one edge for each value. The clock bound becomes one
-`Temp` location for each duration. A clock in a query becomes an observer
-location, set by an edge at the clock bound.
+U4 checks the queries of `check.py` a second time with Munta, a model checker whose
+algorithm is verified in Isabelle (`u0b/README.md`). Run it after
+`u0b/setup_munta.sh` and `munta_order.sh`:
 
-U0b found more limits that apply to this model:
+```bash
+python3 -I uppaal/u4/run_u4.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh \
+  --munta vendor/munta-build/munta.sh --order vendor/munta-order/munta.sh
+```
 
-- the guard `(first == 1) || (g > 0)` mixes data and clocks in a disjunction, so it
-  becomes two edges,
-- Munta rejects unused variables and accepts only one order of the variable
-  declarations,
-- Munta proves a result only for a model without deadlock. The `Closed` self-loop
-  removes the deadlock at the end of a run. The deadlock result is about the model
-  with the self-loop,
-- Munta starts every integer variable at 0. The observer starts with `oCls = 9`
-  (the obligation `eff == sched`), so U4 must encode this start, for example as a
-  first committed edge. Without it, P4a checks nothing before the first obligation,
-- U1b adds a `select` on a receiving edge (`Controller`), a clock difference in a
-  query (P5-clock, which needs its own encoding or an "unsupported" result), and
-  clock guards in observer edges,
-- each translated model needs the deadlock check in both tools and an UPPAAL run of
-  `E<> false` without a range error.
+The script writes the networks to `u4/out/`, which git ignores, and the results to
+`u4/results.json`. Every checker run has the memory cap `MemoryMax=16G` and a
+timeout of 1800 s. If a status is not the expected one, the script exits with 1.
 
-`results.json` records the relation of each result to the main model.
+### Which queries Munta can check
+
+Munta crashes on a clock in a formula (U0b, input limit 1) and has no clock
+differences. So a query that reads a clock is `unsupported`. That includes P4a,
+P4b and F-20, which read the pump clock `y` or the close clock `obs`, and P1-w-inc,
+which reads `age`. The other queries read only integers and locations.
+
+### From the UPPAAL model to a Munta network
+
+`munta.lower` writes a network with only the features that Munta accepts. Each step
+is meant to keep every answer, the deadlock answer included. The docstrings argue
+this under conditions that the code checks: if a condition fails, `lower` raises an
+error and writes no network. The argument is not proved.
+
+First, `check_language` refuses any input outside the language of the U4 networks:
+guards and invariants with `&&`, `||`, parentheses, `true`, `false` and comparisons
+of names, integers and `(name * integer)`; updates `x = k`, `x = y`, `x = x + k`, a
+clock reset and `x = (expression) ? x : k`; formulas with `!( … )`,
+`Template.Location` and `imply` in addition. All 58 query models are inside it.
+`u4/test_lower.py` keeps the counterexamples of the Codex review rounds, each
+of which `lower` must refuse or now handle. The other checked conditions
+include: the updates of an edge are independent (no assignment reads or writes a
+variable that an earlier one writes), the sender and the receiver of a
+synchronization do not write the same variable or read what the other writes, only
+the Pump edges into `Temp` write `dur`, and a value class uses only atoms `x op c`
+that stand alone. The steps:
+
+- each `select` becomes one edge for each value, and a copy `x = y` one edge for each
+  value of y,
+- the pump location `Temp` becomes one location `Temp_d` for each duration d, so
+  that each clock bound is a constant,
+- a guard that is a disjunction with a clock atom becomes one edge for each
+  disjunct, and two edges that differ only in `(c < k)` and `(c >= k)` become one,
+- integers with a start value other than 0 get it on a first committed edge from
+  `Step.Init`. No other process may start in a committed location (checked). So a
+  query `A[] p` becomes `A[] (Step.Init || p)` on the lowered
+  network, and `E<> p` becomes `E<> (!(Step.Init) && p)`,
+- every committed location is also urgent (finding F-23 in `../docs/FINDINGS.md`),
+- every location with an edge gets a self-loop that never fires and carries the largest
+  constant of each clock (finding F-24).
+
+The first lowered `nopump` network had 826,237 states in UPPAAL, and Munta ran out
+of memory on P1 after 225 s (`u4/p1_lowered_nopump.muntax`). Three reductions make
+the networks small. Each is a bisimulation, so it keeps every answer:
+
+- value classes (`munta.value_classes`): if a variable occurs only in atoms `x op c`
+  and gets only constants or select values, two values that all atoms treat alike
+  are equivalent. A select then takes one value per class. In `nopump`, the
+  controller issues the whole durations 0, 30 and 31 instead of 0 and 30 to 120,
+  because every guard and query treats 31 to 120 alike,
+- observer removal (`munta.drop_names`): `run_u4.py` removes the observer variables
+  and clocks that the query does not read (`BUNDLES`). The function checks that no
+  other name depends on them, and that in each group of edges that differ only in
+  the observer, the observer guards together cover every value. For P1 this removes
+  5 of the 8 clocks, and the network has 14,379 states in UPPAAL,
+- channel splitting (`munta.split_channels`): the pump receives the duration as a
+  copy `dur = dv`. The channel `setTemp` becomes one channel for each duration value
+  that a sender can send, so the receivers no longer copy.
+
+The reductions are argued in the docstrings and not proved. Two checks test them on
+every query: UPPAAL on the lowered network must give the status of `check.py`, and
+the gates below must pass.
+
+### Gates
+
+A Munta answer counts only if three checks pass on the same lowered network (U0b):
+the UPPAAL deadlock check, the Munta deadlock check, and UPPAAL `E<> false` without
+an error. `results.json` records each gate for each query.
+
+### U4 results
+
+Run of 2026-11-20, UPPAAL 5.1.0-beta5, Munta at commit 62cb1a4. Of the 58 queries,
+Munta gives an answer for 21, times out on 3, is not run on 6, and cannot check 28.
+Every Munta answer equals the UPPAAL answer, and all three gates pass for each.
+
+| query | network | Munta | gates | Munta time, memory, explored states |
+|---|---|---|---|---|
+| P1 | `nopump` | holds | pass | 4 s, 74 MB, 15,217 |
+| P3, P5-issued, cgm, deadlock-contract | `nopump` | holds | pass | 4 to 5 s, up to 328 MB, 15,217 each |
+| P5-pair | `nopump` | holds | pass | 7 s, 444 MB, 48,385 |
+| M-P1-rejected-high, M-P1-nan-units, M-P1-no-hasreading, M-P3-positive-120, M-P5-user, M-cgm-first | `nopump` | fails | pass | 3 s each, under 83 MB |
+| P1-w-noread, P5-w-first, P5-pair-w, P5-w-bolus, P5-w-user-cycle | `nopump` | reachable | pass | 3 to 7 s, up to 570 MB |
+| R-P5-w-first, R-P5-pair-w, R-P5-w-bolus, R-P5-w-user-cycle | `nopump` | reachable | pass | 29 to 126 s, up to 2.8 GB |
+| P4a-w-cancel, deadlock, M-missing-reject | `free` | timeout | Munta deadlock check timed out | 1800 s |
+| collision, bolus, bolus-w, reject-bolus-w, close-no-steps-w, M-reject-bolus | `free` | not run | | |
+| the other 28 | | unsupported | | |
+
+The 28 unsupported queries read a clock: P4a and its other witnesses and mutations,
+all P4b queries with M-no-upper-bound, F-20, P5-clock and M-P5-clock (a clock difference), P1-w-inc,
+P5-w-spaced, P5-w-early, M-P5-user-w, cgm-w, the two pre-run witnesses, and the
+`R-` witnesses of the same kind.
+
+On the three `free` networks that Munta ran, the Pump template has 122 locations and
+about 11,500 edges, because each duration has its own `Temp_d` location. Munta reaches its model
+checker on these networks and does not finish in 1800 s. `EXPECT_MUNTA` in
+`run_u4.py` records these three timeouts. After the first timeout, the script does
+not run the other pump queries, to save time. Their Pump templates also have one
+`Temp_d` location per duration (11,469 to 22,480 edges, more where an observer keeps
+complementary edges apart), but they differ. That these runs would also time out is
+an assumption, not a measurement. The script still runs the deadlock queries. For M-missing-reject, the UPPAAL deadlock gate
+fails as it should: the mutation removes an edge so that the network deadlocks.
+
+So the Munta run confirms the data-only queries of the `nopump` variant: P1, P3, P5,
+P5-pair, `cgm` and the deadlock contract, their mutations and their witnesses. It gives
+no result for the pump queries. Those rest on UPPAAL alone.
+
+`run_u4.py --rescore` applies a changed `EXPECT_MUNTA` to `results.json` without a
+new run.
 
 ## Results
 
@@ -521,4 +621,5 @@ query takes less than 2 s. `results.json` has
 the full record.
 
 These are results about the model and its variants. The `nopump` relation is an
-argument, not a check. Replay against T2 (U3) and the Munta run (U4) are planned.
+argument, not a check. Replay against T2 (U3) is done. The Munta run (U4) checks 21
+data-only queries a second time (section Munta run (U4)).

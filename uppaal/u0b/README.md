@@ -66,7 +66,7 @@ they have no deadlock (see item 1 of "Semantic differences").
 | `sync_bounded` | one binary synchronization, independent bounded updates | `E<>`, `A[]` (one true, one false), `-->`, `A<>`, `E[]`, deadlock |
 | `deadline` | invariant `x <= 5` with guard `x >= 5` | `E<>`, `A<>`, `A[]`, deadlock |
 | `clock_reset`, `clock_reset_too_late` | a reset to 0 whose effect a second clock shows | `E<>` true and false, deadlock |
-| `committed_chain` | two committed locations block another process | `E<>`, `A[]`, deadlock |
+| `committed_chain` | two committed locations block another process (no delay, see item 7 of "Semantic differences") | `E<>`, `A[]`, deadlock |
 | `broadcast` | a clock-guarded sender, two receivers | `E<>`, deadlock |
 | `broadcast_data_guard` | receivers with data guards, one enabled and one not | `E<>`, deadlock |
 | `zero_time_loop` | a self-loop under `x <= 0`, so time cannot pass | `E<>`, `A<>`, `E[]`, deadlock |
@@ -128,6 +128,15 @@ because the loop can run forever without time passing.
    `v := v - c`, with a constant `c` below 1000 and ranges inside -32768 to 32767.
    Each value of such an update stays far from the fixed width, and the UPPAAL
    range check then covers it.
+7. Committed locations (found in U4, not by this suite). In UPPAAL, time cannot pass
+   while a process is in a committed location. In Munta, "committed" only limits
+   which process moves next, and time can pass. The U4 network
+   `../u4/committed_delay.muntax` (UPPAAL: `../u4/committed_delay.xml`) enters a
+   committed location with `x = 0`, and its only edge out needs `x >= 5`. UPPAAL
+   finds `E<> P.L2` unreachable, and Munta finds it reachable. If the location is
+   also urgent, Munta finds it unreachable. The network `committed_chain` tests only
+   which process moves, with no delay, so this suite did not find the difference.
+   So the Munta writer marks every committed location also as urgent.
 
 ## Input limits
 
@@ -171,6 +180,12 @@ each limit is in brackets. "Rejects" means that Munta prints errors and no resul
     edges, one for each side of the disjunction.
 16. An initial location without an outgoing edge: rejects with "Initial state has
     outgoing transitions" (`initial_terminal`). UPPAAL reports a deadlock.
+17. Found in U4: on some graphs, Munta computes a local clock ceiling of 0 at a
+    location from which a larger constant is reachable without a reset. Its
+    precondition "Ceiling resets" then fails, and Munta rejects the network
+    (`../u4/ceiling_minimal.muntax`: 12 locations and one clock guard `x < 183`).
+    The U4 writer adds a self-loop that never fires to every location (see
+    `../munta.py`).
 
 Two more limits follow from the input format. All integer variables start at 0, and
 one file holds one formula.
@@ -191,7 +206,8 @@ error. The generator follows four rules. Updates are independent and have the fo
 of item 6, with no division. Every compound expression is in full parentheses.
 Guards are conjunctions whose disjunctions hold data atoms only. Under these
 conditions, the suite shows no difference between the tools, but this is a test
-result, not a proof.
+result, not a proof. U4 found a fifth rule that the suite missed: every committed
+location must also be urgent in Munta (item 7 of "Semantic differences").
 
 The plan's model ends a run in `Step.Closed`. When the temp expires, the pump
 stops. A final location without an outgoing edge is a deadlock in both tools. So
@@ -217,7 +233,8 @@ U1a and U4 need these tests of the encodings, with both deadlock checks and
   and rejected commands, a user bolus in the same step, and witnesses paired with
   mutations that fail.
 - Committed phases together with synchronized updates and observers. The network
-  `committed_chain` tests only that a committed chain blocks another process.
+  `committed_chain` tests only that a committed chain blocks another process. It
+  does not test a delay in a committed location (item 7 of "Semantic differences").
 - No deadlock result of the original model transfers through an added self-loop.
 
 Section 6 of `docs/uppaal-plan.md` uses features that Munta does not accept:

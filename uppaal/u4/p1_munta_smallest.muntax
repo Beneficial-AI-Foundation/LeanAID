@@ -1,0 +1,271 @@
+{
+ "automata": [
+  {
+   "name": "Step",
+   "initial": 0,
+   "committed": [
+    0,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10,
+    11,
+    12,
+    13
+   ],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "Init",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "Pre",
+     "invariant": ""
+    },
+    {
+     "id": 2,
+     "name": "PreC",
+     "invariant": ""
+    },
+    {
+     "id": 3,
+     "name": "Idle",
+     "invariant": ""
+    },
+    {
+     "id": 4,
+     "name": "S1",
+     "invariant": ""
+    },
+    {
+     "id": 5,
+     "name": "Iss",
+     "invariant": ""
+    },
+    {
+     "id": 6,
+     "name": "Ch",
+     "invariant": ""
+    },
+    {
+     "id": 7,
+     "name": "Ex",
+     "invariant": ""
+    },
+    {
+     "id": 8,
+     "name": "End",
+     "invariant": ""
+    },
+    {
+     "id": 9,
+     "name": "Closed",
+     "invariant": ""
+    },
+    {
+     "id": 10,
+     "name": "R1",
+     "invariant": ""
+    },
+    {
+     "id": 11,
+     "name": "U1",
+     "invariant": ""
+    },
+    {
+     "id": 12,
+     "name": "O1",
+     "invariant": ""
+    },
+    {
+     "id": 13,
+     "name": "O3",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "",
+     "label": "",
+     "update": "oCls := 9, noBolus := 1"
+    },
+    {
+     "source": 1,
+     "target": 2,
+     "guard": "(initDone == 0)",
+     "label": "",
+     "update": "ic := 5, initDone := 1"
+    },
+    {
+     "source": 1,
+     "target": 3,
+     "guard": "",
+     "label": "",
+     "update": "g := 0, first := 1, ic := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "((g > 0))",
+     "label": "",
+     "update": "busy := 1, first := 0, g := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((rc == 0) && (dk == 0)) && (uk == 3) && ((mb1 == 1) && (pb >= 183)))",
+     "label": "",
+     "update": "expB := 1, p5c := 0, prior := 1, mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((rc >= 3) && (dk == 3) && (dv >= 30) && (dv <= 120)) && (uk == 3) && ((mb1 == 1) && (pb < 183)))",
+     "label": "",
+     "update": "expB := 1, p5c := 0, prior := 1, mb1 := 1, pb := 0, errPair := 1"
+    },
+    {
+     "source": 8,
+     "target": 9,
+     "guard": "",
+     "label": "",
+     "update": "busy := 0, obs := 0, rc := 0, dk := 0, dv := 0, uk := 0, expB := 0, bolusDone := 0"
+    },
+    {
+     "source": 1,
+     "target": 1,
+     "guard": "(preB == 0)",
+     "label": "",
+     "update": "preB := 1, sinceBolus := 0, noBolus := 0, p5c := 0, prior := 1"
+    },
+    {
+     "source": 4,
+     "target": 10,
+     "guard": "(rdSeen == 0)",
+     "label": "read!",
+     "update": "rdSeen := 1, rdc := 0"
+    },
+    {
+     "source": 4,
+     "target": 10,
+     "guard": "((rdSeen == 1) && (rdc < 150))",
+     "label": "read!",
+     "update": "rdc := 0, errRead := 1"
+    },
+    {
+     "source": 10,
+     "target": 11,
+     "guard": "",
+     "label": "ubolus!",
+     "update": "p5c := 0, prior := 1"
+    },
+    {
+     "source": 11,
+     "target": 5,
+     "guard": "",
+     "label": "decide!",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 12,
+     "guard": "(((rc == 5) || (uk >= 1)) && (age >= 723))",
+     "label": "",
+     "update": "err1 := 1"
+    },
+    {
+     "source": 12,
+     "target": 13,
+     "guard": "(((rc == 0) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 0) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 0) && (dk == 3) && (dv >= 121) && (dv <= 121)) || ((rc == 0) && (dk == 4)) || ((rc == 1) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 1) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 1) && (dk == 3) && (dv >= 121) && (dv <= 121)) || ((rc == 1) && (dk == 4)) || ((rc == 2) && (dk == 2)) || ((rc == 2) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 2) && (dk == 3) && (dv >= 1) && (dv <= 121)) || ((rc == 2) && (dk == 4)) || ((rc == 3) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 3) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 3) && (dk == 3) && (dv >= 121) && (dv <= 121)) || ((rc == 3) && (dk == 4)) || ((rc == 4) && (dk == 2)) || ((rc == 4) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 4) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 4) && (dk == 3) && (dv >= 31) && (dv <= 121)) || ((rc == 4) && (dk == 4)) || ((rc == 5) && (dk == 2)) || ((rc == 5) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 5) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 5) && (dk == 3) && (dv >= 31) && (dv <= 121)) || ((rc == 5) && (dk == 4)))",
+     "label": "",
+     "update": "err3 := 1"
+    },
+    {
+     "source": 13,
+     "target": 6,
+     "guard": "((uk >= 2) && (prior == 1) && (p5c < 183))",
+     "label": "",
+     "update": "err5 := 1"
+    }
+   ]
+  },
+  {
+   "name": "Controller",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "C",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "(((hasReading == 1) && (age < 723)) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 30, uk := 3"
+    }
+   ]
+  },
+  {
+   "name": "CGM",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "G",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "(hasReading == 0)",
+     "label": "read?",
+     "update": "age := 0, hasReading := 1"
+    }
+   ]
+  },
+  {
+   "name": "User",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "U",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "ubolus?",
+     "update": "sinceBolus := 0, noBolus := 0"
+    }
+   ]
+  }
+ ],
+ "clocks": "g, obs, o4, age, sinceBolus, p5c, pb, rdc",
+ "vars": "hasReading[0:1], noBolus[0:1], oCls[0:9], initDone[0:1], ic[0:5], first[0:1], busy[0:1], mb1[0:1], prior[0:1], expB[0:1], errPair[0:1], bolusDone[0:1], uk[0:3], dv[-1:121], dk[0:4], rc[0:5], preB[0:1], rdSeen[0:1], errRead[0:1], err1[0:1], err3[0:1], err5[0:1]",
+ "broadcast": [],
+ "formula": "E<> (err1 == 1)"
+}
