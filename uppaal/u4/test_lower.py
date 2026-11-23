@@ -444,8 +444,111 @@ def main():
     ok = gs == ["v == -1"] and f == "A[] (v >= -1)"
     bad += not ok
     print(f"{'ok  ' if ok else 'FAIL'} r15 minus sign: {gs} {f!r}")
+    bad += u5b()
     print(f"{bad} failed")
     return 1 if bad else 0
+
+
+def dur_pump(sel, extra_step=()):
+    """A Step that issues dv by a select and sends it, and a Pump that copies it."""
+    return net(["clock z;", "int[-1,3] dv;", "int[0,3] dur;", "chan set;"],
+               T("Step", "S", [L("S"), L("I", kind="committed")],
+                 [E("S", "I", select=sel, update="dv = v"),
+                  E("I", "S", guard="(dv >= 1)", sync="set!"),
+                  E("I", "S", guard="(dv <= 0)"), *extra_step]),
+               T("Pump", "Sched", [L("Sched"), L("Temp", inv="y <= (dur * 60)")],
+                 [E("Sched", "Temp", sync="set?", update="y = 0, dur = dv"),
+                  E("Temp", "Temp", sync="set?", update="dur = dv"),
+                  E("Temp", "Sched", guard="y >= (dur * 60)")], decl="clock y;"))
+
+
+def u5b():
+    """U5b: `few_durations` and `pump_per_duration(written_only=True)`."""
+    bad = 0
+    # the U1a pump: Temp_30 and Temp_120 only, for every pump query
+    for qid, item, kind, variant, muts, query, expected, about, search in R.C.ALL:
+        if variant != "free":
+            continue
+        m = R.C.build(variant, muts, kind == "witness")
+        if R.unsupported(m, query):
+            continue
+        low = MU.lower(m, query, R.choose_drop(m, query, True)[0], reduce_pump=True)
+        locs = sorted(l.name for t in low.templates if t.name == "Pump" for l in t.locs)
+        sent = sorted({e.sync for t in low.templates for e in t.edges if e.sync.startswith("setTemp")})
+        ok = locs == ["Sched", "Temp_120", "Temp_30"] and sent == ["setTemp_120!", "setTemp_120?",
+                                                                     "setTemp_30!", "setTemp_30?"]
+        bad += not ok
+        print(f"{'ok  ' if ok else 'FAIL'} u5b {qid}: pump {locs}, {sent}")
+    # the kept values of dv in the U1a Step: one per class, plus 120
+    m = R.C.build("free", (), False)
+    ints, _, _ = MU.parse_decls(m.decl)
+    keep = MU.few_durations(m, ints, "")
+    ok = keep == [-1, 0, 1, 30, 120, 121]
+    bad += not ok
+    print(f"{'ok  ' if ok else 'FAIL'} u5b kept values of dv: {keep}")
+    # the default lowering is unchanged: Temp_d for every duration of the range
+    low = MU.lower(dur_pump("v : int[-1,3]"), "E<> Step.I")
+    locs = sorted(l.name for t in low.templates if t.name == "Pump" for l in t.locs)
+    ok = locs == ["Sched", "Temp_1", "Temp_2", "Temp_3"]
+    bad += not ok
+    print(f"{'ok  ' if ok else 'FAIL'} u5b default keeps every Temp_d: {locs}")
+    # reduced: dv has the classes -1, 0, 1..3 (atoms dv >= 1, dv <= 0); kept -1, 0, 1 and 120 is
+    # outside the range, so the toy uses extra=() through few_durations directly
+    m = dur_pump("v : int[-1,3]")
+    ints, _, _ = MU.parse_decls(m.decl)
+    keep = MU.few_durations(m, ints, "", extra=())
+    ok = keep == [-1, 0, 1] and all("(v == 1)" in e.guard for t in m.templates for e in t.edges if e.select)
+    bad += not ok
+    print(f"{'ok  ' if ok else 'FAIL'} u5b toy kept values: {keep}")
+    refused = {
+        "dv read in an expression": dur_pump("v : int[-1,3]", (E("S", "S", update="dur = dv + 1"),)),
+        "dv written with a value that is not kept": dur_pump("v : int[-1,3]", (E("S", "S", update="dv = 3"),)),
+        "dv outside an atom": dur_pump("v : int[-1,3]", (E("S", "S", guard="!dv == 1"),)),
+    }
+    for name, m in refused.items():
+        ints, _, _ = MU.parse_decls(m.decl)
+        try:
+            MU.few_durations(m, ints, "", extra=())
+            print(f"FAIL u5b {name}: accepted")
+            bad += 1
+        except ValueError as e:
+            print(f"ok   u5b {name}: {str(e)[:80]}")
+    # transfer: holds transfers only for queries that do not read the pump
+    m = R.C.build("free", (), True)
+    cases = [("E<> ((busy == 0) && (wColl == 1))", "reachable", True),
+             ("E<> ((busy == 0) && (wColl == 1))", "unreachable", False),
+             (R.C.BOLUS, "holds", True), ("A[] (!deadlock)", "holds", True),
+             ("A[] (!deadlock)", "fails", True), (R.C.BOLUS, "timeout", False),
+             # Codex U5b round 1: oDur copies dv, so a holds or unreachable result on it does not
+             # transfer (oDur == 31 is reachable on the U1a network, not on the reduced one)
+             ("E<> (Step.End && (oDur == 31))", "unreachable", False),
+             ("A[] (oDur != 31)", "holds", False)]
+    for q, st, want in cases:
+        got = R.transfer(m, q, st)[0]
+        bad += got != want
+        print(f"{'ok  ' if got == want else 'FAIL'} u5b transfer {st} of {q[:40]}: {got}")
+    # Codex U5b round 2: an atom on the select variable refines the classes, so v == 31 is kept
+    m = R.C.build("free", (), False)
+    for t in m.templates:
+        t.edges = [M.Edge(e.src, e.dst, guard="(((d == 3) || (v == 0)) && (v == 31))", sync=e.sync,
+                          update=e.update, select=e.select) if e.select and "dv = v" in e.update else e
+                   for t_e in [t] for e in t_e.edges]
+    ints, _, _ = MU.parse_decls(m.decl)
+    keep = MU.few_durations(m, ints, "E<> Step.Iss")
+    ok = 31 in keep
+    bad += not ok
+    print(f"{'ok  ' if ok else 'FAIL'} u5b select atom v == 31 refines the classes: {keep}")
+    # Codex U5b round 1: a deadlock found on the reduced network transfers only if the source of
+    # the restricted select always has an exit; in the toy, S has none
+    m = dur_pump("v : int[-1,3]")
+    got = R.transfer(m, "A[] (!deadlock)", "fails")[0]
+    m2 = dur_pump("v : int[-1,3]", (E("S", "S"),))
+    got2 = R.transfer(m2, "A[] (!deadlock)", "fails")[0]
+    ok = got is False and got2 is True
+    bad += not ok
+    print(f"{'ok  ' if ok else 'FAIL'} u5b deadlock counterexample needs an exit at the select source: "
+          f"{got} {got2}")
+    return bad
 
 
 if __name__ == "__main__":

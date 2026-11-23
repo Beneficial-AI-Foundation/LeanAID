@@ -29,13 +29,22 @@ answer on the lowered network must be the status of check.py, and the Munta
 outcome must be that status too, or the outcome in `EXPECT_MUNTA`. A Munta
 answer must also pass the three gates, unless `EXPECT_MUNTA` names the query.
 
-`--rescore` applies a changed `EXPECT_MUNTA` to results.json and runs nothing.
+With `--u5b` (work item U5b), the script runs only the queries on a model with a
+Pump that Munta can check, lowers them with `reduce_pump` (`munta.few_durations`:
+the pump has the durations 30 and 120 only), and writes u4/results-u5b.json. The
+reduced network is a restriction of the U1a network. `transfer` says for each
+answer whether it carries over to the U1a network, and why. Only an answer that
+transfers counts for the U1a pump. `EXPECT_MUNTA_U5B` holds the expected outcomes
+that differ from check.py.
+
+`--rescore` applies a changed `EXPECT_MUNTA` to results.json and runs nothing. With
+`--u5b`, it also recomputes the transfer of each answer.
 `--check-networks` rebuilds every network that results.json records and compares
 the sha256 sums; it runs only the order printer. If all are equal, it records the
 current generator sums, so the old answers stay valid for the current code.
 
 Usage: python3 -I uppaal/u4/run_u4.py --verifyta PATH --munta PATH --order PATH [--only ID ...]
-       [--rescore | --check-networks]
+       [--u5b] [--rescore | --check-networks]
 (`--order` is the diagnostic checker of uppaal/munta_order.sh.)
 """
 
@@ -90,6 +99,96 @@ PUMP_TIMEOUT = ("timeout", "the free pump networks have about 11,500 Pump edges 
                 "duration); Munta reaches its model checker (last line 'Running precond_mc') and does not "
                 "finish in 1800 s (U4 run of 2026-11-20)")
 EXPECT_MUNTA = {"P4a-w-cancel": PUMP_TIMEOUT, "deadlock": PUMP_TIMEOUT, "M-missing-reject": PUMP_TIMEOUT}
+# U5b: the same for the reduced pump (`--u5b`)
+EXPECT_MUNTA_U5B = {
+    "M-missing-reject": ("fails", "Munta finds the deadlock of the mutant, as UPPAAL does, but the UPPAAL "
+                         "and the Munta deadlock gates fail by design, because the mutant deadlocks. "
+                         "So the answer agrees and does not count (U0b gate rule)"),
+}
+
+
+def pump_written(m):
+    """The names that the Pump template writes, and its local clocks."""
+    out = set()
+    for t in m.templates:
+        if t.name == "Pump":
+            out |= set(MU.parse_decls([t.decl])[1]) if t.decl else set()
+            out |= {u.partition(" = ")[0].strip() for e in t.edges for u in MU.updates(e.update)}
+    return out
+
+
+def transfer(m, query, status):
+    """Does a Munta answer on the reduced network (`few_durations`) carry over to the
+    U1a network? Returns (transfers, how).
+
+    The reduced network is a restriction: every run of it is a run of the U1a network
+    (see `munta.few_durations`). So a reachable witness and a counterexample of an
+    `A[] p` query transfer directly.
+
+    A deadlock (`A[] (!deadlock)` fails) needs more, because the U1a network has more
+    edges, which could leave the deadlock state. The removed edges are the select
+    edges with the other values of the duration variable. Checked here: the source
+    location of each such edge has an edge without guard, sync and select to a
+    location without invariant. So that location is never a deadlock, and a deadlock
+    state of the reduced network has no extra edge in the U1a network.
+
+    A result that holds, or an unreachable one, transfers only by an argument, and
+    only under conditions checked here. Let D be the names that the pump writes (with
+    its clock) and the names that an update copies from the duration variable (such
+    as `oDur = dv`). The query must read no name in D and no pump location, and no
+    other template may read a name in D in a guard, an invariant or the right side of
+    an update. The argument, not checked: a U1a run maps to a reduced run with the
+    same Step edges and delays, where each issued duration is replaced by the kept
+    value of its class (-1, 0, 1, 30, 120 or 121). The guards and the query treat the
+    two values alike (the classes come from all their atoms on the duration
+    variable, and from the atoms and bounds of each select variable copied into it),
+    and nothing outside D depends on the value itself. The reduced pump
+    takes part in every synchronization, because it has a receiving edge for every
+    value of its guards in each location where a sender can send, and it never blocks
+    time, because its expiry edge releases the invariant of Temp_d. This is the
+    argument of the `nopump` variant (check.py, MODEL_RELATION). The same holds from
+    reduced runs to U1a runs. For the deadlock query: a state is a deadlock in either
+    network exactly when Step is in a committed location with no enabled edge,
+    because Step can always leave Pre and Idle after a delay and Closed has a
+    self-loop. That is a property of Step and its data, so the two networks have the
+    same deadlock answer."""
+    ints, _, _ = MU.parse_decls(m.decl)
+    x = MU.duration_var(m, ints)
+    deadlock = query == "A[] (!deadlock)"
+    if status == "fails" and deadlock:
+        for t in m.templates:
+            for e in t.edges:
+                sel = set(re.findall(r"(\w+) : int", e.select or ""))
+                if not any(u.partition(" = ")[0].strip() == x and u.partition(" = ")[2].strip() in sel
+                           for u in MU.updates(e.update)):
+                    continue
+                exits = [f for f in t.edges if f.src == e.src and not f.guard and not f.sync and not f.select
+                         and not next(l for l in t.locs if l.name == f.dst).inv]
+                if not exits:
+                    return False, (f"{t.name}.{e.src} has a removed select edge and no edge without guard, "
+                                   "so a deadlock of the reduced network need not be one of the U1a network")
+        return True, ("restriction: the deadlock state of the reduced network is reachable in the U1a "
+                      "network, and the only extra edges there leave a location that always has an edge "
+                      "without guard (run_u4.transfer)")
+    if status in ("reachable", "fails"):
+        return True, ("restriction: the witness or counterexample of the reduced network is a run of "
+                      "the U1a network (munta.few_durations)")
+    if status not in ("holds", "unreachable"):
+        return False, f"no answer ({status})"
+    dep = pump_written(m) | {u.partition(" = ")[0].strip() for t in m.templates for e in t.edges
+                             for u in MU.updates(e.update)
+                             if re.search(rf"\b{x}\b", u.partition(" = ")[2]) and t.name != "Pump"}
+    if not deadlock and (MU.names_in(query) & dep or re.search(r"\bPump\.", query)):
+        return False, (f"the query reads the pump or a copy of {x}, so only the restriction argument "
+                       f"applies, and a {status} result does not transfer by it")
+    readers = sorted({t.name for t in m.templates if t.name != "Pump"
+                      for x_ in [e.guard for e in t.edges] + [l.inv for l in t.locs]
+                      + [u.partition(" = ")[2] for e in t.edges for u in MU.updates(e.update)]
+                      if MU.names_in(x_ or "") & dep})
+    if readers:
+        return False, f"{', '.join(readers)} reads a name that the pump writes or that copies {x}"
+    return True, ("argument, not checked: the pump does not affect Step, and the guards and the query "
+                  "treat each issued duration like the kept value of its class (run_u4.transfer)")
 
 
 def sha256(p):
@@ -114,7 +213,7 @@ def unsupported(m, query):
     return ""
 
 
-def choose_drop(m, formula):
+def choose_drop(m, formula, reduce_pump=False):
     """The groups of BUNDLES to remove, and the reasons for the groups kept."""
     names = MU.names_in(formula)
     ints, clocks, _ = MU.parse_decls(m.decl)
@@ -128,7 +227,7 @@ def choose_drop(m, formula):
             kept[label] = "read by the query"
             continue
         try:
-            MU.lower(m, formula, drop + present)
+            MU.lower(m, formula, drop + present, reduce_pump=reduce_pump)
         except ValueError as e:
             kept[label] = str(e)
             continue
@@ -208,10 +307,11 @@ def munta(munta_bin, path, deadlock, query):
 
 def build_network(args, m, qid, variant, muts, wit, query, deadlock):
     """Lower the network of one query and write it for UPPAAL and for Munta."""
-    drop, kept = choose_drop(m, query)
-    low = MU.lower(m, query, drop)
+    drop, kept = choose_drop(m, query, args.u5b)
+    low = MU.lower(m, query, drop, reduce_pump=args.u5b)
     uq = lowered_formula(query, low)
-    name = variant + "".join("." + x for x in muts) + (".witness" if wit else "") + "." + qid
+    name = ("u5b." if args.u5b else "") + variant + "".join("." + x for x in muts) + \
+        (".witness" if wit else "") + "." + qid
     xml, mx = OUT / f"{name}.xml", OUT / f"{name}.muntax"
     M.write_uppaal(low, xml)
     mq = "E<> Step.Pre" if deadlock else MU.munta_formula(uq)
@@ -220,8 +320,9 @@ def build_network(args, m, qid, variant, muts, wit, query, deadlock):
     return drop, kept, low, uq, xml, mx, mq, order
 
 
-def rescore():
-    path = HERE / "results.json"
+def rescore(u5b=False):
+    path = HERE / RESULTS[u5b]
+    expect_munta = EXPECT_MUNTA_U5B if u5b else EXPECT_MUNTA
     report = json.loads(path.read_text())
     bad = 0
     for r in report["results"]:
@@ -229,18 +330,26 @@ def rescore():
             r["ok"] = r.get("uppaal_main") == r["expected"]
             bad += not r["ok"]
             continue
-        exp_m, why = EXPECT_MUNTA.get(r["id"], (r["expected"], ""))
+        exp_m, why = expect_munta.get(r["id"], (r["expected"], ""))
         r["munta_expected"] = exp_m
+        r.pop("munta_expected_reason", None)
         if why:
             r["munta_expected_reason"] = why
         r["ok"] = (r["uppaal_lowered"] == r["expected"] and r.get("uppaal_main") == r["expected"]
                    and r["munta"] == exp_m
-                   and (r["munta_counts"] or r["id"] in EXPECT_MUNTA))
+                   and (r["munta_counts"] or r["id"] in expect_munta))
+        if u5b:     # the transfer depends only on the model, the query and the Munta status
+            m = C.build(r["model_variant"], tuple(r["mutations"]), r["kind"] == "witness")
+            tr, how = transfer(m, r["query"], r["munta"])
+            r.update({"transfers_to_u1a": tr, "transfer": how, "counts_for_u1a": r["munta_counts"] and tr})
         bad += not r["ok"]
     report["rescored_by_runner_sha256"] = sha256(__file__)
     path.write_text(json.dumps(report, indent=1) + "\n")
     print(f"{len(report['results'])} queries rescored; {bad} not as expected")
     return 1 if bad else 0
+
+
+RESULTS = {False: "results.json", True: "results-u5b.json"}
 
 
 def main():
@@ -253,9 +362,11 @@ def main():
                     help="recompute the ok fields of results.json from EXPECT_MUNTA, run nothing")
     ap.add_argument("--check-networks", action="store_true",
                     help="rebuild each network and compare its sha256 with results.json, run no checker")
+    ap.add_argument("--u5b", action="store_true",
+                    help="U5b: only the pump queries, on the reduced pump; writes results-u5b.json")
     args = ap.parse_args()
     if args.rescore:
-        return rescore()
+        return rescore(args.u5b)
     if args.check_networks and args.only:
         ap.error("--check-networks checks every recorded network; it does not take --only")
     if args.only:
@@ -264,7 +375,9 @@ def main():
             ap.error(f"unknown query IDs: {' '.join(unknown)}")
     OUT.mkdir(exist_ok=True)
     main_results = {r["id"]: r for r in json.loads((UP / "results.json").read_text())["results"]}
-    old_report = json.loads((HERE / "results.json").read_text()) if args.check_networks else {}
+    out_path = HERE / RESULTS[args.u5b]
+    expect_munta = EXPECT_MUNTA_U5B if args.u5b else EXPECT_MUNTA
+    old_report = json.loads(out_path.read_text()) if args.check_networks else {}
     old_results = {r["id"]: r for r in old_report.get("results", [])}
     checked = set()
     gates = {}
@@ -280,6 +393,9 @@ def main():
              "uppaal_main": main_results.get(qid, {}).get("status"),
              "relation": C.relation(variant, kind, muts)}
         why = unsupported(m, query)
+        has_pump = any(t.name == "Pump" for t in m.templates)
+        if args.u5b and (why or not has_pump):
+            continue
         if why:
             r.update({"munta": "unsupported", "reason": why, "ok": r["uppaal_main"] == expected})
             bad += not r["ok"]
@@ -289,8 +405,7 @@ def main():
         deadlock = query == "A[] (!deadlock)"
         if args.check_networks and old_results.get(qid, {}).get("munta") == "not run":
             continue
-        has_pump = any(t.name == "Pump" for t in m.templates)
-        if has_pump and pump_limit and not deadlock:
+        if has_pump and pump_limit and not deadlock and not args.u5b:
             r.update({"munta": "not run", "ok": r["uppaal_main"] == expected,
                       "reason": f"not run to save time: Munta ended without a result on the pump "
                                 f"network of {pump_limit}, and this network also has a Pump template with "
@@ -324,10 +439,16 @@ def main():
         mres = gates[key + ".munta"] if deadlock else munta(args.munta, mx, deadlock, query)
         counts = mres["status"] in ("holds", "fails", "reachable", "unreachable") and all(
             g[k] for k in ("uppaal_deadlock_free", "munta_deadlock_free", "uppaal_exhaustive_no_error"))
-        exp_m, exp_why = EXPECT_MUNTA.get(qid, (expected, ""))
+        exp_m, exp_why = expect_munta.get(qid, (expected, ""))
         # an answer must also pass the gates, unless EXPECT_MUNTA names another outcome
         ok = (u_st == expected and r["uppaal_main"] == expected and mres["status"] == exp_m
-              and (counts or qid in EXPECT_MUNTA))
+              and (counts or qid in expect_munta))
+        if args.u5b:
+            tr, how = transfer(m, query, mres["status"])
+            r.update({"transfers_to_u1a": tr, "transfer": how, "counts_for_u1a": counts and tr,
+                      "relation": "the U1a network with the issued durations reduced by "
+                                  "munta.few_durations (pump durations 30 and 120 only), a restriction "
+                                  "of the U1a network. " + r["relation"]})
         bad += not ok
         if has_pump and mres["status"] in ("timeout", "out of memory") and not pump_limit:
             pump_limit = qid
@@ -358,8 +479,8 @@ def main():
         if not bad:
             old_report["generator_sha256"] = {f: sha256(UP / f) for f in ("model.py", "check.py", "munta.py")}
             old_report["networks_checked_by_runner_sha256"] = sha256(__file__)
-            (HERE / "results.json").write_text(json.dumps(old_report, indent=1) + "\n")
-        print(f"networks: {bad} differ from results.json")
+            out_path.write_text(json.dumps(old_report, indent=1) + "\n")
+        print(f"networks: {bad} differ from {out_path.name}")
         return 1 if bad else 0
     rev = subprocess.run(["git", "-C", str(HERE), "rev-parse", "HEAD"], capture_output=True,
                          text=True).stdout.strip()
@@ -378,8 +499,12 @@ def main():
         "runner_sha256": sha256(__file__),
         "results": results,
     }
+    if args.u5b:
+        report["reduction"] = ("munta.few_durations: the issued duration dv takes one value per class of "
+                               "its atoms plus 120 (-1, 0, 1, 30, 120, 121), so the pump has the "
+                               "durations 30 and 120; pump_per_duration makes Temp_d only for them")
     if not args.only:
-        (HERE / "results.json").write_text(json.dumps(report, indent=1) + "\n")
+        out_path.write_text(json.dumps(report, indent=1) + "\n")
     n = {s: sum(1 for r in results if r["munta"] == s) for s in sorted({r["munta"] for r in results})}
     print(f"{len(results)} queries: {n}; {bad} not as expected")
     return 1 if bad else 0

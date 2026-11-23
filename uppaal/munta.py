@@ -200,8 +200,13 @@ def split_clock_disjunctions(t, clocks):
     t.edges = out
 
 
-def pump_per_duration(t, ints):
-    """`Temp` with `y <= (dur * 60)` becomes `Temp_d` for each duration d."""
+def pump_per_duration(t, ints, written_only=False):
+    """`Temp` with `y <= (dur * 60)` becomes `Temp_d` for each duration d. With
+    `written_only` (U5b), only for each d that an edge into `Temp` writes (`dur = d`):
+    `check_pump_duration` ensures that every edge into `Temp` from another location
+    writes dur and that the pump does not start in `Temp`, and an edge from `Temp` to
+    `Temp` without a write keeps d. So the other locations `Temp_d` are unreachable,
+    and leaving them out changes no behavior."""
     temp = next((l for l in t.locs if l.name == "Temp"), None)
     if temp is None:
         raise ValueError("the Pump template has no location Temp")
@@ -211,6 +216,9 @@ def pump_per_duration(t, ints):
         raise ValueError("the pump already has a location Temp_d")
     lo, hi, _ = ints["dur"]
     durs = range(max(lo, 1), hi + 1)
+    if written_only:
+        durs = sorted({int(mm[1]) for e in t.edges if e.dst == "Temp"
+                       for mm in [re.search(r"\bdur = (-?\d+)", e.update or "")] if mm})
     t.locs = [l for l in t.locs if l.name != "Temp"] + \
         [M.Loc(f"Temp_{d}", inv=fold_constants(subst(temp.inv, {"dur": d})), kind=temp.kind)
          for d in durs]
@@ -658,6 +666,105 @@ def split_channels(m, ints):
     return new_chans
 
 
+def duration_var(m, ints):
+    """The integer variable that the Pump copies into dur (`dur = dv`). ValueError
+    unless there is exactly one."""
+    srcs = {u.partition(" = ")[2].strip() for t in m.templates if t.name == "Pump" for e in t.edges
+            for u in updates(e.update) if u.partition(" = ")[0].strip() == "dur"}
+    srcs = {s for s in srcs if s in ints}
+    if len(srcs) != 1:
+        raise ValueError(f"few_durations needs exactly one variable copied into dur, found {sorted(srcs)}")
+    return srcs.pop()
+
+
+LONGEST = 120      # the longest valid duration in minutes, also that of the initial zero temp
+
+
+def few_durations(m, ints, formula, extra=(LONGEST,)):
+    """A pump with fewer durations (work item U5b). Returns the kept values.
+
+    The pump copies the issued duration into `dur` (`dur = dv`). So `value_classes`
+    cannot merge the values of dv, and the pump gets one location `Temp_d` for each
+    duration (122 locations, about 11,500 edges in U4). This step keeps one value of
+    dv per class of the atoms on dv, as `value_classes` would, plus the start value
+    of dv and the values in `extra`. The atoms on a select variable v with the update
+    `dv = v` in the guard of its edge, and the bounds of v, refine the classes. In
+    the U1a model the classes are -1, 0, 1..29, 30..120 and 121, so the
+    kept values are -1, 0, 1, 30, 120 and 121, and the pump has the durations 30 and
+    120, the same as the two initial temps.
+
+    The step is a restriction, not a bisimulation:
+      1. each select `v` with the update `dv = v` gets the guard `v` in the kept
+         values, which removes edges,
+      2. every other write of dv is a kept constant (checked). So dv always has a
+         kept value, and the conjunct `dv` in the kept values on each sender of a
+         channel whose receiver copies dv changes no behavior. `split_channels` then
+         makes only the kept channels.
+    So every run of the reduced network is a run of the original one. A witness or a
+    counterexample of the reduced network is one of the original. A result that holds
+    (or an unreachable one) does not transfer by this step alone. `run_u4.transfer`
+    states when it transfers by an argument.
+
+    Conditions, checked (ValueError otherwise): one variable is copied into dur;
+    it occurs in guards, invariants and the formula only in atoms `dv op c`; in
+    updates only as `x = dv`, `dv = v` with v a select variable of the edge, or
+    `dv = k` with k kept; and no select variable that is copied into dv is
+    used elsewhere on its edge."""
+    x = duration_var(m, ints)
+    lo, hi, init = ints[x]
+    texts = [e.guard for t in m.templates for e in t.edges] + \
+            [l.inv for t in m.templates for l in t.locs] + [formula]
+    atoms = []
+    for tx in texts:
+        a = atoms_on(x, tx or "")
+        if len(re.findall(rf"\b{x}\b", tx or "")) != len(a):
+            raise ValueError(f"few_durations: {x} occurs outside an atom `{x} op c` in {tx!r}")
+        atoms += a
+    # a select v with the update `dv = v` refines the classes by the atoms on v in its
+    # guard and by its bounds (Codex U5b review round 2), as in `expand_selects`
+    for t in m.templates:
+        for e in t.edges:
+            for v, vlo, vhi in re.findall(r"(\w+) : int\[(-?\d+),(-?\d+)\]", e.select or ""):
+                if any(u.partition(" = ")[0].strip() == x and u.partition(" = ")[2].strip() == v
+                       for u in updates(e.update)):
+                    atoms += atoms_on(v, e.guard or "") + [(">=", int(vlo)), ("<=", int(vhi))]
+    atoms = sorted(set(atoms)) + [(">=", lo), ("<=", hi)]
+    firsts = {}
+    for k in range(lo, hi + 1):
+        firsts.setdefault(tuple(OPS[op](k, c) for op, c in atoms), k)
+    for k in extra:
+        if not lo <= k <= hi:
+            raise ValueError(f"few_durations: {k} is outside the range of {x}")
+    keep = sorted(set(firsts.values()) | set(extra) | {init})
+    kept = "(" + " || ".join(f"({x} == {k})" for k in keep) + ")"
+    copy_chans = set()
+    for t in m.templates:
+        t.edges = list(t.edges)
+        for i, e in enumerate(t.edges):
+            sel = set(re.findall(r"(\w+) : int", e.select or ""))
+            for u in updates(e.update):
+                lhs, _, rhs = (s.strip() for s in u.partition(" = "))
+                if re.search(rf"\b{x}\b", rhs) and rhs != x:
+                    raise ValueError(f"few_durations: {u!r} reads {x} in an expression")
+                if rhs == x and e.sync.endswith("?"):
+                    copy_chans.add(e.sync[:-1])
+                if lhs != x:
+                    continue
+                if rhs in sel:
+                    others = len(re.findall(rf"\b{rhs}\b", (e.guard or "") + "," + e.update))
+                    if others != 1 + len(atoms_on(rhs, e.guard or "")):
+                        raise ValueError(f"few_durations: the select variable {rhs} is used "
+                                         f"outside `{x} = {rhs}` and atoms of the guard")
+                    e = t.edges[i] = replace(e, guard=conj(e.guard, "(" + " || ".join(
+                        f"({rhs} == {k})" for k in keep) + ")"))
+                elif not (re.fullmatch(r"-?\d+", rhs) and int(rhs) in keep):
+                    raise ValueError(f"few_durations: {u!r} writes a value of {x} that is not kept")
+    for t in m.templates:
+        t.edges = [replace(e, guard=conj(e.guard, kept)) if e.sync.endswith("!") and e.sync[:-1] in copy_chans
+                   else e for e in t.edges]
+    return keep
+
+
 def merge_complementary(t):
     """Two edges that are equal except for one conjunct, `(c < k)` in one and
     `(c >= k)` in the other, become one edge without that conjunct. One of the two is
@@ -1076,10 +1183,12 @@ def canonical(m, formula):
     return sp(formula)
 
 
-def lower(model, formula="", drop=()):
+def lower(model, formula="", drop=(), reduce_pump=False):
     """The model with only the features that Munta accepts. With `formula`, a select
     over a variable with a value quotient (`value_classes`) takes one value per class.
-    `drop` names observer variables and clocks to remove (`drop_names`)."""
+    `drop` names observer variables and clocks to remove (`drop_names`). With
+    `reduce_pump` (U5b), the pump gets fewer durations (`few_durations`): the result
+    is a restriction of the model, not an equivalent network."""
     m = M.Model(decl=list(model.decl), templates=[replace(t, locs=list(t.locs), edges=list(t.edges))
                                                   for t in model.templates])
     formula = canonical(m, formula)
@@ -1106,6 +1215,8 @@ def lower(model, formula="", drop=()):
     early, late = [n for n in drop if n not in arith], [n for n in drop if n in arith]
     if early:
         drop_names(m, early, ints, clocks, formula)
+    if reduce_pump:
+        few_durations(m, ints, formula)
     split = split_channels(m, ints)
     chans = [c for ch in chans for c in split.get(ch, [ch])]
     reps = value_classes(m, ints, formula) if formula else {}
@@ -1118,7 +1229,7 @@ def lower(model, formula="", drop=()):
         check_pump_duration(m)
     for t in m.templates:
         if t.name == "Pump":
-            pump_per_duration(t, ints)
+            pump_per_duration(t, ints, written_only=reduce_pump)
         for e in t.edges:
             e.guard = fold_constants(e.guard)
         merge_complementary(t)

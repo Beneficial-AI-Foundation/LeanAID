@@ -20,6 +20,7 @@ Research artifact. Nothing here is fit for dosing insulin.
 | U3b | replay of the U1b traces on legal T2 runs (`../LeanAID/Conformance/UppaalReplayU1b.lean`) | done, see "Replay on T2 (U3b)" |
 | U4 | Munta run (`u4/`) | done: Munta confirms 21 data-only queries, times out on the pump networks. See "Munta run (U4)" |
 | U5 | extensions: delayed execution, lost acknowledgement, two loops (`extensions.md`) | done: P4b and P5 on each extension. The failures are candidate findings, not T2 results. See "Extensions (U5)" |
+| U5b | Munta run of the pump queries on a reduced pump (`u4/results-u5b.json`) | done: Munta answers the nine pump queries without a clock, each equal to UPPAAL. See "Reduced pump (U5b)" |
 
 ## How to run
 
@@ -53,7 +54,7 @@ answer. The status `unsupported` is used only by the Munta run of U4. The status
 | `model.py` | the model as Python data, and a writer for UPPAAL XML |
 | `munta.py` | U4: the lowering for Munta, its reductions, and the Munta JSON writer |
 | `munta_order.sh` | U4: builds a diagnostic copy of Munta that prints its variable order |
-| `u4/` | work item U4: `run_u4.py`, `results.json`, `test_lower.py`, and the networks of the two Munta findings |
+| `u4/` | work items U4 and U5b: `run_u4.py`, `results.json`, `results-u5b.json`, `test_lower.py`, and the networks of the two Munta findings |
 | `check.py` | the queries with their expected status, the runner and the `results.json` writer |
 | `results.json` | the results of the last full run |
 | `traces.py` | U2: writes a shortest trace and an SVG timeline for each witness and counterexample |
@@ -606,11 +607,84 @@ an assumption, not a measurement. The script still runs the deadlock queries. Fo
 fails as it should: the mutation removes an edge so that the network deadlocks.
 
 So the Munta run confirms the data-only queries of the `nopump` variant: P1, P3, P5,
-P5-pair, `cgm` and the deadlock contract, their mutations and their witnesses. It gives
-no result for the pump queries. Those rest on UPPAAL alone.
+P5-pair, `cgm` and the deadlock contract, their mutations and their witnesses. On the
+U1a pump it gives no result. U5b (below) gets the pump queries on a reduced pump.
 
 `run_u4.py --rescore` applies a changed `EXPECT_MUNTA` to `results.json` without a
 new run.
+
+### Reduced pump (U5b)
+
+U5b runs the nine pump queries that Munta can check on a pump with fewer
+durations. The pump copies the issued duration into `dur` (`dur = dv`), so the
+value classes of U4 do not apply to `dv`, and the U1a pump has one location per
+duration. `munta.few_durations` (option `reduce_pump` of `lower`) keeps one value
+of `dv` per class of the atoms on `dv`, plus the start value 0 and 120. In the U1a
+model the classes are -1, 0, 1..29, 30..120 and 121, so `dv` takes the values -1,
+0, 1, 30, 120 and 121. The pump then has the durations 30 and 120, the same as the
+two initial temps, and `pump_per_duration` makes `Temp_d` only for these two. The
+lowered Pump template has 3 locations and 16 to 20 edges, down from 122 locations
+and 11,469 to 22,480 edges.
+
+Run it with the arguments of U4 and `--u5b`:
+
+```bash
+python3 -I uppaal/u4/run_u4.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh \
+  --munta vendor/munta-build/munta.sh --order vendor/munta-order/munta.sh --u5b
+```
+
+The script writes `u4/results-u5b.json`. It does not change `u4/results.json`
+and its 21 `nopump` answers. `--u5b` also works with `--rescore` and
+`--check-networks`.
+
+The reduced network is a restriction of the U1a network, not an equivalent one.
+The select of `dv` loses edges, and the senders of `setTemp` get the conjunct that
+`dv` has a kept value. That conjunct is always true, because every other write of
+`dv` is a kept constant (checked). So every run of the reduced network is a run of
+the U1a network. Which answers transfer to the U1a network (`run_u4.transfer`):
+
+- A reachable witness or a counterexample of an `A[] p` query transfers
+  directly: it is a run of the U1a network. This covers P4a-w-cancel, collision,
+  bolus-w, reject-bolus-w, close-no-steps-w and M-reject-bolus.
+- A deadlock (M-missing-reject) needs one more fact, because the U1a network has
+  more edges, which could leave the deadlock state. The extra edges are the select
+  edges of `Step.S1` with the other durations, and `S1` always has the edge without
+  guard to `End` (checked). So a deadlock state of the reduced network is one of
+  the U1a network.
+- A result that holds transfers only by an argument, not a check, and only if the
+  query reads no pump variable, no pump location and no copy of `dv` (such as
+  `oDur`), and no other template reads such a name (checked). This covers `bolus`
+  and `deadlock`. The argument: a U1a run maps to a reduced run with the same Step
+  edges and delays, where each issued duration is replaced by the kept value of
+  its class. The guards and the query treat the two values alike, and nothing
+  outside the pump and the copies of `dv` depends on the value itself. The
+  pump receives every synchronization and never blocks time, because its expiry
+  edge releases the invariant of `Temp_d`. This is the argument of the `nopump`
+  variant. For the deadlock query: in both networks, a state is a deadlock exactly
+  when Step is in a committed location with no enabled edge.
+- A result that holds or is unreachable on a query that reads the pump or a copy
+  of `dv` does not transfer. For example, `E<> (Step.End && (oDur == 31))` is
+  reachable on the U1a network and unreachable on the reduced one (Codex review
+  round 1). No U5b query has such a result.
+
+Run of 2026-11-22, same versions as U4, cap 16 GB, timeout 1800 s. All nine
+queries get a Munta answer, and each equals the UPPAAL answer on the same lowered
+network and in `uppaal/results.json`.
+
+| query | Munta | gates | transfer to U1a | Munta time, memory, explored states |
+|---|---|---|---|---|
+| P4a-w-cancel | reachable | pass | direct | 9 s, 288 MB, 2,450 |
+| collision, bolus-w, reject-bolus-w, close-no-steps-w | reachable | pass | direct | 2 s each, up to 63 MB, 1 to 87 |
+| bolus | holds | pass | argument | 3 s, 67 MB, 4,776 |
+| deadlock | holds | pass | argument | 3 s, 57 MB, 4,767 |
+| M-reject-bolus | fails | pass | direct (to the mutant) | 2 s, 57 MB, 7 |
+| M-missing-reject | fails | UPPAAL and Munta deadlock gates fail by design | direct with the check above (to the mutant) | 3 s, 56 MB, 4,767 |
+
+So eight pump answers count, and they transfer to the U1a pump: six directly, and
+`bolus` and `deadlock` by the argument above. M-missing-reject agrees with UPPAAL
+but does not count, because the mutant deadlocks, so its deadlock gates fail.
+`EXPECT_MUNTA_U5B` in `run_u4.py` records this. The pump queries that read a
+clock (P4a, P4b and their witnesses and mutations) stay unsupported.
 
 ## Extensions (U5)
 
@@ -651,4 +725,6 @@ the full record.
 
 These are results about the model and its variants. The `nopump` relation is an
 argument, not a check. Replay against T2 (U3) is done. The Munta run (U4) checks 21
-data-only queries a second time (section Munta run (U4)).
+data-only queries a second time (section Munta run (U4)). U5b checks 9 pump queries
+in Munta on a reduced pump, and 8 of the answers count for the U1a pump (section
+Reduced pump (U5b)).
