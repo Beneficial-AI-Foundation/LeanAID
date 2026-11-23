@@ -752,3 +752,20 @@ limit. A `max_basal` on the 0.1 U/h grid never rounds up. Largest overshoot 0.02
   target's own `glucose-get-last`. Pin results unchanged.
 - Network: 53 unauthenticated API calls (`docs/upstream/api-calls.log`), clones `--depth 1` one at
   a time; largest AndroidAPS 263 MB (270 MB with `dev`). `upstream/` deleted.
+
+## Lake configuration in TOML, CI
+
+**Time:** 2026-11-20 (from `date`).
+
+- `lakefile.lean` replaced by `lakefile.toml`, with the same libraries (`LeanAID`, `App`),
+  executable `aid-lean`, default targets and `autoImplicit = false`. TOML cannot hold the
+  `@[test_driver]` script, so `lake test` now runs the executable `TestDriver`
+  (`scripts/TestDriver.lean`). It runs the same three steps as the script did:
+  `lake build`, `aid-lean selftest`, `scripts/check.sh`.
+  A hyphenated name (`test-driver`) did not work: Lake 4.36 builds that executable but
+  `lake test` reports "unknown script, executable, or library".
+- `.github/workflows/ci.yml`: `lake build` and the veritooling sorry audit on pushes and
+  pull requests to `main`. `.github/workflows/verification-comment.yml` posts the sorry
+  delta on pull requests.
+- The maintainer allowed a `Co-Authored-By` line for Claude in commit messages for this
+  change, which differs from AGENTS.md.
