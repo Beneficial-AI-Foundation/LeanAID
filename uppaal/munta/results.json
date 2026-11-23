@@ -2,14 +2,14 @@
  "revision": "1d245740c1db8b19f7f482c72c357f704da52e94",
  "dirty": true,
  "uppaal": "UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075), December 2023",
- "munta": "commit 62cb1a4a4dbcfcf62c365e90faba15b0012d5a12, built by uppaal/u0b/setup_munta.sh",
+ "munta": "commit 62cb1a4a4dbcfcf62c365e90faba15b0012d5a12, built by uppaal/munta/setup_munta.sh",
  "munta_binary_sha256": "0b32e81ba5d499b8ba3a3786d6e725725f48e2a656f2125516939209826939d5",
  "timeout_seconds": 1800,
  "memory_cap": "MemoryMax=16G, MemorySwapMax=0",
  "generator_sha256": {
-  "model.py": "4f6a24badedd5925ffb0932b4e50683fd7cada371185425cc35f37038a0b24fe",
-  "check.py": "3eb33dd52b9698d7f60ff0be754cca8285c30ddd80ae3284a8500de91cdcf31c",
-  "munta.py": "7c5429c4350175d3d92a00c918efd94b72dc21c1914af14e8db65adb3d83e294"
+  "model/model.py": "1ca45e1783e7db64d73510bd4eb3f6f02840546cc4f617c8e01b5554d6987cc7",
+  "queries/check.py": "85b1019ec3003159459dfe62325fecd8edac73ae803dd35f672965ea3e1dc3d3",
+  "munta/translate.py": "032a676141d7a676e87b8faa99acff4d28343618e026b3adc9e4d06c7f8793c0"
  },
  "runner_sha256": "ad523dddb783d7d534e73e93c51b395b9e84547fc40d4229eba30ee32082a45f",
  "results": [
@@ -2676,5 +2676,5 @@
   }
  ],
  "rescored_by_runner_sha256": "15da93bbf04363706c1d8ffb330eb7cda02e89216a8eef2f758daad313fc9040",
- "networks_checked_by_runner_sha256": "6c5e976b01ac8e65eecaedf5685afe62b19539f79f0667568f57b17be701e0df"
+ "networks_checked_by_runner_sha256": "d4f2ef1922da036e3d819cdc852136fd1e09fd0795b9d3af21f34a17e819d970"
 }

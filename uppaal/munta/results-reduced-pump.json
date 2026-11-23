@@ -2,14 +2,14 @@
  "revision": "1012483dc34eb485ac0dfca850ea142ec0449a1f",
  "dirty": false,
  "uppaal": "UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075), December 2023",
- "munta": "commit 62cb1a4a4dbcfcf62c365e90faba15b0012d5a12, built by uppaal/u0b/setup_munta.sh",
+ "munta": "commit 62cb1a4a4dbcfcf62c365e90faba15b0012d5a12, built by uppaal/munta/setup_munta.sh",
  "munta_binary_sha256": "0b32e81ba5d499b8ba3a3786d6e725725f48e2a656f2125516939209826939d5",
  "timeout_seconds": 1800,
  "memory_cap": "MemoryMax=16G, MemorySwapMax=0",
  "generator_sha256": {
-  "model.py": "4f6a24badedd5925ffb0932b4e50683fd7cada371185425cc35f37038a0b24fe",
-  "check.py": "3eb33dd52b9698d7f60ff0be754cca8285c30ddd80ae3284a8500de91cdcf31c",
-  "munta.py": "7c5429c4350175d3d92a00c918efd94b72dc21c1914af14e8db65adb3d83e294"
+  "model/model.py": "1ca45e1783e7db64d73510bd4eb3f6f02840546cc4f617c8e01b5554d6987cc7",
+  "queries/check.py": "85b1019ec3003159459dfe62325fecd8edac73ae803dd35f672965ea3e1dc3d3",
+  "munta/translate.py": "032a676141d7a676e87b8faa99acff4d28343618e026b3adc9e4d06c7f8793c0"
  },
  "runner_sha256": "5fe961556c1827b0fd1184da8a8c9ead8efbbee6558a54b4ab835638f9850e26",
  "results": [
@@ -172,7 +172,7 @@
    "uppaal_main": "holds",
    "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
    "transfers_to_u1a": true,
-   "transfer": "argument, not checked: the pump does not affect Step, and the guards and the query treat each issued duration like the kept value of its class (run_u4.transfer)",
+   "transfer": "argument, not checked: the pump does not affect Step, and the guards and the query treat each issued duration like the kept value of its class (run_munta.transfer)",
    "counts_for_u1a": true,
    "munta": "holds",
    "munta_counts": true,
@@ -465,7 +465,7 @@
    "uppaal_main": "holds",
    "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
    "transfers_to_u1a": true,
-   "transfer": "argument, not checked: the pump does not affect Step, and the guards and the query treat each issued duration like the kept value of its class (run_u4.transfer)",
+   "transfer": "argument, not checked: the pump does not affect Step, and the guards and the query treat each issued duration like the kept value of its class (run_munta.transfer)",
    "counts_for_u1a": true,
    "munta": "holds",
    "munta_counts": true,
@@ -535,7 +535,7 @@
    "uppaal_main": "fails",
    "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
    "transfers_to_u1a": true,
-   "transfer": "restriction: the deadlock state of the reduced network is reachable in the U1a network, and the only extra edges there leave a location that always has an edge without guard (run_u4.transfer)",
+   "transfer": "restriction: the deadlock state of the reduced network is reachable in the U1a network, and the only extra edges there leave a location that always has an edge without guard (run_munta.transfer)",
    "counts_for_u1a": false,
    "munta": "fails",
    "munta_counts": false,
@@ -668,5 +668,5 @@
  ],
  "reduction": "munta.few_durations: the issued duration dv takes one value per class of its atoms plus 120 (-1, 0, 1, 30, 120, 121), so the pump has the durations 30 and 120; pump_per_duration makes Temp_d only for them",
  "rescored_by_runner_sha256": "0c6f1d1693d2e3823c4d85a5d15e631217ecefb1f482266445d2ec55471bf56c",
- "networks_checked_by_runner_sha256": "6c5e976b01ac8e65eecaedf5685afe62b19539f79f0667568f57b17be701e0df"
+ "networks_checked_by_runner_sha256": "d4f2ef1922da036e3d819cdc852136fd1e09fd0795b9d3af21f34a17e819d970"
 }
