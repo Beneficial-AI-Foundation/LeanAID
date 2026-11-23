@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+<declaration>clock x;
+int[0,3] v;
+int[0,2] w;
+chan a;</declaration>
+<template><name>PT</name>
+<location id="P_0"><name>L0</name>
+<label kind="invariant">x &lt;= 4</label>
+</location>
+<location id="P_1"><name>L1</name>
+</location>
+<init ref="P_0"/>
+<transition><source ref="P_0"/><target ref="P_1"/>
+<label kind="guard">x &gt;= 2</label>
+<label kind="synchronisation">a!</label>
+<label kind="assignment">v = v + 1</label>
+</transition>
+<transition><source ref="P_1"/><target ref="P_1"/>
+</transition>
+</template>
+<template><name>QT</name>
+<location id="Q_0"><name>M0</name>
+</location>
+<location id="Q_1"><name>M1</name>
+</location>
+<init ref="Q_0"/>
+<transition><source ref="Q_0"/><target ref="Q_1"/>
+<label kind="synchronisation">a?</label>
+<label kind="assignment">w = 2</label>
+</transition>
+</template>
+<system>P = PT();
+Q = QT();
+system P, Q;</system>
+</nta>

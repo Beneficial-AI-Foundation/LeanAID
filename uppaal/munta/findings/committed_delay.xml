@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nta><declaration>clock x; int[0,1] v;</declaration>
+<template><name>PT</name>
+<location id="a"><name>L0</name></location><location id="b"><name>C1</name><committed/></location><location id="c"><name>L2</name></location>
+<init ref="a"/>
+<transition><source ref="a"/><target ref="b"/><label kind="assignment">x = 0, v = 1</label></transition>
+<transition><source ref="b"/><target ref="c"/><label kind="guard">x &gt;= 5</label><label kind="assignment">v = 0</label></transition>
+<transition><source ref="c"/><target ref="c"/><label kind="assignment">v = 0</label></transition>
+</template><system>P = PT(); system P;</system></nta>

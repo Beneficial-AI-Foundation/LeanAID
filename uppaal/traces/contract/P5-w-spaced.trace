@@ -1,0 +1,52 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/P5-w-spaced.q:1
+ -- Formula is satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=1 preB=0 err1=0 err3=0 err5=0 errPair=0 prior=0 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 nRead=0 wOdd=0 g=0 obs=0 o4=0 age=0 sinceBolus=0 p5c=0 pb=0 rdc=0
+Transition:
+  Step.Pre->Step.Pre { preB == 0, tau, preB := 1, sinceBolus := 0, noBolus := 0, p5c := 0, prior := 1 }
+State:
+( Step.Pre Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 nRead=0 wOdd=0 g=0 obs=0 o4=0 age=0 sinceBolus=0 p5c=0 pb=0 rdc=0
+Delay: 183
+State:
+( Step.Pre Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 nRead=0 wOdd=0 g=183 obs=183 o4=183 age=183 sinceBolus=183 p5c=183 pb=183 rdc=183
+Transition:
+  Step.Pre->Step.Idle { 1, tau, g := 0, first := 1, ic := 0 }
+State:
+( Step.Idle Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=1 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 nRead=0 wOdd=0 g=0 obs=183 o4=183 age=183 sinceBolus=183 p5c=183 pb=183 rdc=183
+Transition:
+  Step.Idle->Step.S1 { first == 1 || g > 0, tau, busy := 1, first := 0, g := 0 }
+State:
+( Step.S1 Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 nRead=0 wOdd=0 g=0 obs=183 o4=183 age=183 sinceBolus=183 p5c=183 pb=183 rdc=183
+Transition:
+  Step.S1->Step.R1 { rdSeen == 0 && nRead < 3, read!, rdSeen := 1, rdc := 0, nRead := nRead + 1 }
+  CGM.G->CGM.G { hasReading == 0, read?, age := 0, hasReading := 1 }
+State:
+( Step.R1 Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=1 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=1 errRead=0 wUb=0 mb2=0 f20=0 nRead=1 wOdd=0 g=0 obs=183 o4=183 age=0 sinceBolus=183 p5c=183 pb=183 rdc=0
+Transition:
+  Step.R1->Step.U1 { 1, tau, 1 }
+State:
+( Step.U1 Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=1 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=1 errRead=0 wUb=0 mb2=0 f20=0 nRead=1 wOdd=0 g=0 obs=183 o4=183 age=0 sinceBolus=183 p5c=183 pb=183 rdc=0
+Transition:
+  Step.U1->Step.Iss { 1, decide!, 1 }
+  Controller.C->Controller.C { hasReading == 1 && age < 723 && sinceBolus >= 183, decide?, rc := 0, dk := 0, dv := 0, uk := 2, wOdd := nRead == 3 && mb1 == 1 && (0 == 0 && 2 == 3) ? wOdd : 1 }
+State:
+( Step.Iss Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=2 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=1 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=1 errRead=0 wUb=0 mb2=0 f20=0 nRead=1 wOdd=1 g=0 obs=183 o4=183 age=0 sinceBolus=183 p5c=183 pb=183 rdc=0
+Transition:
+  Step.Iss->Step.O1 { (rc == 5 || uk >= 1) && hasReading == 1 && age < 723, tau, 1 }
+State:
+( Step.O1 Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=2 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=1 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=1 errRead=0 wUb=0 mb2=0 f20=0 nRead=1 wOdd=1 g=0 obs=183 o4=183 age=0 sinceBolus=183 p5c=183 pb=183 rdc=0
+Transition:
+  Step.O1->Step.O3 { rc == 0 && dk == 0 || rc == 0 && dk == 1 || rc == 0 && dk == 2 || rc == 0 && dk == 3 && dv >= 0 && dv <= 0 || rc == 0 && dk == 3 && dv >= 30 && dv <= 120 || rc == 1 && dk == 0 || rc == 1 && dk == 1 || rc == 1 && dk == 2 || rc == 1 && dk == 3 && dv >= 0 && dv <= 0 || rc == 1 && dk == 3 && dv >= 30 && dv <= 120 || rc == 2 && dk == 0 || rc == 2 && dk == 1 || rc == 2 && dk == 3 && dv >= 0 && dv <= 0 || rc == 3 && dk == 0 || rc == 3 && dk == 1 || rc == 3 && dk == 2 || rc == 3 && dk == 3 && dv >= 0 && dv <= 0 || rc == 3 && dk == 3 && dv >= 30 && dv <= 120 || rc == 4 && dk == 0 || rc == 4 && dk == 1 || rc == 4 && dk == 3 && dv >= 0 && dv <= 0 || rc == 4 && dk == 3 && dv >= 30 && dv <= 30 || rc == 5 && dk == 0 || rc == 5 && dk == 1 || rc == 5 && dk == 3 && dv >= 0 && dv <= 0 || rc == 5 && dk == 3 && dv >= 30 && dv <= 30, tau, 1 }
+State:
+( Step.O3 Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=2 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=1 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=1 errRead=0 wUb=0 mb2=0 f20=0 nRead=1 wOdd=1 g=0 obs=183 o4=183 age=0 sinceBolus=183 p5c=183 pb=183 rdc=0

@@ -1,0 +1,324 @@
+[
+ {
+  "id": "P4a-w-running",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_P4a_w_running",
+  "cycles": 0,
+  "checkpoints": 1
+ },
+ {
+  "id": "P4a-w-expired",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_P4a_w_expired",
+  "cycles": 0,
+  "checkpoints": 3
+ },
+ {
+  "id": "P4a-w-cancel",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_P4a_w_cancel",
+  "cycles": 1,
+  "checkpoints": 1
+ },
+ {
+  "id": "collision",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_collision",
+  "cycles": 1,
+  "checkpoints": 3
+ },
+ {
+  "id": "P4b-120-w",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_P4b_120_w",
+  "cycles": 0,
+  "checkpoints": 2
+ },
+ {
+  "id": "P4b-30-free",
+  "model": "free",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_P4b_30_free",
+  "cycles": 1,
+  "checkpoints": 2
+ },
+ {
+  "id": "P4b-30-free-w",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_P4b_30_free_w",
+  "cycles": 1,
+  "checkpoints": 2
+ },
+ {
+  "id": "bolus-w",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_bolus_w",
+  "cycles": 1,
+  "checkpoints": 1
+ },
+ {
+  "id": "reject-bolus-w",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_reject_bolus_w",
+  "cycles": 1,
+  "checkpoints": 1
+ },
+ {
+  "id": "close-no-steps-w",
+  "model": "free.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_close_no_steps_w",
+  "cycles": 0,
+  "checkpoints": 1
+ },
+ {
+  "id": "M-no-upper-bound",
+  "model": "free.no_duration_upper_bound",
+  "result": "not realized (as expected)",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_M_no_upper_bound",
+  "cycles": 1,
+  "checkpoints": 2
+ },
+ {
+  "id": "M-ignore-cancel",
+  "model": "free.pump_ignores_cancel",
+  "result": "not realized (as expected)",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_M_ignore_cancel",
+  "cycles": 1,
+  "checkpoints": 1
+ },
+ {
+  "id": "M-missing-reject",
+  "model": "free.missing_reject_bolus",
+  "result": "not replayed",
+  "why": "deadlock is a property of the automata (section 7)"
+ },
+ {
+  "id": "M-reject-initial",
+  "model": "free.reject_cancels_initial",
+  "result": "not realized (as expected)",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_M_reject_initial",
+  "cycles": 1,
+  "checkpoints": 1
+ },
+ {
+  "id": "M-drop-temp",
+  "model": "free.pump_drops_valid_temp",
+  "result": "not realized (as expected)",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_M_drop_temp",
+  "cycles": 1,
+  "checkpoints": 1
+ },
+ {
+  "id": "M-reject-bolus",
+  "model": "free.reject_executes_bolus",
+  "result": "not realized (as expected)",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_M_reject_bolus",
+  "cycles": 1,
+  "checkpoints": 1
+ },
+ {
+  "id": "M-no-y-reset",
+  "model": "free.pump_no_reset_on_replace",
+  "result": "not realized (as expected)",
+  "theorem": "LeanAID.Time.Replay.U1a.replay_M_no_y_reset",
+  "cycles": 1,
+  "checkpoints": 2
+ },
+ {
+  "id": "P1-w-noread",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_P1_w_noread",
+  "steps": 1,
+  "checkpoints": 0
+ },
+ {
+  "id": "P1-w-inc",
+  "model": "nopump.witness",
+  "result": "unresolved: with the replay inputs, T2 differs from the trace at step 0; R-P1-w-inc is the realizable witness"
+ },
+ {
+  "id": "M-P1-rejected-high",
+  "model": "nopump.p1_rejected_high",
+  "result": "not realizable: p1_faithful (an Increase needs a non-stale glucose status)"
+ },
+ {
+  "id": "M-P1-nan-units",
+  "model": "nopump.p1_nan_units",
+  "result": "not realizable: p1_faithful (an Increase needs a non-stale glucose status)"
+ },
+ {
+  "id": "M-P1-no-hasreading",
+  "model": "nopump.p1_no_hasreading",
+  "result": "not realizable: p1_faithful (no readings give no glucose status)"
+ },
+ {
+  "id": "M-P3-positive-120",
+  "model": "nopump.p3_positive_120",
+  "result": "not realizable: p3_temp_ok (TempOk on every issued result)"
+ },
+ {
+  "id": "P5-w-first",
+  "model": "nopump.witness",
+  "result": "unresolved: with the replay inputs, T2 differs from the trace at step 0; R-P5-w-first is the realizable witness"
+ },
+ {
+  "id": "P5-w-spaced",
+  "model": "nopump.witness",
+  "result": "unresolved: with the replay inputs, T2 differs from the trace at step 0; R-P5-w-spaced is the realizable witness"
+ },
+ {
+  "id": "P5-w-early",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_P5_w_early",
+  "steps": 1,
+  "checkpoints": 0
+ },
+ {
+  "id": "M-P5-user",
+  "model": "nopump.p5_no_user_reset",
+  "result": "not realizable: p5_faithful with smb_spacing, under BolusSeen"
+ },
+ {
+  "id": "M-P5-user-w",
+  "model": "nopump.p5_no_user_reset.witness",
+  "result": "not realizable: p5_faithful with smb_spacing, under BolusSeen"
+ },
+ {
+  "id": "M-P5-clock",
+  "model": "nopump.p5_reset_on_lost",
+  "result": "observable part realized; the clock fault has no T2 counterpart",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_M_P5_clock"
+ },
+ {
+  "id": "P5-pair-w",
+  "model": "nopump.witness",
+  "result": "unresolved: with the replay inputs, T2 differs from the trace at step 0; R-P5-pair-w is the realizable witness"
+ },
+ {
+  "id": "P5-w-bolus",
+  "model": "nopump.witness",
+  "result": "unresolved: with the replay inputs, T2 differs from the trace at step 0; R-P5-w-bolus is the realizable witness"
+ },
+ {
+  "id": "P5-w-user-cycle",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_P5_w_user_cycle",
+  "steps": 1,
+  "checkpoints": 0
+ },
+ {
+  "id": "cgm-w",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_cgm_w",
+  "steps": 1,
+  "checkpoints": 0
+ },
+ {
+  "id": "M-cgm-first",
+  "model": "nopump.cgm_first_unrecorded",
+  "result": "not replayed: a fault of the model's CGM bookkeeping; T2 keeps every reading"
+ },
+ {
+  "id": "M-P4b-30",
+  "model": "relaxed.p3_positive_120",
+  "result": "not realizable: p3_temp_ok (a positive temp has duration 30)"
+ },
+ {
+  "id": "F-20",
+  "model": "contract.witness",
+  "result": "unresolved: with the replay inputs, T2 differs from the trace at step 0; R-F-20 is the realizable witness"
+ },
+ {
+  "id": "prerun-w-t0",
+  "model": "contract.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_prerun_w_t0",
+  "steps": 0,
+  "checkpoints": 1
+ },
+ {
+  "id": "prerun-w-old",
+  "model": "contract.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_prerun_w_old",
+  "steps": 0,
+  "checkpoints": 2
+ },
+ {
+  "id": "R-P1-w-inc",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_R_P1_w_inc",
+  "steps": 3,
+  "checkpoints": 0
+ },
+ {
+  "id": "R-P5-w-first",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_R_P5_w_first",
+  "steps": 3,
+  "checkpoints": 0
+ },
+ {
+  "id": "R-P5-w-spaced",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_R_P5_w_spaced",
+  "steps": 4,
+  "checkpoints": 0
+ },
+ {
+  "id": "R-P5-w-early",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_R_P5_w_early",
+  "steps": 3,
+  "checkpoints": 0
+ },
+ {
+  "id": "R-P5-pair-w",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_R_P5_pair_w",
+  "steps": 4,
+  "checkpoints": 0
+ },
+ {
+  "id": "R-P5-w-bolus",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_R_P5_w_bolus",
+  "steps": 3,
+  "checkpoints": 0
+ },
+ {
+  "id": "R-P5-w-user-cycle",
+  "model": "nopump.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_R_P5_w_user_cycle",
+  "steps": 3,
+  "checkpoints": 0
+ },
+ {
+  "id": "R-F-20",
+  "model": "nobolus.witness",
+  "result": "realized",
+  "theorem": "LeanAID.Time.Replay.U1b.replay_R_F_20",
+  "steps": 3,
+  "checkpoints": 4
+ }
+]

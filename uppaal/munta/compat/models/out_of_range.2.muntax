@@ -1,0 +1,61 @@
+{
+ "automata": [
+  {
+   "name": "P",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "L0",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "L1",
+     "invariant": ""
+    },
+    {
+     "id": 2,
+     "name": "L2",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "",
+     "label": "",
+     "update": "v := v + 1"
+    },
+    {
+     "source": 1,
+     "target": 2,
+     "guard": "",
+     "label": "",
+     "update": "v := v + 1"
+    },
+    {
+     "source": 1,
+     "target": 1,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 2,
+     "target": 2,
+     "guard": "",
+     "label": "",
+     "update": ""
+    }
+   ]
+  }
+ ],
+ "clocks": "x",
+ "vars": "v[0:1]",
+ "broadcast": [],
+ "formula": "E<> P.L0"
+}

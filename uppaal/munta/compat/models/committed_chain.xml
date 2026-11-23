@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+<declaration>clock x;
+int[0,1] f;
+int[0,1] w;</declaration>
+<template><name>PT</name>
+<location id="P_0"><name>L0</name>
+</location>
+<location id="P_1"><name>C1</name>
+<committed/>
+</location>
+<location id="P_2"><name>C2</name>
+<committed/>
+</location>
+<location id="P_3"><name>L3</name>
+</location>
+<init ref="P_0"/>
+<transition><source ref="P_0"/><target ref="P_1"/>
+<label kind="guard">x &gt;= 1</label>
+<label kind="assignment">f = 1</label>
+</transition>
+<transition><source ref="P_1"/><target ref="P_2"/>
+</transition>
+<transition><source ref="P_2"/><target ref="P_3"/>
+<label kind="assignment">f = 0</label>
+</transition>
+<transition><source ref="P_3"/><target ref="P_3"/>
+</transition>
+</template>
+<template><name>QT</name>
+<location id="Q_0"><name>K0</name>
+</location>
+<location id="Q_1"><name>K1</name>
+</location>
+<init ref="Q_0"/>
+<transition><source ref="Q_0"/><target ref="Q_1"/>
+<label kind="guard">f == 1</label>
+<label kind="assignment">w = 1</label>
+</transition>
+</template>
+<system>P = PT();
+Q = QT();
+system P, Q;</system>
+</nta>

@@ -473,3 +473,98 @@ covered by the runs: long manual high temps, which lose insulin in the other dir
 clinical outcome in simulation for their whole Swift port, which fixes this bug among
 others, so their result does not rate this bug alone.
 `LeanAID/Core` is unchanged.
+
+## Found by the earlier timing work (T0, 2026-11-19), used by the UPPAAL replay
+
+Before the rebase onto `main` (2026-11-23) this finding was F-22. It comes from the
+earlier timing design (`docs/timing-plan.md`), and the UPPAAL replay (U3) relies on
+it. `main` uses F-22 to F-24 for other findings, so the findings of this branch are
+now F-25 to F-30.
+
+### F-25 — `Iob.generate` cannot be evaluated by the kernel (limit of the transcription)
+This is not a finding about oref0. `calcTempTreatments` (lib/iob/history.js,
+transcribed in `LeanAID/Core/Iob.lean`) has two `while` loops (`Core/Iob.lean:430` and
+`:495`), which Lean compiles to definitions the kernel does not unfold, and `sortByKey`
+and `basalLookup` use `List.mergeSort`, which `decide` does not unfold. So `decide`
+cannot evaluate concrete runs that call `generate`; they are checked by `native_decide`.
+A theorem about what IOB or `lastBolusTime` `generate` returns can be stated, but its
+proof needs facts about these definitions that are not available now. Two ways are
+proposed and not done: a refactor of both loops into structural recursion (with the
+existing fuel bound) and a check of the proof interface of `List.mergeSort`; or
+theorems that take the needed fact as a hypothesis (`BolusSeen`, `docs/timing-plan.md`).
+
+Update after the rebase (2026-11-23, not rechecked in detail): `main` removed the two
+`while` loops of `calcTempTreatments` (commit c00ffc2) and checks one cycle with the
+kernel (`zeroRun_cycle_kernel`). `basalLookup` still sorts with `List.mergeSort`
+(BAS-02). `Legal.bolusSeen` on `main` proves BolusSeen for legal runs. The UPPAAL
+replay still checks its runs with `native_decide`.
+
+## Found by the Munta run (U4, 2026-11-20, `uppaal/munta/findings/`)
+
+F-26 and F-27 are about the verified model checker Munta (commit `62cb1a4`, built by
+`uppaal/munta/setup_munta.sh`), not about oref0. Neither makes Munta give a wrong
+answer in its own semantics. Both matter when a network is translated from UPPAAL
+to Munta.
+
+### F-26 — In Munta, time can pass in a committed location
+In UPPAAL, time cannot pass while a process is in a committed location. In Munta,
+"committed" only limits which process moves next. The network
+`uppaal/munta/findings/committed_delay.muntax` (UPPAAL: `committed_delay.xml`) resets `x` and enters
+a committed location whose only edge out needs `x >= 5`. UPPAAL finds `E<> P.L2`
+unreachable, and Munta finds it reachable. With the location also urgent, Munta
+finds it unreachable. Before the fix, Munta reported P1 as not satisfied on the
+lowered `nopump` network, with a path that lets time pass inside a step
+(`uppaal/munta/findings/p1_munta_smallest.muntax`). The U0b test `committed_chain` checked only
+which process moves, so U0b missed this difference. Fix: the Munta writer
+(`uppaal/munta/translate.py`, `write_munta`) marks every committed location also as urgent.
+`uppaal/munta/compat/README.md` records it as item 7 of "Semantic differences".
+
+### F-27 — Munta's local clock ceilings can be too small, and Munta then rejects the network
+On the 12-location network `uppaal/munta/findings/ceiling_minimal.muntax`, with one clock guard
+`x < 183`, Munta's own precondition "Ceiling resets" fails, and Munta prints "Input
+invalid" with no result. UPPAAL accepts the network. A patched copy of Munta that
+printed the ceilings (during U4, not committed) showed the cause: `local_ceiling`
+gives ceiling 0 at the two entry locations, from which the guard is reachable
+without a reset of `x`. So Munta refuses the input; it gives no wrong answer. Workaround in
+`uppaal/munta/translate.py` (`ceiling_loops`): every location gets a self-loop whose guard has
+a contradictory data atom and every clock at its largest constant. The loop never
+fires, so the behavior does not change, and UPPAAL checks the same network.
+`uppaal/munta/compat/README.md` records it as input limit 17.
+
+## Candidate findings from the extended models (U5, 2026-11-22, `uppaal/model/extensions.md`)
+
+F-28 to F-30 come from UPPAAL models that extend the abstraction with behaviors
+that T2 excludes. They are not results about T2 or about oref0. Each trace is a
+run of an extended model, not a T2 run, so U3 does not replay it. Each waits for
+an extended T2 in Lean. Each can be spurious, because the contract allows more
+outputs than oref0 gives. The traces are in `uppaal/traces/extensions/`, and the results
+are in `uppaal/queries/results.json` (IDs `U5-...`).
+
+### F-28 — With delayed execution, P4b and the SMB spacing fail (candidate, extended model)
+In the `delayed` model, an accepted command waits in a queue of 2 and executes at
+most 300 s after its step. P4b-120 and P4b-30 fail: in trace `U5-delay-P4b-120`,
+the last step at t0 issues a zero temp of 120 minutes and closes the run, and the
+temp starts at t0 + 300 s. So it still runs 7200 s after the close. With the bound
+shifted by the delay (7500 s and 2100 s), both queries hold on the model. P5-pair
+fails: in trace `U5-delay-P5-pair`, steps at 0 s and 1 s each issue a microbolus.
+The second decision does not see the first microbolus, because it has not
+executed yet. Both execute at 1 s. P5-issued still holds, because the guard and
+the observer read the same executed history.
+
+### F-29 — With lost acknowledgements, a retry repeats a microbolus (candidate, extended model)
+In the `lostack` model, a command can execute and lose its acknowledgement. A
+later step can retry it with the same identity, without a new decision. P5-pair
+fails: in trace `U5-ack-P5-pair`, a microbolus executes at 0 s with a lost
+acknowledgement, and its retry at 1 s executes again. P5-issued holds, because a
+retry is not a decision. With a pump that ignores a copy of a command that it
+executed (`lostack-dedup`), P5-pair holds. P4b-120 and P4b-30 hold on the `lostack`
+model, because retries happen only in steps, so nothing executes after the close.
+
+### F-30 — With two loops, a decision from an old snapshot breaks the SMB spacing (candidate, extended model)
+In the `twoloops` model, each loop takes its own snapshot, and its spacing guard
+reads the snapshot. P5-pair fails: in trace `U5-two-P5-pair`, loop 1 takes a
+snapshot at 0 s, the other loop issues a microbolus at 0.5 s, and loop 1 issues a
+microbolus at 1 s from its old snapshot. Both execute. P5-issued also fails
+(trace `U5-two-P5-issued`: a user bolus comes between the snapshot and the
+decision). P4b-120 and P4b-30 hold on the model, because each command executes in
+its own step.

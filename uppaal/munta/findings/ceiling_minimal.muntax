@@ -1,0 +1,162 @@
+{
+ "automata": [
+  {
+   "name": "P",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "Init",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "Pre",
+     "invariant": ""
+    },
+    {
+     "id": 2,
+     "name": "Idle",
+     "invariant": ""
+    },
+    {
+     "id": 3,
+     "name": "S1",
+     "invariant": ""
+    },
+    {
+     "id": 4,
+     "name": "Iss",
+     "invariant": ""
+    },
+    {
+     "id": 5,
+     "name": "Ch",
+     "invariant": ""
+    },
+    {
+     "id": 6,
+     "name": "Ex",
+     "invariant": ""
+    },
+    {
+     "id": 7,
+     "name": "End",
+     "invariant": ""
+    },
+    {
+     "id": 8,
+     "name": "R1",
+     "invariant": ""
+    },
+    {
+     "id": 9,
+     "name": "U1",
+     "invariant": ""
+    },
+    {
+     "id": 10,
+     "name": "O1",
+     "invariant": ""
+    },
+    {
+     "id": 11,
+     "name": "O3",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 1,
+     "target": 2,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 2,
+     "target": 3,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "v == 0 && x < 183",
+     "label": "",
+     "update": "x := 0, v := 1"
+    },
+    {
+     "source": 7,
+     "target": 2,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 3,
+     "target": 8,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 8,
+     "target": 9,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 9,
+     "target": 7,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 9,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 4,
+     "target": 10,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 10,
+     "target": 11,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    },
+    {
+     "source": 11,
+     "target": 5,
+     "guard": "",
+     "label": "",
+     "update": "v := 0"
+    }
+   ]
+  }
+ ],
+ "clocks": "x",
+ "vars": "v[0:1]",
+ "broadcast": [],
+ "formula": "E<> P.Ex"
+}

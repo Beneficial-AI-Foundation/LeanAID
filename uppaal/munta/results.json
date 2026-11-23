@@ -1,0 +1,2680 @@
+{
+ "revision": "1d245740c1db8b19f7f482c72c357f704da52e94",
+ "dirty": true,
+ "uppaal": "UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075), December 2023",
+ "munta": "commit 62cb1a4a4dbcfcf62c365e90faba15b0012d5a12, built by uppaal/munta/setup_munta.sh",
+ "munta_binary_sha256": "0b32e81ba5d499b8ba3a3786d6e725725f48e2a656f2125516939209826939d5",
+ "timeout_seconds": 1800,
+ "memory_cap": "MemoryMax=16G, MemorySwapMax=0",
+ "generator_sha256": {
+  "model/model.py": "1ca45e1783e7db64d73510bd4eb3f6f02840546cc4f617c8e01b5554d6987cc7",
+  "queries/check.py": "85b1019ec3003159459dfe62325fecd8edac73ae803dd35f672965ea3e1dc3d3",
+  "munta/translate.py": "032a676141d7a676e87b8faa99acff4d28343618e026b3adc9e4d06c7f8793c0"
+ },
+ "runner_sha256": "ad523dddb783d7d534e73e93c51b395b9e84547fc40d4229eba30ee32082a45f",
+ "results": [
+  {
+   "id": "P4a",
+   "item": "U1a",
+   "kind": "pump",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "A[] ((busy == 0) imply ((((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 < (oDur * 60)))) imply ((Pump.Temp && (Pump.y < (dur * 60))) && (((tcls == 3) && (oCls == 3)) || ((tcls == 4) && (oCls == 4)) || ((tcls == 5) && (oCls == 5))))) && (((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 >= (oDur * 60)))) imply (!(Pump.Temp && (Pump.y < (dur * 60))))) && ((oCls == 9) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))))",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
+   "munta": "unsupported",
+   "reason": "a clock in the query (o4, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P4a-w-running",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> ((busy == 0) && (((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 < (oDur * 60))))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (o4): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P4a-w-expired",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> ((busy == 0) && (((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 >= (oDur * 60))))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (o4): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P4a-w-cancel",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> ((busy == 0) && (oCls == 9) && (wCancel == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "timeout",
+   "munta_counts": false,
+   "munta_expected": "timeout",
+   "munta_seconds": 1800.23,
+   "munta_peak_kb": null,
+   "munta_explored_states": null,
+   "munta_last_line": "Running precond_mc",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 1.4,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": false,
+    "munta_deadlock_status": "timeout",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && ((busy == 0) && (oCls == 9) && (wCancel == 1)))",
+   "munta_query": "E<> (!(Step.Init) && ((busy == 0) && (oCls == 9) && (wCancel == 1)))",
+   "dropped": [
+    "expB",
+    "bolusDone",
+    "obs",
+    "tcls",
+    "dur",
+    "wColl",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P4a observer": "read by the query",
+    "witness wCancel": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 10,
+     "edges": 4758
+    },
+    "Pump": {
+     "locations": 122,
+     "edges": 11590
+    }
+   },
+   "munta_var_order": [
+    "wCancel",
+    "oCls",
+    "initDone",
+    "ic",
+    "oDur",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc"
+   ],
+   "xml": "free.witness.P4a-w-cancel.xml",
+   "xml_sha256": "d77fc2351d5bf50e06dd6a00cce2a692743b39fb81cb9e32d508f26c901b8756",
+   "muntax": "free.witness.P4a-w-cancel.muntax",
+   "muntax_sha256": "011007060370270d9bb9442942a440511aaa0e45a9dd8d8d8469679aaae7b6d7",
+   "ok": true,
+   "munta_expected_reason": "the free pump networks have about 11,500 Pump edges (one Temp location per duration); Munta reaches its model checker (last line 'Running precond_mc') and does not finish in 1800 s (U4 run of 2026-11-20)"
+  },
+  {
+   "id": "collision",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> ((busy == 0) && (wColl == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "not run",
+   "ok": true,
+   "reason": "Munta ended without a result on the pump network of P4a-w-cancel; the other pump networks have the same Pump template with 91 durations"
+  },
+  {
+   "id": "P4b-120",
+   "item": "U1a",
+   "kind": "pump",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "A[] ((Step.Closed && (obs >= 7200) && (busy == 0)) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P4b-120-w",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> (Step.Closed && (obs >= 7199) && (busy == 0) && (Pump.Temp && (Pump.y < (dur * 60))))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P4b-30-free",
+   "item": "U1a",
+   "kind": "pump",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "A[] ((Step.Closed && (obs >= 1800) && (busy == 0)) imply (!((Pump.Temp && (Pump.y < (dur * 60))) && ((tcls == 4) || (tcls == 5)))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P4b-30-free-w",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> (Step.Closed && (obs >= 1800) && (busy == 0) && (Pump.Temp && (Pump.y < (dur * 60))) && ((tcls == 4) || (tcls == 5)) && (dur == 120))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "bolus",
+   "item": "U1a",
+   "kind": "pump",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "A[] (Step.End imply (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
+   "munta": "not run",
+   "ok": true,
+   "reason": "Munta ended without a result on the pump network of P4a-w-cancel; the other pump networks have the same Pump template with 91 durations"
+  },
+  {
+   "id": "bolus-w",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> (Step.End && (bolusDone == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "not run",
+   "ok": true,
+   "reason": "Munta ended without a result on the pump network of P4a-w-cancel; the other pump networks have the same Pump template with 91 durations"
+  },
+  {
+   "id": "reject-bolus-w",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> (Step.End && (wRejBolus == 1) && (bolusDone == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "not run",
+   "ok": true,
+   "reason": "Munta ended without a result on the pump network of P4a-w-cancel; the other pump networks have the same Pump template with 91 durations"
+  },
+  {
+   "id": "close-no-steps-w",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> (Step.Closed && (wNoSteps == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "not run",
+   "ok": true,
+   "reason": "Munta ended without a result on the pump network of P4a-w-cancel; the other pump networks have the same Pump template with 91 durations"
+  },
+  {
+   "id": "deadlock",
+   "item": "U1a",
+   "kind": "pump",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "A[] (!deadlock)",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
+   "munta": "timeout",
+   "munta_counts": false,
+   "munta_expected": "timeout",
+   "munta_seconds": 1800.1,
+   "munta_peak_kb": null,
+   "munta_explored_states": null,
+   "munta_last_line": "Running precond_mc",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 6.15,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": false,
+    "munta_deadlock_status": "timeout",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (!deadlock)",
+   "munta_query": "(-deadlock flag) E<> Step.Pre",
+   "dropped": [
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {},
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 1807
+    },
+    "Pump": {
+     "locations": 122,
+     "edges": 11469
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc"
+   ],
+   "xml": "free.deadlock.xml",
+   "xml_sha256": "ac57864aa080d89cd92386ce62bcc5d8215581e5667dd97f09d3310e17518317",
+   "muntax": "free.deadlock.muntax",
+   "muntax_sha256": "c1a467847bb50efa15da27d0b498cf8f0cd312649bfccf1909ac36f0bdff5550",
+   "ok": true,
+   "munta_expected_reason": "the free pump networks have about 11,500 Pump edges (one Temp location per duration); Munta reaches its model checker (last line 'Running precond_mc') and does not finish in 1800 s (U4 run of 2026-11-20)"
+  },
+  {
+   "id": "M-no-upper-bound",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "no_duration_upper_bound"
+   ],
+   "query": "A[] ((Step.Closed && (obs >= 7200) && (busy == 0)) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "M-ignore-cancel",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "pump_ignores_cancel"
+   ],
+   "query": "A[] ((busy == 0) imply ((((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 < (oDur * 60)))) imply ((Pump.Temp && (Pump.y < (dur * 60))) && (((tcls == 3) && (oCls == 3)) || ((tcls == 4) && (oCls == 4)) || ((tcls == 5) && (oCls == 5))))) && (((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 >= (oDur * 60)))) imply (!(Pump.Temp && (Pump.y < (dur * 60))))) && ((oCls == 9) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "unsupported",
+   "reason": "a clock in the query (o4, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "M-missing-reject",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "missing_reject_bolus"
+   ],
+   "query": "A[] (!deadlock)",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "timeout",
+   "munta_counts": false,
+   "munta_expected": "timeout",
+   "munta_seconds": 1800.15,
+   "munta_peak_kb": null,
+   "munta_explored_states": null,
+   "munta_last_line": "Running precond_mc",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.29,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": false,
+    "munta_deadlock_free": false,
+    "munta_deadlock_status": "timeout",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (!deadlock)",
+   "munta_query": "(-deadlock flag) E<> Step.Pre",
+   "dropped": [
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {},
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 1806
+    },
+    "Pump": {
+     "locations": 122,
+     "edges": 11469
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc"
+   ],
+   "xml": "free.missing_reject_bolus.M-missing-reject.xml",
+   "xml_sha256": "b5ee2bb6f62effb1da810d4ce789756891f63f8c7601d0a1720c100fdcfe7e0f",
+   "muntax": "free.missing_reject_bolus.M-missing-reject.muntax",
+   "muntax_sha256": "f76bdb7a6495bf6d1a14273a21b2cac2a33548b2a777c873ca3dae97de4cc43a",
+   "ok": true,
+   "munta_expected_reason": "the free pump networks have about 11,500 Pump edges (one Temp location per duration); Munta reaches its model checker (last line 'Running precond_mc') and does not finish in 1800 s (U4 run of 2026-11-20)"
+  },
+  {
+   "id": "M-reject-initial",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "reject_cancels_initial"
+   ],
+   "query": "A[] ((busy == 0) imply ((((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 < (oDur * 60)))) imply ((Pump.Temp && (Pump.y < (dur * 60))) && (((tcls == 3) && (oCls == 3)) || ((tcls == 4) && (oCls == 4)) || ((tcls == 5) && (oCls == 5))))) && (((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 >= (oDur * 60)))) imply (!(Pump.Temp && (Pump.y < (dur * 60))))) && ((oCls == 9) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "unsupported",
+   "reason": "a clock in the query (o4, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "M-drop-temp",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "pump_drops_valid_temp"
+   ],
+   "query": "A[] ((busy == 0) imply ((((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 < (oDur * 60)))) imply ((Pump.Temp && (Pump.y < (dur * 60))) && (((tcls == 3) && (oCls == 3)) || ((tcls == 4) && (oCls == 4)) || ((tcls == 5) && (oCls == 5))))) && (((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 >= (oDur * 60)))) imply (!(Pump.Temp && (Pump.y < (dur * 60))))) && ((oCls == 9) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "unsupported",
+   "reason": "a clock in the query (o4, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "M-reject-bolus",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "reject_executes_bolus"
+   ],
+   "query": "A[] (Step.End imply (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "not run",
+   "ok": true,
+   "reason": "Munta ended without a result on the pump network of P4a-w-cancel; the other pump networks have the same Pump template with 91 durations"
+  },
+  {
+   "id": "M-no-y-reset",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "pump_no_reset_on_replace"
+   ],
+   "query": "A[] ((busy == 0) imply ((((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 < (oDur * 60)))) imply ((Pump.Temp && (Pump.y < (dur * 60))) && (((tcls == 3) && (oCls == 3)) || ((tcls == 4) && (oCls == 4)) || ((tcls == 5) && (oCls == 5))))) && (((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 >= (oDur * 60)))) imply (!(Pump.Temp && (Pump.y < (dur * 60))))) && ((oCls == 9) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "unsupported",
+   "reason": "a clock in the query (o4, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P1",
+   "item": "U1b",
+   "kind": "contract",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "A[] (err1 == 0)",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. ",
+   "munta": "holds",
+   "munta_counts": true,
+   "munta_expected": "holds",
+   "munta_seconds": 4.14,
+   "munta_peak_kb": 73704,
+   "munta_explored_states": 15217,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 0.12,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (err1 == 0))",
+   "munta_query": "A[] (Step.Init || (err1 == 0))",
+   "dropped": [
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P1 observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 62
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err1"
+   ],
+   "xml": "nopump.P1.xml",
+   "xml_sha256": "7fb7ca94618fdb86ac3c210f3981d830df454c799aac0d9e8d57b8c40254f339",
+   "muntax": "nopump.P1.muntax",
+   "muntax_sha256": "714090eb74e029963722a656ce94f591f3ab8cfa05b4aa974d31a0e0030e2175",
+   "ok": true
+  },
+  {
+   "id": "P1-w-noread",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.Iss && (hasReading == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 3.57,
+   "munta_peak_kb": 74372,
+   "munta_explored_states": 8,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.06,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (Step.Iss && (hasReading == 0)))",
+   "munta_query": "E<> (!(Step.Init) && (Step.Iss && (hasReading == 0)))",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wOdd",
+    "nRead",
+    "mb2",
+    "wUb",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5-pair observer": "cannot drop ['mb1']: read outside an observer guard"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 72
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 175
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "errPair",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB"
+   ],
+   "xml": "nopump.witness.P1-w-noread.xml",
+   "xml_sha256": "0bd044400d14d2205b2e6ac957ec4ad2716c4c19632cde5cc2d8f85dad023984",
+   "muntax": "nopump.witness.P1-w-noread.muntax",
+   "muntax_sha256": "d8a198ef76d34695eaa2ff68e8dc3f90078314eda3d7e7f6e1f37cbcabf4f272",
+   "ok": true
+  },
+  {
+   "id": "P1-w-inc",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.Iss && ((rc == 5) || (uk >= 1)) && ((hasReading == 1) && (age < 723)))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (age): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "M-P1-rejected-high",
+   "item": "U1b",
+   "kind": "mutation",
+   "model_variant": "nopump",
+   "mutations": [
+    "p1_rejected_high"
+   ],
+   "query": "A[] (err1 == 0)",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "fails",
+   "munta_counts": true,
+   "munta_expected": "fails",
+   "munta_seconds": 2.9,
+   "munta_peak_kb": 82044,
+   "munta_explored_states": 144,
+   "munta_last_line": "Property is not satisfied!",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.04,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (err1 == 0))",
+   "munta_query": "A[] (Step.Init || (err1 == 0))",
+   "dropped": [
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P1 observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 62
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 159
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err1"
+   ],
+   "xml": "nopump.p1_rejected_high.M-P1-rejected-high.xml",
+   "xml_sha256": "09a96bc10d9e35aa303f12756f7088bda8cf21241a02f46bd101024d7f11455b",
+   "muntax": "nopump.p1_rejected_high.M-P1-rejected-high.muntax",
+   "muntax_sha256": "24d1c1ea588a28fcd2726706ed39ba035a2a851d044abcc22e013c82cab44de1",
+   "ok": true
+  },
+  {
+   "id": "M-P1-nan-units",
+   "item": "U1b",
+   "kind": "mutation",
+   "model_variant": "nopump",
+   "mutations": [
+    "p1_nan_units"
+   ],
+   "query": "A[] (err1 == 0)",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "fails",
+   "munta_counts": true,
+   "munta_expected": "fails",
+   "munta_seconds": 3.24,
+   "munta_peak_kb": 67172,
+   "munta_explored_states": 18,
+   "munta_last_line": "Property is not satisfied!",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.06,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (err1 == 0))",
+   "munta_query": "A[] (Step.Init || (err1 == 0))",
+   "dropped": [
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P1 observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 62
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 235
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err1"
+   ],
+   "xml": "nopump.p1_nan_units.M-P1-nan-units.xml",
+   "xml_sha256": "3e26b402f5dea4689bbe243cb281f080f4e0a8f455212d41092d5c057b90ecfb",
+   "muntax": "nopump.p1_nan_units.M-P1-nan-units.muntax",
+   "muntax_sha256": "df1aa9db7ee9cf4737539ac4fa04630bb01ace8bb4d75642f736eb33649e2cab",
+   "ok": true
+  },
+  {
+   "id": "M-P1-no-hasreading",
+   "item": "U1b",
+   "kind": "mutation",
+   "model_variant": "nopump",
+   "mutations": [
+    "p1_no_hasreading"
+   ],
+   "query": "A[] (err1 == 0)",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "fails",
+   "munta_counts": true,
+   "munta_expected": "fails",
+   "munta_seconds": 2.82,
+   "munta_peak_kb": 70196,
+   "munta_explored_states": 18,
+   "munta_last_line": "Property is not satisfied!",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.05,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (err1 == 0))",
+   "munta_query": "A[] (Step.Init || (err1 == 0))",
+   "dropped": [
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P1 observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 62
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err1"
+   ],
+   "xml": "nopump.p1_no_hasreading.M-P1-no-hasreading.xml",
+   "xml_sha256": "1563ec65fd316c3fccbc302d1481e21d88c97927d0fd134453fad6baf9c25b58",
+   "muntax": "nopump.p1_no_hasreading.M-P1-no-hasreading.muntax",
+   "muntax_sha256": "c5085ba0f530f3e156cb3c1a723347b0bfb6984479c68b6fe26d504dba7d8c4b",
+   "ok": true
+  },
+  {
+   "id": "P3",
+   "item": "U1b",
+   "kind": "contract",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "A[] (err3 == 0)",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. ",
+   "munta": "holds",
+   "munta_counts": true,
+   "munta_expected": "holds",
+   "munta_seconds": 4.6,
+   "munta_peak_kb": 231792,
+   "munta_explored_states": 15217,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 0.12,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (err3 == 0))",
+   "munta_query": "A[] (Step.Init || (err3 == 0))",
+   "dropped": [
+    "err1",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P3 observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 62
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err3"
+   ],
+   "xml": "nopump.P3.xml",
+   "xml_sha256": "30d3ea70fba7d8d7a88d5c6bd09429defb5475a5dc62183bc755faace487ed11",
+   "muntax": "nopump.P3.muntax",
+   "muntax_sha256": "9cf9e88aa5c37b782d48c3ffbc46ba8f4fde532d5d74a6809da2a564c2f1c8c8",
+   "ok": true
+  },
+  {
+   "id": "M-P3-positive-120",
+   "item": "U1b",
+   "kind": "mutation",
+   "model_variant": "nopump",
+   "mutations": [
+    "p3_positive_120"
+   ],
+   "query": "A[] (err3 == 0)",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "fails",
+   "munta_counts": true,
+   "munta_expected": "fails",
+   "munta_seconds": 3.0,
+   "munta_peak_kb": 71768,
+   "munta_explored_states": 145,
+   "munta_last_line": "Property is not satisfied!",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.05,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (err3 == 0))",
+   "munta_query": "A[] (Step.Init || (err3 == 0))",
+   "dropped": [
+    "err1",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P3 observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 62
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 169
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err3"
+   ],
+   "xml": "nopump.p3_positive_120.M-P3-positive-120.xml",
+   "xml_sha256": "bc62418efcd6de7ac78b5998120cb4ef030b4e4923bb017c4c4f6e375b2158b7",
+   "muntax": "nopump.p3_positive_120.M-P3-positive-120.muntax",
+   "muntax_sha256": "10530637270bf152f6c76d324226aa0c4f2951be2fdc7fa76d70f13c2fc352b8",
+   "ok": true
+  },
+  {
+   "id": "P5-issued",
+   "item": "U1b",
+   "kind": "contract",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "A[] (err5 == 0)",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. ",
+   "munta": "holds",
+   "munta_counts": true,
+   "munta_expected": "holds",
+   "munta_seconds": 4.34,
+   "munta_peak_kb": 187648,
+   "munta_explored_states": 15217,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 0.12,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (err5 == 0))",
+   "munta_query": "A[] (Step.Init || (err5 == 0))",
+   "dropped": [
+    "err1",
+    "err3",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P5 observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 64
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "prior",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err5"
+   ],
+   "xml": "nopump.P5-issued.xml",
+   "xml_sha256": "5b4761cb2fde943644d1c38a680e3c2f6a25e6ef357d057b5734522a610e2a83",
+   "muntax": "nopump.P5-issued.muntax",
+   "muntax_sha256": "0cca0b26a0f4b518cd8c91cf3719f72316946fdbc31187818cc16b01a7fcc994",
+   "ok": true
+  },
+  {
+   "id": "P5-w-first",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.O3 && (uk >= 2) && (prior == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 6.95,
+   "munta_peak_kb": 569032,
+   "munta_explored_states": 34382,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.06,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (Step.O3 && (uk >= 2) && (prior == 0)))",
+   "munta_query": "E<> (!(Step.Init) && (Step.O3 && (uk >= 2) && (prior == 0)))",
+   "dropped": [
+    "err1",
+    "err3",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wOdd",
+    "nRead",
+    "mb2",
+    "wUb",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5 observer": "read by the query",
+    "P5-pair observer": "cannot drop ['mb1']: read outside an observer guard"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 74
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 175
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "prior",
+    "errPair",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err5"
+   ],
+   "xml": "nopump.witness.P5-w-first.xml",
+   "xml_sha256": "65140b118bd5d53e1e2978d4cbcb2f9ee62c7682e8e8407fd192aca9b7554287",
+   "muntax": "nopump.witness.P5-w-first.muntax",
+   "muntax_sha256": "8dc9060887f50218a9d0a627d8a7c564a9c60978fbc232c08ae649c41b63921a",
+   "ok": true
+  },
+  {
+   "id": "P5-w-spaced",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.O3 && (uk >= 2) && (prior == 1) && (p5c >= 183))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (p5c): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P5-w-early",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.O3 && (uk == 0) && (prior == 1) && (p5c < 183))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (p5c): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "M-P5-user",
+   "item": "U1b",
+   "kind": "mutation",
+   "model_variant": "nopump",
+   "mutations": [
+    "p5_no_user_reset"
+   ],
+   "query": "A[] (err5 == 0)",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "fails",
+   "munta_counts": true,
+   "munta_expected": "fails",
+   "munta_seconds": 2.99,
+   "munta_peak_kb": 82572,
+   "munta_explored_states": 313,
+   "munta_last_line": "Property is not satisfied!",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.06,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (err5 == 0))",
+   "munta_query": "A[] (Step.Init || (err5 == 0))",
+   "dropped": [
+    "err1",
+    "err3",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P5 observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 64
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "prior",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err5"
+   ],
+   "xml": "nopump.p5_no_user_reset.M-P5-user.xml",
+   "xml_sha256": "305bc8456321fdb3952c93afee91aef3892123c1c98e8cc53dbf550163faffec",
+   "muntax": "nopump.p5_no_user_reset.M-P5-user.muntax",
+   "muntax_sha256": "1af02382991419bcdc8a1b5095ad78d8d333bd77b8bbbf6c8e497bc75f65d0d0",
+   "ok": true
+  },
+  {
+   "id": "M-P5-user-w",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [
+    "p5_no_user_reset"
+   ],
+   "query": "E<> (Step.O3 && (uk >= 2) && (prior == 1) && (p5c < 183))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (p5c): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "P5-clock",
+   "item": "U1b",
+   "kind": "contract",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "A[] ((busy == 0) imply ((sinceBolus - p5c) == 0))",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. ",
+   "munta": "unsupported",
+   "reason": "a clock difference in the query (p5c, sinceBolus): Munta has no clock differences",
+   "ok": true
+  },
+  {
+   "id": "M-P5-clock",
+   "item": "U1b",
+   "kind": "mutation",
+   "model_variant": "nopump",
+   "mutations": [
+    "p5_reset_on_lost"
+   ],
+   "query": "A[] ((busy == 0) imply ((sinceBolus - p5c) == 0))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "unsupported",
+   "reason": "a clock difference in the query (p5c, sinceBolus): Munta has no clock differences",
+   "ok": true
+  },
+  {
+   "id": "P5-pair",
+   "item": "U1b",
+   "kind": "contract",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "A[] (errPair == 0)",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. ",
+   "munta": "holds",
+   "munta_counts": true,
+   "munta_expected": "holds",
+   "munta_seconds": 7.06,
+   "munta_peak_kb": 443888,
+   "munta_explored_states": 48385,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 0.39,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || (errPair == 0))",
+   "munta_query": "A[] (Step.Init || (errPair == 0))",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "P5-pair observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 68
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "errPair",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB"
+   ],
+   "xml": "nopump.P5-pair.xml",
+   "xml_sha256": "6fb4b02cc7597ea1144a8ea0793f6ba147e02484af6d86a5ff7023224c65407c",
+   "muntax": "nopump.P5-pair.muntax",
+   "muntax_sha256": "74dcdb6573dff4e802aa1e439860def90b78712c6faed3b8b27742d6dadc588d",
+   "ok": true
+  },
+  {
+   "id": "P5-pair-w",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (mb2 == 1)",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 3.02,
+   "munta_peak_kb": 94044,
+   "munta_explored_states": 229,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.14,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (mb2 == 1))",
+   "munta_query": "E<> (!(Step.Init) && (mb2 == 1))",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wOdd",
+    "nRead",
+    "wUb",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5-pair observer": "cannot drop ['mb1']: read outside an observer guard",
+    "witness mb2": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 72
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 175
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "mb2",
+    "errPair",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB"
+   ],
+   "xml": "nopump.witness.P5-pair-w.xml",
+   "xml_sha256": "84f5b6b65b0aae927a1d2d2f4ebe310a703c83ffb41d54dda1071828d372dc9e",
+   "muntax": "nopump.witness.P5-pair-w.muntax",
+   "muntax_sha256": "6a5ecbd3832b14daf49ad7f37a4982b2c93270c3aef118324b58f0958cd1c71f",
+   "ok": true
+  },
+  {
+   "id": "P5-w-bolus",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.End && (bolusDone == 1) && (err5 == 0) && (errPair == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 3.28,
+   "munta_peak_kb": 66068,
+   "munta_explored_states": 197,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.06,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (Step.End && (bolusDone == 1) && (err5 == 0) && (errPair == 0)))",
+   "munta_query": "E<> (!(Step.Init) && (Step.End && (bolusDone == 1) && (err5 == 0) && (errPair == 0)))",
+   "dropped": [
+    "err1",
+    "err3",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wOdd",
+    "nRead",
+    "mb2",
+    "wUb",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5 observer": "read by the query",
+    "P5-pair observer": "read by the query",
+    "bolus observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 74
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 175
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "prior",
+    "expB",
+    "errPair",
+    "bolusDone",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err5"
+   ],
+   "xml": "nopump.witness.P5-w-bolus.xml",
+   "xml_sha256": "b9f060588bc596c5336208aea3fba7d60caf9c580d8e8a5341cbdb22f402b042",
+   "muntax": "nopump.witness.P5-w-bolus.muntax",
+   "muntax_sha256": "cb1b81de5741f12627f6eee2e1f0c84c02f20ff3bd3a75df47b269580ba18803",
+   "ok": true
+  },
+  {
+   "id": "P5-w-user-cycle",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.O3 && (wUb == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 3.1,
+   "munta_peak_kb": 91148,
+   "munta_explored_states": 165,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.06,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (Step.O3 && (wUb == 1)))",
+   "munta_query": "E<> (!(Step.Init) && (Step.O3 && (wUb == 1)))",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wOdd",
+    "nRead",
+    "mb2",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5-pair observer": "cannot drop ['mb1']: read outside an observer guard",
+    "witness wUb": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 72
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 175
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "errPair",
+    "wUb",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB"
+   ],
+   "xml": "nopump.witness.P5-w-user-cycle.xml",
+   "xml_sha256": "b7c088f15cd21a890cb77286cc80ed02af18cef691ed2f57f8bbf49638701bdb",
+   "muntax": "nopump.witness.P5-w-user-cycle.muntax",
+   "muntax_sha256": "ce1b1c90c2600c1882dd83d4eb06c743f4ea397c372973818fd129aa1cc78944",
+   "ok": true
+  },
+  {
+   "id": "cgm",
+   "item": "U1b",
+   "kind": "pump",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "A[] ((errRead == 0) && ((rdSeen == 1) imply (hasReading == 1)))",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. ",
+   "munta": "holds",
+   "munta_counts": true,
+   "munta_expected": "holds",
+   "munta_seconds": 4.17,
+   "munta_peak_kb": 144012,
+   "munta_explored_states": 15217,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 0.14,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || ((errRead == 0) && ((rdSeen == 1) imply (hasReading == 1))))",
+   "munta_query": "A[] (Step.Init || ((errRead == 0) && ((rdSeen == 1) -> (hasReading == 1))))",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "reading observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 64
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "rdSeen",
+    "errRead"
+   ],
+   "xml": "nopump.cgm.xml",
+   "xml_sha256": "3b3f70bee4499c5669545afb871c091755d72713dcaa970d7c19564f7711e96b",
+   "muntax": "nopump.cgm.muntax",
+   "muntax_sha256": "c344c43de9e50279912fa4474451ea445266c7bb54254e334c09510de0415e36",
+   "ok": true
+  },
+  {
+   "id": "cgm-w",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.R1 && (rdSeen == 1) && (rdc == 0) && (g == 0) && (first == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (g, rdc): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "M-cgm-first",
+   "item": "U1b",
+   "kind": "mutation",
+   "model_variant": "nopump",
+   "mutations": [
+    "cgm_first_unrecorded"
+   ],
+   "query": "A[] ((errRead == 0) && ((rdSeen == 1) imply (hasReading == 1)))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "fails",
+   "munta_counts": true,
+   "munta_expected": "fails",
+   "munta_seconds": 3.2,
+   "munta_peak_kb": 69816,
+   "munta_explored_states": 6,
+   "munta_last_line": "Property is not satisfied!",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.05,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.Init || ((errRead == 0) && ((rdSeen == 1) imply (hasReading == 1))))",
+   "munta_query": "A[] (Step.Init || ((errRead == 0) && ((rdSeen == 1) -> (hasReading == 1))))",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "reading observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 64
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "rdSeen",
+    "errRead"
+   ],
+   "xml": "nopump.cgm_first_unrecorded.M-cgm-first.xml",
+   "xml_sha256": "a9b1e44bc440a463363e3eda6cb6feb51ca7e4964a68ddfc44bd5d1c6aab99bd",
+   "muntax": "nopump.cgm_first_unrecorded.M-cgm-first.muntax",
+   "muntax_sha256": "891456466b1b7e427b2b7a87fd30c7d1436f974cf1a8d01fa6ab0eb692cf9bfd",
+   "ok": true
+  },
+  {
+   "id": "deadlock-contract",
+   "item": "U1b",
+   "kind": "pump",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "A[] (!deadlock)",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. ",
+   "munta": "holds",
+   "munta_counts": true,
+   "munta_expected": "holds",
+   "munta_seconds": 4.86,
+   "munta_peak_kb": 327464,
+   "munta_explored_states": 15217,
+   "munta_last_line": "Model has no deadlock!",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 0.17,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (!deadlock)",
+   "munta_query": "(-deadlock flag) E<> Step.Pre",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "errPair",
+    "mb1",
+    "pb",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {},
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 62
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 157
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB"
+   ],
+   "xml": "nopump.deadlock-contract.xml",
+   "xml_sha256": "73b9a825a6753101f4d6fce82b0e6746870274c867235b03c19dcce2901b7ad2",
+   "muntax": "nopump.deadlock-contract.muntax",
+   "muntax_sha256": "b0b837f025166a9eb9069a3be77497f3d72602c5aa082cc75d7ec128e8fdc501",
+   "ok": true
+  },
+  {
+   "id": "P4b-30",
+   "item": "U1b",
+   "kind": "contract",
+   "model_variant": "relaxed",
+   "mutations": [],
+   "query": "A[] ((Step.Closed && (obs >= 1800) && (busy == 0)) imply (!((Pump.Temp && (Pump.y < (dur * 60))) && ((tcls == 4) || (tcls == 5)))))",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the U1a model with the command choice limited to the field domains and TempOk of the contract, without the freshness and spacing guards. Readings, user boluses and the issue observers change no pump variable and block nothing, so on the pump, the P4a observer and the close this variant has more behaviors than the main U1b model. An A[] result that holds transfers to the main U1b model. A counterexample does not. ",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "M-P4b-30",
+   "item": "U1b",
+   "kind": "mutation",
+   "model_variant": "relaxed",
+   "mutations": [
+    "p3_positive_120"
+   ],
+   "query": "A[] ((Step.Closed && (obs >= 1800) && (busy == 0)) imply (!((Pump.Temp && (Pump.y < (dur * 60))) && ((tcls == 4) || (tcls == 5)))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a model with the command choice limited to the field domains and TempOk of the contract, without the freshness and spacing guards. Readings, user boluses and the issue observers change no pump variable and block nothing, so on the pump, the P4a observer and the close this variant has more behaviors than the main U1b model. An A[] result that holds transfers to the main U1b model. A counterexample does not. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "F-20",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "contract",
+   "mutations": [],
+   "query": "E<> (Step.Closed && (f20 == 1) && (Pump.Temp && (Pump.y < (dur * 60))) && (tcls == 3) && (obs >= 7199))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model: the U1a model with Controller, CGM, User, the contract and the issue observers. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "prerun-w-t0",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "contract",
+   "mutations": [],
+   "query": "E<> (Step.Idle && (first == 1) && (g == 0) && Pump.Temp && (Pump.y == 0) && (sinceBolus == 3600) && (preB == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model: the U1a model with Controller, CGM, User, the contract and the issue observers. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (g, sinceBolus, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "prerun-w-old",
+   "item": "U1b",
+   "kind": "witness",
+   "model_variant": "contract",
+   "mutations": [],
+   "query": "E<> (Step.Idle && (first == 1) && (g == 0) && Pump.Temp && (Pump.y >= 1700) && (sinceBolus <= 10) && (preB == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model: the U1a model with Controller, CGM, User, the contract and the issue observers. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (g, sinceBolus, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "R-P1-w-inc",
+   "item": "U3b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.Iss && (rc == 5) && (dk == 3) && (dv == 30) && (uk == 3) && ((hasReading == 1) && (age < 723)) && (nRead == 3) && (wOdd == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (age): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "R-P5-w-first",
+   "item": "U3b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.O3 && (rc == 5) && (dk == 3) && (dv == 30) && (uk == 3) && (prior == 0) && (nRead == 3) && (wOdd == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 125.97,
+   "munta_peak_kb": 1588416,
+   "munta_explored_states": 534547,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 1.16,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (Step.O3 && (rc == 5) && (dk == 3) && (dv == 30) && (uk == 3) && (prior == 0) && (nRead == 3) && (wOdd == 0)))",
+   "munta_query": "E<> (!(Step.Init) && (Step.O3 && (rc == 5) && (dk == 3) && (dv == 30) && (uk == 3) && (prior == 0) && (nRead == 3) && (wOdd == 0)))",
+   "dropped": [
+    "err1",
+    "err3",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "mb2",
+    "wUb",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5 observer": "read by the query",
+    "P5-pair observer": "cannot drop ['mb1']: read outside an observer guard",
+    "witness wOdd": "read by the query",
+    "witness nRead": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 75
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 709
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "wOdd",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "prior",
+    "errPair",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err5",
+    "nRead"
+   ],
+   "xml": "nopump.witness.R-P5-w-first.xml",
+   "xml_sha256": "0718fe5ac244d88131409439170e66c797195a28cea7cf034218d65b02feb2b7",
+   "muntax": "nopump.witness.R-P5-w-first.muntax",
+   "muntax_sha256": "06cf6dce957a9fb8b114cca26b69b7fa2bd0f9820ee0274d99484641babd8b10",
+   "ok": true
+  },
+  {
+   "id": "R-P5-w-spaced",
+   "item": "U3b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.O3 && (uk == 3) && (prior == 1) && (mb1 == 1) && (p5c >= 183) && (nRead == 3) && (wOdd == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (p5c): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "R-P5-w-early",
+   "item": "U3b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.O3 && (rc == 4) && (dk == 3) && (dv == 30) && (uk == 0) && (prior == 1) && (p5c < 183) && (nRead == 3) && (wOdd == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (p5c): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  },
+  {
+   "id": "R-P5-pair-w",
+   "item": "U3b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.End && (mb2 == 1) && (bolusDone == 1) && (nRead == 3) && (wOdd == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 40.48,
+   "munta_peak_kb": 2834284,
+   "munta_explored_states": 264543,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 14.39,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (Step.End && (mb2 == 1) && (bolusDone == 1) && (nRead == 3) && (wOdd == 0)))",
+   "munta_query": "E<> (!(Step.Init) && (Step.End && (mb2 == 1) && (bolusDone == 1) && (nRead == 3) && (wOdd == 0)))",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wUb",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5-pair observer": "cannot drop ['mb1']: read outside an observer guard",
+    "bolus observer": "read by the query",
+    "witness wOdd": "read by the query",
+    "witness nRead": "read by the query",
+    "witness mb2": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 73
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 709
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "wOdd",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "expB",
+    "mb2",
+    "errPair",
+    "bolusDone",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "nRead"
+   ],
+   "xml": "nopump.witness.R-P5-pair-w.xml",
+   "xml_sha256": "ef6a571620524d4fcc1405a1977ba365b48525bbe05e8fe4cb482ec1b42ff49a",
+   "muntax": "nopump.witness.R-P5-pair-w.muntax",
+   "muntax_sha256": "f2c5559015b9292e84b6c4be92ee7f3330dc572cb263b257d79c77484ba7041e",
+   "ok": true
+  },
+  {
+   "id": "R-P5-w-bolus",
+   "item": "U3b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.End && (bolusDone == 1) && (err5 == 0) && (errPair == 0) && (rc == 5) && (dk == 3) && (dv == 30) && (nRead == 3) && (wOdd == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 28.94,
+   "munta_peak_kb": 1095384,
+   "munta_explored_states": 167069,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 2.11,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (Step.End && (bolusDone == 1) && (err5 == 0) && (errPair == 0) && (rc == 5) && (dk == 3) && (dv == 30) && (nRead == 3) && (wOdd == 0)))",
+   "munta_query": "E<> (!(Step.Init) && (Step.End && (bolusDone == 1) && (err5 == 0) && (errPair == 0) && (rc == 5) && (dk == 3) && (dv == 30) && (nRead == 3) && (wOdd == 0)))",
+   "dropped": [
+    "err1",
+    "err3",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "mb2",
+    "wUb",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5 observer": "read by the query",
+    "P5-pair observer": "read by the query",
+    "bolus observer": "read by the query",
+    "witness wOdd": "read by the query",
+    "witness nRead": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 75
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 709
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "wOdd",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "prior",
+    "expB",
+    "errPair",
+    "bolusDone",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "err5",
+    "nRead"
+   ],
+   "xml": "nopump.witness.R-P5-w-bolus.xml",
+   "xml_sha256": "26b7e1023bdfdfbb68a839d87031aa77e0f458565d8e34c5b17b0bf94a9003ed",
+   "muntax": "nopump.witness.R-P5-w-bolus.muntax",
+   "muntax_sha256": "fb720b51520161b5854376e821a125bfde866580f9bda43b386e45113fcd2c5d",
+   "ok": true
+  },
+  {
+   "id": "R-P5-w-user-cycle",
+   "item": "U3b",
+   "kind": "witness",
+   "model_variant": "nopump",
+   "mutations": [],
+   "query": "E<> (Step.O3 && (wUb == 1) && (rc == 4) && (dk == 3) && (dv == 30) && (uk == 0) && (nRead == 3) && (wOdd == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without Pump and the P4a observer. Pump never blocks Step: it has a receiving edge for every value of its guards, and its expiry edge releases its invariant. So this variant has the same runs, projected on its variables, and its results, the deadlock result included, are taken for the main U1b model. This is an argument, not a check. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 36.3,
+   "munta_peak_kb": 564272,
+   "munta_explored_states": 168593,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 1.22,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && (Step.O3 && (wUb == 1) && (rc == 4) && (dk == 3) && (dv == 30) && (uk == 0) && (nRead == 3) && (wOdd == 0)))",
+   "munta_query": "E<> (!(Step.Init) && (Step.O3 && (wUb == 1) && (rc == 4) && (dk == 3) && (dv == 30) && (uk == 0) && (nRead == 3) && (wOdd == 0)))",
+   "dropped": [
+    "err1",
+    "err3",
+    "err5",
+    "prior",
+    "p5c",
+    "rdSeen",
+    "rdc",
+    "errRead",
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "mb2",
+    "f20",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P5-pair observer": "cannot drop ['mb1']: read outside an observer guard",
+    "witness wOdd": "read by the query",
+    "witness nRead": "read by the query",
+    "witness wUb": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 14,
+     "edges": 73
+    },
+    "Controller": {
+     "locations": 1,
+     "edges": 709
+    },
+    "CGM": {
+     "locations": 1,
+     "edges": 3
+    },
+    "User": {
+     "locations": 1,
+     "edges": 2
+    }
+   },
+   "munta_var_order": [
+    "hasReading",
+    "wOdd",
+    "noBolus",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "mb1",
+    "errPair",
+    "wUb",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "preB",
+    "nRead"
+   ],
+   "xml": "nopump.witness.R-P5-w-user-cycle.xml",
+   "xml_sha256": "5d544d2486419ad988f1bb02c622e1c0a635f6e867142f67aa5841685933940a",
+   "muntax": "nopump.witness.R-P5-w-user-cycle.muntax",
+   "muntax_sha256": "c720c0a8dc26683bdcdf11095b2c9cac62daf3189c006f81426b2b9103fd1221",
+   "ok": true
+  },
+  {
+   "id": "R-F-20",
+   "item": "U3b",
+   "kind": "witness",
+   "model_variant": "nobolus",
+   "mutations": [],
+   "query": "E<> (Step.Closed && (f20 == 1) && (Pump.Temp && (Pump.y < (dur * 60))) && (tcls == 3) && (obs >= 7199) && (nRead == 3) && (wOdd == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the main U1b model without user boluses, without the pre-run bolus, and without controller outputs that carry units. It has fewer behaviors than the main U1b model, so a reachable result transfers to it. An unreachable or A[] result does not. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "munta": "unsupported",
+   "reason": "a clock in the query (obs, y): Munta crashes on a clock in a formula (U0b limit 1)",
+   "ok": true
+  }
+ ],
+ "rescored_by_runner_sha256": "15da93bbf04363706c1d8ffb330eb7cda02e89216a8eef2f758daad313fc9040",
+ "networks_checked_by_runner_sha256": "d4f2ef1922da036e3d819cdc852136fd1e09fd0795b9d3af21f34a17e819d970"
+}

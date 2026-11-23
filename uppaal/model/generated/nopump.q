@@ -1,0 +1,7 @@
+A[] (err1 == 0)
+A[] (err3 == 0)
+A[] (err5 == 0)
+A[] ((busy == 0) imply ((sinceBolus - p5c) == 0))
+A[] (errPair == 0)
+A[] ((errRead == 0) && ((rdSeen == 1) imply (hasReading == 1)))
+A[] (!deadlock)

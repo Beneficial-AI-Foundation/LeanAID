@@ -1,0 +1,672 @@
+{
+ "revision": "1012483dc34eb485ac0dfca850ea142ec0449a1f",
+ "dirty": false,
+ "uppaal": "UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075), December 2023",
+ "munta": "commit 62cb1a4a4dbcfcf62c365e90faba15b0012d5a12, built by uppaal/munta/setup_munta.sh",
+ "munta_binary_sha256": "0b32e81ba5d499b8ba3a3786d6e725725f48e2a656f2125516939209826939d5",
+ "timeout_seconds": 1800,
+ "memory_cap": "MemoryMax=16G, MemorySwapMax=0",
+ "generator_sha256": {
+  "model/model.py": "1ca45e1783e7db64d73510bd4eb3f6f02840546cc4f617c8e01b5554d6987cc7",
+  "queries/check.py": "85b1019ec3003159459dfe62325fecd8edac73ae803dd35f672965ea3e1dc3d3",
+  "munta/translate.py": "032a676141d7a676e87b8faa99acff4d28343618e026b3adc9e4d06c7f8793c0"
+ },
+ "runner_sha256": "5fe961556c1827b0fd1184da8a8c9ead8efbbee6558a54b4ab835638f9850e26",
+ "results": [
+  {
+   "id": "P4a-w-cancel",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> ((busy == 0) && (oCls == 9) && (wCancel == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "transfers_to_u1a": true,
+   "transfer": "restriction: the witness or counterexample of the reduced network is a run of the U1a network (munta.few_durations)",
+   "counts_for_u1a": true,
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 9.09,
+   "munta_peak_kb": 294812,
+   "munta_explored_states": 2450,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.18,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (!(Step.Init) && ((busy == 0) && (oCls == 9) && (wCancel == 1)))",
+   "munta_query": "E<> (!(Step.Init) && ((busy == 0) && (oCls == 9) && (wCancel == 1)))",
+   "dropped": [
+    "expB",
+    "bolusDone",
+    "obs",
+    "tcls",
+    "dur",
+    "wColl",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "P4a observer": "read by the query",
+    "witness wCancel": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 10,
+     "edges": 1772
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 18
+    }
+   },
+   "munta_var_order": [
+    "wCancel",
+    "oCls",
+    "initDone",
+    "ic",
+    "oDur",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc"
+   ],
+   "xml": "u5b.free.witness.P4a-w-cancel.xml",
+   "xml_sha256": "1c194152b03606b443eacdf9936dfda08af28e65dcbd29acfce87c998cd24370",
+   "muntax": "u5b.free.witness.P4a-w-cancel.muntax",
+   "muntax_sha256": "9fb3f718de0833491c0f23641003032ff194d242c17c49ceb0dd26e5166b8244",
+   "ok": true
+  },
+  {
+   "id": "collision",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> ((busy == 0) && (wColl == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "transfers_to_u1a": true,
+   "transfer": "restriction: the witness or counterexample of the reduced network is a run of the U1a network (munta.few_durations)",
+   "counts_for_u1a": true,
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 2.18,
+   "munta_peak_kb": 61952,
+   "munta_explored_states": 87,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.05,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> ((busy == 0) && (wColl == 1))",
+   "munta_query": "E<> ((busy == 0) && (wColl == 1))",
+   "dropped": [
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "witness wColl": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 205
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 20
+    }
+   },
+   "munta_var_order": [
+    "wColl",
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc"
+   ],
+   "xml": "u5b.free.witness.collision.xml",
+   "xml_sha256": "de30e635453318b3a65a2051ede4d4e32700fe6cb17ea05aaeabeb85214f91a3",
+   "muntax": "u5b.free.witness.collision.muntax",
+   "muntax_sha256": "f5a2a992a5f86eaa704a20759b43ed867634a5c163827ad0c8f8866cacb7c2c4",
+   "ok": true
+  },
+  {
+   "id": "bolus",
+   "item": "U1a",
+   "kind": "pump",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "A[] (Step.End imply (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
+   "transfers_to_u1a": true,
+   "transfer": "argument, not checked: the pump does not affect Step, and the guards and the query treat each issued duration like the kept value of its class (run_munta.transfer)",
+   "counts_for_u1a": true,
+   "munta": "holds",
+   "munta_counts": true,
+   "munta_expected": "holds",
+   "munta_seconds": 2.55,
+   "munta_peak_kb": 68480,
+   "munta_explored_states": 4776,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 0.05,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.End imply (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))",
+   "munta_query": "A[] (Step.End -> (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))",
+   "dropped": [
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "bolus observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 205
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 16
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "expB",
+    "bolusDone"
+   ],
+   "xml": "u5b.free.bolus.xml",
+   "xml_sha256": "d0a61b0cfa75bfc43796420bca9ded45c37aae2e38b2819cbf132337cf5e5782",
+   "muntax": "u5b.free.bolus.muntax",
+   "muntax_sha256": "6f1e6747ba428b4c91d757a61ad6f292cd22b0f41b0c0dfc5001f186725c49cc",
+   "ok": true
+  },
+  {
+   "id": "bolus-w",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> (Step.End && (bolusDone == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "transfers_to_u1a": true,
+   "transfer": "restriction: the witness or counterexample of the reduced network is a run of the U1a network (munta.few_durations)",
+   "counts_for_u1a": true,
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 2.16,
+   "munta_peak_kb": 61180,
+   "munta_explored_states": 42,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.05,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (Step.End && (bolusDone == 1))",
+   "munta_query": "E<> (Step.End && (bolusDone == 1))",
+   "dropped": [
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wColl",
+    "wCancel",
+    "wRejBolus",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "bolus observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 205
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 16
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "expB",
+    "bolusDone"
+   ],
+   "xml": "u5b.free.witness.bolus-w.xml",
+   "xml_sha256": "fc89c17d7b7bb96e1045d77518873918318e20afa9e7fa44f9d322df1f945620",
+   "muntax": "u5b.free.witness.bolus-w.muntax",
+   "muntax_sha256": "93114f622aa1b26ee5079f17c235d2ab585ef04fbd829c0772f467c9025d05bd",
+   "ok": true
+  },
+  {
+   "id": "reject-bolus-w",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> (Step.End && (wRejBolus == 1) && (bolusDone == 0))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "transfers_to_u1a": true,
+   "transfer": "restriction: the witness or counterexample of the reduced network is a run of the U1a network (munta.few_durations)",
+   "counts_for_u1a": true,
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 2.13,
+   "munta_peak_kb": 54288,
+   "munta_explored_states": 7,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.05,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (Step.End && (wRejBolus == 1) && (bolusDone == 0))",
+   "munta_query": "E<> (Step.End && (wRejBolus == 1) && (bolusDone == 0))",
+   "dropped": [
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wColl",
+    "wCancel",
+    "wNoSteps"
+   ],
+   "kept_groups": {
+    "bolus observer": "read by the query",
+    "witness wRejBolus": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 205
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 16
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "expB",
+    "wRejBolus",
+    "bolusDone"
+   ],
+   "xml": "u5b.free.witness.reject-bolus-w.xml",
+   "xml_sha256": "4a7818e83385c2b3b538edace6b69f70966146c5acc49e056ed9f0a3e99d165a",
+   "muntax": "u5b.free.witness.reject-bolus-w.muntax",
+   "muntax_sha256": "83ee981b758b9ac1021000e3b0f512d606f673f815828f5d7f2d88b2d3311948",
+   "ok": true
+  },
+  {
+   "id": "close-no-steps-w",
+   "item": "U1a",
+   "kind": "witness",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "E<> (Step.Closed && (wNoSteps == 1))",
+   "expected": "reachable",
+   "uppaal_main": "reachable",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. Witness flags that no guard reads are added. A reachable result transfers to the same model without them (for a mutant: to the mutant only).",
+   "transfers_to_u1a": true,
+   "transfer": "restriction: the witness or counterexample of the reduced network is a run of the U1a network (munta.few_durations)",
+   "counts_for_u1a": true,
+   "munta": "reachable",
+   "munta_counts": true,
+   "munta_expected": "reachable",
+   "munta_seconds": 2.17,
+   "munta_peak_kb": 64552,
+   "munta_explored_states": 1,
+   "munta_last_line": "Property is satisfied!",
+   "uppaal_lowered": "reachable",
+   "uppaal_lowered_seconds": 0.04,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "E<> (Step.Closed && (wNoSteps == 1))",
+   "munta_query": "E<> (Step.Closed && (wNoSteps == 1))",
+   "dropped": [
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur",
+    "wColl",
+    "wCancel",
+    "wRejBolus"
+   ],
+   "kept_groups": {
+    "witness wNoSteps": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 205
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 16
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "wNoSteps",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc"
+   ],
+   "xml": "u5b.free.witness.close-no-steps-w.xml",
+   "xml_sha256": "a94c6cf60a354d9b63c491ce8b4d89e1de1212029c03249d35fa2974e7560bb0",
+   "muntax": "u5b.free.witness.close-no-steps-w.muntax",
+   "muntax_sha256": "594c82120ae5c321b886550cfff5af04b99725965670321533ca8a45c9ee18a1",
+   "ok": true
+  },
+  {
+   "id": "deadlock",
+   "item": "U1a",
+   "kind": "pump",
+   "model_variant": "free",
+   "mutations": [],
+   "query": "A[] (!deadlock)",
+   "expected": "holds",
+   "uppaal_main": "holds",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. ",
+   "transfers_to_u1a": true,
+   "transfer": "argument, not checked: the pump does not affect Step, and the guards and the query treat each issued duration like the kept value of its class (run_munta.transfer)",
+   "counts_for_u1a": true,
+   "munta": "holds",
+   "munta_counts": true,
+   "munta_expected": "holds",
+   "munta_seconds": 2.78,
+   "munta_peak_kb": 57976,
+   "munta_explored_states": 4767,
+   "munta_last_line": "Model has no deadlock!",
+   "uppaal_lowered": "holds",
+   "uppaal_lowered_seconds": 0.05,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (!deadlock)",
+   "munta_query": "(-deadlock flag) E<> Step.Pre",
+   "dropped": [
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {},
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 205
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 16
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc"
+   ],
+   "xml": "u5b.free.deadlock.xml",
+   "xml_sha256": "9764c97ad73247049481766097604c6b6986b25767117e4c6ba2f91a72de21f8",
+   "muntax": "u5b.free.deadlock.muntax",
+   "muntax_sha256": "42f584ca8ec4d49246bbe70a6af2cfa8836e2fa0e038f1788d1d94a3d7d436de",
+   "ok": true
+  },
+  {
+   "id": "M-missing-reject",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "missing_reject_bolus"
+   ],
+   "query": "A[] (!deadlock)",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "transfers_to_u1a": true,
+   "transfer": "restriction: the deadlock state of the reduced network is reachable in the U1a network, and the only extra edges there leave a location that always has an edge without guard (run_munta.transfer)",
+   "counts_for_u1a": false,
+   "munta": "fails",
+   "munta_counts": false,
+   "munta_expected": "fails",
+   "munta_seconds": 2.54,
+   "munta_peak_kb": 57800,
+   "munta_explored_states": 4767,
+   "munta_last_line": "Model has a deadlock!",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.04,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": false,
+    "munta_deadlock_free": false,
+    "munta_deadlock_status": "fails",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (!deadlock)",
+   "munta_query": "(-deadlock flag) E<> Step.Pre",
+   "dropped": [
+    "expB",
+    "bolusDone",
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {},
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 204
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 16
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc"
+   ],
+   "xml": "u5b.free.missing_reject_bolus.M-missing-reject.xml",
+   "xml_sha256": "51b3d0ba202b51383d73735610113bd73659d37c17ed2a23d4e40ef42d7cb7eb",
+   "muntax": "u5b.free.missing_reject_bolus.M-missing-reject.muntax",
+   "muntax_sha256": "599bb2546f0af2e043c053d6db081bb439ef4926a992350a0c7ae84960fd6043",
+   "ok": true,
+   "munta_expected_reason": "Munta finds the deadlock of the mutant, as UPPAAL does, but the UPPAAL and the Munta deadlock gates fail by design, because the mutant deadlocks. So the answer agrees and does not count (U0b gate rule)"
+  },
+  {
+   "id": "M-reject-bolus",
+   "item": "U1a",
+   "kind": "mutation",
+   "model_variant": "free",
+   "mutations": [
+    "reject_executes_bolus"
+   ],
+   "query": "A[] (Step.End imply (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))",
+   "expected": "fails",
+   "uppaal_main": "fails",
+   "relation": "the U1a network with the issued durations reduced by munta.few_durations (pump durations 30 and 120 only), a restriction of the U1a network. the U1a model (Step and Pump with a free command choice), with its self-loop on Step.Closed. A deadlock result is about this model, not about a model without the self-loop. A mutant: the result is about the mutant only and shows that the query detects the fault. A counterexample is not one of the main model.",
+   "transfers_to_u1a": true,
+   "transfer": "restriction: the witness or counterexample of the reduced network is a run of the U1a network (munta.few_durations)",
+   "counts_for_u1a": true,
+   "munta": "fails",
+   "munta_counts": true,
+   "munta_expected": "fails",
+   "munta_seconds": 2.31,
+   "munta_peak_kb": 58544,
+   "munta_explored_states": 7,
+   "munta_last_line": "Property is not satisfied!",
+   "uppaal_lowered": "fails",
+   "uppaal_lowered_seconds": 0.03,
+   "uppaal_lowered_message": "",
+   "gates": {
+    "uppaal_deadlock_free": true,
+    "munta_deadlock_free": true,
+    "munta_deadlock_status": "holds",
+    "uppaal_exhaustive_no_error": true
+   },
+   "lowered_query_uppaal": "A[] (Step.End imply (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))",
+   "munta_query": "A[] (Step.End -> (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))",
+   "dropped": [
+    "oCls",
+    "oDur",
+    "o4",
+    "obs",
+    "tcls",
+    "dur"
+   ],
+   "kept_groups": {
+    "bolus observer": "read by the query"
+   },
+   "network_size": {
+    "Step": {
+     "locations": 9,
+     "edges": 205
+    },
+    "Pump": {
+     "locations": 3,
+     "edges": 16
+    }
+   },
+   "munta_var_order": [
+    "initDone",
+    "ic",
+    "first",
+    "busy",
+    "uk",
+    "dv",
+    "dk",
+    "rc",
+    "expB",
+    "bolusDone"
+   ],
+   "xml": "u5b.free.reject_executes_bolus.M-reject-bolus.xml",
+   "xml_sha256": "c41bc9b479254899cf1f5078c82d648021cb34a0820626b795761a2fee943a4c",
+   "muntax": "u5b.free.reject_executes_bolus.M-reject-bolus.muntax",
+   "muntax_sha256": "1c9f194546e75dc1582358c29d13090734bca2c7e9830c7bd587ffd1553f4aac",
+   "ok": true
+  }
+ ],
+ "reduction": "munta.few_durations: the issued duration dv takes one value per class of its atoms plus 120 (-1, 0, 1, 30, 120, 121), so the pump has the durations 30 and 120; pump_per_duration makes Temp_d only for them",
+ "rescored_by_runner_sha256": "0c6f1d1693d2e3823c4d85a5d15e631217ecefb1f482266445d2ec55471bf56c",
+ "networks_checked_by_runner_sha256": "d4f2ef1922da036e3d819cdc852136fd1e09fd0795b9d3af21f34a17e819d970"
+}

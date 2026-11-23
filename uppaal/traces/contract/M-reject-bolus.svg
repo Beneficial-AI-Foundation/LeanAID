@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="641" font-family="sans-serif" font-size="11">
+<rect width="100%" height="100%" fill="white"/>
+<text x="10" y="20" font-size="15" font-weight="bold">M-reject-bolus</text>
+<text x="10" y="38">the query bolus fails if the pump executes the bolus of a rejected command</text>
+<text x="10" y="54" fill="#555">model: free.reject_executes_bolus</text>
+<text x="10" y="70" fill="#555" font-family="monospace" font-size="10">A[] (Step.End imply (((bolusDone == 1) &amp;&amp; (expB == 1)) || ((bolusDone == 0) &amp;&amp; (expB == 0))))</text>
+<line x1="0" y1="150" x2="760" y2="150" stroke="#eee"/>
+<text x="10" y="166" font-weight="bold">run</text>
+<line x1="0" y1="213" x2="760" y2="213" stroke="#eee"/>
+<text x="10" y="229" font-weight="bold">CGM and user</text>
+<line x1="0" y1="276" x2="760" y2="276" stroke="#eee"/>
+<text x="10" y="292" font-weight="bold">issued output</text>
+<line x1="0" y1="339" x2="760" y2="339" stroke="#eee"/>
+<text x="10" y="355" font-weight="bold">channel and pump</text>
+<line x1="0" y1="415" x2="760" y2="415" stroke="#eee"/>
+<text x="10" y="431" font-weight="bold">pump</text>
+<line x1="0" y1="478" x2="760" y2="478" stroke="#eee"/>
+<text x="10" y="494" font-weight="bold">observers</text>
+<line x1="150" y1="142" x2="150" y2="585" stroke="#999" stroke-dasharray="2,3"/>
+<text x="153" y="138" fill="#333">t = 0 s (end of trace)</text>
+<text x="154" y="166" fill="#000">start t0</text>
+<text x="154" y="179" fill="#000">step</text>
+<text x="154" y="292" fill="#000">rate absent, duration -1 min, units</text>
+<text x="154" y="305" fill="#000">microbolus</text>
+<text x="154" y="355" fill="#000">accepted</text>
+<text x="154" y="368" fill="#000">no pump command</text>
+<text x="154" y="381" fill="#000">microbolus delivered</text>
+<text x="154" y="394" fill="#000">validate: reject</text>
+<text x="10" y="571" font-weight="bold">delivered (eff)</text>
+<text x="154" y="571">at the end: sched</text>
+<rect x="10" y="611" width="12" height="12" fill="#c9c9c9"/>
+<text x="26" y="621">sched</text>
+<rect x="100" y="611" width="12" height="12" fill="#4a7fc1"/>
+<text x="116" y="621">zero</text>
+<rect x="190" y="611" width="12" height="12" fill="#4caf6a"/>
+<text x="206" y="621">low</text>
+<rect x="280" y="611" width="12" height="12" fill="#e08a2c"/>
+<text x="296" y="621">high</text>
+</svg>

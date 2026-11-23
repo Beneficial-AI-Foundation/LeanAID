@@ -65,3 +65,6 @@ LeanAID.Patched.determineBasalPatched_eq
 LeanAID.Iob.Q6.splitPass_fst
 LeanAID.Iob.Q6.q6_drops_zero_temp
 LeanAID.Iob.Q6.q6_fixed_keeps
+LeanAID.Time.smb_guard_iff
+LeanAID.Time.smb_spacing
+LeanAID.Time.lastBolusAge_guard_iff

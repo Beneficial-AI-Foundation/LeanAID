@@ -24,3 +24,7 @@ prompts/
 
 # istanbul output of scripts/coverage/run.sh
 scripts/coverage/out/
+
+# generated UPPAAL and Munta networks
+uppaal/out/
+uppaal/munta/out/

@@ -1,0 +1,61 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/U5-delay-P4b-30.q:1
+ -- Formula is NOT satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Queue.E Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=0 Queue.aV=0 Queue.bR=0 Queue.bV=0 g=0 obs=0 Queue.ca=0 Queue.cb=0 Pump.y=0
+Transition:
+  Step.Pre->Step.Idle { 1, tau, g := 0, first := 1, ic := 0 }
+State:
+( Step.Idle Queue.E Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=1 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=0 Queue.aV=0 Queue.bR=0 Queue.bV=0 g=0 obs=0 Queue.ca=0 Queue.cb=0 Pump.y=0
+Transition:
+  Step.Idle->Step.S1 { first == 1 || g > 0, tau, busy := 1, first := 0, g := 0 }
+State:
+( Step.S1 Queue.E Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 busy=1 first=0 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=0 Queue.aV=0 Queue.bR=0 Queue.bV=0 g=0 obs=0 Queue.ca=0 Queue.cb=0 Pump.y=0
+Transition:
+  Step.S1->Step.Iss { 1, tau, rc := 4, dk := 3, dv := 30 }
+State:
+( Step.Iss Queue.E Pump.Sched )
+rc=4 dk=3 dv=30 uk=0 busy=1 first=0 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=0 Queue.aV=0 Queue.bR=0 Queue.bV=0 g=0 obs=0 Queue.ca=0 Queue.cb=0 Pump.y=0
+Transition:
+  Step.Iss->Step.Ch { 1, tau, 1 }
+State:
+( Step.Ch Queue.E Pump.Sched )
+rc=4 dk=3 dv=30 uk=0 busy=1 first=0 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=0 Queue.aV=0 Queue.bR=0 Queue.bV=0 g=0 obs=0 Queue.ca=0 Queue.cb=0 Pump.y=0
+Transition:
+  Step.Ch->Step.End { 1, enq!, 1 }
+  Queue.E->Queue.A { 1, enq?, ca := 0, aR := rc, aV := dv }
+State:
+( Step.End Queue.A Pump.Sched )
+rc=4 dk=3 dv=30 uk=0 busy=1 first=0 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=4 Queue.aV=30 Queue.bR=0 Queue.bV=0 g=0 obs=0 Queue.ca=0 Queue.cb=0 Pump.y=0
+Transition:
+  Step.End->Step.Closed { 1, tau, busy := 0, rc := 0, dk := 0, dv := 0, uk := 0, obs := 0 }
+State:
+( Step.Closed Queue.A Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=4 Queue.aV=30 Queue.bR=0 Queue.bV=0 g=0 obs=0 Queue.ca=0 Queue.cb=0 Pump.y=0
+Delay: 300
+State:
+( Step.Closed Queue.A Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=4 Queue.aV=30 Queue.bR=0 Queue.bV=0 g=300 obs=300 Queue.ca=300 Queue.cb=300 Pump.y=300
+Transition:
+  Queue.A->Queue.XA { 1, tau, busy := 1, rc := aR, dv := aV, dk := 3 }
+State:
+( Step.Closed Queue.XA Pump.Sched )
+rc=4 dk=3 dv=30 uk=0 busy=1 first=0 tcls=0 dur=0 ic=0 initDone=0 Queue.aR=4 Queue.aV=30 Queue.bR=0 Queue.bV=0 g=300 obs=300 Queue.ca=300 Queue.cb=300 Pump.y=300
+Transition:
+  Queue.XA->Queue.YA { dv >= 30, setTemp!, aR := 0, aV := 0 }
+  Pump.Sched->Pump.Temp { 1, setTemp?, y := 0, dur := dv, tcls := rc }
+State:
+( Step.Closed Queue.YA Pump.Temp )
+rc=4 dk=3 dv=30 uk=0 busy=1 first=0 tcls=4 dur=30 ic=0 initDone=0 Queue.aR=0 Queue.aV=0 Queue.bR=0 Queue.bV=0 g=300 obs=300 Queue.ca=300 Queue.cb=300 Pump.y=0
+Transition:
+  Queue.YA->Queue.E { 1, tau, busy := 0, rc := 0, dk := 0, dv := 0, uk := 0 }
+State:
+( Step.Closed Queue.E Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=4 dur=30 ic=0 initDone=0 Queue.aR=0 Queue.aV=0 Queue.bR=0 Queue.bV=0 g=300 obs=300 Queue.ca=300 Queue.cb=300 Pump.y=0
+Delay: 1500
+State:
+( Step.Closed Queue.E Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=4 dur=30 ic=0 initDone=0 Queue.aR=0 Queue.aV=0 Queue.bR=0 Queue.bV=0 g=1800 obs=1800 Queue.ca=1800 Queue.cb=1800 Pump.y=1500

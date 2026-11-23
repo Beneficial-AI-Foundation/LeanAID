@@ -1,0 +1,41 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/M-drop-temp.q:1
+ -- Formula is NOT satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Pre->Step.Idle { 1, tau, g := 0, first := 1, ic := 0 }
+State:
+( Step.Idle Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=1 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Idle->Step.S1 { first == 1 || g > 0, tau, busy := 1, first := 0, g := 0 }
+State:
+( Step.S1 Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.S1->Step.Iss { 3 == 3 || 30 == 0, tau, rc := 3, dk := 3, dv := 30, uk := 0 }
+State:
+( Step.Iss Pump.Sched )
+rc=3 dk=3 dv=30 uk=0 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Iss->Step.Ch { 1, tau, 1 }
+State:
+( Step.Ch Pump.Sched )
+rc=3 dk=3 dv=30 uk=0 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Ch->Step.Ex { rc >= 3 && dk == 3 && dv >= 30 && dv <= 120 && uk == 0, tau, oCls := rc, oDur := dv, o4 := 0 }
+State:
+( Step.Ex Pump.Sched )
+rc=3 dk=3 dv=30 uk=0 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=3 oDur=30 expB=0 bolusDone=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Ex->Step.End { rc >= 3 && dk == 3 && dv >= 30 && dv <= 120 && dv == 30 && uk == 0, tau, 1 }
+State:
+( Step.End Pump.Sched )
+rc=3 dk=3 dv=30 uk=0 tcls=0 dur=0 ic=0 busy=1 first=0 initDone=0 oCls=3 oDur=30 expB=0 bolusDone=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.End->Step.Idle { 1, tau, busy := 0, rc := 0, dk := 0, dv := 0, uk := 0, expB := 0, bolusDone := 0 }
+State:
+( Step.Idle Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=3 oDur=30 expB=0 bolusDone=0 g=0 obs=0 o4=0 Pump.y=0

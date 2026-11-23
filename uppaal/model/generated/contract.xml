@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+<declaration>// issued fields of the last cycle (encodings in uppaal/model/model.py)
+int[0,5] rc; int[0,4] dk; int[-1,121] dv; int[0,3] uk;
+// running temp of the pump: class and duration in minutes
+int[0,5] tcls; int[0,121] dur;
+// class of an initial temp (pre-run)
+int[0,5] ic;
+int[0,1] busy;        // inside the committed chain of a step
+int[0,1] first;       // the next step is the first one, allowed at t0
+int[0,1] initDone;    // the initial temp is installed
+clock g;              // time since the start or the last step
+clock obs;            // time since the close of the run
+// P4a observer: obligation class, duration, own clock
+// It starts with the obligation `eff == sched` (no initial temp).
+int[0,9] oCls = 9; int[0,121] oDur; clock o4;
+// bolus observer: the expected and the executed bolus of this step
+int[0,1] expB; int[0,1] bolusDone;
+chan initTemp, setTemp, cancel;
+// CGM: a reading exists, clock since the last reading
+int[0,1] hasReading; clock age;
+// controller: clock since the last bolus it sees, no bolus in the history
+clock sinceBolus; int[0,1] noBolus = 1;
+int[0,1] preB;        // the pre-run bolus happened
+// observers: latched errors
+int[0,1] err1; int[0,1] err3; int[0,1] err5; int[0,1] errPair;
+// P5 observer: a real prior bolus, its own clock since it
+int[0,1] prior; clock p5c;
+// P5-pair observer: an accepted microbolus happened, clock since it
+int[0,1] mb1; clock pb;
+// reading observer: a reading happened, clock since it, latched error
+int[0,1] rdSeen; clock rdc; int[0,1] errRead;
+chan read, ubolus, decide;</declaration>
+<template><name>StepT</name>
+<location id="Step_0" x="0" y="0"><name>Pre</name>
+</location>
+<location id="Step_1" x="220" y="0"><name>PreC</name>
+<committed/>
+</location>
+<location id="Step_2" x="440" y="0"><name>Idle</name>
+</location>
+<location id="Step_3" x="660" y="0"><name>S1</name>
+<committed/>
+</location>
+<location id="Step_4" x="0" y="160"><name>Iss</name>
+<committed/>
+</location>
+<location id="Step_5" x="220" y="160"><name>Ch</name>
+<committed/>
+</location>
+<location id="Step_6" x="440" y="160"><name>Ex</name>
+<committed/>
+</location>
+<location id="Step_7" x="660" y="160"><name>End</name>
+<committed/>
+</location>
+<location id="Step_8" x="0" y="320"><name>Closed</name>
+</location>
+<location id="Step_9" x="220" y="320"><name>R1</name>
+<committed/>
+</location>
+<location id="Step_10" x="440" y="320"><name>U1</name>
+<committed/>
+</location>
+<location id="Step_11" x="660" y="320"><name>O1</name>
+<committed/>
+</location>
+<location id="Step_12" x="0" y="480"><name>O3</name>
+<committed/>
+</location>
+<init ref="Step_0"/>
+<transition><source ref="Step_0"/><target ref="Step_1"/>
+<label kind="select">c : int[3,5]</label>
+<label kind="guard">(initDone == 0)</label>
+<label kind="assignment">ic = c, initDone = 1</label>
+</transition>
+<transition><source ref="Step_1"/><target ref="Step_0"/>
+<label kind="guard">(ic == 3)</label>
+<label kind="synchronisation">initTemp!</label>
+<label kind="assignment">oCls = ic, oDur = 120, o4 = 0</label>
+</transition>
+<transition><source ref="Step_1"/><target ref="Step_0"/>
+<label kind="guard">(ic &gt;= 4)</label>
+<label kind="synchronisation">initTemp!</label>
+<label kind="assignment">oCls = ic, oDur = 30, o4 = 0</label>
+</transition>
+<transition><source ref="Step_0"/><target ref="Step_2"/>
+<label kind="assignment">g = 0, first = 1, ic = 0</label>
+</transition>
+<transition><source ref="Step_0"/><target ref="Step_8"/>
+<label kind="assignment">obs = 0, ic = 0</label>
+</transition>
+<transition><source ref="Step_2"/><target ref="Step_3"/>
+<label kind="guard">((first == 1) || (g &gt; 0))</label>
+<label kind="assignment">busy = 1, first = 0, g = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_7"/>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 0))</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 3) &amp;&amp; (mb1 == 0))</label>
+<label kind="assignment">expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 3) &amp;&amp; ((mb1 == 1) &amp;&amp; (pb &gt;= 183)))</label>
+<label kind="assignment">expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 3) &amp;&amp; ((mb1 == 1) &amp;&amp; (pb &lt; 183)))</label>
+<label kind="assignment">expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0, errPair = 1</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 0))</label>
+<label kind="assignment">oCls = 9, oDur = 0, o4 = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 3) &amp;&amp; (mb1 == 0))</label>
+<label kind="assignment">oCls = 9, oDur = 0, o4 = 0, expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 3) &amp;&amp; ((mb1 == 1) &amp;&amp; (pb &gt;= 183)))</label>
+<label kind="assignment">oCls = 9, oDur = 0, o4 = 0, expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 3) &amp;&amp; ((mb1 == 1) &amp;&amp; (pb &lt; 183)))</label>
+<label kind="assignment">oCls = 9, oDur = 0, o4 = 0, expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0, errPair = 1</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 0))</label>
+<label kind="assignment">oCls = rc, oDur = dv, o4 = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 3) &amp;&amp; (mb1 == 0))</label>
+<label kind="assignment">oCls = rc, oDur = dv, o4 = 0, expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 3) &amp;&amp; ((mb1 == 1) &amp;&amp; (pb &gt;= 183)))</label>
+<label kind="assignment">oCls = rc, oDur = dv, o4 = 0, expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 3) &amp;&amp; ((mb1 == 1) &amp;&amp; (pb &lt; 183)))</label>
+<label kind="assignment">oCls = rc, oDur = dv, o4 = 0, expB = 1, p5c = 0, prior = 1, mb1 = 1, pb = 0, errPair = 1</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk &gt;= 1)) || (rc == 1) || (rc == 2) || ((rc &gt;= 3) &amp;&amp; ((dk &lt;= 2) || (dk == 4))) || ((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; ((dv &lt; 0) || ((dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || (dv &gt; 120))))</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">((uk == 1) || (uk == 2))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk &gt;= 1)) || ((rc &gt;= 1) &amp;&amp; (dk == 0)))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">((rc == 1) || (dk == 1) || (uk == 1))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((dk == 2) || (dk == 4) || ((dk == 3) &amp;&amp; ((dv &lt; 0) || ((dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || (dv &gt; 120)))) &amp;&amp; (uk == 3))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((dk == 2) || (dk == 4) || ((dk == 3) &amp;&amp; ((dv &lt; 0) || ((dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || (dv &gt; 120)))) &amp;&amp; (uk &lt;= 2))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(uk == 2)</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">((rc == 2) &amp;&amp; (dk &gt;= 1))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 0))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 3))</label>
+<label kind="assignment">bolusDone = 1, sinceBolus = 0, noBolus = 0</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 0))</label>
+<label kind="synchronisation">cancel!</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 3))</label>
+<label kind="synchronisation">cancel!</label>
+<label kind="assignment">bolusDone = 1, sinceBolus = 0, noBolus = 0</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 0))</label>
+<label kind="synchronisation">setTemp!</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 3))</label>
+<label kind="synchronisation">setTemp!</label>
+<label kind="assignment">bolusDone = 1, sinceBolus = 0, noBolus = 0</label>
+</transition>
+<transition><source ref="Step_7"/><target ref="Step_2"/>
+<label kind="assignment">busy = 0, rc = 0, dk = 0, dv = 0, uk = 0, expB = 0, bolusDone = 0</label>
+</transition>
+<transition><source ref="Step_7"/><target ref="Step_8"/>
+<label kind="assignment">busy = 0, obs = 0, rc = 0, dk = 0, dv = 0, uk = 0, expB = 0, bolusDone = 0</label>
+</transition>
+<transition><source ref="Step_8"/><target ref="Step_8"/>
+</transition>
+<transition><source ref="Step_0"/><target ref="Step_0"/>
+<label kind="guard">(preB == 0)</label>
+<label kind="assignment">preB = 1, sinceBolus = 0, noBolus = 0, p5c = 0, prior = 1</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_9"/>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_9"/>
+<label kind="guard">(rdSeen == 0)</label>
+<label kind="synchronisation">read!</label>
+<label kind="assignment">rdSeen = 1, rdc = 0</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_9"/>
+<label kind="guard">((rdSeen == 1) &amp;&amp; (rdc &gt;= 150))</label>
+<label kind="synchronisation">read!</label>
+<label kind="assignment">rdc = 0</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_9"/>
+<label kind="guard">((rdSeen == 1) &amp;&amp; (rdc &lt; 150))</label>
+<label kind="synchronisation">read!</label>
+<label kind="assignment">rdc = 0, errRead = 1</label>
+</transition>
+<transition><source ref="Step_9"/><target ref="Step_10"/>
+</transition>
+<transition><source ref="Step_9"/><target ref="Step_10"/>
+<label kind="synchronisation">ubolus!</label>
+<label kind="assignment">p5c = 0, prior = 1</label>
+</transition>
+<transition><source ref="Step_10"/><target ref="Step_7"/>
+</transition>
+<transition><source ref="Step_10"/><target ref="Step_4"/>
+<label kind="synchronisation">decide!</label>
+</transition>
+<transition><source ref="Step_4"/><target ref="Step_11"/>
+<label kind="guard">((rc &lt;= 4) &amp;&amp; (uk == 0))</label>
+</transition>
+<transition><source ref="Step_4"/><target ref="Step_11"/>
+<label kind="guard">(((rc == 5) || (uk &gt;= 1)) &amp;&amp; (hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+</transition>
+<transition><source ref="Step_4"/><target ref="Step_11"/>
+<label kind="guard">(((rc == 5) || (uk &gt;= 1)) &amp;&amp; (hasReading == 0))</label>
+<label kind="assignment">err1 = 1</label>
+</transition>
+<transition><source ref="Step_4"/><target ref="Step_11"/>
+<label kind="guard">(((rc == 5) || (uk &gt;= 1)) &amp;&amp; (age &gt;= 723))</label>
+<label kind="assignment">err1 = 1</label>
+</transition>
+<transition><source ref="Step_11"/><target ref="Step_12"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) || ((rc == 0) &amp;&amp; (dk == 1)) || ((rc == 0) &amp;&amp; (dk == 2)) || ((rc == 0) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 0) &amp;&amp; (dv &lt;= 0)) || ((rc == 0) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) || ((rc == 1) &amp;&amp; (dk == 0)) || ((rc == 1) &amp;&amp; (dk == 1)) || ((rc == 1) &amp;&amp; (dk == 2)) || ((rc == 1) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 0) &amp;&amp; (dv &lt;= 0)) || ((rc == 1) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) || ((rc == 2) &amp;&amp; (dk == 0)) || ((rc == 2) &amp;&amp; (dk == 1)) || ((rc == 2) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 0) &amp;&amp; (dv &lt;= 0)) || ((rc == 3) &amp;&amp; (dk == 0)) || ((rc == 3) &amp;&amp; (dk == 1)) || ((rc == 3) &amp;&amp; (dk == 2)) || ((rc == 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 0) &amp;&amp; (dv &lt;= 0)) || ((rc == 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) || ((rc == 4) &amp;&amp; (dk == 0)) || ((rc == 4) &amp;&amp; (dk == 1)) || ((rc == 4) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 0) &amp;&amp; (dv &lt;= 0)) || ((rc == 4) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 30)) || ((rc == 5) &amp;&amp; (dk == 0)) || ((rc == 5) &amp;&amp; (dk == 1)) || ((rc == 5) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 0) &amp;&amp; (dv &lt;= 0)) || ((rc == 5) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 30)))</label>
+</transition>
+<transition><source ref="Step_11"/><target ref="Step_12"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= -1) &amp;&amp; (dv &lt;= -1)) || ((rc == 0) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || ((rc == 0) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 121) &amp;&amp; (dv &lt;= 121)) || ((rc == 0) &amp;&amp; (dk == 4)) || ((rc == 1) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= -1) &amp;&amp; (dv &lt;= -1)) || ((rc == 1) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || ((rc == 1) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 121) &amp;&amp; (dv &lt;= 121)) || ((rc == 1) &amp;&amp; (dk == 4)) || ((rc == 2) &amp;&amp; (dk == 2)) || ((rc == 2) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= -1) &amp;&amp; (dv &lt;= -1)) || ((rc == 2) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 1) &amp;&amp; (dv &lt;= 121)) || ((rc == 2) &amp;&amp; (dk == 4)) || ((rc == 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= -1) &amp;&amp; (dv &lt;= -1)) || ((rc == 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || ((rc == 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 121) &amp;&amp; (dv &lt;= 121)) || ((rc == 3) &amp;&amp; (dk == 4)) || ((rc == 4) &amp;&amp; (dk == 2)) || ((rc == 4) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= -1) &amp;&amp; (dv &lt;= -1)) || ((rc == 4) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || ((rc == 4) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 31) &amp;&amp; (dv &lt;= 121)) || ((rc == 4) &amp;&amp; (dk == 4)) || ((rc == 5) &amp;&amp; (dk == 2)) || ((rc == 5) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= -1) &amp;&amp; (dv &lt;= -1)) || ((rc == 5) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || ((rc == 5) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 31) &amp;&amp; (dv &lt;= 121)) || ((rc == 5) &amp;&amp; (dk == 4)))</label>
+<label kind="assignment">err3 = 1</label>
+</transition>
+<transition><source ref="Step_12"/><target ref="Step_5"/>
+<label kind="guard">(uk &lt;= 1)</label>
+</transition>
+<transition><source ref="Step_12"/><target ref="Step_5"/>
+<label kind="guard">((uk &gt;= 2) &amp;&amp; (prior == 0))</label>
+</transition>
+<transition><source ref="Step_12"/><target ref="Step_5"/>
+<label kind="guard">((uk &gt;= 2) &amp;&amp; (prior == 1) &amp;&amp; (p5c &gt;= 183))</label>
+</transition>
+<transition><source ref="Step_12"/><target ref="Step_5"/>
+<label kind="guard">((uk &gt;= 2) &amp;&amp; (prior == 1) &amp;&amp; (p5c &lt; 183))</label>
+<label kind="assignment">err5 = 1</label>
+</transition>
+</template>
+<template><name>PumpT</name>
+<declaration>clock y;</declaration>
+<location id="Pump_0" x="0" y="0"><name>Sched</name>
+</location>
+<location id="Pump_1" x="220" y="0"><name>Temp</name>
+<label kind="invariant">y &lt;= (dur * 60)</label>
+</location>
+<init ref="Pump_0"/>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="guard">(ic == 3)</label>
+<label kind="synchronisation">initTemp?</label>
+<label kind="assignment">y = 0, dur = 120, tcls = ic</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="guard">(ic &gt;= 4)</label>
+<label kind="synchronisation">initTemp?</label>
+<label kind="assignment">y = 0, dur = 30, tcls = ic</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="synchronisation">setTemp?</label>
+<label kind="assignment">y = 0, dur = dv, tcls = rc</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_1"/>
+<label kind="guard">(y &lt; (dur * 60))</label>
+<label kind="synchronisation">setTemp?</label>
+<label kind="assignment">y = 0, dur = dv, tcls = rc</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_1"/>
+<label kind="guard">(y &gt;= (dur * 60))</label>
+<label kind="synchronisation">setTemp?</label>
+<label kind="assignment">y = 0, dur = dv, tcls = rc</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_0"/>
+<label kind="synchronisation">cancel?</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_0"/>
+<label kind="guard">(y &gt;= (dur * 60))</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_0"/>
+<label kind="synchronisation">cancel?</label>
+</transition>
+</template>
+<template><name>ControllerT</name>
+<location id="Controller_0" x="0" y="0"><name>C</name>
+</location>
+<init ref="Controller_0"/>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 0, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 0, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 1, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 1, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 2, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 2, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 3, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 3, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120]</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 3, dv = v, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120]</label>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 3, dv = v, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120], u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120], u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 0, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 0, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 0, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 1, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 1, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 2, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 2, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 3, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 3, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120]</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 3, dv = v, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120]</label>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 3, dv = v, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120], u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120], u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 1, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 0, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 0, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 1, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 1, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 2, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 2, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 3, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 3, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120]</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 3, dv = v, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120]</label>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 3, dv = v, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120], u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">v : int[30,120], u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 3, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 0, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 0, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 1, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 1, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 30, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 30, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 30, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 30, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 0, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 0, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 1, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 1, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 0, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 0, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 30, uk = 0</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &lt; 723))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 30, uk = 1</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (noBolus == 1))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 30, uk = u</label>
+</transition>
+<transition><source ref="Controller_0"/><target ref="Controller_0"/>
+<label kind="select">u : int[2,3]</label>
+<label kind="guard">(((hasReading == 1) &amp;&amp; (age &lt; 723)) &amp;&amp; (sinceBolus &gt;= 183))</label>
+<label kind="synchronisation">decide?</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 30, uk = u</label>
+</transition>
+</template>
+<template><name>CGMT</name>
+<location id="CGM_0" x="0" y="0"><name>G</name>
+</location>
+<init ref="CGM_0"/>
+<transition><source ref="CGM_0"/><target ref="CGM_0"/>
+<label kind="guard">(hasReading == 0)</label>
+<label kind="synchronisation">read?</label>
+<label kind="assignment">age = 0, hasReading = 1</label>
+</transition>
+<transition><source ref="CGM_0"/><target ref="CGM_0"/>
+<label kind="guard">((hasReading == 1) &amp;&amp; (age &gt;= 150))</label>
+<label kind="synchronisation">read?</label>
+<label kind="assignment">age = 0</label>
+</transition>
+</template>
+<template><name>UserT</name>
+<location id="User_0" x="0" y="0"><name>U</name>
+</location>
+<init ref="User_0"/>
+<transition><source ref="User_0"/><target ref="User_0"/>
+<label kind="synchronisation">ubolus?</label>
+<label kind="assignment">sinceBolus = 0, noBolus = 0</label>
+</transition>
+</template>
+<system>Step = StepT();
+Pump = PumpT();
+Controller = ControllerT();
+CGM = CGMT();
+User = UserT();
+system Step, Pump, Controller, CGM, User;</system>
+</nta>

@@ -1,0 +1,1921 @@
+{
+ "automata": [
+  {
+   "name": "Step",
+   "initial": 0,
+   "committed": [
+    0,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10,
+    11,
+    12,
+    13
+   ],
+   "urgent": [
+    0,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10,
+    11,
+    12,
+    13
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "Init",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "Pre",
+     "invariant": ""
+    },
+    {
+     "id": 2,
+     "name": "PreC",
+     "invariant": ""
+    },
+    {
+     "id": 3,
+     "name": "Idle",
+     "invariant": ""
+    },
+    {
+     "id": 4,
+     "name": "S1",
+     "invariant": ""
+    },
+    {
+     "id": 5,
+     "name": "Iss",
+     "invariant": ""
+    },
+    {
+     "id": 6,
+     "name": "Ch",
+     "invariant": ""
+    },
+    {
+     "id": 7,
+     "name": "Ex",
+     "invariant": ""
+    },
+    {
+     "id": 8,
+     "name": "End",
+     "invariant": ""
+    },
+    {
+     "id": 9,
+     "name": "Closed",
+     "invariant": ""
+    },
+    {
+     "id": 10,
+     "name": "R1",
+     "invariant": ""
+    },
+    {
+     "id": 11,
+     "name": "U1",
+     "invariant": ""
+    },
+    {
+     "id": 12,
+     "name": "O1",
+     "invariant": ""
+    },
+    {
+     "id": 13,
+     "name": "O3",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "",
+     "label": "",
+     "update": "noBolus := 1"
+    },
+    {
+     "source": 1,
+     "target": 2,
+     "guard": "(initDone == 0)",
+     "label": "",
+     "update": "ic := 3, initDone := 1"
+    },
+    {
+     "source": 1,
+     "target": 2,
+     "guard": "(initDone == 0)",
+     "label": "",
+     "update": "ic := 4, initDone := 1"
+    },
+    {
+     "source": 2,
+     "target": 1,
+     "guard": "(ic == 3)",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 2,
+     "target": 1,
+     "guard": "(ic >= 4)",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 3,
+     "guard": "",
+     "label": "",
+     "update": "g := 0, first := 1, ic := 0"
+    },
+    {
+     "source": 1,
+     "target": 9,
+     "guard": "",
+     "label": "",
+     "update": "ic := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "((first == 1))",
+     "label": "",
+     "update": "busy := 1, first := 0, g := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "((g > 0))",
+     "label": "",
+     "update": "busy := 1, first := 0, g := 0"
+    },
+    {
+     "source": 6,
+     "target": 8,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 0) && (rc == 0) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 0) && (mb1 == 0) && (rc == 0) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 0) && (mb1 == 1) && (pb >= 183) && (rc == 0) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 0) && (mb1 == 1) && (pb < 183) && (rc == 0) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0, errPair := 1"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv == 0) && (rc >= 3) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv == 0) && (mb1 == 0) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv == 0) && (mb1 == 1) && (pb >= 183) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv == 0) && (mb1 == 1) && (pb < 183) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0, errPair := 1"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv <= 120) && (dv == 120) && (dv >= 30) && (rc == 3) && (rc >= 3) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv <= 120) && (dv == 120) && (dv >= 30) && (mb1 == 0) && (rc == 3) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv <= 120) && (dv == 120) && (dv >= 30) && (mb1 == 1) && (pb >= 183) && (rc == 3) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv <= 120) && (dv == 120) && (dv >= 30) && (mb1 == 1) && (pb < 183) && (rc == 3) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0, errPair := 1"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((rc >= 4) || (dv <= 119)) && (dk == 3) && (dv <= 120) && (dv >= 30) && (rc >= 3) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((rc >= 4) || (dv <= 119)) && (dk == 3) && (dv <= 120) && (dv >= 30) && (mb1 == 0) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((rc >= 4) || (dv <= 119)) && (dk == 3) && (dv <= 120) && (dv >= 30) && (mb1 == 1) && (pb >= 183) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((rc >= 4) || (dv <= 119)) && (dk == 3) && (dv <= 120) && (dv >= 30) && (mb1 == 1) && (pb < 183) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "mb1 := 1, pb := 0, errPair := 1"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((rc == 0) && (dk >= 1)) || (rc == 1) || (rc == 2) || ((rc >= 3) && ((dk <= 2) || (dk == 4))) || ((rc >= 3) && (dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) || (dv > 120))))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((uk == 1) || (uk == 2))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "(((rc == 0) && (dk >= 1)) || ((rc >= 1) && (dk == 0)))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "((rc == 1) || (dk == 1) || (uk == 1))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "(((dk == 2) || (dk == 4) || ((dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) || (dv > 120)))) && (uk == 3))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "(((dk == 2) || (dk == 4) || ((dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) || (dv > 120)))) && (uk <= 2))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "(uk == 2)",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "((dk >= 1) && (rc == 2))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "((dk == 0) && (rc == 0) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "((dk == 0) && (rc == 0) && (uk == 3))",
+     "label": "",
+     "update": "sinceBolus := 0, noBolus := 0"
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "((dk == 3) && (dv == 0) && (rc >= 3) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "((dk == 3) && (dv == 0) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "sinceBolus := 0, noBolus := 0"
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "((dk == 3) && (dv <= 120) && (dv >= 30) && (rc >= 3) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "((dk == 3) && (dv <= 120) && (dv >= 30) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "sinceBolus := 0, noBolus := 0"
+    },
+    {
+     "source": 8,
+     "target": 3,
+     "guard": "",
+     "label": "",
+     "update": "busy := 0, rc := 0, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 8,
+     "target": 9,
+     "guard": "",
+     "label": "",
+     "update": "busy := 0, rc := 0, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 9,
+     "target": 9,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 1,
+     "guard": "(preB == 0)",
+     "label": "",
+     "update": "preB := 1, sinceBolus := 0, noBolus := 0"
+    },
+    {
+     "source": 4,
+     "target": 10,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 10,
+     "target": 11,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 10,
+     "target": 11,
+     "guard": "",
+     "label": "ubolus!",
+     "update": ""
+    },
+    {
+     "source": 11,
+     "target": 8,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 11,
+     "target": 5,
+     "guard": "",
+     "label": "decide!",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 12,
+     "guard": "((rc <= 4) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 12,
+     "guard": "(((rc == 5) || (uk >= 1)) && (age < 723) && (hasReading == 1))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 12,
+     "guard": "(((rc == 5) || (uk >= 1)) && (hasReading == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 12,
+     "guard": "(((rc == 5) || (uk >= 1)) && (age >= 723))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 12,
+     "target": 13,
+     "guard": "(((rc == 0) && (dk == 0)) || ((rc == 0) && (dk == 1)) || ((rc == 0) && (dk == 2)) || ((rc == 0) && (dk == 3) && (dv >= 0) && (dv <= 0)) || ((rc == 0) && (dk == 3) && (dv >= 30) && (dv <= 120)) || ((rc == 1) && (dk == 0)) || ((rc == 1) && (dk == 1)) || ((rc == 1) && (dk == 2)) || ((rc == 1) && (dk == 3) && (dv >= 0) && (dv <= 0)) || ((rc == 1) && (dk == 3) && (dv >= 30) && (dv <= 120)) || ((rc == 2) && (dk == 0)) || ((rc == 2) && (dk == 1)) || ((rc == 2) && (dk == 3) && (dv >= 0) && (dv <= 0)) || ((rc == 3) && (dk == 0)) || ((rc == 3) && (dk == 1)) || ((rc == 3) && (dk == 2)) || ((rc == 3) && (dk == 3) && (dv >= 0) && (dv <= 0)) || ((rc == 3) && (dk == 3) && (dv >= 30) && (dv <= 120)) || ((rc == 4) && (dk == 0)) || ((rc == 4) && (dk == 1)) || ((rc == 4) && (dk == 3) && (dv >= 0) && (dv <= 0)) || ((rc == 4) && (dk == 3) && (dv >= 30) && (dv <= 30)) || ((rc == 5) && (dk == 0)) || ((rc == 5) && (dk == 1)) || ((rc == 5) && (dk == 3) && (dv >= 0) && (dv <= 0)) || ((rc == 5) && (dk == 3) && (dv >= 30) && (dv <= 30)))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 12,
+     "target": 13,
+     "guard": "(((rc == 0) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 0) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 0) && (dk == 3) && (dv >= 121) && (dv <= 121)) || ((rc == 0) && (dk == 4)) || ((rc == 1) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 1) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 1) && (dk == 3) && (dv >= 121) && (dv <= 121)) || ((rc == 1) && (dk == 4)) || ((rc == 2) && (dk == 2)) || ((rc == 2) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 2) && (dk == 3) && (dv >= 1) && (dv <= 121)) || ((rc == 2) && (dk == 4)) || ((rc == 3) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 3) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 3) && (dk == 3) && (dv >= 121) && (dv <= 121)) || ((rc == 3) && (dk == 4)) || ((rc == 4) && (dk == 2)) || ((rc == 4) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 4) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 4) && (dk == 3) && (dv >= 31) && (dv <= 121)) || ((rc == 4) && (dk == 4)) || ((rc == 5) && (dk == 2)) || ((rc == 5) && (dk == 3) && (dv >= -1) && (dv <= -1)) || ((rc == 5) && (dk == 3) && (dv >= 1) && (dv <= 29)) || ((rc == 5) && (dk == 3) && (dv >= 31) && (dv <= 121)) || ((rc == 5) && (dk == 4)))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 13,
+     "target": 6,
+     "guard": "(uk <= 1)",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 13,
+     "target": 6,
+     "guard": "(uk >= 2)",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 4,
+     "target": 10,
+     "guard": "",
+     "label": "read!",
+     "update": ""
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 1,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 2,
+     "target": 2,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 3,
+     "target": 3,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 4,
+     "target": 4,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 5,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 6,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 7,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 8,
+     "target": 8,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 9,
+     "target": 9,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 10,
+     "target": 10,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 11,
+     "target": 11,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 12,
+     "target": 12,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 13,
+     "target": 13,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    }
+   ]
+  },
+  {
+   "name": "Controller",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "C",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 31, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 31, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 31, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 31, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 31, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 31, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 31, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 31, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 31, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 31, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 31, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 31, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 31, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 31, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 31, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 31, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 31, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 31, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 4, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 4, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 4, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (noBolus == 1))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age < 723) && (hasReading == 1) && (sinceBolus >= 183))",
+     "label": "decide?",
+     "update": "rc := 5, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    }
+   ]
+  },
+  {
+   "name": "CGM",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "G",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "(hasReading == 0)",
+     "label": "read?",
+     "update": "age := 0, hasReading := 1"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((age >= 150) && (hasReading == 1))",
+     "label": "read?",
+     "update": "age := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    }
+   ]
+  },
+  {
+   "name": "User",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "U",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "ubolus?",
+     "update": "sinceBolus := 0, noBolus := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((rc == 0) && (rc == 1) && (age <= 723) && (g <= 0) && (pb <= 183) && (sinceBolus <= 183))",
+     "label": "",
+     "update": ""
+    }
+   ]
+  }
+ ],
+ "clocks": "g, age, sinceBolus, pb",
+ "vars": "hasReading[0:1], noBolus[0:1], initDone[0:1], ic[0:5], first[0:1], busy[0:1], mb1[0:1], errPair[0:1], uk[0:3], dv[-1:121], dk[0:4], rc[0:5], preB[0:1]",
+ "broadcast": [],
+ "formula": "E<> (!(Step.Init) && (Step.Iss && (hasReading == 0)))"
+}

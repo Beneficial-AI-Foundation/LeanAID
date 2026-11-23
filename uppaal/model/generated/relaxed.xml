@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+<declaration>// issued fields of the last cycle (encodings in uppaal/model/model.py)
+int[0,5] rc; int[0,4] dk; int[-1,121] dv; int[0,3] uk;
+// running temp of the pump: class and duration in minutes
+int[0,5] tcls; int[0,121] dur;
+// class of an initial temp (pre-run)
+int[0,5] ic;
+int[0,1] busy;        // inside the committed chain of a step
+int[0,1] first;       // the next step is the first one, allowed at t0
+int[0,1] initDone;    // the initial temp is installed
+clock g;              // time since the start or the last step
+clock obs;            // time since the close of the run
+// P4a observer: obligation class, duration, own clock
+// It starts with the obligation `eff == sched` (no initial temp).
+int[0,9] oCls = 9; int[0,121] oDur; clock o4;
+// bolus observer: the expected and the executed bolus of this step
+int[0,1] expB; int[0,1] bolusDone;
+chan initTemp, setTemp, cancel;</declaration>
+<template><name>StepT</name>
+<location id="Step_0" x="0" y="0"><name>Pre</name>
+</location>
+<location id="Step_1" x="220" y="0"><name>PreC</name>
+<committed/>
+</location>
+<location id="Step_2" x="440" y="0"><name>Idle</name>
+</location>
+<location id="Step_3" x="660" y="0"><name>S1</name>
+<committed/>
+</location>
+<location id="Step_4" x="0" y="160"><name>Iss</name>
+<committed/>
+</location>
+<location id="Step_5" x="220" y="160"><name>Ch</name>
+<committed/>
+</location>
+<location id="Step_6" x="440" y="160"><name>Ex</name>
+<committed/>
+</location>
+<location id="Step_7" x="660" y="160"><name>End</name>
+<committed/>
+</location>
+<location id="Step_8" x="0" y="320"><name>Closed</name>
+</location>
+<init ref="Step_0"/>
+<transition><source ref="Step_0"/><target ref="Step_1"/>
+<label kind="select">c : int[3,5]</label>
+<label kind="guard">(initDone == 0)</label>
+<label kind="assignment">ic = c, initDone = 1</label>
+</transition>
+<transition><source ref="Step_1"/><target ref="Step_0"/>
+<label kind="guard">(ic == 3)</label>
+<label kind="synchronisation">initTemp!</label>
+<label kind="assignment">oCls = ic, oDur = 120, o4 = 0</label>
+</transition>
+<transition><source ref="Step_1"/><target ref="Step_0"/>
+<label kind="guard">(ic &gt;= 4)</label>
+<label kind="synchronisation">initTemp!</label>
+<label kind="assignment">oCls = ic, oDur = 30, o4 = 0</label>
+</transition>
+<transition><source ref="Step_0"/><target ref="Step_2"/>
+<label kind="assignment">g = 0, first = 1, ic = 0</label>
+</transition>
+<transition><source ref="Step_0"/><target ref="Step_8"/>
+<label kind="assignment">obs = 0, ic = 0</label>
+</transition>
+<transition><source ref="Step_2"/><target ref="Step_3"/>
+<label kind="guard">((first == 1) || (g &gt; 0))</label>
+<label kind="assignment">busy = 1, first = 0, g = 0</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_7"/>
+</transition>
+<transition><source ref="Step_4"/><target ref="Step_5"/>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_7"/>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 0))</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 3))</label>
+<label kind="assignment">expB = 1</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 0))</label>
+<label kind="assignment">oCls = 9, oDur = 0, o4 = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 3))</label>
+<label kind="assignment">oCls = 9, oDur = 0, o4 = 0, expB = 1</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 0))</label>
+<label kind="assignment">oCls = rc, oDur = dv, o4 = 0</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 3))</label>
+<label kind="assignment">oCls = rc, oDur = dv, o4 = 0, expB = 1</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk &gt;= 1)) || (rc == 1) || (rc == 2) || ((rc &gt;= 3) &amp;&amp; ((dk &lt;= 2) || (dk == 4))) || ((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; ((dv &lt; 0) || ((dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || (dv &gt; 120))))</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">((uk == 1) || (uk == 2))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk &gt;= 1)) || ((rc &gt;= 1) &amp;&amp; (dk == 0)))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">((rc == 1) || (dk == 1) || (uk == 1))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((dk == 2) || (dk == 4) || ((dk == 3) &amp;&amp; ((dv &lt; 0) || ((dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || (dv &gt; 120)))) &amp;&amp; (uk == 3))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((dk == 2) || (dk == 4) || ((dk == 3) &amp;&amp; ((dv &lt; 0) || ((dv &gt;= 1) &amp;&amp; (dv &lt;= 29)) || (dv &gt; 120)))) &amp;&amp; (uk &lt;= 2))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(uk == 2)</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">((rc == 2) &amp;&amp; (dk &gt;= 1))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 0))</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc == 0) &amp;&amp; (dk == 0)) &amp;&amp; (uk == 3))</label>
+<label kind="assignment">bolusDone = 1</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 0))</label>
+<label kind="synchronisation">cancel!</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv == 0)) &amp;&amp; (uk == 3))</label>
+<label kind="synchronisation">cancel!</label>
+<label kind="assignment">bolusDone = 1</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 0))</label>
+<label kind="synchronisation">setTemp!</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_7"/>
+<label kind="guard">(((rc &gt;= 3) &amp;&amp; (dk == 3) &amp;&amp; (dv &gt;= 30) &amp;&amp; (dv &lt;= 120)) &amp;&amp; (uk == 3))</label>
+<label kind="synchronisation">setTemp!</label>
+<label kind="assignment">bolusDone = 1</label>
+</transition>
+<transition><source ref="Step_7"/><target ref="Step_2"/>
+<label kind="assignment">busy = 0, rc = 0, dk = 0, dv = 0, uk = 0, expB = 0, bolusDone = 0</label>
+</transition>
+<transition><source ref="Step_7"/><target ref="Step_8"/>
+<label kind="assignment">busy = 0, obs = 0, rc = 0, dk = 0, dv = 0, uk = 0, expB = 0, bolusDone = 0</label>
+</transition>
+<transition><source ref="Step_8"/><target ref="Step_8"/>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 0, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 0, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 0, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 0, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">v : int[30,120], u : int[0,3]</label>
+<label kind="assignment">rc = 0, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 1, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 1, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 1, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 1, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">v : int[30,120], u : int[0,3]</label>
+<label kind="assignment">rc = 1, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 3, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 3, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 3, dk = 2, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 3, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">v : int[30,120], u : int[0,3]</label>
+<label kind="assignment">rc = 3, dk = 3, dv = v, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 4, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 4, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 4, dk = 3, dv = 30, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 5, dk = 0, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 5, dk = 1, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 0, uk = u</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">u : int[0,3]</label>
+<label kind="assignment">rc = 5, dk = 3, dv = 30, uk = u</label>
+</transition>
+</template>
+<template><name>PumpT</name>
+<declaration>clock y;</declaration>
+<location id="Pump_0" x="0" y="0"><name>Sched</name>
+</location>
+<location id="Pump_1" x="220" y="0"><name>Temp</name>
+<label kind="invariant">y &lt;= (dur * 60)</label>
+</location>
+<init ref="Pump_0"/>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="guard">(ic == 3)</label>
+<label kind="synchronisation">initTemp?</label>
+<label kind="assignment">y = 0, dur = 120, tcls = ic</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="guard">(ic &gt;= 4)</label>
+<label kind="synchronisation">initTemp?</label>
+<label kind="assignment">y = 0, dur = 30, tcls = ic</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="synchronisation">setTemp?</label>
+<label kind="assignment">y = 0, dur = dv, tcls = rc</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_1"/>
+<label kind="guard">(y &lt; (dur * 60))</label>
+<label kind="synchronisation">setTemp?</label>
+<label kind="assignment">y = 0, dur = dv, tcls = rc</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_1"/>
+<label kind="guard">(y &gt;= (dur * 60))</label>
+<label kind="synchronisation">setTemp?</label>
+<label kind="assignment">y = 0, dur = dv, tcls = rc</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_0"/>
+<label kind="synchronisation">cancel?</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_0"/>
+<label kind="guard">(y &gt;= (dur * 60))</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_0"/>
+<label kind="synchronisation">cancel?</label>
+</transition>
+</template>
+<system>Step = StepT();
+Pump = PumpT();
+system Step, Pump;</system>
+</nta>

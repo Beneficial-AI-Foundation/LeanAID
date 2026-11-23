@@ -11,6 +11,48 @@
 | `LeanAID/Time/` | runs over time: run type, pump model, properties of runs | Lean core |
 | `App/` | the `aid-lean` shell: JSON, files, clock | Lean core |
 
+### UPPAAL and Munta
+
+The timed-automata abstraction of the T2 run model (`docs/uppaal-plan.md`) adds these
+parts. A result of UPPAAL or Munta is about the model, not about T2 runs or oref0
+(plan section 7). The Lean files are part of `lake build`. The other parts are
+outside the Lean build.
+
+| path | contents | made or checked by |
+|---|---|---|
+| `scripts/uppaal.sh` | runs every UPPAAL query (`uppaal/queries/check.py`) with `verifyta`. If a status is not the expected one, it exits with 1 | runs the 104 queries |
+| `uppaal/model/model.py` | the model as Python data (U1a pump, U1b contract, variants, U5 extensions in `build_ext`) and the UPPAAL XML writer | read by `check.py`, `traces.py`, `replay.py`, `munta/run_munta.py` |
+| `uppaal/model/export.py`, `uppaal/model/generated/` | the main models and the extended models as UPPAAL files with grid coordinates, and a `.q` file of queries for each, to open in the UPPAAL GUI | `python3 -I uppaal/model/export.py` |
+| `uppaal/queries/check.py` | the queries with their expected status (`ALL`: 58 of U1a, U1b and U3b; `QUERIES_U5`: 46), the runner and the `results.json` writer | `scripts/uppaal.sh` |
+| `uppaal/queries/results.json` | the status, time, model and query SHA-256 of each of the 104 queries, and the run data | written by `scripts/uppaal.sh` |
+| `uppaal/README.md` | the model, the encodings, the mapping to `LeanAID/Time/System.lean`, the queries, the results, how to open the models and read the traces, and the provenance | written by hand |
+| `uppaal/model/extensions.md` | the semantics of the U5 extensions (delayed execution, lost acknowledgement, two loops) and their relation to the U1b model | written by hand, before the U5 queries |
+| `uppaal/traces/traces.py`, `uppaal/traces/contract/` | U2: a shortest trace and an SVG timeline for each witness and counterexample, with `index.md` | `python3 -I uppaal/traces/traces.py --verifyta PATH` |
+| `uppaal/traces/extensions/` | U5: the traces of the extensions, not replayed in Lean | `uppaal/traces/traces.py --u5` |
+| `uppaal/replay/replay.py`, `uppaal/replay/replay.json` | U3: tries to turn each U1 trace into a T2 run. It writes Lean checks for the traces it can replay to the two Lean replay files, and the outcome of each trace to `replay.json` | `python3 -I uppaal/replay/replay.py`. `lake build` checks the Lean files |
+| `uppaal/munta/translate.py` | U4: the lowering of a model to the input language of Munta (`lower`) and its reductions. Also the reduced pump of U5b (`few_durations`) and the Munta JSON writer | used by `munta/run_munta.py`. `munta/findings/test_translate.py` runs its regression checks |
+| `uppaal/munta/munta_order.sh` | U4: builds `vendor/munta-order`, a copy of Munta that prints its variable order. No answer comes from this copy | run by hand after `setup_munta.sh` |
+| `uppaal/munta/compat/` | U0b: 102 test queries on 51 networks, `run_compat.py`, the generated networks, query files and Munta inputs in `models/` (tracked), `results.json`, `setup_munta.sh`, and the limits and semantic differences of Munta in `README.md` | `python3 -I uppaal/munta/compat/run_compat.py` |
+| `uppaal/munta/run_munta.py`, `uppaal/munta/results.json` | U4: runs the queries of `check.ALL` in Munta with the three gates of U0b | `run_munta.py`. `--check-networks` rebuilds the networks and compares their SHA-256 |
+| `uppaal/munta/results-reduced-pump.json` | U5b: the nine pump queries without a clock on the reduced pump, with the transfer to the U1a pump | `run_munta.py --u5b` |
+| `uppaal/munta/test_translate.py` | regression checks of `munta/translate.py` from the U4 and U5b reviews. Runs no model checker | `python3 -I uppaal/munta/test_translate.py` |
+| `uppaal/munta/findings/*.muntax`, `uppaal/munta/findings/committed_delay.xml`, `uppaal/munta/findings/shrink_*.py` | the networks of the Munta findings F-26 and F-27, the P1 networks of U4, and the scripts that shrank them | written in U4 |
+| `uppaal/out/`, `uppaal/munta/out/` | generated models, queries and lowered networks (ignored by git) | `check.py`, `run_munta.py` |
+| `LeanAID/Time/Issued.lean` | `p1_faithful`, `p1_derived`, `p2_rate_bound`, `p3_temp_ok`, `p5_faithful`: run theorems of the earlier timing design that the contract and the replay cite, kept after the rebase onto `main` | `lake build` |
+| `LeanAID/Time/SmbSpacing.lean` | `smb_guard_iff`, `lastBolusAge_guard_iff`, `smb_spacing`: the SMB guard as a time bound in milliseconds, used by the contract | `lake build` |
+| `LeanAID/Time/Replay.lean` | the projection of a T2 run that a U1a trace is compared with | `lake build` |
+| `LeanAID/Time/ReplayU1b.lean` | the projection and the R_U checks for the U1b traces | `lake build` |
+| `LeanAID/Conformance/UppaalReplay.lean` | generated: one replay theorem and one schedule theorem for each replayed U1a trace (`native_decide`) | written by `uppaal/replay/replay.py`, checked by `lake build` |
+| `LeanAID/Conformance/UppaalReplayU1b.lean` | generated: theorems for each replayed U1b trace (`native_decide`). The run is legal, valid and in R_U, and it matches the trace. For each witness, the query predicate holds on the run. For M-P5-clock, only the observable part is checked | written by `uppaal/replay/replay.py`, checked by `lake build` |
+| `vendor/oref0` | oref0 at commit `88cf032` (ignored by git, never edited) | cloned by hand, see `docs/REPORT.md` |
+| `vendor/munta`, `vendor/munta-build` | Munta at commit `62cb1a4`, and the checker built from its SML code with Poly/ML (`munta-build/munta.sh`) | `uppaal/munta/setup_munta.sh` |
+| `vendor/munta-order` | the diagnostic copy of Munta | `uppaal/munta/munta_order.sh` |
+| `vendor/Isabelle2020`, `vendor/afp-2021-02-01`, `vendor/dl` | Isabelle2020 and the AFP release that Munta needs, and their archives with checked SHA-256 sums | `uppaal/munta/setup_munta.sh` |
+| `vendor/isabelle-home`, `vendor/isabelle-ta-code*.log` | the Isabelle home and the log of the session `TA_Code`, which writes Munta's SML code again from the proofs | `uppaal/munta/setup_munta.sh --regenerate` |
+
+UPPAAL itself (`verifyta`, version 5.1.0-beta5) is installed by the maintainer in
+`/opt/uppaal`, not in `vendor/`.
+
 `scripts/check.sh` enforces: no `sorry` anywhere; no `partial`, `unsafe`, `@[extern]`,
 `implemented_by`, `Float` or Mathlib in the core; `native_decide` only in
 `LeanAID/Conformance`; no `axiom` declarations; headline theorems depend only on

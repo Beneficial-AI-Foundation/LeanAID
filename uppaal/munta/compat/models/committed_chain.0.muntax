@@ -1,0 +1,96 @@
+{
+ "automata": [
+  {
+   "name": "P",
+   "initial": 0,
+   "committed": [
+    1,
+    2
+   ],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "L0",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "C1",
+     "invariant": ""
+    },
+    {
+     "id": 2,
+     "name": "C2",
+     "invariant": ""
+    },
+    {
+     "id": 3,
+     "name": "L3",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "x >= 1",
+     "label": "",
+     "update": "f := 1"
+    },
+    {
+     "source": 1,
+     "target": 2,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 2,
+     "target": 3,
+     "guard": "",
+     "label": "",
+     "update": "f := 0"
+    },
+    {
+     "source": 3,
+     "target": 3,
+     "guard": "",
+     "label": "",
+     "update": ""
+    }
+   ]
+  },
+  {
+   "name": "Q",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "K0",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "K1",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "f == 1",
+     "label": "",
+     "update": "w := 1"
+    }
+   ]
+  }
+ ],
+ "clocks": "x",
+ "vars": "w[0:1], f[0:1]",
+ "broadcast": [],
+ "formula": "E<> P.C2"
+}
