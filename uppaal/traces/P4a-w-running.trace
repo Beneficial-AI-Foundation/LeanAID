@@ -1,0 +1,17 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/P4a-w-running.q:1
+ -- Formula is satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Pre->Step.PreC { initDone == 0, tau, ic := 3, initDone := 1 }
+State:
+( Step.PreC Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=3 busy=0 first=0 initDone=1 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.PreC->Step.Pre { ic == 3, initTemp!, oCls := ic, oDur := 120, o4 := 0 }
+  Pump.Sched->Pump.Temp { ic == 3, initTemp?, y := 0, dur := 120, tcls := ic }
+State:
+( Step.Pre Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=3 busy=0 first=0 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0

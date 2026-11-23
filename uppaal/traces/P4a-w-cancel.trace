@@ -1,0 +1,53 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/P4a-w-cancel.q:1
+ -- Formula is satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Pre->Step.PreC { initDone == 0, tau, ic := 3, initDone := 1 }
+State:
+( Step.PreC Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=3 busy=0 first=0 initDone=1 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.PreC->Step.Pre { ic == 3, initTemp!, oCls := ic, oDur := 120, o4 := 0 }
+  Pump.Sched->Pump.Temp { ic == 3, initTemp?, y := 0, dur := 120, tcls := ic }
+State:
+( Step.Pre Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=3 busy=0 first=0 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Pre->Step.Idle { 1, tau, g := 0, first := 1, ic := 0 }
+State:
+( Step.Idle Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=0 busy=0 first=1 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Idle->Step.S1 { first == 1 || g > 0, tau, busy := 1, first := 0, g := 0 }
+State:
+( Step.S1 Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=0 busy=1 first=0 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.S1->Step.Iss { 3 == 3 || 0 == 0, tau, rc := 3, dk := 3, dv := 0, uk := 0 }
+State:
+( Step.Iss Pump.Temp )
+rc=3 dk=3 dv=0 uk=0 tcls=3 dur=120 ic=0 busy=1 first=0 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Iss->Step.Ch { 1, tau, 1 }
+State:
+( Step.Ch Pump.Temp )
+rc=3 dk=3 dv=0 uk=0 tcls=3 dur=120 ic=0 busy=1 first=0 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Ch->Step.Ex { rc >= 3 && dk == 3 && dv == 0 && uk == 0, tau, oCls := 9, oDur := 0, o4 := 0 }
+State:
+( Step.Ex Pump.Temp )
+rc=3 dk=3 dv=0 uk=0 tcls=3 dur=120 ic=0 busy=1 first=0 initDone=1 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Ex->Step.End { rc >= 3 && dk == 3 && dv == 0 && uk == 0, cancel!, 1 }
+  Pump.Temp->Pump.Sched { y < dur * 60, cancel?, wCancel := 1 }
+State:
+( Step.End Pump.Sched )
+rc=3 dk=3 dv=0 uk=0 tcls=3 dur=120 ic=0 busy=1 first=0 initDone=1 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=1 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.End->Step.Idle { 1, tau, busy := 0, rc := 0, dk := 0, dv := 0, uk := 0, expB := 0, bolusDone := 0, wRejBolus := 0 }
+State:
+( Step.Idle Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=0 busy=0 first=0 initDone=1 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=1 g=0 obs=0 o4=0 Pump.y=0

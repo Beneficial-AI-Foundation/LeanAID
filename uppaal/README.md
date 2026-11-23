@@ -15,7 +15,8 @@ Research artifact. Nothing here is fit for dosing insulin.
 | U0b | Munta compatibility (`u0b/README.md`) | done |
 | U1a | `Step`, `Channel` and `Pump` with a free command choice | done: every query gives its expected result |
 | U1b | contract, `Controller`, `CGM`, `User`, Lean SMB lemma | done: every query gives its expected result |
-| U2 to U5 | traces, replay, Munta run, extensions | planned |
+| U2 | SVG timelines of the witness traces and counterexamples (`traces/`) | done |
+| U3 to U5 | replay, Munta run, extensions | planned |
 
 ## How to run
 
@@ -49,6 +50,8 @@ answer. The plan's status `unsupported` is for the Munta run of U4. The status `
 | `model.py` | the model as Python data, and a writer for UPPAAL XML. U4 adds a Munta writer |
 | `check.py` | the queries with their expected status, the runner and the `results.json` writer |
 | `results.json` | the results of the last full run |
+| `traces.py` | U2: writes a shortest trace and an SVG timeline for each witness and counterexample |
+| `traces/` | the traces, the timelines and `index.md` |
 | `u0b/` | work item U0b |
 | `../LeanAID/Time/SmbSpacing.lean` | the SMB lemmas of U1b, checked by `lake build` |
 
@@ -325,6 +328,39 @@ search finds F-20.
 | M-P4b-30 | mutation | relaxed | P4b-30 when the controller issues a positive temp of 120 minutes | fails |
 | F-20 | witness | contract | a zero temp of 120 minutes from a cycle still runs 7199 s after the close | reachable |
 | prerun-w-t0, prerun-w-old | witness | contract | at t0 a temp starts and the pre-run bolus was 3600 s before; at t0 an old temp runs and the last bolus was recent | reachable |
+
+## Traces (U2)
+
+```bash
+python3 -I uppaal/traces.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh
+```
+
+For every query whose expected status is `reachable` or `fails`, the script asks
+`verifyta -t1` for a shortest concrete trace. It writes the trace as verifyta prints
+it (`traces/ID.trace`) and a timeline (`traces/ID.svg`). `traces/index.md` lists the
+38 traces with the model and the SHA-256 sums of the model and query files.
+`--only ID ...` renders some traces and does not write the index.
+
+The script checks that verifyta ends with exit code 0 and gives the expected answer.
+Its parser accepts only the trace grammar of verifyta and stops at any other line,
+with the line number.
+
+A timeline has one column for each time at which transitions happen, and the delays
+between the columns. Times are model seconds relative to the start t0, so pre-run
+events have negative times. A trace that ends before t0 (`P4a-w-running`,
+`P4a-w-expired`) shows elapsed model time instead. Each action comes from the edges
+that the trace takes and the states around them, so a mutation trace shows what the
+mutant does. Next to the execution, the label `validate: ...` gives what `validate`
+expects for the issued fields. The lanes show the run (start, steps, close), CGM and
+user events, the issued output, the channel and pump execution, pump events (a new
+temp, a cancel, an expiry), and errors that observers latch. A band shows the
+delivered class `eff` during each delay. The last column is the end of the trace,
+which can be inside a step: for example, `P5-pair-w` ends on the accepted edge of
+the second microbolus.
+
+The traces show the model and its variants, not T2 runs. A mutation trace shows the
+mutant. U3 replays the traces on T2. In the 38 traces, every delay is a whole
+number of seconds.
 
 ## Notes for Munta (U4)
 

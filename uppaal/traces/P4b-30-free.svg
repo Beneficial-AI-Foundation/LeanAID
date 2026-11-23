@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="823" height="628" font-family="sans-serif" font-size="11">
+<rect width="100%" height="100%" fill="white"/>
+<text x="10" y="20" font-size="15" font-weight="bold">P4b-30-free</text>
+<text x="10" y="38">without the contract, a positive temp can run 1800 s after the close: P4b-30 rests on p3_temp_ok, not on validation</text>
+<text x="10" y="54" fill="#555">model: free</text>
+<text x="10" y="70" fill="#555" font-family="monospace" font-size="10">A[] ((Step.Closed &amp;&amp; (obs &gt;= 1800) &amp;&amp; (busy == 0)) imply (!((Pump.Temp &amp;&amp; (Pump.y &lt; (dur * 60))) &amp;&amp; ((tcls == 4) || (tcls == 5)))))</text>
+<line x1="0" y1="150" x2="823" y2="150" stroke="#eee"/>
+<text x="10" y="166" font-weight="bold">run</text>
+<line x1="0" y1="213" x2="823" y2="213" stroke="#eee"/>
+<text x="10" y="229" font-weight="bold">CGM and user</text>
+<line x1="0" y1="276" x2="823" y2="276" stroke="#eee"/>
+<text x="10" y="292" font-weight="bold">issued output</text>
+<line x1="0" y1="339" x2="823" y2="339" stroke="#eee"/>
+<text x="10" y="355" font-weight="bold">channel and pump</text>
+<line x1="0" y1="402" x2="823" y2="402" stroke="#eee"/>
+<text x="10" y="418" font-weight="bold">pump</text>
+<line x1="0" y1="465" x2="823" y2="465" stroke="#eee"/>
+<text x="10" y="481" font-weight="bold">observers</text>
+<line x1="150" y1="142" x2="150" y2="572" stroke="#999" stroke-dasharray="2,3"/>
+<text x="153" y="138" fill="#333">t = 0 s</text>
+<text x="154" y="166" fill="#000">start t0</text>
+<text x="154" y="179" fill="#000">step</text>
+<text x="154" y="192" fill="#000">run closed</text>
+<text x="154" y="292" fill="#000">rate low, duration 31 min, units</text>
+<text x="154" y="305" fill="#000">absent</text>
+<text x="154" y="355" fill="#000">accepted</text>
+<text x="154" y="368" fill="#000">temp sent to the pump</text>
+<text x="154" y="381" fill="#000">validate: temp low 31 min</text>
+<text x="154" y="418" fill="#000">temp low 31 min starts</text>
+<line x1="592.7756856409767" y1="142" x2="592.7756856409767" y2="572" stroke="#999" stroke-dasharray="2,3"/>
+<text x="595.7756856409767" y="138" fill="#333">t = 1800 s (end of trace)</text>
+<text x="10" y="558" font-weight="bold">delivered (eff)</text>
+<text x="351" y="582" fill="#333">+1800 s</text>
+<rect x="150" y="544" width="442.7756856409767" height="20" fill="#4caf6a"/>
+<text x="154" y="558" fill="white">low</text>
+<text x="596.7756856409767" y="558">at the end: low</text>
+<rect x="10" y="598" width="12" height="12" fill="#c9c9c9"/>
+<text x="26" y="608">sched</text>
+<rect x="100" y="598" width="12" height="12" fill="#4a7fc1"/>
+<text x="116" y="608">zero</text>
+<rect x="190" y="598" width="12" height="12" fill="#4caf6a"/>
+<text x="206" y="608">low</text>
+<rect x="280" y="598" width="12" height="12" fill="#e08a2c"/>
+<text x="296" y="608">high</text>
+</svg>

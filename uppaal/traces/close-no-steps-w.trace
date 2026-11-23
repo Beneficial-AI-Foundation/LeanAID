@@ -1,0 +1,11 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/close-no-steps-w.q:1
+ -- Formula is satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 g=0 obs=0 o4=0 Pump.y=0
+Transition:
+  Step.Pre->Step.Closed { 1, tau, obs := 0, ic := 0, wNoSteps := 1 }
+State:
+( Step.Closed Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=1 wCancel=0 g=0 obs=0 o4=0 Pump.y=0

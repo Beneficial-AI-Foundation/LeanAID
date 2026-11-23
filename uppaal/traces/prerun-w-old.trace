@@ -1,0 +1,31 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/prerun-w-old.q:1
+ -- Formula is satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Pump.Sched Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=0 busy=0 first=0 initDone=0 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=1 preB=0 err1=0 err3=0 err5=0 errPair=0 prior=0 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 g=0 obs=0 o4=0 age=0 sinceBolus=0 p5c=0 pb=0 rdc=0 Pump.y=0
+Transition:
+  Step.Pre->Step.PreC { initDone == 0, tau, ic := 3, initDone := 1 }
+State:
+( Step.PreC Pump.Sched Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=0 dur=0 ic=3 busy=0 first=0 initDone=1 oCls=9 oDur=0 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=1 preB=0 err1=0 err3=0 err5=0 errPair=0 prior=0 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 g=0 obs=0 o4=0 age=0 sinceBolus=0 p5c=0 pb=0 rdc=0 Pump.y=0
+Transition:
+  Step.PreC->Step.Pre { ic == 3, initTemp!, oCls := ic, oDur := 120, o4 := 0 }
+  Pump.Sched->Pump.Temp { ic == 3, initTemp?, y := 0, dur := 120, tcls := ic }
+State:
+( Step.Pre Pump.Temp Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=3 busy=0 first=0 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=1 preB=0 err1=0 err3=0 err5=0 errPair=0 prior=0 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 g=0 obs=0 o4=0 age=0 sinceBolus=0 p5c=0 pb=0 rdc=0 Pump.y=0
+Delay: 1700
+State:
+( Step.Pre Pump.Temp Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=3 busy=0 first=0 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=1 preB=0 err1=0 err3=0 err5=0 errPair=0 prior=0 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 g=1700 obs=1700 o4=1700 age=1700 sinceBolus=1700 p5c=1700 pb=1700 rdc=1700 Pump.y=1700
+Transition:
+  Step.Pre->Step.Pre { preB == 0, tau, preB := 1, sinceBolus := 0, noBolus := 0, p5c := 0, prior := 1 }
+State:
+( Step.Pre Pump.Temp Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=3 busy=0 first=0 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 g=1700 obs=1700 o4=1700 age=1700 sinceBolus=0 p5c=0 pb=1700 rdc=1700 Pump.y=1700
+Transition:
+  Step.Pre->Step.Idle { 1, tau, g := 0, first := 1, ic := 0 }
+State:
+( Step.Idle Pump.Temp Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 tcls=3 dur=120 ic=0 busy=0 first=1 initDone=1 oCls=3 oDur=120 expB=0 bolusDone=0 wColl=0 wRejBolus=0 wNoSteps=0 wCancel=0 hasReading=0 noBolus=0 preB=1 err1=0 err3=0 err5=0 errPair=0 prior=1 mb1=0 rdSeen=0 errRead=0 wUb=0 mb2=0 f20=0 g=0 obs=1700 o4=1700 age=1700 sinceBolus=0 p5c=0 pb=1700 rdc=1700 Pump.y=1700
