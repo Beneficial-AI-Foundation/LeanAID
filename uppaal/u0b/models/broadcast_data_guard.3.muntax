@@ -1,0 +1,98 @@
+{
+ "automata": [
+  {
+   "name": "S",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "A0",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "A1",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "",
+     "label": "b!",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 1,
+     "guard": "",
+     "label": "",
+     "update": ""
+    }
+   ]
+  },
+  {
+   "name": "R1",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "B0",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "B1",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "n == 0",
+     "label": "b?",
+     "update": "n := 1"
+    }
+   ]
+  },
+  {
+   "name": "R2",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "B0",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "B1",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "n == 1",
+     "label": "b?",
+     "update": "m := 1"
+    }
+   ]
+  }
+ ],
+ "clocks": "x",
+ "vars": "m[0:1], n[0:2]",
+ "broadcast": [
+  "b"
+ ],
+ "formula": "E<> S.A0"
+}
