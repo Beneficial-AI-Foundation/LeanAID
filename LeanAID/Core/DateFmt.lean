@@ -78,6 +78,15 @@ def toISOString (ms : Int) : String :=
     "-" ++ pad 2 p.month ++ "-" ++ pad 2 p.day ++ "T" ++ pad 2 p.hour ++ ":" ++ pad 2 p.minute ++ ":" ++
     pad 2 p.second ++ "." ++ pad 3 p.milli ++ "Z"
 
+/-- `moment(ms).format()`: moment's default format `YYYY-MM-DDTHH:mm:ssZ`, in local time
+    with the fixed offset `offMin` (e.g. `2026-11-18T12:30:00+00:00`). Years 0 to 9999. -/
+def momentFormat (ms : Int) (offMin : Int) : String :=
+  let p := parts ms offMin
+  let a := offMin.natAbs
+  pad 4 p.year.toNat ++ "-" ++ pad 2 p.month ++ "-" ++ pad 2 p.day ++ "T" ++ pad 2 p.hour ++ ":" ++
+    pad 2 p.minute ++ ":" ++ pad 2 p.second ++ (if offMin < 0 then "-" else "+") ++ pad 2 (a / 60) ++ ":" ++
+    pad 2 (a % 60)
+
 /-- `date.getMinutes()` in local time. -/
 def getMinutes (ms : Int) (offMin : Int) : Nat := (parts ms offMin).minute
 

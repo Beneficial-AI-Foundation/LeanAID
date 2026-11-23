@@ -81,6 +81,7 @@ differential testing (M10).
 | Q8 | iob/history.js 85–157 | `splitAroundSuspends` mutates temp-basal objects in place; unsplit events alias the returned `tempHistory`, so `lastTemp` can show a mutated date and a **negative duration** (−15 min in test IOB-17) |
 | Q9 | determine-basal.js 949 + basal-set-temp.js 5 | reason strings contain ". . " (neutral temp: "as temp. . Setting neutral …") |
 | Q10 | lib/meal/total.js, cob.js | COB uses an IOB clock left over from the previous call; the first call uses the wall clock (not transcribed yet, see LOG) |
+| Q11 | iob/history.js 343–359 | `var duration` is function-scoped: a `TempBasal` record with no matching `TempBasalDuration` record gets the duration of the `TempBasal` record processed before it (the next newer one), not `undefined`. Transcribed after F-25 |
 
 ## Arithmetic
 
@@ -473,3 +474,44 @@ covered by the runs: long manual high temps, which lose insulin in the other dir
 clinical outcome in simulation for their whole Swift port, which fixes this bug among
 others, so their result does not rate this bug alone.
 `LeanAID/Core` is unchanged.
+
+## Found by the differential test of IOB, meal history and the basal schedule
+
+`scripts/difftest/iob.js` compares `lib/iob`, `lib/meal/history.js` and `basalLookup` with
+the Lean core on random pump histories (`docs/COVERAGE.md`, `docs/LOG.md`).
+
+### F-25 — Two transcription errors in `LeanAID.Iob` (fixed)
+The first 500 random cases (seed 1) gave 27 cases whose IOB arrays differed. All 27 came
+from two places where `LeanAID/Core/Iob.lean` did not follow `iob/history.js`:
+1. **QUIRK Q11, the function-scoped `duration`** (lines 343-359). `var duration;` inside the
+   loop over the records does not reset the variable, so a `TempBasal` record with no
+   matching `TempBasalDuration` record keeps the duration of the `TempBasal` record processed
+   before it. The transcription gave it no duration (NaN), so the temp was ignored. Example
+   (`q11-temp-without-duration-record` in `scripts/difftest/iob-targeted.jsonl`): a 0 U/h
+   `TempBasal` at 15:19:05 without its duration record, after a 0.3 U/h temp at 17:00:51 with
+   30 minutes, schedule 1.2 U/h before 11:00 and 0.71 U/h after, now 17:20:25, `ultra-rapid`,
+   DIA 4. oref0 gives the 15:19 temp 30 minutes (7 micro-boluses of −0.05 U more):
+   IOB −0.268, `netbasalinsulin` −0.5; the transcription gave −0.145 and −0.15.
+   24 of the 27 cases differed in IOB values. The other fix changes only `lastTemp.timestamp`,
+   so these 24 are this one.
+2. **QUIRK Q8, the timestamp** (line 151). When a suspend covers the start of an unsplit temp,
+   `splitAroundSuspends` gives the very object stored in `tempHistory` a new `timestamp`,
+   `moment(...).format()`, as well as a new start and duration. The transcription copied the
+   new start and duration back to `tempHistory` (Q8), but not the timestamp, so `lastTemp`
+   kept the original timestamp: oref0 `"2026-11-17T23:53:54+00:00"`, Lean
+   `"2026-11-17T23:03:03+01:00"` (case 52), with equal `date`, `duration` and `rate`. Only
+   `lastTemp.timestamp` differed, in the other 3 of the 27 cases. `determine-basal` does not
+   read it, and `aid-lean serve` did not print it.
+Fixed in `LeanAID/Core/Iob.lean` (`ScanState.duration`, `RecordKind.mdtTemp`, the
+`prevDuration` argument of `classifyRecord`; the write-back of `timestamp` in `splitStage`)
+and `LeanAID/Core/DateFmt.lean` (`momentFormat`). No theorem statement changed; one proof
+(`scanRecord_bolus` in `LeanAID/Time/IobFacts.lean`) passes the new argument. After the fix,
+`lake build`, `scripts/check.sh` and `aid-lean selftest` (148/148) pass, `scripts/difftest/run.js`
+gives 100,000/100,000 identical (seed 1), and `iob.js` gives 100,000/100,000 identical (seed 1; 0 differences, at a rounding tie or
+not; 4 h 28 min wall time).
+Effect on earlier results: none on decisions. The virtual-patient histories always pair
+`TempBasal` with `TempBasalDuration`, and nothing downstream reads `lastTemp.timestamp`.
+Q11 is also a quirk of oref0 itself: line 357 warns "No duration found", but the temp then
+runs for another temp's duration. A pump history cut between a `TempBasal` record and its
+duration record can do this. Not rated further.
+

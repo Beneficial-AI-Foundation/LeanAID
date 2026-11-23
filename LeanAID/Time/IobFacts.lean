@@ -93,7 +93,7 @@ theorem scanRecord_bolus {nowMs : Int} {z : Option JsNum} {st : ScanState} {i : 
     cases h : r.timestamp with
     | none => simp_all
     | some _ => exact hp.ms
-  have hc : classifyRecord st.history i r.toPumpFields nowMs = .bolus (bolusTreatment r tb) := by
+  have hc : classifyRecord st.history i r.toPumpFields nowMs st.duration = .bolus (bolusTreatment r tb) := by
     simp [classifyRecord, ht, hty, bolusTreatment, Rat.intCast_lt_intCast, Int.not_lt.mpr h2]
   unfold scanRecord
   simp only [hr, hf, hp.created, Option.isSome_none, Bool.false_eq_true, ite_false, ht, hL, hc]

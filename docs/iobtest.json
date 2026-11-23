@@ -1,0 +1,30 @@
+{
+ "cases": 100000,
+ "seed": 1,
+ "file": null,
+ "identical": 100000,
+ "mismatchWithNearTie": 0,
+ "mismatchWithoutNearTie": 0,
+ "casesWithNearTie": 70637,
+ "partsDiffering": {
+  "iob": 0,
+  "meal": 0,
+  "basal": 0
+ },
+ "exercised": {
+  "suspendZerosIob": 49953,
+  "withSuspends": 34957,
+  "history24": 9662,
+  "currentIOBOnly": 4980,
+  "exponential": 69914,
+  "withCarbs": 95934,
+  "unzonedClock": 2033,
+  "lookupsWithoutTime": 5902,
+  "lookupsUndefined": 31016
+ },
+ "jobs": 6,
+ "nodeSeconds": 189,
+ "aidLeanSeconds": 15848.4,
+ "aidLeanCpuSeconds": 92607.8,
+ "wallSeconds": 16065.3
+}

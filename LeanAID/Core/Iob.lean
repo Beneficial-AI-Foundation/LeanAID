@@ -397,9 +397,10 @@ structure Suspend where
   duration : Option JsNum := none
   deriving Repr, Inhabited
 
-/-- `splitAroundSuspends(...)`, history.js lines 85-159. -/
+/-- `splitAroundSuspends(...)`, history.js lines 85-159. `tz` is the local offset in minutes,
+    for the timestamps that `moment(...).format()` writes (lines 133 and 151). -/
 def splitAroundSuspends (ev : TempEvent) (suspends : List Suspend) (firstResumeMs : Option Int)
-    (suspendedPrior : Bool) (lastSuspendTimeNum : JsNum) (currentlySuspended : Bool) : List TempEvent :=
+    (suspendedPrior : Bool) (lastSuspendTimeNum : JsNum) (currentlySuspended : Bool) (tz : Int) : List TempEvent :=
   let firstResumeDate : JsNum := match firstResumeMs with | some t => .fin t | none => .nan
   -- lines 94-103
   let ev :=
@@ -434,14 +435,14 @@ def splitAroundSuspends (ev : TempEvent) (suspends : List Suspend) (firstResumeM
               let events :=
                 if eEnd >ʲ sEnd then
                   match s.startedAt.bind (fun st => addMinutesFormatted st sd) with
-                  | some t2 => events.push { e with timestamp := some "(split)", timestampMs := some t2, startedAt := t2, date := sEnd, duration := (eEnd - sEnd) / 60 / 1000, origin := none }
+                  | some t2 => events.push { e with timestamp := some (DateFmt.momentFormat t2 tz), timestampMs := some t2, startedAt := t2, date := sEnd, duration := (eEnd - sEnd) / 60 / 1000, origin := none }
                   | none => events
                 else events
               let events := events.set! j { e with duration := (s.date - e.date) / 60 / 1000 }
               walk (j + 1) events fuel
             else if s.date ≤ʲ e.date && sEnd >ʲ e.date then
               let e' := match s.startedAt.bind (fun st => addMinutesFormatted st sd) with
-                | some t2 => { e with duration := (eEnd - sEnd) / 60 / 1000, timestamp := some "(split)", timestampMs := some t2, startedAt := t2, date := sEnd }
+                | some t2 => { e with duration := (eEnd - sEnd) / 60 / 1000, timestamp := some (DateFmt.momentFormat t2 tz), timestampMs := some t2, startedAt := t2, date := sEnd }
                 | none => { e with duration := (eEnd - sEnd) / 60 / 1000, date := sEnd }
               walk (j + 1) (events.set! j e') fuel
             else walk (j + 1) events fuel
@@ -549,8 +550,11 @@ def withFields (r : PumpRecord) (cur : PumpFields) : PumpRecord :=
 inductive RecordKind where
   /-- a bolus treatment -/
   | bolus (t : Treatment)
-  /-- a temp basal event -/
+  /-- a temp basal event from a Nightscout record -/
   | temp (e : TempEvent)
+  /-- a temp basal event from a Medtronic `TempBasal` record (lines 339-366), which also
+      assigns the function-scoped `duration` -/
+  | mdtTemp (e : TempEvent)
   /-- a percent temp: `continue` at line 341, before the zero temp of lines 368-379 -/
   | percent
   /-- nothing: a record of another kind, or a future bolus, lines 287-289 -/
@@ -559,8 +563,12 @@ inductive RecordKind where
 
 /-- Lines 283-367: classify the record `cur` at index `i`. The search for the matching
     `"TempBasalDuration"` record, lines 346-354, reads `hist`, the history after the in-place
-    mutation of lines 269-271. -/
-def classifyRecord (hist : Array PumpRecord) (i : Nat) (cur : PumpFields) (nowMs : Int) : RecordKind :=
+    mutation of lines 269-271. QUIRK Q11: `duration` is declared with `var` (line 345), so it
+    is one variable for the whole function, and `var duration;` does not reset it. When no
+    `"TempBasalDuration"` record matches, the temp gets the value it had after the previous
+    `TempBasal` record: `prevDuration` (`undefined`, here NaN, before the first one). -/
+def classifyRecord (hist : Array PumpRecord) (i : Nat) (cur : PumpFields) (nowMs : Int)
+    (prevDuration : JsNum := .nan) : RecordKind :=
   let now : JsNum := .fin nowMs
   let ts := recTime cur nowMs
   let tsJ : JsNum := match ts with | some t => .fin t | none => .nan
@@ -591,8 +599,8 @@ def classifyRecord (hist : Array PumpRecord) (i : Nat) (cur : PumpFields) (nowMs
         else
           match hist.toList.find? (fun r => r.timestamp == cur.timestamp && r.type_ == some "TempBasalDuration") with
           | some r => r.durationMin.js
-          | none => .nan
-      .temp { rate := cur.rate.js, duration, startedAt := ts.getD 0, date := tsJ, timestamp := cur.timestamp, timestampMs := ts }
+          | none => prevDuration
+      .mdtTemp { rate := cur.rate.js, duration, startedAt := ts.getD 0, date := tsJ, timestamp := cur.timestamp, timestampMs := ts }
   else .other
 
 /-- The state of the record scan, lines 263-380. -/
@@ -602,6 +610,8 @@ structure ScanState where
   temps : Array TempEvent := #[]
   boluses : Array Treatment := #[]
   lastRecordTime : JsNum
+  /-- the function-scoped `duration` of lines 345-359 (QUIRK Q11); NaN stands for `undefined` -/
+  duration : JsNum := .nan
   deriving Repr, Inhabited
 
 /-- The zero temp starting one minute from now, lines 368-379. -/
@@ -621,11 +631,13 @@ def scanRecord (nowMs : Int) (zeroTempDuration : Option JsNum) (st : ScanState) 
   if currentRecordTime >ʲ st.lastRecordTime then { st with history := hist }
   else
     let zero := zeroTempEvent nowMs zeroTempDuration
-    match classifyRecord hist i cur nowMs with
-    | .bolus b => { history := hist, temps := st.temps.push zero, boluses := st.boluses.push b, lastRecordTime := currentRecordTime }
-    | .temp e => { history := hist, temps := (st.temps.push e).push zero, boluses := st.boluses, lastRecordTime := currentRecordTime }
-    | .percent => { history := hist, temps := st.temps, boluses := st.boluses, lastRecordTime := currentRecordTime }
-    | .other => { history := hist, temps := st.temps.push zero, boluses := st.boluses, lastRecordTime := currentRecordTime }
+    match classifyRecord hist i cur nowMs st.duration with
+    | .bolus b => { st with history := hist, temps := st.temps.push zero, boluses := st.boluses.push b, lastRecordTime := currentRecordTime }
+    | .temp e => { st with history := hist, temps := (st.temps.push e).push zero, lastRecordTime := currentRecordTime }
+    | .mdtTemp e => { st with history := hist, temps := (st.temps.push e).push zero, lastRecordTime := currentRecordTime,
+                              duration := e.duration }
+    | .percent => { st with history := hist, lastRecordTime := currentRecordTime }
+    | .other => { st with history := hist, temps := st.temps.push zero, lastRecordTime := currentRecordTime }
 
 /-- Lines 263-380: scan the records in order. -/
 def scanRecords (nowMs : Int) (zeroTempDuration : Option JsNum) (hist : Array PumpRecord) : ScanState :=
@@ -664,7 +676,7 @@ def splitStage (inp : HistoryInputs) (thO : Array TempEvent) (suspends : List Su
   let lastSuspendTimeNum : JsNum := match lastSuspendTime with | some s => numberOfString s | none => .nan
   if p.suspend_zeros_iob.truthy then
     let sh := splitHistoryByBasal.flatMap fun o =>
-      splitAroundSuspends o suspends firstResumeMs suspendedPrior lastSuspendTimeNum currentlySuspended
+      splitAroundSuspends o suspends firstResumeMs suspendedPrior lastSuspendTimeNum currentlySuspended tz
     let zSuspend : List TempEvent := suspends.filterMap fun s =>
       s.startedAt.map fun st => { rate := 0, duration := s.duration.js, startedAt := st, date := s.date }
     let maxDiaAgo := nowMs - 8 * 60 * 60 * 1000
@@ -681,8 +693,10 @@ def splitStage (inp : HistoryInputs) (thO : Array TempEvent) (suspends : List Su
         | none => []
       else []
     -- QUIRK Q8: write the in-place mutations back to the aliased tempHistory entries
+    -- (lines 96-101, 109, 142, 147-153: duration, date, started_at and, at line 151, timestamp)
     let thMut := sh.foldl (fun (acc : Array TempEvent) e => match e.origin with
-      | some k => acc.set! k { acc[k]! with duration := e.duration, date := e.date, startedAt := e.startedAt }
+      | some k => acc.set! k { acc[k]! with duration := e.duration, date := e.date, startedAt := e.startedAt,
+                                            timestamp := e.timestamp }
       | none => acc) thO
     (sh ++ (zSuspend ++ zPrior ++ zCurrent).flatMap (fun o => splitTimespan o splitters tz), thMut.toList)
   else (splitHistoryByBasal, tempHistoryFinal)

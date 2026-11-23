@@ -3,16 +3,263 @@
  "glucose-get-last.js:11:if:1": {
   "why": "The filter keeps only readings with `obj.glucose || obj.sgv` truthy, and the map then sets `obj.glucose` to that truthy value, so `obj.glucose !== null` always holds.",
   "scope": "any input",
-  "quote": [["glucose-get-last.js", 6, 11]]
+  "quote": [
+   [
+    "glucose-get-last.js",
+    6,
+    11
+   ]
+  ]
  },
  "glucose-get-last.js:37:if:1": {
   "why": "`getDateFromEntry` returns `entry.date` if it is truthy and otherwise the value of `Date.parse(...)`, which is always a number (possibly NaN); `now_date` is that value or, after line 49, a sum of two such values divided by 2. Neither is ever `undefined`, so the `typeof ... !== 'undefined'` test always holds.",
   "scope": "any input",
-  "quote": [["glucose-get-last.js", 1, 3], ["glucose-get-last.js", 17, 17], ["glucose-get-last.js", 34, 34], ["glucose-get-last.js", 37, 37], ["glucose-get-last.js", 49, 49]]
+  "quote": [
+   [
+    "glucose-get-last.js",
+    1,
+    3
+   ],
+   [
+    "glucose-get-last.js",
+    17,
+    17
+   ],
+   [
+    "glucose-get-last.js",
+    34,
+    34
+   ],
+   [
+    "glucose-get-last.js",
+    37,
+    37
+   ],
+   [
+    "glucose-get-last.js",
+    49,
+    49
+   ]
+  ]
  },
  "determine-basal/determine-basal.js:1011:if:0": {
   "why": "`minDelta` is assigned once, `Math.min(glucose_status.delta, glucose_status.short_avgdelta)`, so `delta < minDelta` is false whenever both are numbers. If either is NaN, `minDelta` is NaN and the enclosing test `minDelta < expectedDelta` (line 1008) is false. `glucose_status.delta` is a number because `glucose_status` comes from `getLastGlucose` (as in bin/oref0-determine-basal.js and both difftests), which returns `Math.round(last_delta * 100) / 100`.",
   "scope": "determine_basal called with the output of getLastGlucose",
-  "quote": [["determine-basal/determine-basal.js", 164, 164], ["determine-basal/determine-basal.js", 1008, 1011], ["glucose-get-last.js", 80, 80]]
+  "quote": [
+   [
+    "determine-basal/determine-basal.js",
+    164,
+    164
+   ],
+   [
+    "determine-basal/determine-basal.js",
+    1008,
+    1011
+   ],
+   [
+    "glucose-get-last.js",
+    80,
+    80
+   ]
+  ]
+ },
+ "iob/index.js:10:if:1": {
+  "kind": "not-transcribed",
+  "scope": "",
+  "why": "`generate`'s third argument is passed only by determine-basal/cob.js line 147 and determine-basal/autosens.js line 181 (COB and autosens, which LeanAID does not model; see QUIRK Q10). oref0's loop (bin/oref0-calculate-iob.js) calls `generate(inputs)`, and `LeanAID.Iob.generate` transcribes that call: it always finds the treatments in the history.",
+  "quote": [
+   [
+    "iob/index.js",
+    8,
+    16
+   ],
+   [
+    "determine-basal/cob.js",
+    147,
+    147
+   ],
+   [
+    "determine-basal/autosens.js",
+    181,
+    181
+   ]
+  ]
+ },
+ "iob/calculate.js:17:if:0": {
+  "scope": "any input",
+  "why": "`iobCalc` is called only by total.js line 72, with `time`, the argument of `iobTotal` on which line 5 already called `time.getTime()` (it would have thrown if `time` were undefined).",
+  "quote": [
+   [
+    "iob/calculate.js",
+    17,
+    19
+   ],
+   [
+    "iob/total.js",
+    3,
+    5
+   ],
+   [
+    "iob/total.js",
+    72,
+    72
+   ]
+  ]
+ },
+ "iob/total.js:18:if:0": {
+  "scope": "any input",
+  "why": "`opts.treatments` is set by index.js lines 10-16 and 20-32: the result of `find_insulin`, which always returns an array (history.js lines 568-570), or the caller's `treatments`, which is truthy on that path, or `[]`. Arrays are truthy.",
+  "quote": [
+   [
+    "iob/index.js",
+    10,
+    16
+   ],
+   [
+    "iob/index.js",
+    28,
+    30
+   ],
+   [
+    "iob/history.js",
+    568,
+    570
+   ],
+   [
+    "iob/total.js",
+    18,
+    18
+   ]
+  ]
+ },
+ "iob/history.js:12:if:1": {
+  "scope": "any input",
+  "why": "`splitTimespanWithOneSplitter` is called only by `splitTimespan`, with the elements of its `splitterMoments` argument, and `splitTimespan` is called only with `splitterEvents`, every element of which is built with `type = 'recurring'`.",
+  "quote": [
+   [
+    "iob/history.js",
+    62,
+    64
+   ],
+   [
+    "iob/history.js",
+    399,
+    406
+   ],
+   [
+    "iob/history.js",
+    412,
+    414
+   ],
+   [
+    "iob/history.js",
+    498,
+    500
+   ],
+   [
+    "iob/history.js",
+    12,
+    12
+   ]
+  ]
+ },
+ "iob/history.js:105:if:0": {
+  "scope": "pump histories whose timestamps are ISO-8601 date-times",
+  "why": "Taking these branches needs `currentlySuspended` and a numeric comparison with `lastSuspendTime`, which is the suspend's timestamp *string* (line 234), QUIRK Q7. JavaScript converts it with Number(), which is NaN for an ISO-8601 date-time such as `2026-11-18T07:00:00-05:00` or `2026-11-18T12:00:00.000Z`, so line 105 is false. A string that Number() converts, such as epoch milliseconds, makes it true, but moment cannot parse such a string, so `new Date(lastSuspendTime)` is an Invalid Date and line 482, which runs in the same call (these lines run only with `suspend_zeros_iob`, line 424, and line 479 tests the same `currentlySuspended`), throws RangeError: oref0 returns no IOB to compare (tried: scripts/difftest/make-iob-targeted.js, docs/LOG.md). Only a timestamp that both Number() and Date accept, such as a bare year `\"2026\"`, avoids the throw; pump histories do not have such timestamps. Line 105's second operand (outcome 1 of the binary-expr) is reached.",
+  "quote": [
+   [
+    "iob/history.js",
+    105,
+    111
+   ],
+   [
+    "iob/history.js",
+    233,
+    234
+   ],
+   [
+    "iob/history.js",
+    424,
+    430
+   ],
+   [
+    "iob/history.js",
+    479,
+    482
+   ]
+  ]
+ },
+ "iob/history.js:106:if:0": {
+  "scope": "pump histories whose timestamps are ISO-8601 date-times",
+  "why": "Taking these branches needs `currentlySuspended` and a numeric comparison with `lastSuspendTime`, which is the suspend's timestamp *string* (line 234), QUIRK Q7. JavaScript converts it with Number(), which is NaN for an ISO-8601 date-time such as `2026-11-18T07:00:00-05:00` or `2026-11-18T12:00:00.000Z`, so line 105 is false. A string that Number() converts, such as epoch milliseconds, makes it true, but moment cannot parse such a string, so `new Date(lastSuspendTime)` is an Invalid Date and line 482, which runs in the same call (these lines run only with `suspend_zeros_iob`, line 424, and line 479 tests the same `currentlySuspended`), throws RangeError: oref0 returns no IOB to compare (tried: scripts/difftest/make-iob-targeted.js, docs/LOG.md). Only a timestamp that both Number() and Date accept, such as a bare year `\"2026\"`, avoids the throw; pump histories do not have such timestamps. Line 105's second operand (outcome 1 of the binary-expr) is reached.",
+  "quote": [
+   [
+    "iob/history.js",
+    105,
+    111
+   ],
+   [
+    "iob/history.js",
+    233,
+    234
+   ],
+   [
+    "iob/history.js",
+    424,
+    430
+   ],
+   [
+    "iob/history.js",
+    479,
+    482
+   ]
+  ]
+ },
+ "iob/history.js:106:if:1": {
+  "scope": "pump histories whose timestamps are ISO-8601 date-times",
+  "why": "Taking these branches needs `currentlySuspended` and a numeric comparison with `lastSuspendTime`, which is the suspend's timestamp *string* (line 234), QUIRK Q7. JavaScript converts it with Number(), which is NaN for an ISO-8601 date-time such as `2026-11-18T07:00:00-05:00` or `2026-11-18T12:00:00.000Z`, so line 105 is false. A string that Number() converts, such as epoch milliseconds, makes it true, but moment cannot parse such a string, so `new Date(lastSuspendTime)` is an Invalid Date and line 482, which runs in the same call (these lines run only with `suspend_zeros_iob`, line 424, and line 479 tests the same `currentlySuspended`), throws RangeError: oref0 returns no IOB to compare (tried: scripts/difftest/make-iob-targeted.js, docs/LOG.md). Only a timestamp that both Number() and Date accept, such as a bare year `\"2026\"`, avoids the throw; pump histories do not have such timestamps. Line 105's second operand (outcome 1 of the binary-expr) is reached.",
+  "quote": [
+   [
+    "iob/history.js",
+    105,
+    111
+   ],
+   [
+    "iob/history.js",
+    233,
+    234
+   ],
+   [
+    "iob/history.js",
+    424,
+    430
+   ],
+   [
+    "iob/history.js",
+    479,
+    482
+   ]
+  ]
+ },
+ "meal/history.js:128:if:1": {
+  "scope": "any input",
+  "why": "`bolusWizardInputs` receives only records with a truthy `timestamp` (line 55), and nothing assigns `timestamp` between line 58 and line 128, so `current.timestamp` is truthy there.",
+  "quote": [
+   [
+    "meal/history.js",
+    55,
+    58
+   ],
+   [
+    "meal/history.js",
+    109,
+    110
+   ],
+   [
+    "meal/history.js",
+    128,
+    128
+   ]
+  ]
  }
 }

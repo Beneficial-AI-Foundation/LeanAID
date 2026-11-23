@@ -784,3 +784,47 @@ limit. A `max_basal` on the 0.1 U/h grid never rounds up. Largest overshoot 0.02
   (`iob/history.js` 75.3 %, `iob/calculate.js` 65.6 %, `meal/history.js` 50.8 %), because the
   difftest passes ready-made IOB and meal data. A differential test on pump histories is the
   next step.
+
+## Differential test of IOB, meal history and the basal schedule
+
+2026-11-23. Targeted determine-basal cases (`scripts/difftest/targeted.jsonl`, 20 cases, 20/20
+identical) were committed before this entry. This step adds `aid-lean iob-batch`
+(`App/IobBatch.lean`) and `scripts/difftest/iob.js`. The script generates seeded pump histories
+(Medtronic and Nightscout records, suspends and resumes, boluses, Bolus Wizard records, temps
+with and without duration records), carb histories and profiles. It compares, as canonical JSON:
+the whole array of `lib/iob` (every tick, with `iobWithZeroTemp`, `lastBolusTime`, `lastTemp`),
+the output of `lib/meal/history.js`, and six `basalLookup` calls per case.
+`scripts/difftest/iob-targeted.jsonl` (9 hand-made cases, `make-iob-targeted.js`) reaches the
+branches the random cases miss. It also holds regression cases for the two errors below.
+
+- **First run, 500 cases, seed 1: 27 cases differed** (4 of them without a rounding tie; the
+  near-tie flag fires on most IOB cases, so it was not used to excuse any of them). Minimised
+  with a scratch minimiser, all 27 were transcription errors in `LeanAID/Core/Iob.lean`
+  (`docs/FINDINGS.md` F-25):
+  - QUIRK Q11 (24 cases): `var duration` in `iob/history.js` keeps its value across loop
+    iterations, so a `TempBasal` with no `TempBasalDuration` record gets the previous temp's
+    duration. Input: `q11-temp-without-duration-record`. oref0: IOB −0.268,
+    `netbasalinsulin` −0.5. Lean before the fix: −0.145, −0.15.
+  - QUIRK Q8, timestamp (3 cases): `splitAroundSuspends` also overwrites `timestamp` on the
+    shared `tempHistory` object. Case 52: oref0 `lastTemp.timestamp` "2026-11-17T23:53:54+00:00",
+    Lean "2026-11-17T23:03:03+01:00"; everything else equal.
+- Core changes: `ScanState.duration`, `RecordKind.mdtTemp`, a `prevDuration` argument to
+  `classifyRecord`, the `timestamp` write-back in `splitStage`, and
+  `DateFmt.momentFormat`. `LeanAID/Time/IobFacts.lean` passes the new argument; no theorem
+  statement changed. Afterwards: `lake build` with no `sorry`, `scripts/check.sh` OK,
+  `aid-lean selftest` 148/148, 500/500 identical.
+- `scripts/difftest/run.js`, 100,000 cases, seed 1, after the change: **100,000/100,000
+  identical**, 0 rounding ties. 432 s wall (7 min 12 s). `docs/difftest.json` stays the
+  committed seed-7 file.
+- `scripts/difftest/iob.js`, 100,000 cases, seed 1: **100,000/100,000 identical**, 0 differences
+  at a rounding tie, 0 without one (`docs/iobtest.json`). 70,637 cases passed through a
+  near-tie of `Math.round`, all with equal outputs. Wall time 16,065 s (4 h 28 min). node:
+  189 s. aid-lean: 92,608 CPU s in 6 parallel processes, about 0.9 CPU s per case (exact
+  `exp` of the exponential curves).
+- QUIRK Q7 (`iob/history.js` 105-110) has no case. Probe: a `PumpSuspend` whose timestamp is
+  the epoch-millisecond string "1795001400000" makes line 105 numeric, but oref0 then throws
+  `RangeError: Invalid time value` at line 482 (`new Date(lastSuspendTime).toISOString()`).
+  So it gives no output to compare. The branches are argued unreachable for ISO-8601
+  timestamps in `scripts/coverage/unreachable.json`.
+- `iob/index.js` line 10 (the `treatments` argument) is not transcribed. Only COB and
+  autosens pass that argument.

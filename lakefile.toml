@@ -11,7 +11,7 @@ roots = ["LeanAID"]
 
 [[lean_lib]]
 name = "App"
-roots = ["App.Json", "App.Serve"]
+roots = ["App.Json", "App.Serve", "App.IobBatch"]
 
 [[lean_exe]]
 name = "aid-lean"
