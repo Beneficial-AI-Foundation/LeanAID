@@ -17,6 +17,8 @@ controller is the baseline.
 | `report.py` | the report (part 4): `sim/out/report.json` and `sim/out/plots/`, written up in `docs/SIM.md` |
 | `requirements.txt` | exact Python package versions (`.venv`, Python 3.9.6) |
 | `regression-future-carbs.json` | an input on which aid-lean and oref0 differ (FINDINGS F-17) |
+| `q6fix.js` | the fix for QUIRK Q6 (FINDINGS F-24), applied in memory to `lib/iob/history.js` |
+| `q6_runs.py`, `q6_report.py` | the F-24 runs (oref0 against oref0 with the Q6 fix) and their report, `sim/out/q6-report.json`, written up in `docs/SIM.md` |
 
 `aid-lean serve` (App/Serve.lean) reads one JSON input per line and computes IOB
 (`LeanAID.Iob.generate`, lib/iob) and the decision (`LeanAID.determineBasal`) in Lean.
@@ -81,3 +83,15 @@ nohup caffeinate -i sim/run_all.sh > sim/out/run_all.log 2>&1 &
 Each run writes `sim/out/runs/<run>.jsonl.gz` (one row per step: true BG, CGM, the
 full controller input, both outputs, IOB, monitor result, insulin delivered) and,
 last, `<run>.summary.json`. These are not committed (size).
+
+## Options for FINDINGS F-24
+
+- `--basal steps`: a basal schedule with six entries, 0.9 to 1.1 times the steady-state
+  basal (`BASAL_SCHEDULES` in `harness.py`). The default `flat` is the schedule above. The
+  pump follows the schedule minute by minute, and the harness sets oref0's `current_basal`
+  for the simulated time on every step. The patient's insulin need does not change
+  with it.
+- `--controller oref0-q6fix`: oref0 with the fix for QUIRK Q6 (`sim/q6fix.js`). The oref0
+  checkout is not changed on disk.
+- `--shadow-q6`: also run oref0 with the fix on every input, and record each step where
+  IOB or the decision differs (`q6_shadow` in the summary).

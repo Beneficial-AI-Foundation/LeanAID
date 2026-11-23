@@ -61,3 +61,7 @@ LeanAID.Time.smbTraced_run
 LeanAID.Time.round3_accounting
 LeanAID.Time.getLastGlucose_date_first
 LeanAID.Patched.determineBasalPatched_eq
+# F-24 (QUIRK Q6)
+LeanAID.Iob.Q6.splitPass_fst
+LeanAID.Iob.Q6.q6_drops_zero_temp
+LeanAID.Iob.Q6.q6_fixed_keeps

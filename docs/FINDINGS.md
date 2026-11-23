@@ -76,7 +76,7 @@ differential testing (M10).
 | Q3 | 596, 610 | `COBpredBG`, `UAMpredBG` are implicit globals |
 | Q4 | 636 | `maxCOBPredBG` is updated when COBpredBG exceeds `maxIOBPredBG` (not `maxCOBPredBG`) |
 | Q5 | 500 | missing `lastCarbTime` → NaN `remainingCATime` (see F-06) |
-| Q6 | iob/history.js 58–77 | `splitTimespan` shares `splitFound` across elements of a pass: once one element is split, later unsplit elements of the same pass are dropped |
+| Q6 | iob/history.js 58–77 | `splitTimespan` shares `splitFound` across elements of a pass: once one element is split, later unsplit elements of the same pass are dropped. Safety consequence: F-24 |
 | Q7 | iob/history.js 106–112 | `lastSuspendTime` is a timestamp string compared with numbers (always false for ISO strings): the "currently suspended" adjustment is dead code |
 | Q8 | iob/history.js 85–157 | `splitAroundSuspends` mutates temp-basal objects in place; unsplit events alias the returned `tempHistory`, so `lastTemp` can show a mutated date and a **negative duration** (−15 min in test IOB-17) |
 | Q9 | determine-basal.js 949 + basal-set-temp.js 5 | reason strings contain ". . " (neutral temp: "as temp. . Setting neutral …") |
@@ -410,3 +410,66 @@ another source. `undated_flat` is one run, not a general theorem.
 - The pump executes each accepted command exactly once and at once, and `currenttemp` is
   the true pump state. Lost acknowledgements, delays and stale pump reads are not modeled.
 
+
+## Found by comparison with Screven et al. (arXiv:2606.13882)
+
+Screven et al., "A Principled Framework for Safe Algorithm Updates in Automated Insulin
+Delivery Systems" (2026), port Trio's oref from JavaScript to Swift. They report a
+`splitTimespan` bug that drops pump events and causes 99.7% of the IOB differences
+between the two versions. We had transcribed the same behavior as QUIRK Q6 without
+rating it. We did not check that Trio's code is the same as oref0 0.7.1 here.
+
+### F-24 — A temp longer than 30 minutes that crosses a basal schedule entry or midnight can lose pieces, and their insulin
+`splitTimespan` (`iob/history.js` lines 50-80) cuts a temp into pieces of at most 30
+minutes, at the start times of the basal schedule and at midnight. The flag `splitFound` is shared by
+all pieces of one pass. So once a piece splits, every later piece of the same pass that
+does not split is dropped (Q6), and its insulin is missing from IOB. Not every such temp
+loses a piece: in cases C and D below, no pass has an unsplit piece after a piece that
+splits, and unsplit pieces before the first split survive.
+`LeanAID/Proofs/SplitTimespan.lean` states one pass exactly (`splitPass_fst`). On one
+example, it checks with the kernel that a 60-minute zero temp from 05:50 with a basal
+change at 06:00 keeps only the pieces 05:50-06:00 and 06:00-06:20 (`q6_drops_zero_temp`).
+A fixed pass that keeps unsplit pieces also keeps 06:20-06:50 (`q6_fixed_keeps`).
+`scripts/probe-split-timespan.js` runs oref0 under Node and a copy of `history.js` with
+the fix, loaded in memory, on one temp each. The schedule is 1 U/h before 06:00 and
+1.2 U/h after, except in cases B and H (1 U/h all day). Net temp insulin of the treatments (oref0, fixed, exact integral) and IOB
+at 07:00 and 08:00, for H at 01:00 and 02:00 (oref0, fixed):
+```
+A zero temp 60m from 05:50   -0.55 / -1.15 / -1.17 U   07:00 -0.434 / -0.995   08:00 -0.239 / -0.601
+F 2 U/h temp 60m from 05:50   0.40 /  0.80 /  0.83 U   07:00  0.311 /  0.685   08:00  0.170 /  0.410
+G zero temp 90m from 05:20   -1.05 / -1.65 / -1.67 U   07:00 -0.735 / -1.297   08:00 -0.381 / -0.743
+H zero temp 60m from 23:50   -0.50 / -1.00 / -1.00 U   01:00 -0.393 / -0.861   02:00 -0.217 / -0.518
+```
+So Q6 loses 0.60 U (A, G), 0.50 U (H, a flat schedule, at midnight) and 0.40 U (F) of net
+temp insulin. The rest of the gap to the
+exact integral is oref0's rounding, which the fix keeps. In cases B, C, D and E the fix
+changes nothing: no piece is lost. These are probe results, not general proofs.
+Q6 also cuts a temp that is never delivered. For its zero-temp forecast, `lib/iob` adds a
+240-minute zero temp starting one minute after now (`find_insulin(inputs, 240)`,
+`lib/iob/index.js` line 13) and reports its IOB as `iobWithZeroTemp`. `determine-basal`
+uses it for the ZT forecast and `minZTGuardBG`. When this imagined temp crosses a schedule entry or midnight, it can
+lose pieces too.
+A lost piece whose rate is below the schedule, such as part of a zero temp, makes net IOB
+too high. A lost piece above the schedule makes it too low. oref0's own positive temps
+last 30 minutes, and its zero temps last 30 to 120 minutes. The IOB error depends on the
+time: in cases A and G it is 0.56 U at 07:00 and 0.36 U at 08:00.
+The virtual patients rate the effect on dosing (`docs/SIM.md`, "F-24"). With a basal
+schedule of six steps, 30 patients, 3 meal seeds and 2 days, oref0 with the fix ran in
+shadow on every input of oref0 (51,840 steps). IOB differed in 810 steps (1.56 %, 13 of
+90 runs), by at most 0.64 U, and always in the same direction: oref0's IOB was too high.
+The temp differed in 162 steps (0.31 %). Where both set a temp, the fixed version set a
+higher rate by 0.19 U/h on average (−0.45 to +1.15 U/h). In closed loop, the fixed oref0
+changed 12 of 90 runs. Time below 70 and below 54 did not change in any run. No run moved
+more than 2 steps (0.35 percentage points) in a glucose band, 0.54 mg/dL in mean glucose
+or 0.094 U/day in insulin. Insulin rose in 8 runs and fell in 4, by +0.002 U/day on
+average. With a flat schedule, current IOB, actions, delivered insulin and glucose were
+identical in all 90 pairs. Only the zero-temp IOB differed, in every flat run, at
+20:30-20:55, when the imagined 240-minute zero temp crosses midnight. This changed the
+forecasts or the reason text in 69 steps of 39 runs, and no action. Dosing severity: low.
+In these runs Q6 makes oref0 give slightly less insulin on average, with small changes in
+glucose. Not
+covered by the runs: long manual high temps, which lose insulin in the other direction
+(case F), SMB, other schedules, and runs longer than 2 days. Screven et al. found nearly the same
+clinical outcome in simulation for their whole Swift port, which fixes this bug among
+others, so their result does not rate this bug alone.
+`LeanAID/Core` is unchanged.

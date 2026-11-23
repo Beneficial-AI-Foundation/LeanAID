@@ -64,6 +64,15 @@ PATIENTS = ([f'adolescent#{i:03d}' for i in range(1, 11)] + [f'adult#{i:03d}' fo
 DROPOUT = [(3 * 60, 3 * 60 + 45), (15 * 60, 15 * 60 + 45)]   # no new CGM readings, twice a day
 COMPRESSION = [(2 * 60, 2 * 60 + 20)]                        # CGM reads 40 mg/dL low, at night
 FAULTS = ['none', 'dropout', 'compression', 'missedmeal', 'f11', 'f12']
+# Basal schedules: (start minute, factor of the patient's steady-state basal). 'flat' is the
+# schedule of the M11 runs. 'steps' has six entries, for the F-24 runs (docs/SIM.md): oref0's
+# Q6 (FINDINGS F-24) drops pieces of temps that cross a schedule entry, and midnight is one
+# even in 'flat'.
+BASAL_SCHEDULES = {
+    'flat': [(0, 1.0)],
+    'steps': [(0, 0.9), (180, 1.1), (420, 1.0), (720, 0.95), (1020, 1.05), (1260, 1.0)],
+}
+CONTROLLERS = ['oref0', 'oref0-q6fix', 'aid-lean', 'baseline']
 
 
 def iso(t):
@@ -83,7 +92,7 @@ def patient_params(name):
     return dict(BW=float(pp.BW), u2ss=float(pp.u2ss), CR=float(qq.CR), CF=float(qq.CF))
 
 
-def profile_inputs(name):
+def profile_inputs(name, basal_schedule='flat'):
     """Inputs of oref0's lib/profile for a patient (see docs/SIM.md, "Profiles").
     basal: u2ss * BW / 6000 U/min (simglucose's steady-state basal, the formula of its
     BBController) * 60 = U/h, rounded to the 0.05 U/h pump increment;
@@ -94,11 +103,14 @@ def profile_inputs(name):
     basal = max(0.05, round_to(pp['u2ss'] * pp['BW'] / 6000 * 60, 0.05))
     cr = pp['CR']
     isf = float(round(pp['CF']))
-    max_basal = round_to(3 * basal, 0.05)
+    basals = [{'i': i, 'start': '%02d:%02d:00' % (m // 60, m % 60), 'minutes': m,
+               'rate': max(0.05, round_to(basal * f, 0.05))}
+              for i, (m, f) in enumerate(BASAL_SCHEDULES[basal_schedule])]
+    max_basal = round_to(3 * max(b['rate'] for b in basals), 0.05)
     max_iob = round_to(3 * basal + 60.0 / cr, 0.1)
     return {
         'settings': {'insulin_action_curve': DIA, 'maxBasal': max_basal},
-        'basals': [{'i': 0, 'start': '00:00:00', 'minutes': 0, 'rate': basal}],
+        'basals': basals,
         'targets': {'units': 'mg/dL', 'user_preferred_units': 'mg/dL',
                     'targets': [{'i': 0, 'start': '00:00:00', 'offset': 0, 'low': TARGET, 'high': TARGET,
                                  'min_bg': TARGET, 'max_bg': TARGET}]},
@@ -155,9 +167,16 @@ def env_utc():
     return e
 
 
+def env_q6fix():
+    e = env_utc()
+    e['OREF0_Q6_FIX'] = '1'
+    return e
+
+
 # ---------------------------------------------------------------- one run
-def run_id(patient, controller, days, meal_seed, fault):
-    return f'{patient.replace("#", "")}_{controller}_{days}d_seed{meal_seed}_{fault}'
+def run_id(patient, controller, days, meal_seed, fault, basal='flat'):
+    b = '' if basal == 'flat' else f'_basal-{basal}'
+    return f'{patient.replace("#", "")}_{controller}_{days}d_seed{meal_seed}_{fault}{b}'
 
 
 def in_windows(minute, windows):
@@ -165,12 +184,15 @@ def in_windows(minute, windows):
     return any(a <= m < b for a, b in windows)
 
 
-def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log_inputs=True, shadow=False):
+def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log_inputs=True, shadow=False,
+        basal='flat', shadow_q6=False):
     """shadow: also run aid-lean on every input of an oref0 run (always done in aid-lean runs,
-    where oref0 runs on every input of aid-lean)."""
-    assert controller in ('oref0', 'aid-lean', 'baseline') and fault in FAULTS
+    where oref0 runs on every input of aid-lean).
+    basal: a key of BASAL_SCHEDULES. oref0-q6fix: oref0 with the fix for QUIRK Q6 (sim/q6fix.js).
+    shadow_q6: also run oref0 with the Q6 fix on every input and compare IOB and decisions."""
+    assert controller in CONTROLLERS and fault in FAULTS and basal in BASAL_SCHEDULES
     os.makedirs(out_dir, exist_ok=True)
-    rid = run_id(patient, controller, days, meal_seed, fault)
+    rid = run_id(patient, controller, days, meal_seed, fault, basal)
     rows_path = os.path.join(out_dir, rid + '.jsonl.gz')
     summary_path = os.path.join(out_dir, rid + '.summary.json')
     t_wall0 = time.time()
@@ -189,11 +211,13 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
     for m in meals:
         meal_at.setdefault(m[0], []).append(m)
 
-    pinp = profile_inputs(patient)
+    pinp = profile_inputs(patient, basal)
     pp = patient_params(patient)
-    node = lean = None
+    node = lean = q6 = None
     if controller != 'baseline':
-        node = LineProc(['node', NODE_SERVER], env=env_utc())
+        node = LineProc(['node', NODE_SERVER], env=env_q6fix() if controller == 'oref0-q6fix' else env_utc())
+        if shadow_q6:
+            q6 = LineProc(['node', NODE_SERVER], env=env_q6fix())
         if controller == 'aid-lean' or shadow:
             lean = LineProc([LEAN_BIN, 'serve'], env=env_utc())
         profile = node.call({'cmd': 'profile', 'inputs': pinp})['profile']
@@ -203,7 +227,14 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
     else:
         profile = None
         configured_max_basal = pinp['settings']['maxBasal']
-    sched_basal = pinp['basals'][0]['rate']            # U/h, what the pump runs without a temp
+    sched = sorted((b['minutes'], b['rate']) for b in pinp['basals'])
+
+    def sched_at(mm):                                  # U/h, what the pump runs without a temp
+        r = sched[0][1]
+        for m0, rate in sched:
+            if mm % 1440 >= m0:
+                r = rate
+        return r
 
     glucose = []        # newest first, oref0 entry format
     pumphist = []       # newest first, Medtronic-style records (as in oref0's tests)
@@ -211,7 +242,8 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
     temp = None         # (rate U/h, start minute, duration min)
     last_real = None    # (minute, sgv) of the last CGM reading actually received
     stats = dict(steps=0, compared=0, identical=0, iob_identical=0, first_diff=None, violations={},
-                 controller_errors=0, bolus_U=0.0, basal_U=0.0, smb_U=0.0)
+                 controller_errors=0, bolus_U=0.0, basal_U=0.0, smb_U=0.0,
+                 q6_compared=0, q6_identical=0, q6_iob_identical=0, q6_diffs=[])
     bgs = []
     rows = gzip.open(rows_path + '.tmp', 'wt') if log_inputs else None
     n_steps = days * 1440 // STEP
@@ -273,6 +305,9 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
             if temp is not None and minute < temp[1] + temp[2]:
                 ct_rate, ct_dur = temp[0], temp[1] + temp[2] - minute
             currenttemp = {'duration': ct_dur, 'rate': ct_rate, 'temp': 'absolute'}
+            # lib/profile picks current_basal from the wall clock (basalLookup with no time);
+            # oref0's loop regenerates the profile every cycle, so set it for the simulated time.
+            prof = dict(profile, current_basal=sched_at(minute))
             glu = [g for g in glucose if g['date'] > cutoff.timestamp() * 1000]
             if fault == 'f11' and dropped and last_real is not None:
                 # FINDINGS F-11: the last reading keeps arriving, without a timestamp
@@ -280,7 +315,7 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
             inp = {
                 'pumphistory': [r for r in pumphist if r['timestamp'] > iso(cutoff)],
                 'carbhistory': [c for c in carbhist if c['created_at'] > iso(cutoff)],
-                'glucose': glu, 'profile': profile, 'clock': iso(now), 'currenttemp': currenttemp,
+                'glucose': glu, 'profile': prof, 'clock': iso(now), 'currenttemp': currenttemp,
                 'autosens': {'ratio': 1}, 'microBolusAllowed': False, 'currentTime': int(now.timestamp() * 1000),
             }
             js = node.call(dict(inp, cmd='step'))
@@ -305,12 +340,31 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
                                            'aid_lean': ln['suggestion'], 'iob_same': iob_same,
                                            'oref0_iob0': js['iob'][0] if js['iob'] else None,
                                            'aid_lean_iob0': ln['iob'][0] if ln['iob'] else None}
-            arm = js if controller == 'oref0' else ln
+            if shadow_q6:
+                # oref0 with the Q6 fix on the same input (F-24)
+                fx = q6.call(dict(inp, cmd='step'))
+                if 'exception' in fx:
+                    raise RuntimeError('oref0-q6fix exception at step %d: %s' % (k, fx['exception']))
+                f_same = json.dumps(js['suggestion'], sort_keys=True) == json.dumps(fx['suggestion'], sort_keys=True)
+                f_iob_same = js['iob'] == fx['iob']
+                stats['q6_compared'] += 1
+                stats['q6_identical'] += f_same
+                stats['q6_iob_identical'] += f_iob_same
+                if not f_same or not f_iob_same:
+                    def brief(r):
+                        return {x: r.get(x) for x in ('rate', 'duration', 'units', 'eventualBG', 'error')}
+                    stats['q6_diffs'].append({
+                        'k': k, 'time': iso(now), 'bg': bg_true, 'cgm': sgv,
+                        'iob': js['iob'][0]['iob'] if js['iob'] else None,
+                        'iob_fixed': fx['iob'][0]['iob'] if fx['iob'] else None,
+                        'oref0': brief(js['suggestion']), 'fixed': brief(fx['suggestion']),
+                        'same_decision': f_same})
+            arm = js if controller in ('oref0', 'oref0-q6fix') else ln
             rT = arm['suggestion']
             iob0 = arm['iob'][0] if arm['iob'] else {}
             # ---- safety monitor on the actual input and output of this arm
             newest_minute = last_real[0] if last_real else None
-            viol = monitor.check(rT, profile=profile, configured_max_basal=configured_max_basal,
+            viol = monitor.check(rT, profile=prof, configured_max_basal=configured_max_basal,
                                  glucose=glu, true_age_min=(minute - newest_minute) if newest_minute is not None else None,
                                  currenttemp=currenttemp, iob=iob0, gs=js['glucose_status'])
             for v in viol:
@@ -333,7 +387,7 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
                 smb_now = float(u)
                 pumphist.insert(0, {'_type': 'Bolus', 'amount': smb_now, 'programmed': smb_now, 'unabsorbed': 0,
                                     'duration': 0, 'timestamp': iso(now)})
-            sched_eff = sched_basal
+            sched_eff = None
             row.update({'input': lin if log_inputs else None, 'oref0': js['suggestion'], 'aid_lean': ln['suggestion'] if ln else None,
                         'same': same, 'iob_same': iob_same, 'iob0': iob0, 'violations': viol})
 
@@ -341,7 +395,8 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
         delivered_basal = 0.0
         for j in range(STEP):
             mm = minute + j
-            rate = temp[0] if (temp is not None and temp[1] <= mm < temp[1] + temp[2]) else sched_eff
+            rate = temp[0] if (temp is not None and temp[1] <= mm < temp[1] + temp[2]) else (
+                sched_eff if sched_eff is not None else sched_at(mm))
             ins = rate / 60.0
             delivered_basal += ins
             if j == 0:
@@ -359,6 +414,8 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
         node.close()
     if lean:
         lean.close()
+    if q6:
+        q6.close()
     if rows:
         rows.close()
         os.replace(rows_path + '.tmp', rows_path)
@@ -373,6 +430,9 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
         'min_bg': float(b.min()), 'max_bg': float(b.max()),
         'insulin_per_day': (stats['basal_U'] + stats['bolus_U'] + stats['smb_U']) / days,
         'basal_U': stats['basal_U'], 'bolus_U': stats['bolus_U'], 'smb_U': stats['smb_U'],
+        'basal_schedule': basal,
+        'q6_shadow': {'compared': stats['q6_compared'], 'identical': stats['q6_identical'],
+                      'iob_identical': stats['q6_iob_identical'], 'diffs': stats['q6_diffs']} if shadow_q6 else None,
         'decisions_compared': stats['compared'],
         'decisions_identical': stats['identical'], 'iob_identical': stats['iob_identical'],
         'first_difference': stats['first_diff'],
@@ -389,19 +449,22 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--patient', required=True)
-    ap.add_argument('--controller', required=True, choices=['oref0', 'aid-lean', 'baseline'])
+    ap.add_argument('--controller', required=True, choices=CONTROLLERS)
     ap.add_argument('--days', type=int, default=2)
     ap.add_argument('--seed', type=int, default=1)
     ap.add_argument('--fault', default='none', choices=FAULTS)
     ap.add_argument('--out', default=OUT)
     ap.add_argument('--force', action='store_true')
     ap.add_argument('--shadow', action='store_true', help='oref0 runs: also run aid-lean on every input')
+    ap.add_argument('--basal', default='flat', choices=sorted(BASAL_SCHEDULES))
+    ap.add_argument('--shadow-q6', action='store_true', help='also run oref0 with the Q6 fix on every input')
     a = ap.parse_args()
-    sp = os.path.join(a.out, run_id(a.patient, a.controller, a.days, a.seed, a.fault) + '.summary.json')
+    sp = os.path.join(a.out, run_id(a.patient, a.controller, a.days, a.seed, a.fault, a.basal) + '.summary.json')
     if os.path.exists(sp) and not a.force:
         print('exists, skipped:', sp)
         return
-    s = run(a.patient, a.controller, a.days, a.seed, a.fault, a.out, shadow=a.shadow)
+    s = run(a.patient, a.controller, a.days, a.seed, a.fault, a.out, shadow=a.shadow, basal=a.basal,
+            shadow_q6=a.shadow_q6)
     keys = ['run_id', 'tir_70_180', 'below_70', 'below_54', 'mean_bg', 'insulin_per_day', 'decisions_compared', 'decisions_identical',
             'iob_identical', 'steps', 'violations', 'controller_errors', 'wall_seconds']
     print(json.dumps({k: s[k] for k in keys}))
