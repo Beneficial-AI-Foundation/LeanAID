@@ -8,6 +8,7 @@
 | `LeanAID/Spec/` | the definition of valid input | Lean core |
 | `LeanAID/Proofs/` | theorems about the core | Lean core (no Mathlib needed so far) |
 | `LeanAID/Conformance/` | oref0's test calls as Lean data, checked by `native_decide` | Lean core |
+| `LeanAID/Time/` | runs over time: run type, pump model, properties of runs | Lean core |
 | `App/` | the `aid-lean` shell: JSON, files, clock | Lean core |
 
 `scripts/check.sh` enforces: no `sorry` anywhere; no `partial`, `unsafe`, `@[extern]`,
@@ -100,6 +101,20 @@ pieces were named to keep proofs tractable (`setTempBasal`'s `keepRunning`,
 against oref0's outputs by the conformance suite; the SMB pieces, which no oref0 test
 reaches, are checked by differential testing.
 
+`calcTempTreatments` (history.js lines 161-571) is split the same way, into
+`collectSuspends`, `matchSuspends`, `scanRecords`, `trimTemps`, `splitStage` and
+`tempBolusesOf`. The first transcription was one `Id.run do` block
+with two `while` loops. Lean compiles a `while` loop to a definition that the kernel
+does not unfold, and both loops carried all the mutable state of the block. So no fact
+about the output of `Iob.generate` could be proved, and `decide` could not evaluate a
+run. The run theorems need such facts: an accepted microbolus must reach the treatments
+and `lastBolusTime` (`Legal.bolusSeen`, used by `p5_gap` and `p6_bolus`). Each loop now recurses on a fuel
+bound that the JavaScript loop never reaches, so the results are the same. For the same
+reason `sortByKey` is a structural insertion sort. `sortByKey_eq_merge` proves it equal to
+`List.mergeSort`, and as a `@[csimp]` lemma it keeps the merge sort in compiled code.
+After the change, `TZ=UTC node scripts/difftest/run.js 100000 7` gives 100,000 of
+100,000 outputs identical to oref0.
+
 ## Valid input
 
 Defined in Lean as `LeanAID.ValidInput` (`LeanAID/Spec/Valid.lean`). The safety
@@ -157,10 +172,11 @@ these holds (`App/Main.lean`, `determineBasalCmd`):
 | `validInputB inp = false` | a profile violating V0–V8 or V10 (e.g. missing or non-numeric `current_basal`, `max_basal`, `max_daily_basal`, `max_iob`, `sens`; `max_basal` or `max_daily_basal` below `current_basal`; `max_basal` above 2^30; a safety multiplier below 1; `autosens_max` with more than two decimals or with `current_basal × autosens_max > maxSafeBasal`; a non-positive `bolus_increment`), or autosens data violating V9 (non-numeric or non-positive ratio, or `current_basal × ratio > maxSafeBasal`) | outside the domain of the safety theorems; F-12 (missing `max_basal` disables the clamp) |
 | meal data with truthy `carbs` and no numeric `lastCarbTime` | carbs without a carb time | F-06 (NaN rate) |
 | the glucose status has no finite `date` | CGM entries without `date`, `display_time` or `dateString` (or unparsable ones) | F-11 (staleness check skipped; maximum rate on an old reading) |
+| meal data with truthy `mealCOB` and `carbs` missing or not positive | COB without carbs | F-23 (NaN `minGuardBG`; at low BG a zero temp with NaN duration) |
 
 It does **not** reject: stale, noisy, flat or error-coded readings (oref0 handles these,
 and H5a proves the result does not increase insulin); IOB data, current temp or meal data
 that are otherwise odd (the theorems hold for any values, but a NaN rate is still
 possible in ways not listed above); a wrong clock. `--safe` is part of the unverified
-shell; `validInputB` is proved sound for `ValidInput` (`validInputB_sound`), the other two
+shell; `validInputB` is proved sound for `ValidInput` (`validInputB_sound`), the other three
 checks are not proved.

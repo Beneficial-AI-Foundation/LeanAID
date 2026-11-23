@@ -243,12 +243,13 @@ footer li { margin: 3px 0; }
     </div>
     <p class="note">Severity is our estimate. Medium: a large overdose is possible, but the apps normally supply the data. Low: the overshoot is at most half a pump step (0.025 U/h). lean-oref0 keeps all three on purpose, so that it decides exactly like the original; the optional <code>--safe</code> mode refuses inputs with an undated reading or a missing setting. Proved fixes are planned.</p>
     <details class="more">
-      <summary>Five smaller findings</summary>
+      <summary>Six smaller findings</summary>
       <ul class="limits">
         <li><b>No number at all.</b> With carbohydrates recorded but no time for the last meal, the program outputs an invalid rate (NaN) for 30 minutes.</li>
         <li><b>Negative insulin.</b> One insulin model counts a 10 U dose given 177 minutes ago as −0.002 U.</li>
         <li><b>Half the program is never tested.</b> No dosing test reaches the glucose predictions, the carbohydrate logic or the small automatic boluses.</li>
         <li><b>Test-suite problems.</b> 23 of 70 dosing tests are switched off, one passes only because of a typo, and the profile tests fail.</li>
+        <li><b>A zero at the end of the schedule stops the loop.</b> If the last entry of the basal schedule is 0 U/h, oref0 finds no basal rate at any time of day and makes no decisions at all.</li>
         <li><b>Hidden state.</b> Handling a pump suspension changes shared data, so a recorded insulin rate can end up with a negative duration.</li>
       </ul>
     </details>
@@ -264,6 +265,8 @@ footer li { margin: 3px 0; }
       <div class="prop"><h3>No insulin when glucose is low <span class="tag ok">Proved</span></h3><p>If glucose is low and not rising, lean-oref0 gives no insulin.</p></div>
       <div class="prop"><h3>No extra insulin when there is already enough <span class="tag ok">Proved</span></h3><p>Once the insulin in the body reaches the user's maximum, lean-oref0 gives no more than the normal rate.</p></div>
       <div class="prop"><h3>Bad sensor data never adds insulin <span class="tag ok">Proved, except undated readings</span></h3><p>Error codes, noisy or old readings never increase insulin. Readings with no date slip through (see What we found).</p></div>
+      <div class="prop"><h3>Many decisions in a row stay within a ceiling <span class="tag ok">Proved in a pump model</span></h3><p>In a model where the pump carries out one decision after another, the basal rate never goes above a ceiling computed from the user's basal schedule and limits. Every temporary rate ends after at most 30 minutes, or 2 hours for a zero rate, and then the normal schedule runs again. Lean checks the settings these proofs need on a given profile. The proofs also assume that the autosens ratio stays within its set limit, as oref0's autosens code does.</p></div>
+      <div class="prop"><h3>Over many cycles, more insulin only on fresh data <span class="tag ok">Proved, with assumptions</span></h3><p>In a model of the loop over time: if every reading has a date, each step that adds insulin used a glucose value whose age, as oref0 computes it, is between −5.05 and 12.05 minutes. If each date is also at most δ off the true time, and the newest reading is at least 2.5 minutes newer than the older ones, the newest reading really is between −5.05 minutes − 1 ms − δ and 12.05 minutes + δ old. The dates are an assumption, not a proof: readings with no date are still the finding above.</p></div>
       <div class="prop"><h3>Insulin in the body is computed correctly <span class="tag">Not yet proved</span></h3><p>Tested instead: identical to oref0 on all 51 of its test cases.</p></div>
     </div>
   </div>
@@ -327,7 +330,7 @@ footer li { margin: 3px 0; }
       <li><b>Rounding.</b> The Lean version rounds every arithmetic operation exactly as JavaScript does, so two proved limits (the extra-bolus cap and the cap on active insulin) hold up to a rounding error smaller than one part in 10<sup>13</sup>. JavaScript's exponential function is not exactly rounded and ours is: an independent reviewer measured a difference in the last digit for 8% of the values oref0 uses. The exponential is only used to compute the insulin still active in the body; on oref0's 51 test cases for that calculation, the results are identical. The 100,000 random cases do not use it.</li>
       <li><b>Not everything is rewritten.</b> The calculation of carbohydrates still being absorbed is taken as an input, as in the original command-line tool.</li>
       <li><b>Trusted tools.</b> We rely on Lean's compiler and on the C compiler being correct.</li>
-      <li><b>Next steps.</b> Proved fixes for the three findings, proofs over many decisions in a row, the remaining safety rules, and running on a verified operating system (seL4).</li>
+      <li><b>Next steps.</b> Proved fixes for the three findings, more proofs over many decisions in a row, the remaining safety rules, and running on a verified operating system (seL4).</li>
     </ul>
   </div>
 </section>
@@ -338,7 +341,7 @@ footer li { margin: 3px 0; }
     <p class="sub">Numbers from <code>scripts/report.js</code>. Full write-up: <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REPORT.md">REPORT</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/FINDINGS.md">FINDINGS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REQUIREMENTS.md">REQUIREMENTS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/TRACEABILITY.md">TRACEABILITY</a>.</p>
     <div class="stats">
       <div class="stat"><b>52 / 59</b><span>generalizable oref0 unit tests (of 116 inventoried) proved as instances of general theorems</span></div>
-      <div class="stat"><b>274</b><span>theorems, no <code>sorry</code>, standard axioms only</span></div>
+      <div class="stat"><b>306</b><span>theorems, no <code>sorry</code>, standard axioms only</span></div>
       <div class="stat"><b>148 / 148</b><span>oref0 test calls reproduced exactly</span></div>
       <div class="stat"><b>24 / 24</b><span>planted bugs caught by the build (mutation testing)</span></div>
     </div>

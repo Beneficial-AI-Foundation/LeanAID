@@ -279,3 +279,134 @@ not flat data; the text now states the exclusion. Consequence in these runs: sma
 episode ends at the next reading that differs), but the insulin is given when BG is
 already low. Not yet checked: whether a stuck sensor reading low for longer can keep the
 basal running for longer (the flat check needs `delta` = 0 exactly, so noise ends it).
+
+## Found by the work on runs (`LeanAID/Time/`)
+
+`docs/timing-results.md` ranks the theorems about runs. F-20 and F-21 are checked by
+`native_decide` on runs of the Lean model (`LeanAID/Conformance/TimeRuns.lean`). These runs
+encode the pump history with decimal millisecond timestamps (`encodeAction`), not with
+the ISO strings of a real pump history, and they were not replayed in JavaScript. F-22 and
+F-23 were confirmed with oref0 0.7.1 under Node. F-19 is checked only on the Lean
+transcription.
+
+### F-19 — With an unrounded controller basal, the stale-data response can issue a rate above it
+oref0 rounds `profile.current_basal` to the pump grid (`determine-basal.js:142`), and the
+CGM-error branch issues that rounded value (lines 198-204). With `current_basal = 0.83`
+U/h and the default 0.05 grid, a reading 20 minutes old with a 2 U/h temp running makes
+oref0 replace the temp by 0.85 U/h, which is above 0.83 U/h. Checked by `decide` in
+`LeanAID/Time/Examples.lean` (`staleInput`). Autotune writes basals with three decimals,
+so it can produce such a value. A basal programmed on the pump is already on its grid.
+The issued rate is a reduction of the running temp, and the excess is 0.01 U over 30
+minutes. Dosing severity: low.
+
+### F-20 — A stopped loop can leave a zero temp running for 120 minutes
+In the low-glucose branch oref0 requests zero temps of 30 to 120 minutes
+(`determine-basal.js:919` and 993), and `setTempBasal` keeps the requested duration
+(`basal-set-temp.js:54`). If the loop stops right after such a temp is accepted, the pump
+delivers no basal for up to 120 minutes. This is intended low-glucose protection. After a
+loss of the loop its effect is underdelivery: 2 U less than the schedule at 1 U/h.
+`p4b_fail_safe` proves the 120-minute bound. Run `zeroRun`: glucose 80, 70 and 60 mg/dL,
+and the cycle at minute 10 issues 0 U/h for 120 minutes (`zeroRun_cycle_kernel`). The
+modeled pump rate is 0 at minute 10 and at minute 130 − 1 ms, and 1 U/h from minute 130
+(`zeroRun_pump`). Dosing severity: low. The zero temp is deliberate (the comment at
+`determine-basal.js:918` says "always set a 30-120m zero temp"), oref0 issues it only when BG
+is low or predicted low, and its length comes from the insulin to withhold. After a loss of
+the loop the effect is underdelivery, the safer direction.
+
+### F-21 — The IOB of microboluses alone can exceed `max_iob` after low temps
+oref0 compares net IOB with `max_iob` (`determine-basal.js:1045` and 1062). Net IOB includes
+the negative IOB of temps below the scheduled basal (`iob/history.js:553`). After two hours
+of zero temps the net IOB in the model is about −1.2 U, and the guard then allows
+microboluses whose own IOB exceeds `max_iob`. Run `i2Run`: `max_iob` 0.5 U, microboluses
+of 0.5 U at minute 130 and 0.2 U at minute 135. At minute 140 their IOB is above 0.69 U
+(`i2_fails`), and at each microbolus the guard `IOB + units ≤ 0.5` held (`i2Run_I1`).
+So R21 holds at most for net IOB, not for the IOB of microboluses alone. The run does not
+show net IOB above `max_iob` or an overdose. Its glucose trace (two hours at 60 mg/dL,
+then a rise of 15 mg/dL every 5 minutes) is possible but contrived. Dosing severity: low.
+The microboluses deliver more than `max_iob` beyond the scheduled basal, but oref0 defines
+the limit on net IOB on purpose, and the run shows no overdose.
+
+### F-22 — A basal schedule whose last entry has rate 0 gives no `current_basal`
+`basalLookup` sorts the schedule by `i` and returns `undefined` when the rate of the last
+sorted entry is 0 (`lib/profile/basal.js:14-19`), at every time of day. The controller then
+sees no `current_basal`, and every cycle fails. The transcription does the same
+(`basalLookup_last_zero`), and `ValidSchedule` rejects such a schedule (`envZ`).
+`scripts/probe-basal-zero.js` confirms it under Node: with rates 1 and 0 U/h from 0:00 and
+6:00, `determine_basal` returns "Error: could not get current basal rate" with no rate.
+Dosing severity: low. The loop stops issuing commands and the pump runs its own schedule.
+The risk is that the user does not see that the loop stopped.
+
+### F-23 — Low glucose suspend with a NaN duration: the pump rejects the zero temp
+In the low-glucose branch (`determine-basal.js:914-918`) the duration is
+`min(120, max(30, round(round(60 * (target_bg - minGuardBG) / sens / current_basal) / 30) * 30))`.
+If `minGuardBG` is NaN, oref0 requests rate 0 with a NaN duration (`"duration": null` in
+JSON). `minGuardBG` is NaN when three conditions hold: `enableUAM` is on, the carb branch
+of the guard is taken (`cid` is nonzero or `remainingCIpeak > 0`, lines 729-740), and
+`fractionCarbsLeft = mealCOB / carbs` (line 709) is NaN or infinite, as when `mealCOB > 0`
+and `carbs` is missing or 0. `scripts/probe-lgs-nan.js` shows it with BG 60 mg/dL rising
+3 mg/dL per 5 minutes (cases A and B). Case D has the same COB and carbs but falling BG;
+the carb branch is not taken there, and `minGuardBG` stays finite (44 mg/dL):
+```
+A ... {"bg":60,"rate":0,"duration":null,"reason":"... minGuardBG NaN<70"}
+```
+The pump model rejects this command, so a running positive temp continues.
+`low_glucose_pump` states this case. `LeanAID/Conformance/F23Run.lean` checks a legal run with
+a 2 U/h temp in the pump history: the theorem applies to it (`f23Run_covered`), its second
+case holds (`f23Run_second`), and the temp keeps running (`f23Run_rate`). With `carbs` 30 the
+same run has a finite `minGuardBG` and the pump accepts the zero temp (`f23RunC_checks`). We found no path through `lib/meal/total.js` that
+produces this input, but we did not prove that none exists. `aid-lean --safe` now refuses
+`mealCOB` without positive carbs. `LeanAID/Patched/LowGlucose.lean` models oref0 with the
+NaN duration replaced by 30 minutes, and `lgs_patched_valid` proves that the pump accepts
+its low-glucose command. `LeanAID/Core` is unchanged. Dosing severity: medium, but only if two
+conditions hold that we did not show. First, oref0 must get this input: as said above, we
+found no path through `lib/meal/total.js`, and we did not check apps that build their own
+meal data. Second, the real pump driver must keep the old temp. The rig sends the command
+with `mdt settempbasal` (`bin/oref0-pump-loop.sh:360`), which is not in `vendor/`. If the
+driver reads `null` as 0, a Medtronic pump cancels the temp and runs the schedule, which is
+milder. If both conditions hold, a high temp can continue at low glucose for up to 30
+minutes.
+
+### F-11 in the run model
+In the run model the glucose status is `getLastGlucose` of the readings. When the readings
+carry no date, every age is NaN, `getLastGlucose` finds no deltas, and it returns delta 0.
+In the run `undated_flat` (last BG 200 mg/dL) the flat-CGM check (F-18) then stops any
+increase. So the F-11 input (undated, with nonzero deltas) needs a `glucose_status` from
+another source. `undated_flat` is one run, not a general theorem.
+
+### Hypotheses of the run theorems
+- `p1_dated` and `p1_true_age_head` assume `DatedReadings`: every reading has a positive
+  finite recorded date. Undated readings (F-11) are excluded, not handled.
+- True ages enter only through `RecordedNear δ`: each recorded date is within δ ms of the
+  true time. The model has no other link between the two.
+- `p1_true_age` and `getLastGlucose_date_between` assume `DoubleDates`: every recorded date
+  is a positive double of the model. `Binary64.rd` has no exponent limit, so this admits
+  values above `Number.MAX_VALUE`.
+- `p1_true_age_head` assumes `HeadSpaced`: every reading after the newest one with a truthy
+  value is at least 2.5 minutes older. Then `getLastGlucose` averages nothing. Readings
+  less than 2.5 minutes apart, exact duplicates and backfilled readings that arrive out of
+  date order are not covered.
+- The readings of the run model carry only a value and a recorded date: no `sgv`, device,
+  noise or type.
+- `p6_delivered_sched` assumes `SmbMinutesOk env`: `maxSMBBasalMinutes` is absent or
+  finite. Otherwise oref0 computes a NaN microbolus cap. The cap `smbCapOf env` is the
+  model's rounding of (largest schedule rate) · max(30, maxSMB, maxUAM) / 60.
+- `p5_gap` covers boluses in the run's action log only. A bolus in `env.initHistory` is not
+  covered, and `Legal` puts no condition on that history: with initial records out of date
+  order, oref0's record scan skips the newer one.
+- `low_glucose_pump` assumes `InitDouble env`: the initial temp, if any, has a double rate.
+  `low_glucose_suspend` concludes that a running temp left in place has rate 0 only for a
+  double rate (`keepRunning_zero`). `rate_double` covers every rate a cycle issues, so only
+  the initial temp is assumed.
+- `low_glucose_pump` assumes `LowCycle`: BG or `minGuardBG` is below the threshold and
+  oref0's first dose branch (`determine-basal.js:908-911`) is not taken.
+- `temp_bound` and `p4b_fail_safe` assume `InitRemaining env t0`: the initial temp ends at
+  most 120 minutes after `t0`, or 30 minutes with a positive rate. Their conclusion for the
+  initial temp counts from `max tp.start t0`.
+- The controller's `current_basal` and the pump's fallback rate both come from
+  `env.profile.basalprofile`. With autotune, oref0 replaces the controller's basals
+  (`bin/oref0-get-profile.js:239`) while the pump keeps its own schedule. `p4a_expiry`,
+  `p4b_fail_safe`, `rate_envelope`, `p6_basal` and `p6_delivered` cover only equal
+  schedules.
+- The pump executes each accepted command exactly once and at once, and `currenttemp` is
+  the true pump state. Lost acknowledgements, delays and stale pump reads are not modeled.
+

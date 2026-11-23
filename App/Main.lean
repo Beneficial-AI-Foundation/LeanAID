@@ -11,7 +11,8 @@
   `determine-basal` mirrors `bin/oref0-determine-basal.js`: the suggestion as JSON on
   stdout, or the error on stderr. `--safe` (not in oref0) first checks that the input
   is valid in the sense of the safety theorems (`LeanAID.validInputB`) and that meal
-  data with carbs has a `lastCarbTime` (FINDINGS F-06), and refuses otherwise
+  data with carbs has a `lastCarbTime` (FINDINGS F-06) and that meal data with COB has
+  positive carbs (F-23; this check is not in oref0), and refuses otherwise
   (exit code 2). This shell is not verified.
 
   RESEARCH ARTIFACT. NOT FOR DOSING INSULIN.
@@ -126,12 +127,18 @@ def determineBasalCmd (args : List String) : IO UInt32 := do
       clock := { now, tzOffsetMin := tz, tzName } }
   if o.safe then
     -- docs/DESIGN.md, "What `--safe` rejects": (1) profile/autosens outside V0-V10,
-    -- (2) carbs without lastCarbTime (F-06), (3) a glucose reading without a finite date (F-11)
+    -- (2) carbs without lastCarbTime (F-06), (3) a glucose reading without a finite date (F-11),
+    -- (4) COB without positive carbs (F-23)
     let reasons : List String :=
       (if validInputB inp then [] else ["profile or autosens outside the valid domain (V0-V10)"]) ++
       (if !meal.carbs.truthyN || (match meal.lastCarbTime with | some (.fin _) => true | _ => false) then []
        else ["meal data has carbs but no numeric lastCarbTime (F-06)"]) ++
-      (match gs.date with | some (.fin _) => [] | _ => ["glucose reading has no date (F-11)"])
+      (match gs.date with | some (.fin _) => [] | _ => ["glucose reading has no date (F-11)"]) ++
+      -- Not in oref0: oref0 computes `fractionCarbsLeft = mealCOB / carbs` without a check
+      -- (determine-basal.js:709). With COB and no positive carbs it is NaN or infinite, and at
+      -- low BG oref0 then issues rate 0 with a NaN duration (F-23).
+      (if !meal.mealCOB.truthyN || (match meal.carbs with | some (.fin c) => decide (0 < c) | _ => false) then []
+       else ["meal data has mealCOB but no positive carbs (F-23)"])
     if !reasons.isEmpty then
       IO.eprintln s!"aid-lean --safe: refusing input: {"; ".intercalate reasons}; no suggestion"
       return 2

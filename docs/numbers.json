@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T14:32:40.460Z",
+ "generated": "2026-11-20T12:33:31.036Z",
  "oref0": "88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (0.7.1)",
  "tests": {
   "blocks": 116,
@@ -30,8 +30,8 @@
   ]
  },
  "theorems": {
-  "total": 274,
-  "headline": 16,
+  "total": 306,
+  "headline": 58,
   "headlineNames": [
    "LeanAID.Proofs.rate_le_roundBasal_maxSafeBasal",
    "LeanAID.Proofs.rate_le_maxSafeBasal_of_grid",
@@ -48,7 +48,49 @@
    "LeanAID.Proofs.setTempBasal_rate_bound",
    "LeanAID.Proofs.cgm_unreliable_no_increase",
    "LeanAID.Proofs.undated_glucose_max_rate",
-   "LeanAID.Proofs.missing_max_basal_no_clamp"
+   "LeanAID.Proofs.missing_max_basal_no_clamp",
+   "LeanAID.Time.issued_temp_ok",
+   "LeanAID.Proofs.rate_double",
+   "LeanAID.Time.p6_delivered_sched",
+   "LeanAID.Time.p4b_fail_safe",
+   "LeanAID.Time.low_glucose_pump",
+   "LeanAID.Time.p5_gap",
+   "LeanAID.Time.p1_true_age_head",
+   "LeanAID.Time.p6_delivered",
+   "LeanAID.Time.p6_basal",
+   "LeanAID.Time.rate_envelope",
+   "LeanAID.Time.p6_bolus",
+   "LeanAID.Time.p4a_expiry",
+   "LeanAID.Time.temp_bound",
+   "LeanAID.Time.low_glucose_no_smb",
+   "LeanAID.Time.p5_strict",
+   "LeanAID.Time.p1_dated",
+   "LeanAID.Time.p1_true_age",
+   "LeanAID.Patched.lgs_patched_valid",
+   "LeanAID.Time.iobTotal_insert_bolus_num",
+   "LeanAID.Time.Legal.cycle",
+   "LeanAID.Time.build_legal",
+   "LeanAID.Time.validRun_of",
+   "LeanAID.Iob.sortByKey_eq_merge",
+   "LeanAID.Time.calcTempTreatments_bolus",
+   "LeanAID.Time.Legal.logOk",
+   "LeanAID.Time.Legal.bolusSeen",
+   "LeanAID.Time.Runs.zeroRun_cycle_kernel",
+   "LeanAID.Time.Runs.zeroRun_pump",
+   "LeanAID.Time.F23Run.f23Run_covered",
+   "LeanAID.Time.getLastGlucose_dated",
+   "LeanAID.Time.getLastGlucose_date_between",
+   "LeanAID.Time.validEnv_of_schedule",
+   "LeanAID.Time.rateCap_of_schedule",
+   "LeanAID.Time.sched_le_of_schedule",
+   "LeanAID.Time.smbCap_of_schedule",
+   "LeanAID.Time.smbMaxBolus_sched",
+   "LeanAID.Time.autosensOk_of_clamped",
+   "LeanAID.Time.doubleRates_of_legal",
+   "LeanAID.Time.smbTraced_run",
+   "LeanAID.Time.round3_accounting",
+   "LeanAID.Time.getLastGlucose_date_first",
+   "LeanAID.Patched.determineBasalPatched_eq"
   ]
  },
  "axioms": [
@@ -64,8 +106,8 @@
   "atRoundingTies": 0
  },
  "linesOfLean": {
-  "core": 2667,
-  "proofs": 3958,
+  "core": 3173,
+  "proofs": 4495,
   "spec": 107
  }
 }
