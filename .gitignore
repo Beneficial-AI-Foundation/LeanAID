@@ -24,3 +24,5 @@ prompts/
 
 # istanbul output of scripts/coverage/run.sh
 scripts/coverage/out/
+
+uppaal/out/
