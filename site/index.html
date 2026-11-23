@@ -112,6 +112,7 @@ h2 { font-size: 1.7rem; letter-spacing: -0.02em; margin: 0 0 8px; }
 .layer div { flex: 1; min-width: 0; }
 .tag { flex: none; font-size: 0.72rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; color: var(--plan); background: var(--plan-soft); }
 .tag.ok { color: var(--ok); background: var(--ok-soft); }
+.tag.mc { color: var(--accent); background: var(--accent-soft); }
 
 .props { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (max-width: 680px) { .props { grid-template-columns: 1fr; } }
@@ -169,6 +170,7 @@ footer li { margin: 3px 0; }
       <a href="#findings">Findings</a>
       <a href="#proved">Proofs</a>
       <a href="#tested">Testing</a>
+      <a href="#timing">Over time</a>
       <a href="#limits">Limits</a>
       <a href="#details">Details</a>
       <a href="https://github.com/Beneficial-AI-Foundation/LeanAID">GitHub</a>
@@ -299,7 +301,21 @@ footer li { margin: 3px 0; }
   </div>
 </section>
 
-<section class="alt" id="background">
+<section class="alt" id="timing">
+  <div class="wrap">
+    <h2>Over time: a timed model of the loop</h2>
+    <p class="sub">The proofs above are about one decision. Insulin safety also depends on timing: how long a temporary rate runs, what happens when the loop stops, how far apart small boluses are. We built a timed-automata model of the loop, pump and sensor and checked it with model checkers.</p>
+    <div class="props">
+      <div class="prop"><h3>Timing rules hold on the model <span class="tag mc">Model-checked (UPPAAL)</span></h3><p>The UPPAAL model checker answers 104 of 104 queries as expected (<code>scripts/uppaal.sh</code>). On the model, a dose increase needs a fresh reading. A temporary rate has a valid duration and ends on time. After the loop stops, the schedule resumes within 120 minutes. With the controller's duration rule, no positive temporary rate remains after 30 minutes. Two small boluses are at least 3 minutes apart. Each of 15 planted faults in the model makes the query it targets fail, so these checks can catch a broken model.</p></div>
+      <div class="prop"><h3>Checked again by a verified checker <span class="tag mc">Model-checked (Munta)</span></h3><p>Munta, a model checker proved correct in Isabelle, gives the same answer as UPPAAL on 21 queries of the model without the pump (<code>uppaal/u4/run_u4.py</code>). On a pump with fewer durations, it gives the same answer on 9 queries, and 8 of them carry over to the full pump: 6 directly, 2 by a written argument that is not checked. Munta cannot read clocks in queries, so it does not check the expiry rules.</p></div>
+      <div class="prop"><h3>Model examples replayed in Lean <span class="tag mc">Replayed in Lean</span></h3><p>The model checker gives example runs of the model. With <code>uppaal/replay.py</code>, Lean reproduces 24 of them: 10 on the Lean pump model alone and 14 on legal runs of the Lean model of the loop. <code>lake build</code> checks that each Lean run matches its example. The 6 replayed examples of planted pump faults do not match the Lean pump, as expected.</p></div>
+      <div class="prop"><h3>Candidate problems in extended models <span class="tag mc">Model-checked (UPPAAL), candidates</span></h3><p>The spacing of small boluses fails in three extended models. One delays the execution of a command by up to 5 minutes. One sends a command again after a lost acknowledgement. One runs two loops at once. With the late command, the schedule also resumes later after the loop stops. The Lean model excludes these behaviors, and the model allows more outputs than oref0 gives, so these are candidates, not findings about oref0.</p></div>
+    </div>
+    <p class="note">A model-checked result is about the model, not about oref0 or the Lean runs. A proof that the timed model covers the runs of the Lean model is <span class="tag">Planned</span>. It can only cover a restricted class of runs, for example runs with a constant basal schedule and readings at least 150 seconds apart. Until then, a model-checked rule does not count as proved. Numbers from <code>uppaal/results.json</code>, <code>uppaal/u4/results.json</code>, <code>uppaal/u4/results-u5b.json</code> and <code>uppaal/replay.json</code>.</p>
+  </div>
+</section>
+
+<section id="background">
   <div class="wrap">
     <h2>Background</h2>
     <p class="sub">The project covers only the part that decides the dose: glucose readings in, an insulin amount out.</p>
@@ -319,7 +335,7 @@ footer li { margin: 3px 0; }
   </div>
 </section>
 
-<section id="limits">
+<section class="alt" id="limits">
   <div class="wrap">
     <h2>Limits</h2>
     <p class="sub">What the results do not show.</p>
@@ -372,7 +388,7 @@ lake test                          # build + aid-lean selftest + forbidden-const
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-862/subpart-B/section-862.1356">21 CFR 862.1356</a>, interoperable automated glycemic controller.</li>
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-880/subpart-F/section-880.5730">21 CFR 880.5730</a>, alternate controller enabled infusion pump.</li>
     </ol>
-    LeanAID · Beneficial AI Foundation · Numbers from <code>scripts/report.js</code> (<code>docs/numbers.json</code>), 18 November 2026; virtual patients from <code>sim/run_all.py</code>, 19 November 2026.
+    LeanAID · Beneficial AI Foundation · Numbers from <code>scripts/report.js</code> (<code>docs/numbers.json</code>), 18 November 2026; virtual patients from <code>sim/run_all.py</code>, 19 November 2026; timed model from <code>scripts/uppaal.sh</code>, <code>uppaal/u4/run_u4.py</code>, <code>uppaal/replay.py</code> and <code>lake build</code>, 20 to 22 November 2026.
   </div>
 </footer>
 
