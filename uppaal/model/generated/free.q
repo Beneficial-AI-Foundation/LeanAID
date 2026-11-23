@@ -1,0 +1,5 @@
+A[] ((busy == 0) imply ((((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 < (oDur * 60)))) imply ((Pump.Temp && (Pump.y < (dur * 60))) && (((tcls == 3) && (oCls == 3)) || ((tcls == 4) && (oCls == 4)) || ((tcls == 5) && (oCls == 5))))) && (((((oCls == 3) || (oCls == 4) || (oCls == 5)) && (o4 >= (oDur * 60)))) imply (!(Pump.Temp && (Pump.y < (dur * 60))))) && ((oCls == 9) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))))
+A[] ((Step.Closed && (obs >= 7200) && (busy == 0)) imply (!(Pump.Temp && (Pump.y < (dur * 60)))))
+A[] ((Step.Closed && (obs >= 1800) && (busy == 0)) imply (!((Pump.Temp && (Pump.y < (dur * 60))) && ((tcls == 4) || (tcls == 5)))))
+A[] (Step.End imply (((bolusDone == 1) && (expB == 1)) || ((bolusDone == 0) && (expB == 0))))
+A[] (!deadlock)

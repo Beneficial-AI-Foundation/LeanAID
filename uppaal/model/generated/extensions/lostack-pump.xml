@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+<declaration>// issued fields of the current command (encodings in uppaal/model/model.py)
+int[0,5] rc; int[0,4] dk; int[-1,121] dv; int[0,3] uk;
+int[0,1] busy;        // inside a committed chain
+int[0,1] first;       // the next step is the first one, allowed at t0
+clock g;              // time since the start or the last step
+int[0,5] tcls; int[0,121] dur; int[0,5] ic; int[0,1] initDone;
+clock obs;            // time since the close of the run
+chan initTemp, setTemp, cancel;
+// lost acknowledgement: a command is pending (no acknowledgement),
+// the current send is a retry, the pump executed the pending command
+int[0,1] pending; int[0,1] retry; int[0,1] pexec;
+int[0,5] pR; int[-1,121] pV;</declaration>
+<template><name>StepT</name>
+<location id="Step_0" x="0" y="0"><name>Pre</name>
+</location>
+<location id="Step_1" x="220" y="0"><name>Idle</name>
+</location>
+<location id="Step_2" x="440" y="0"><name>Closed</name>
+</location>
+<location id="Step_3" x="660" y="0"><name>S1</name>
+<committed/>
+</location>
+<location id="Step_4" x="0" y="160"><name>Iss</name>
+<committed/>
+</location>
+<location id="Step_5" x="220" y="160"><name>Ch</name>
+<committed/>
+</location>
+<location id="Step_6" x="440" y="160"><name>End</name>
+<committed/>
+</location>
+<location id="Step_7" x="660" y="160"><name>PreC</name>
+<committed/>
+</location>
+<location id="Step_8" x="0" y="320"><name>Ex</name>
+<committed/>
+</location>
+<location id="Step_9" x="220" y="320"><name>Ack</name>
+<committed/>
+</location>
+<init ref="Step_0"/>
+<transition><source ref="Step_0"/><target ref="Step_1"/>
+<label kind="assignment">g = 0, first = 1, ic = 0</label>
+</transition>
+<transition><source ref="Step_1"/><target ref="Step_3"/>
+<label kind="guard">((first == 1) || (g &gt; 0))</label>
+<label kind="assignment">busy = 1, first = 0, g = 0</label>
+</transition>
+<transition><source ref="Step_2"/><target ref="Step_2"/>
+</transition>
+<transition><source ref="Step_0"/><target ref="Step_7"/>
+<label kind="select">c : int[3,5]</label>
+<label kind="guard">(initDone == 0)</label>
+<label kind="assignment">ic = c, initDone = 1</label>
+</transition>
+<transition><source ref="Step_7"/><target ref="Step_0"/>
+<label kind="synchronisation">initTemp!</label>
+</transition>
+<transition><source ref="Step_0"/><target ref="Step_2"/>
+<label kind="assignment">obs = 0, ic = 0</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_6"/>
+</transition>
+<transition><source ref="Step_4"/><target ref="Step_5"/>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="assignment">rc = 3, dk = 3, dv = 0, pending = 0, pexec = 0</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="select">v : int[30,120]</label>
+<label kind="assignment">rc = 3, dk = 3, dv = v, pending = 0, pexec = 0</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="assignment">rc = 4, dk = 3, dv = 30, pending = 0, pexec = 0</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_4"/>
+<label kind="assignment">rc = 5, dk = 3, dv = 30, pending = 0, pexec = 0</label>
+</transition>
+<transition><source ref="Step_3"/><target ref="Step_5"/>
+<label kind="guard">(pending == 1)</label>
+<label kind="assignment">rc = pR, dk = 3, dv = pV, retry = 1</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(retry == 0)</label>
+<label kind="assignment">pending = 1, pexec = 0, pR = rc, pV = dv</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_6"/>
+<label kind="guard">(retry == 1)</label>
+</transition>
+<transition><source ref="Step_9"/><target ref="Step_6"/>
+<label kind="assignment">pending = 0</label>
+</transition>
+<transition><source ref="Step_9"/><target ref="Step_6"/>
+<label kind="assignment">pending = 1, pexec = 1, pR = rc, pV = dv</label>
+</transition>
+<transition><source ref="Step_5"/><target ref="Step_8"/>
+</transition>
+<transition><source ref="Step_8"/><target ref="Step_9"/>
+<label kind="guard">(dv == 0)</label>
+<label kind="synchronisation">cancel!</label>
+<label kind="assignment">pexec = 1</label>
+</transition>
+<transition><source ref="Step_8"/><target ref="Step_9"/>
+<label kind="guard">(dv &gt;= 30)</label>
+<label kind="synchronisation">setTemp!</label>
+<label kind="assignment">pexec = 1</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_1"/>
+<label kind="assignment">busy = 0, rc = 0, dk = 0, dv = 0, uk = 0, retry = 0</label>
+</transition>
+<transition><source ref="Step_6"/><target ref="Step_2"/>
+<label kind="assignment">busy = 0, rc = 0, dk = 0, dv = 0, uk = 0, retry = 0, obs = 0</label>
+</transition>
+</template>
+<template><name>PumpT</name>
+<declaration>clock y;</declaration>
+<location id="Pump_0" x="0" y="0"><name>Sched</name>
+</location>
+<location id="Pump_1" x="220" y="0"><name>Temp</name>
+<label kind="invariant">y &lt;= (dur * 60)</label>
+</location>
+<init ref="Pump_0"/>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="guard">(ic == 3)</label>
+<label kind="synchronisation">initTemp?</label>
+<label kind="assignment">y = 0, dur = 120, tcls = ic</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="guard">(ic &gt;= 4)</label>
+<label kind="synchronisation">initTemp?</label>
+<label kind="assignment">y = 0, dur = 30, tcls = ic</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_1"/>
+<label kind="synchronisation">setTemp?</label>
+<label kind="assignment">y = 0, dur = dv, tcls = rc</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_1"/>
+<label kind="synchronisation">setTemp?</label>
+<label kind="assignment">y = 0, dur = dv, tcls = rc</label>
+</transition>
+<transition><source ref="Pump_0"/><target ref="Pump_0"/>
+<label kind="synchronisation">cancel?</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_0"/>
+<label kind="synchronisation">cancel?</label>
+</transition>
+<transition><source ref="Pump_1"/><target ref="Pump_0"/>
+<label kind="guard">(y &gt;= (dur * 60))</label>
+</transition>
+</template>
+<system>Step = StepT();
+Pump = PumpT();
+system Step, Pump;</system>
+</nta>

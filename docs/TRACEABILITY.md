@@ -15,15 +15,15 @@ the model (plan section 7, level 3) is not done. R_U restricts T2 runs, for exam
 to a constant positive schedule and readings at least 150 s apart. The kinds:
 
 - UPPAAL: `verifyta` 5.1.0-beta5 answers the query, run by `scripts/uppaal.sh`
-  (`uppaal/results.json`).
+  (`uppaal/queries/results.json`).
 - Munta: the Isabelle-verified checker Munta gives the same answer on the network
   lowered for it, and the three U0b gates pass on that network: the UPPAAL deadlock
   check, the Munta deadlock check, and UPPAAL `E<> false` without an error
-  (`uppaal/u4/run_u4.py`, `uppaal/u4/results.json`, `uppaal/u4/results-u5b.json`).
+  (`uppaal/munta/run_munta.py`, `uppaal/munta/results.json`, `uppaal/munta/results-reduced-pump.json`).
   The lowering is argued, not proved.
 - T2 replay: a UPPAAL trace is turned into a T2 run, and a theorem checked by
   `lake build` (`native_decide`) states that the run matches the trace, or for a
-  mutation trace that it does not match (`uppaal/replay.py`, `uppaal/replay.json`). A replay checks one trace, not the
+  mutation trace that it does not match (`uppaal/replay/replay.py`, `uppaal/replay/replay.json`). A replay checks one trace, not the
   property.
 
 | source | requirement | theorem | tests / scenarios | status | model-checked (kind) |
@@ -61,13 +61,13 @@ runs of the T2 model. The proved theorems are in `LeanAID/Time/` and are in
 different kind of evidence. Only the column "proved" says that a property holds on
 T2 runs. The other columns are about the model or about single traces.
 
-UPPAAL statuses are from `uppaal/results.json` (104 queries, all with their expected
+UPPAAL statuses are from `uppaal/queries/results.json` (104 queries, all with their expected
 status). The model variant of each query is in parentheses: `free` is the U1a pump
 with a free command choice, `nopump` is the U1b contract model without the pump,
 `relaxed` and `nobolus` are the other U1b variants (`uppaal/README.md`, "Model
 variants"). `nopump` relates to the contract model by an argument, not by a check.
-Munta statuses are from `uppaal/u4/results.json` (U4) and
-`uppaal/u4/results-u5b.json` (U5b). Replay results are from `uppaal/replay.json`.
+Munta statuses are from `uppaal/munta/results.json` (U4) and
+`uppaal/munta/results-reduced-pump.json` (U5b). Replay results are from `uppaal/replay/replay.json`.
 
 | property | proved (`lake build`) | model-checked: UPPAAL | model-checked: Munta | T2 replay of traces |
 |---|---|---|---|---|
@@ -86,7 +86,7 @@ Munta statuses are from `uppaal/u4/results.json` (U4) and
 | model property: no deadlock | — | `deadlock` holds (`free`), `deadlock-contract` holds (`nopump`). M-missing-reject fails | `deadlock-contract` holds (U4). `deadlock`: timeout on the U1a pump (U4), holds on the reduced pump (U5b). M-missing-reject: see the U5b table | not replayed: deadlock is a property of the automata |
 | model property: run start and close | — | close-no-steps-w, prerun-w-t0, prerun-w-old reachable | close-no-steps-w: not run on the U1a pump (U4), reachable on the reduced pump (U5b). The two pre-run witnesses unsupported (clock) | close-no-steps-w, prerun-w-t0, prerun-w-old realized |
 
-Replay totals (`uppaal/replay.json`): 24 traces realized, 10 of U1a on the T2 pump and
+Replay totals (`uppaal/replay/replay.json`): 24 traces realized, 10 of U1a on the T2 pump and
 14 of U1b on legal T2 runs in R_U. The observable part of M-P5-clock is realized as
 well. Six U1a mutation traces are not realized, each at the fault of its mutant.
 Seven U1b mutation traces are not realizable by the Lean theorems named above. Six
@@ -100,16 +100,16 @@ and 6 were not run on the U1a pump to save time.
 
 ### U5b: Munta answers on the reduced pump
 
-`munta.few_durations` keeps the issued durations -1, 0, 1, 30, 120 and 121, so the
+`translate.few_durations` keeps the issued durations -1, 0, 1, 30, 120 and 121, so the
 pump has the durations 30 and 120 only. The reduced network is a restriction of the
 U1a network. All nine pump queries without a clock get a Munta answer equal to UPPAAL
-(`uppaal/u4/results-u5b.json`). The transfer to the U1a pump is recorded per query:
+(`uppaal/munta/results-reduced-pump.json`). The transfer to the U1a pump is recorded per query:
 
 | query | Munta | U0b gates | transfer to the U1a pump |
 |---|---|---|---|
 | P4a-w-cancel, collision, bolus-w, reject-bolus-w, close-no-steps-w | reachable | pass | direct: the witness is a run of the U1a network |
 | M-reject-bolus | fails | pass | direct, to the mutant: the counterexample is a run of the U1a mutant |
-| `bolus`, `deadlock` | holds | pass | by a written argument, not checked (`uppaal/README.md`, "Reduced pump (U5b)") |
+| `bolus`, `deadlock` | holds | pass | by a written argument, not checked (`uppaal/README.md`, "Reduced pump for Munta") |
 | M-missing-reject | fails | the UPPAAL and Munta deadlock gates fail by design, because the mutant deadlocks | does not count |
 
 So eight answers count for the U1a pump: six by direct transfer and two by the
@@ -118,14 +118,14 @@ argument.
 ### U5: results on extended models
 
 The U5 models extend the abstraction with behaviors that T2 excludes
-(`uppaal/extensions.md`): delayed execution, lost acknowledgement, and two loops.
+(`uppaal/model/extensions.md`): delayed execution, lost acknowledgement, and two loops.
 Their results are UPPAAL results on the extended models, not results about T2 or
-oref0, and they have no Munta run. Their traces are in `uppaal/traces/u5/`. They are
+oref0, and they have no Munta run. Their traces are in `uppaal/traces/extensions/`. They are
 not T2 runs and are not replayed. The failures are candidate findings F-28 to F-30
 (`docs/FINDINGS.md`). They can be spurious, because the contract allows more outputs
 than oref0 gives. Each extension has a pump part, which checks P4b, and a bolus part,
 which checks P5. The delayed pump part issues a reduced set of commands
-(`uppaal/extensions.md`). Statuses from `uppaal/results.json` (IDs `U5-...`):
+(`uppaal/model/extensions.md`). Statuses from `uppaal/queries/results.json` (IDs `U5-...`):
 
 | model | P4b-120, P4b-30 | P5-issued | P5-pair | candidate finding |
 |---|---|---|---|---|

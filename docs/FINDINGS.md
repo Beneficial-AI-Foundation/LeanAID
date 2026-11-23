@@ -491,7 +491,7 @@ A theorem about what IOB or `lastBolusTime` `generate` returns can be stated, bu
 proof needs facts about these definitions that are not available now. Two ways are
 proposed and not done: a refactor of both loops into structural recursion (with the
 existing fuel bound) and a check of the proof interface of `List.mergeSort`; or
-theorems that take the needed fact as a hypothesis (`BolusSeen`, `docs/LOG.md`, T5).
+theorems that take the needed fact as a hypothesis (`BolusSeen`, `docs/timing-plan.md`).
 
 Update after the rebase (2026-11-23, not rechecked in detail): `main` removed the two
 `while` loops of `calcTempTreatments` (commit c00ffc2) and checks one cycle with the
@@ -499,46 +499,46 @@ kernel (`zeroRun_cycle_kernel`). `basalLookup` still sorts with `List.mergeSort`
 (BAS-02). `Legal.bolusSeen` on `main` proves BolusSeen for legal runs. The UPPAAL
 replay still checks its runs with `native_decide`.
 
-## Found by the Munta run (U4, 2026-11-20, `uppaal/u4/`)
+## Found by the Munta run (U4, 2026-11-20, `uppaal/munta/findings/`)
 
 F-26 and F-27 are about the verified model checker Munta (commit `62cb1a4`, built by
-`uppaal/u0b/setup_munta.sh`), not about oref0. Neither makes Munta give a wrong
+`uppaal/munta/setup_munta.sh`), not about oref0. Neither makes Munta give a wrong
 answer in its own semantics. Both matter when a network is translated from UPPAAL
 to Munta.
 
 ### F-26 — In Munta, time can pass in a committed location
 In UPPAAL, time cannot pass while a process is in a committed location. In Munta,
 "committed" only limits which process moves next. The network
-`uppaal/u4/committed_delay.muntax` (UPPAAL: `committed_delay.xml`) resets `x` and enters
+`uppaal/munta/findings/committed_delay.muntax` (UPPAAL: `committed_delay.xml`) resets `x` and enters
 a committed location whose only edge out needs `x >= 5`. UPPAAL finds `E<> P.L2`
 unreachable, and Munta finds it reachable. With the location also urgent, Munta
 finds it unreachable. Before the fix, Munta reported P1 as not satisfied on the
 lowered `nopump` network, with a path that lets time pass inside a step
-(`uppaal/u4/p1_munta_smallest.muntax`). The U0b test `committed_chain` checked only
+(`uppaal/munta/findings/p1_munta_smallest.muntax`). The U0b test `committed_chain` checked only
 which process moves, so U0b missed this difference. Fix: the Munta writer
-(`uppaal/munta.py`, `write_munta`) marks every committed location also as urgent.
-`uppaal/u0b/README.md` records it as item 7 of "Semantic differences".
+(`uppaal/munta/translate.py`, `write_munta`) marks every committed location also as urgent.
+`uppaal/munta/compat/README.md` records it as item 7 of "Semantic differences".
 
 ### F-27 — Munta's local clock ceilings can be too small, and Munta then rejects the network
-On the 12-location network `uppaal/u4/ceiling_minimal.muntax`, with one clock guard
+On the 12-location network `uppaal/munta/findings/ceiling_minimal.muntax`, with one clock guard
 `x < 183`, Munta's own precondition "Ceiling resets" fails, and Munta prints "Input
 invalid" with no result. UPPAAL accepts the network. A patched copy of Munta that
 printed the ceilings (during U4, not committed) showed the cause: `local_ceiling`
 gives ceiling 0 at the two entry locations, from which the guard is reachable
 without a reset of `x`. So Munta refuses the input; it gives no wrong answer. Workaround in
-`uppaal/munta.py` (`ceiling_loops`): every location gets a self-loop whose guard has
+`uppaal/munta/translate.py` (`ceiling_loops`): every location gets a self-loop whose guard has
 a contradictory data atom and every clock at its largest constant. The loop never
 fires, so the behavior does not change, and UPPAAL checks the same network.
-`uppaal/u0b/README.md` records it as input limit 17.
+`uppaal/munta/compat/README.md` records it as input limit 17.
 
-## Candidate findings from the extended models (U5, 2026-11-22, `uppaal/extensions.md`)
+## Candidate findings from the extended models (U5, 2026-11-22, `uppaal/model/extensions.md`)
 
 F-28 to F-30 come from UPPAAL models that extend the abstraction with behaviors
 that T2 excludes. They are not results about T2 or about oref0. Each trace is a
 run of an extended model, not a T2 run, so U3 does not replay it. Each waits for
 an extended T2 in Lean. Each can be spurious, because the contract allows more
-outputs than oref0 gives. The traces are in `uppaal/traces/u5/`, and the results
-are in `uppaal/results.json` (IDs `U5-...`).
+outputs than oref0 gives. The traces are in `uppaal/traces/extensions/`, and the results
+are in `uppaal/queries/results.json` (IDs `U5-...`).
 
 ### F-28 — With delayed execution, P4b and the SMB spacing fail (candidate, extended model)
 In the `delayed` model, an accepted command waits in a queue of 2 and executes at

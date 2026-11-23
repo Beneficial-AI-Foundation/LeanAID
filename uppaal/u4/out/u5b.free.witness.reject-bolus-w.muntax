@@ -1,0 +1,1649 @@
+{
+ "automata": [
+  {
+   "name": "Step",
+   "initial": 0,
+   "committed": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "urgent": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "Pre",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "PreC",
+     "invariant": ""
+    },
+    {
+     "id": 2,
+     "name": "Idle",
+     "invariant": ""
+    },
+    {
+     "id": 3,
+     "name": "S1",
+     "invariant": ""
+    },
+    {
+     "id": 4,
+     "name": "Iss",
+     "invariant": ""
+    },
+    {
+     "id": 5,
+     "name": "Ch",
+     "invariant": ""
+    },
+    {
+     "id": 6,
+     "name": "Ex",
+     "invariant": ""
+    },
+    {
+     "id": 7,
+     "name": "End",
+     "invariant": ""
+    },
+    {
+     "id": 8,
+     "name": "Closed",
+     "invariant": ""
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "(initDone == 0)",
+     "label": "",
+     "update": "ic := 3, initDone := 1"
+    },
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "(initDone == 0)",
+     "label": "",
+     "update": "ic := 4, initDone := 1"
+    },
+    {
+     "source": 1,
+     "target": 0,
+     "guard": "(ic == 3)",
+     "label": "initTemp!",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 0,
+     "guard": "(ic >= 4)",
+     "label": "initTemp!",
+     "update": ""
+    },
+    {
+     "source": 0,
+     "target": 2,
+     "guard": "",
+     "label": "",
+     "update": "g := 0, first := 1, ic := 0"
+    },
+    {
+     "source": 0,
+     "target": 8,
+     "guard": "",
+     "label": "",
+     "update": "ic := 0"
+    },
+    {
+     "source": 2,
+     "target": 3,
+     "guard": "(first == 1)",
+     "label": "",
+     "update": "busy := 1, first := 0, g := 0"
+    },
+    {
+     "source": 2,
+     "target": 3,
+     "guard": "(g > 0)",
+     "label": "",
+     "update": "busy := 1, first := 0, g := 0"
+    },
+    {
+     "source": 3,
+     "target": 7,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := -1, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := -1, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := -1, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := -1, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 1, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 1, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 1, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 1, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 121, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 121, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 121, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 3, dv := 121, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 4, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 4, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 4, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 0, dk := 4, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := -1, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := -1, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := -1, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := -1, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 1, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 1, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 1, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 1, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 121, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 121, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 121, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 3, dv := 121, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 4, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 4, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 4, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 1, dk := 4, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 2, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 2, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := -1, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := -1, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := -1, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := -1, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 1, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 1, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 1, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 1, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 120, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 120, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 121, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 121, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 121, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 3, dv := 121, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 4, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 4, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 4, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 2, dk := 4, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 0, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 1, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 2, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := -1, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := -1, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := -1, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := -1, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 0, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 1, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 1, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 1, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 1, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 30, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 120, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 121, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 121, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 121, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 3, dv := 121, uk := 3"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 4, dv := 0, uk := 0"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 4, dv := 0, uk := 1"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 4, dv := 0, uk := 2"
+    },
+    {
+     "source": 3,
+     "target": 4,
+     "guard": "",
+     "label": "",
+     "update": "rc := 3, dk := 4, dv := 0, uk := 3"
+    },
+    {
+     "source": 4,
+     "target": 5,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 7,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "((dk == 0) && (rc == 0) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "((dk == 0) && (rc == 0) && (uk == 3))",
+     "label": "",
+     "update": "expB := 1"
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "((dk == 3) && (dv == 0) && (rc >= 3) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "((dk == 3) && (dv == 0) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "expB := 1"
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "((dk == 3) && (dv <= 120) && (dv >= 30) && (rc >= 3) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "((dk == 3) && (dv <= 120) && (dv >= 30) && (rc >= 3) && (uk == 3))",
+     "label": "",
+     "update": "expB := 1"
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "(((rc == 0) && (dk >= 1)) || (rc == 1) || (rc == 2) || ((rc >= 3) && ((dk <= 2) || (dk == 4))) || ((rc >= 3) && (dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) || (dv > 120))))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 6,
+     "guard": "((uk == 1) || (uk == 2))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((rc == 0) && (dk >= 1)) || ((rc >= 1) && (dk == 0)))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((rc == 1) || (dk == 1) || (uk == 1))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((dk == 2) || (dk == 4) || ((dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) || (dv > 120)))) && (uk == 3))",
+     "label": "",
+     "update": "wRejBolus := 1"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((dk == 2) || (dk == 4) || ((dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) || (dv > 120)))) && (uk <= 2))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(uk == 2)",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk >= 1) && (rc == 2))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 0) && (rc == 0) && (uk == 0))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 0) && (rc == 0) && (uk == 3))",
+     "label": "",
+     "update": "bolusDone := 1"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv == 0) && (rc >= 3) && (uk == 0))",
+     "label": "cancel!",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "((dk == 3) && (dv == 0) && (rc >= 3) && (uk == 3))",
+     "label": "cancel!",
+     "update": "bolusDone := 1"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((dv == -1) || (dv == 0) || (dv == 1) || (dv == 30) || (dv == 120) || (dv == 121)) && (dk == 3) && (dv <= 120) && (dv == 30) && (dv >= 30) && (rc >= 3) && (uk == 0))",
+     "label": "setTemp_30!",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((dv == -1) || (dv == 0) || (dv == 1) || (dv == 30) || (dv == 120) || (dv == 121)) && (dk == 3) && (dv <= 120) && (dv == 120) && (dv >= 30) && (rc >= 3) && (uk == 0))",
+     "label": "setTemp_120!",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((dv == -1) || (dv == 0) || (dv == 1) || (dv == 30) || (dv == 120) || (dv == 121)) && (dk == 3) && (dv <= 120) && (dv == 30) && (dv >= 30) && (rc >= 3) && (uk == 3))",
+     "label": "setTemp_30!",
+     "update": "bolusDone := 1"
+    },
+    {
+     "source": 6,
+     "target": 7,
+     "guard": "(((dv == -1) || (dv == 0) || (dv == 1) || (dv == 30) || (dv == 120) || (dv == 121)) && (dk == 3) && (dv <= 120) && (dv == 120) && (dv >= 30) && (rc >= 3) && (uk == 3))",
+     "label": "setTemp_120!",
+     "update": "bolusDone := 1"
+    },
+    {
+     "source": 7,
+     "target": 2,
+     "guard": "",
+     "label": "",
+     "update": "busy := 0, rc := 0, dk := 0, dv := 0, uk := 0, expB := 0, bolusDone := 0, wRejBolus := 0"
+    },
+    {
+     "source": 7,
+     "target": 8,
+     "guard": "",
+     "label": "",
+     "update": "busy := 0, rc := 0, dk := 0, dv := 0, uk := 0, expB := 0, bolusDone := 0, wRejBolus := 0"
+    },
+    {
+     "source": 8,
+     "target": 8,
+     "guard": "",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 1,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 2,
+     "target": 2,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 3,
+     "target": 3,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 4,
+     "target": 4,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 5,
+     "target": 5,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 6,
+     "target": 6,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 7,
+     "target": 7,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 8,
+     "target": 8,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    }
+   ]
+  },
+  {
+   "name": "Pump",
+   "initial": 0,
+   "committed": [],
+   "urgent": [],
+   "nodes": [
+    {
+     "id": 0,
+     "name": "Sched",
+     "invariant": ""
+    },
+    {
+     "id": 1,
+     "name": "Temp_30",
+     "invariant": "y <= 1800"
+    },
+    {
+     "id": 2,
+     "name": "Temp_120",
+     "invariant": "y <= 7200"
+    }
+   ],
+   "edges": [
+    {
+     "source": 0,
+     "target": 2,
+     "guard": "(ic == 3)",
+     "label": "initTemp?",
+     "update": "y := 0"
+    },
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "(ic >= 4)",
+     "label": "initTemp?",
+     "update": "y := 0"
+    },
+    {
+     "source": 0,
+     "target": 1,
+     "guard": "",
+     "label": "setTemp_30?",
+     "update": "y := 0"
+    },
+    {
+     "source": 0,
+     "target": 2,
+     "guard": "",
+     "label": "setTemp_120?",
+     "update": "y := 0"
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "",
+     "label": "cancel?",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 0,
+     "guard": "(y >= 1800)",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 2,
+     "target": 0,
+     "guard": "(y >= 7200)",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 1,
+     "guard": "",
+     "label": "setTemp_30?",
+     "update": "y := 0"
+    },
+    {
+     "source": 2,
+     "target": 1,
+     "guard": "",
+     "label": "setTemp_30?",
+     "update": "y := 0"
+    },
+    {
+     "source": 1,
+     "target": 2,
+     "guard": "",
+     "label": "setTemp_120?",
+     "update": "y := 0"
+    },
+    {
+     "source": 2,
+     "target": 2,
+     "guard": "",
+     "label": "setTemp_120?",
+     "update": "y := 0"
+    },
+    {
+     "source": 1,
+     "target": 0,
+     "guard": "",
+     "label": "cancel?",
+     "update": ""
+    },
+    {
+     "source": 2,
+     "target": 0,
+     "guard": "",
+     "label": "cancel?",
+     "update": ""
+    },
+    {
+     "source": 0,
+     "target": 0,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 1,
+     "target": 1,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    },
+    {
+     "source": 2,
+     "target": 2,
+     "guard": "((rc == 0) && (rc == 1) && (g <= 0) && (y <= 7200))",
+     "label": "",
+     "update": ""
+    }
+   ]
+  }
+ ],
+ "clocks": "g, y",
+ "vars": "initDone[0:1], ic[0:5], first[0:1], busy[0:1], uk[0:3], dv[-1:121], dk[0:4], rc[0:5], expB[0:1], wRejBolus[0:1], bolusDone[0:1]",
+ "broadcast": [],
+ "formula": "E<> (Step.End && (wRejBolus == 1) && (bolusDone == 0))"
+}

@@ -3,7 +3,7 @@
 Note (2026-11-23): this is the earlier timing design that `docs/uppaal-plan.md`
 started from. PR 1 on `main` replaced its Lean code with `LeanAID/Time/`. Some names
 here, for example the module `Lift`, do not exist in the current code. See
-the entry "Rebase onto main" in `docs/LOG.md`.
+"Provenance" in `uppaal/README.md`.
 
 Status: plan, nothing in this file is proved yet. Written 2026-11-19, revised the same
 day after an adversarial review. The review and the changes are listed in

@@ -128,7 +128,7 @@ on the branch and passes its check, tick the box. Otherwise leave it open.
 |---|---|
 | call | a Lean theorem about one call of `determineBasal` or `LeanAID.step`, checked by `lake build` with no `sorry` |
 | run | a Lean theorem about every legal run of the T2 model (`LeanAID/Time/`), checked the same way |
-| UPPAAL | a query on the timed-automata model in `uppaal/` with its expected result in `uppaal/results.json`. The result is about the abstract model. The replays of U3a and U3b link model traces to T2 runs, but they are tests, not a proof that the result carries over |
+| UPPAAL | a query on the timed-automata model in `uppaal/` with its expected result in `uppaal/queries/results.json`. The result is about the abstract model. The replays of U3a and U3b link model traces to T2 runs, but they are tests, not a proof that the result carries over |
 
 Marks:
 

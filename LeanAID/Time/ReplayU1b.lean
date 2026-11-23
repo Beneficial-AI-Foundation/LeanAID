@@ -9,7 +9,7 @@ import LeanAID.Time.Delivery
 Work item U3b of `docs/uppaal-plan.md` replays the U1b traces, whose controller is the
 contract. The T2 run is built by `build`, so `LeanAID.step` computes every issued
 output. The projection gives, for each step, whether it has a reading and a positive
-user bolus, and for its cycle the issued fields as the codes of `uppaal/model.py` and
+user bolus, and for its cycle the issued fields as the codes of `uppaal/model/model.py` and
 the execution (`Replay.obsOf`). It also gives the checks of section 7 that the run is
 in R_U: `ValidRun` (`validRunB`, with `validRun_of_B`), BolusSeen (`bolusSeenB`), and the
 reading and interval conditions of section 3 (`readingsOkB`, `smbThreeB`).
@@ -21,7 +21,7 @@ namespace LeanAID.Time.Replay
 
 open LeanAID LeanAID.Time LeanAID.Proofs JsNum
 
-/-- The issued fields as the codes of `uppaal/model.py`: rate, duration kind and value,
+/-- The issued fields as the codes of `uppaal/model/model.py`: rate, duration kind and value,
     units. -/
 structure Issued where
   rc : Nat
@@ -60,7 +60,7 @@ def issuedOf (env : Env) (t : Int) (res : Result) : Issued :=
     uk := unitsCode res.units }
 
 /-- The representative rate of a rate class in the replay files: zero 0, low 1/2,
-    high 2 (`uppaal/replay.py`). Other codes keep the rate. -/
+    high 2 (`uppaal/replay/replay.py`). Other codes keep the rate. -/
 def classRate (code : Nat) (r : Rat) : Rat :=
   match code with
   | 3 => 0

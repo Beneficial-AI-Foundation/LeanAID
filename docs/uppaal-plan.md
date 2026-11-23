@@ -3,7 +3,7 @@
 Status: plan, nothing in this file is built or checked yet. Written 2026-11-19 and
 revised after nine reviews (section 10). Round 9 found no critical or major problem.
 
-Note (2026-11-23): all work items are done (see `docs/LOG.md`). After the rebase onto
+Note (2026-11-23): all work items are done (see `uppaal/README.md`). After the rebase onto
 `main`, the T2 model of section 3 is the run model in `LeanAID/Time/` on `main`, whose
 definitions are the same. The run theorems that this plan cites (`p1_faithful`,
 `p1_derived`, `p2_rate_bound`, `p3_temp_ok`, `p5_faithful`) are in
@@ -64,7 +64,7 @@ item has a source: a hypothesis of a Lean theorem, or a modelling choice.
 | `InvTemp env.init`: an initial temp has deadline at most 120 minutes after its start, 30 minutes for a positive rate | hypothesis | `temp_bound`, `p4b_fail_safe` |
 | the run has an origin t0, at or before its first step. A run with no steps also has one. An initial temp starts at or before t0 and has a rate ≥ 0. An initial temp whose deadline is at or before t0 counts as no temp | choice | `InvTemp` alone allows a start after t0, and `tempRate` then applies the temp before its start |
 | `InvRate B env.init`, `RateCap env B`, and `env.sched k ≤ B` for every k | hypothesis | `rate_envelope`, `p6_basal` |
-| BolusSeen: `lastBolusTime` of a cycle is at least the time of every earlier accepted microbolus and positive user bolus, including those earlier in the same step | assumption, not proved (F-25) | T5 handoff in `docs/LOG.md` |
+| BolusSeen: `lastBolusTime` of a cycle is at least the time of every earlier accepted microbolus and positive user bolus, including those earlier in the same step | assumption, not proved (F-25) | earlier timing design, `docs/timing-plan.md`. Proved on `main` by `Legal.bolusSeen` |
 | the schedule has one rate for the whole run, and the rate is positive. `ValidProfile (env.profileAt t)` holds for every t | choice | removes `profileAt` changes during a run. `ValidRun` says nothing on a run without cycles. With a zero schedule rate, `basalLookup` gives `none`, so `pcb` is NaN |
 | every reading is dated. Its recorded date and true time equal the time of its step, which is positive. Its value is finite and above 38 | choice | excludes F-11 and future readings. A recorded date of 0 is not truthy, so `getDateFromEntry` gives NaN for it |
 | two readings are at least 150 seconds apart | choice | If the rounded gap is below 2.5 minutes, `getLastGlucose` averages two readings. Then the status date is not a reading time. With this gap, the status date is the date of the newest reading |
@@ -396,7 +396,7 @@ expected and recorded, not a fault.
 
 ## 9. Work items
 
-Each item ends with a local commit. Results go to `docs/LOG.md`, findings to
+Each item ends with a local commit. Results go to `uppaal/README.md`, findings to
 `docs/FINDINGS.md`.
 
 U0. Tool rule. The maintainer changes `AGENTS.md` (section 2) and installs UPPAAL.
@@ -426,18 +426,18 @@ ages. A second lemma relates the age that `lastBolusAge` reports to the time sin
 real prior bolus, under BolusSeen. Add the `Controller`, `CGM` and `User` templates
 and the contract of section 5 in `uppaal/`. Add the P1, P3, P5-issued, P5-clock, P5-pair, P5-witness and P4b-30 queries with their witnesses and
 mutations, and the F-20 witness. A script
-`scripts/uppaal.sh` runs every query. It writes `uppaal/results.json`. The file
+`scripts/uppaal.sh` runs every query. It writes `uppaal/queries/results.json`. The file
 holds the repository revision and a dirty-tree flag. It also holds hashes of the model
 and query files, the parameters, the tool version and the command line. Each result is one of: holds,
 fails, reachable, unreachable, parse error, timeout, unsupported. If a result is not the expected one, the script exits non-zero.
 
 U2. Traces for illustration. Witness traces from `verifyta -t`. A Python script
-(standard library) renders each as an SVG timeline under `uppaal/traces/`.
+(standard library) renders each as an SVG timeline under `uppaal/traces/contract/`.
 
 U3. Replay of every trace of U1 and U2, as in section 7 level 2.
 
 U4. Munta run. Generate the Munta model, run the supported queries, compare with
-`uppaal/results.json`, and record every difference.
+`uppaal/queries/results.json`, and record every difference.
 
 U5. Extensions. Before any query, write the semantics of each extension:
 
@@ -456,7 +456,7 @@ U5b. A smaller pump for Munta. In U4, Munta timed out on every query that needs 
 U1a pump (122 locations, about 11,500 edges after lowering). Build a pump with fewer
 durations, in the way U4 reduced the durations of `nopump`, and state its relation to
 the U1a pump: which answers transfer, and why. Then run the pump queries in Munta and
-compare with `uppaal/results.json`. This item does not depend on U5. It uses the U1a
+compare with `uppaal/queries/results.json`. This item does not depend on U5. It uses the U1a
 pump, not the U5 extensions.
 
 U6. Documents:

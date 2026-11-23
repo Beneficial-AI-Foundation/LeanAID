@@ -1,72 +1,121 @@
-# UPPAAL abstraction of the T2 model
+# Timed-automata model of the pump and controller
 
-This directory holds the timed-automata model of `docs/uppaal-plan.md`. The model
-describes the T2 run model of `LeanAID/Time/System.lean` at the level of rate
-classes and whole-minute durations. UPPAAL checks queries on the model. A result
-is about the model. Section 7 of the plan describes how a result can carry over to
-T2 runs. That link is not built yet (see "Status").
+This folder holds a timed-automata model of the Lean run model (T2,
+`LeanAID/Time/System.lean`). The model describes the pump, the command channel, the
+loop steps, CGM readings and user boluses at the level of rate classes and
+whole-minute durations. UPPAAL checks queries on the model. Munta, a model checker
+that is verified in Isabelle, checks the queries a second time where it can. Lean
+replays the traces that UPPAAL finds as runs of the run model. The plan is
+`docs/uppaal-plan.md`.
 
-Research artifact. Nothing here is fit for dosing insulin.
+A result here is about the model. Section 7 of the plan says how a result carries
+over to runs of the run model. Research artifact. Nothing here is fit for dosing
+insulin.
 
-## Status
+## Folders
 
-| work item | content | status |
-|---|---|---|
-| U0b | Munta compatibility (`u0b/README.md`) | done |
-| U1a | `Step`, `Channel` and `Pump` with a free command choice | done: every query gives its expected result |
-| U1b | contract, `Controller`, `CGM`, `User`, Lean SMB lemma | done: every query gives its expected result |
-| U2 | SVG timelines of the witness traces and counterexamples (`traces/`) | done |
-| U3a | replay of the U1a traces on the T2 pump (`replay.py`, `../LeanAID/Conformance/UppaalReplay.lean`) | done |
-| U3b | replay of the U1b traces on legal T2 runs (`../LeanAID/Conformance/UppaalReplayU1b.lean`) | done, see "Replay on T2 (U3b)" |
-| U4 | Munta run (`u4/`) | done: Munta confirms 21 data-only queries, times out on the pump networks. See "Munta run (U4)" |
-| U5 | extensions: delayed execution, lost acknowledgement, two loops (`extensions.md`) | done: P4b and P5 on each extension. The failures are candidate findings, not T2 results. See "Extensions (U5)" |
-| U5b | Munta run of the pump queries on a reduced pump (`u4/results-u5b.json`) | done: Munta answers the nine pump queries without a clock, each equal to UPPAAL. See "Reduced pump (U5b)" |
-
-## How to run
-
-```bash
-scripts/uppaal.sh
-```
-
-The script runs `uppaal/check.py` with `verifyta` from `/opt/uppaal`. The
-environment variable `VERIFYTA` names another binary. `--only ID ...` runs some
-queries and does not write `results.json`. The script writes the models and query
-files to `out/`, which git ignores, and the results to `results.json`. If a result
-is not the expected one, the script exits with 1.
-
-`results.json` holds the run data: the repository revision, the tool version, the
-command line, the timeout and the parameters of the main model. It also
-holds a flag for uncommitted changes. The flag is set by a change to a tracked file
-anywhere in the repository, or by an untracked file under `uppaal/`. It
-also holds the SHA-256 sums of `model.py` and `check.py`. For each query, it holds
-the query text, the expected and actual status, the time, and the SHA-256 sums of
-the model and query files. It also holds the relation of the model to the main
-model, and what the result says about the main model. A mutation result is about
-the mutant only. An `A[]` query `holds` or `fails`. An `E<>` query is
-`reachable` or `unreachable`. The status `parse error` means that UPPAAL rejected
-the model or the query. The status `error` means any other run without exactly one
-answer. The status `unsupported` is used only by the Munta run of U4. The status `timeout` means 1800 s passed.
-
-## Files
-
-| file | content |
+| folder | content |
 |---|---|
-| `model.py` | the model as Python data, and a writer for UPPAAL XML |
-| `munta.py` | U4: the lowering for Munta, its reductions, and the Munta JSON writer |
-| `munta_order.sh` | U4: builds a diagnostic copy of Munta that prints its variable order |
-| `u4/` | work items U4 and U5b: `run_u4.py`, `results.json`, `results-u5b.json`, `test_lower.py`, and the networks of the two Munta findings |
-| `check.py` | the queries with their expected status, the runner and the `results.json` writer |
-| `results.json` | the results of the last full run |
-| `traces.py` | U2: writes a shortest trace and an SVG timeline for each witness and counterexample |
-| `traces/` | the traces, the timelines and `index.md` |
-| `extensions.md` | U5: the semantics of the extensions and their relation to the U1b model |
-| `traces/u5/` | U5: the traces of the extensions (`traces.py --u5`), not replayed in U3 |
-| `replay.py` | U3a: writes the Lean replay of the U1a traces, and `replay.json` |
-| `replay.json` | the replay result of each trace |
-| `u0b/` | work item U0b |
-| `../LeanAID/Time/SmbSpacing.lean` | the SMB lemmas of U1b, checked by `lake build` |
+| `model/` | `model.py`, the model as Python data with a writer for UPPAAL XML. `extensions.md`, the semantics of the extended models. `export.py` and `generated/`, the models as UPPAAL files |
+| `queries/` | `check.py`, every query with its expected result, and `results.json`, the results of the last full run |
+| `traces/` | `traces.py`, which draws traces. `contract/` and `extensions/`, the traces with an `index.md` each |
+| `replay/` | `replay.py`, which writes the Lean replay of the traces, and `replay.json` |
+| `munta/` | the second check with Munta: the translation (`translate.py`), the runner (`run_munta.py`), its tests and its results |
+| `munta/findings/` | the small networks behind the two Munta findings F-26 and F-27 |
+| `munta/compat/` | the Munta build, and the cases that compare Munta with UPPAAL |
 
-## The U1a model
+The Lean side is in `LeanAID/Time/SmbSpacing.lean` (the microbolus guard in
+milliseconds), `LeanAID/Time/Issued.lean` (the run theorems that the contract
+cites), `LeanAID/Time/Replay.lean` and `ReplayU1b.lean`, and the generated checks in
+`LeanAID/Conformance/UppaalReplay*.lean`.
+
+The plan numbers its work items U0 to U6. This README uses names instead:
+
+| plan | here |
+|---|---|
+| U0b | Munta build and comparison (`munta/compat/`) |
+| U1a | the pump model with a free controller |
+| U1b | the controller contract |
+| U2 | traces |
+| U3a, U3b | replay in Lean of the pump traces and of the contract traces |
+| U4 | second check with Munta |
+| U5 | extended models |
+| U5b | reduced pump for Munta |
+
+## How to look at the models
+
+The UPPAAL files are in `model/generated/`. Open one in the UPPAAL GUI
+(`/opt/uppaal/bin/uppaal`). Each file has a `.q` file next to it with the queries
+that run on it. The files hold the models without witness flags and without seeded
+mutations. The locations have grid coordinates only, so you can drag them into a
+better layout. Five files hold the main models:
+
+| file | what it is |
+|---|---|
+| `free.xml` | the pump, the channel and the loop steps, with a controller that can issue any command |
+| `contract.xml` | the controller follows the contract, with CGM readings and user boluses |
+| `relaxed.xml` | the contract model with a weaker duration rule, for the P4b queries |
+| `nopump.xml` | the contract model without the pump. It has the same controller runs, by an argument |
+| `nobolus.xml` | the contract model without boluses, for the F-20 witness |
+
+`generated/extensions/` holds the extended models, each as a pump part and a bolus
+part. After a change to `model.py`, run `python3 -I uppaal/model/export.py`.
+
+## How to read the traces
+
+Each `traces/*/index.md` lists the traces, with a link to each drawing. GitHub and a
+browser show the `.svg` files. A drawing is a timeline: one column for each time at
+which transitions happen, and one lane each for the run, CGM and user events, the
+issued command, the channel and the pump, and the errors. The section "Traces"
+below has the details. The `.trace` file next to each drawing is the trace as
+`verifyta -t1` prints it, as text. `replay.py` reads it.
+
+## How to rerun the checks
+
+Run each command from the repository root. Run every checker under the memory cap
+`systemd-run --user --scope -p MemoryMax=16G -p MemorySwapMax=0`.
+
+1. `lake build` checks the Lean theorems and the replay checks.
+2. `scripts/uppaal.sh` runs every UPPAAL query (about 15 minutes) and writes
+   `queries/results.json`. It needs UPPAAL 5.1 in `/opt/uppaal`, which has an academic
+   licence. The environment variable `VERIFYTA` names another binary.
+3. `python3 -I uppaal/traces/traces.py --verifyta PATH` draws the traces again.
+4. `python3 -I uppaal/replay/replay.py` writes the Lean replay files again and builds
+   them.
+5. `uppaal/munta/setup_munta.sh` and `uppaal/munta/munta_order.sh` build Munta. Then
+   `uppaal/munta/run_munta.py` runs the second check (see "Second check with Munta").
+
+`queries/results.json` holds the run data: the repository revision, the tool
+version, the command line, the timeout and the parameters of the main model. It
+also holds a flag for uncommitted changes. The flag is set by a change to a tracked
+file anywhere in the repository, or by an untracked file under `uppaal/`. It also
+holds the SHA-256 sums of `model.py` and `check.py`. For each query, it holds the
+query text, the expected and actual status, the time, and the SHA-256 sums of the
+model and query files. It also holds the relation of the model to the main model,
+and what the result says about the main model. A mutation result is about the
+mutant only. An `A[]` query `holds` or `fails`. An `E<>` query is `reachable` or
+`unreachable`. The status `parse error` means that UPPAAL rejected the model or the
+query. The status `error` means any other run without exactly one answer. The
+status `unsupported` is used only by the Munta runs. The status `timeout` means
+1800 s passed.
+
+## Provenance
+
+- UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075). Munta at commit `62cb1a4`, built by
+  `munta/setup_munta.sh`. `munta/compat/README.md` lists every version and checksum.
+- Codex reviewed each work item until it found no further problem, except the
+  second check with Munta. That review stopped after 15 rounds at the maintainer's
+  choice, because the later rounds found only inputs that the model never contains.
+  `munta/test_translate.py` keeps every counterexample of those rounds.
+- The branch was rebased onto `main` after PR 1, which replaced the earlier timing
+  code. The run model on `main` has the same definitions as the one the plan
+  abstracts, so the model and the replay stand. `LeanAID/Time/Issued.lean` keeps
+  the five run theorems that PR 1 removed and that the contract cites. The findings
+  of this work are F-25 to F-30 in `docs/FINDINGS.md`.
+- `munta/results.json` and `munta/results-reduced-pump.json` record the commits of
+  their runs, from before the rebase and the move into these folders.
+
+## The pump model with a free controller
 
 One model time unit is one second. T2 times are milliseconds. Durations are whole
 minutes. The model has two processes.
@@ -234,7 +283,7 @@ accepted command, so P4a also covers the initial temp (M-reject-initial). The de
 edge for every issued command. `Ex` is committed, so a command without an edge
 blocks time (M-missing-reject).
 
-## The U1b model
+## The controller contract
 
 U1b adds the controller side to the U1a model (`build(contract=True)`). The
 section numbers below are those of `docs/uppaal-plan.md`.
@@ -316,7 +365,7 @@ The witnesses F-20, `prerun-w-t0` and `prerun-w-old` run on the full contract
 model. Breadth-first search finds the pre-run witnesses at once. Depth-first
 search finds F-20.
 
-### U1b queries
+### Queries of the contract model
 
 `fresh` is `hasReading == 1 && age < 723`. `SPACING` is 183 s.
 
@@ -343,15 +392,15 @@ search finds F-20.
 | F-20 | witness | contract | a zero temp of 120 minutes from a cycle still runs 7199 s after the close | reachable |
 | prerun-w-t0, prerun-w-old | witness | contract | at t0 a temp starts and the pre-run bolus was 3600 s before; at t0 an old temp runs and the last bolus was recent | reachable |
 
-## Traces (U2)
+## Traces
 
 ```bash
-python3 -I uppaal/traces.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh
+python3 -I uppaal/traces/traces.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh
 ```
 
 For every query whose expected status is `reachable` or `fails`, the script asks
 `verifyta -t1` for a shortest concrete trace. It writes the trace as verifyta prints
-it (`traces/ID.trace`) and a timeline (`traces/ID.svg`). `traces/index.md` lists the
+it (`traces/contract/ID.trace`) and a timeline (`traces/contract/ID.svg`). `traces/contract/index.md` lists the
 38 traces with the model and the SHA-256 sums of the model and query files.
 `--only ID ...` renders some traces and does not write the index.
 
@@ -376,10 +425,10 @@ The traces show the model and its variants, not T2 runs. A mutation trace shows 
 mutant. U3 replays the traces on T2. In the 38 traces, every delay is a whole
 number of seconds.
 
-## Replay on T2 (U3a)
+## Replay in Lean: pump traces
 
 ```bash
-python3 -I uppaal/replay.py
+python3 -I uppaal/replay/replay.py
 lake build LeanAID.Conformance.UppaalReplay
 ```
 
@@ -422,7 +471,7 @@ The runs are not legal runs: their results are given, not computed by
 `LeanAID.step`. The U1b traces are replayed in U3b, where the controller output must
 come from `LeanAID.step`.
 
-## Replay on T2 (U3b)
+## Replay in Lean: contract traces
 
 U1b traces come from the contract model, so their T2 runs must be legal: `build`
 makes each run from a script at the times of the trace, and `LeanAID.step` computes
@@ -491,19 +540,19 @@ legal run with `ValidRun` (BolusSeen as a hypothesis for P5), not on a search.
 A pre-run checkpoint before the initial temp starts is not compared: T2 has no pre-run
 phase, and `tempRate` applies an initial temp also before its start.
 
-## Munta run (U4)
+## Second check with Munta
 
 U4 checks the queries of `check.py` a second time with Munta, a model checker whose
-algorithm is verified in Isabelle (`u0b/README.md`). Run it after
-`u0b/setup_munta.sh` and `munta_order.sh`:
+algorithm is verified in Isabelle (`munta/compat/README.md`). Run it after
+`munta/setup_munta.sh` and `munta_order.sh`:
 
 ```bash
-python3 -I uppaal/u4/run_u4.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh \
+python3 -I uppaal/munta/run_munta.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh \
   --munta vendor/munta-build/munta.sh --order vendor/munta-order/munta.sh
 ```
 
-The script writes the networks to `u4/out/`, which git ignores, and the results to
-`u4/results.json`. Every checker run has the memory cap `MemoryMax=16G` and a
+The script writes the networks to `munta/out/`, which git ignores, and the results to
+`munta/results.json`. Every checker run has the memory cap `MemoryMax=16G` and a
 timeout of 1800 s. If a status is not the expected one, the script exits with 1.
 
 ### Which queries Munta can check
@@ -515,7 +564,7 @@ which reads `age`. The other queries read only integers and locations.
 
 ### From the UPPAAL model to a Munta network
 
-`munta.lower` writes a network with only the features that Munta accepts. Each step
+`translate.lower` writes a network with only the features that Munta accepts. Each step
 is meant to keep every answer, the deadlock answer included. The docstrings argue
 this under conditions that the code checks: if a condition fails, `lower` raises an
 error and writes no network. The argument is not proved.
@@ -525,7 +574,7 @@ guards and invariants with `&&`, `||`, parentheses, `true`, `false` and comparis
 of names, integers and `(name * integer)`; updates `x = k`, `x = y`, `x = x + k`, a
 clock reset and `x = (expression) ? x : k`; formulas with `!( … )`,
 `Template.Location` and `imply` in addition. All 58 query models are inside it.
-`u4/test_lower.py` keeps the counterexamples of the Codex review rounds, each
+`munta/findings/test_translate.py` keeps the counterexamples of the Codex review rounds, each
 of which `lower` must refuse or now handle. The other checked conditions
 include: the updates of an edge are independent (no assignment reads or writes a
 variable that an earlier one writes), the sender and the receiver of a
@@ -548,20 +597,20 @@ that stand alone. The steps:
   constant of each clock (finding F-27).
 
 The first lowered `nopump` network had 826,237 states in UPPAAL, and Munta ran out
-of memory on P1 after 225 s (`u4/p1_lowered_nopump.muntax`). Three reductions make
+of memory on P1 after 225 s (`munta/findings/p1_lowered_nopump.muntax`). Three reductions make
 the networks small. Each is a bisimulation, so it keeps every answer:
 
-- value classes (`munta.value_classes`): if a variable occurs only in atoms `x op c`
+- value classes (`translate.value_classes`): if a variable occurs only in atoms `x op c`
   and gets only constants or select values, two values that all atoms treat alike
   are equivalent. A select then takes one value per class. In `nopump`, the
   controller issues the whole durations 0, 30 and 31 instead of 0 and 30 to 120,
   because every guard and query treats 31 to 120 alike,
-- observer removal (`munta.drop_names`): `run_u4.py` removes the observer variables
+- observer removal (`translate.drop_names`): `run_munta.py` removes the observer variables
   and clocks that the query does not read (`BUNDLES`). The function checks that no
   other name depends on them, and that in each group of edges that differ only in
   the observer, the observer guards together cover every value. For P1 this removes
   5 of the 8 clocks, and the network has 14,379 states in UPPAAL,
-- channel splitting (`munta.split_channels`): the pump receives the duration as a
+- channel splitting (`translate.split_channels`): the pump receives the duration as a
   copy `dur = dv`. The channel `setTemp` becomes one channel for each duration value
   that a sender can send, so the receivers no longer copy.
 
@@ -575,7 +624,7 @@ A Munta answer counts only if three checks pass on the same lowered network (U0b
 the UPPAAL deadlock check, the Munta deadlock check, and UPPAAL `E<> false` without
 an error. `results.json` records each gate for each query.
 
-### U4 results
+### Munta results
 
 Run of 2026-11-20, UPPAAL 5.1.0-beta5, Munta at commit 62cb1a4. Of the 58 queries,
 Munta gives an answer for 21, times out on 3, is not run on 6, and cannot check 28.
@@ -601,7 +650,7 @@ P5-w-spaced, P5-w-early, M-P5-user-w, cgm-w, the two pre-run witnesses, and the
 On the three `free` networks that Munta ran, the Pump template has 122 locations and
 about 11,500 edges, because each duration has its own `Temp_d` location. Munta reaches its model
 checker on these networks and does not finish in 1800 s. `EXPECT_MUNTA` in
-`run_u4.py` records these three timeouts. After the first timeout, the script does
+`run_munta.py` records these three timeouts. After the first timeout, the script does
 not run the other pump queries, to save time. Their Pump templates also have one
 `Temp_d` location per duration (11,469 to 22,480 edges, more where an observer keeps
 complementary edges apart), but they differ. That these runs would also time out is
@@ -612,15 +661,15 @@ So the Munta run confirms the data-only queries of the `nopump` variant: P1, P3,
 P5-pair, `cgm` and the deadlock contract, their mutations and their witnesses. On the
 U1a pump it gives no result. U5b (below) gets the pump queries on a reduced pump.
 
-`run_u4.py --rescore` applies a changed `EXPECT_MUNTA` to `results.json` without a
+`run_munta.py --rescore` applies a changed `EXPECT_MUNTA` to `results.json` without a
 new run.
 
-### Reduced pump (U5b)
+### Reduced pump for Munta
 
 U5b runs the nine pump queries that Munta can check on a pump with fewer
 durations. The pump copies the issued duration into `dur` (`dur = dv`), so the
 value classes of U4 do not apply to `dv`, and the U1a pump has one location per
-duration. `munta.few_durations` (option `reduce_pump` of `lower`) keeps one value
+duration. `translate.few_durations` (option `reduce_pump` of `lower`) keeps one value
 of `dv` per class of the atoms on `dv`, plus the start value 0 and 120. In the U1a
 model the classes are -1, 0, 1..29, 30..120 and 121, so `dv` takes the values -1,
 0, 1, 30, 120 and 121. The pump then has the durations 30 and 120, the same as the
@@ -631,11 +680,11 @@ and 11,469 to 22,480 edges.
 Run it with the arguments of U4 and `--u5b`:
 
 ```bash
-python3 -I uppaal/u4/run_u4.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh \
+python3 -I uppaal/munta/run_munta.py --verifyta /opt/uppaal/lib/app/bin/verifyta.sh \
   --munta vendor/munta-build/munta.sh --order vendor/munta-order/munta.sh --u5b
 ```
 
-The script writes `u4/results-u5b.json`. It does not change `u4/results.json`
+The script writes `munta/results-reduced-pump.json`. It does not change `munta/results.json`
 and its 21 `nopump` answers. `--u5b` also works with `--rescore` and
 `--check-networks`.
 
@@ -643,7 +692,7 @@ The reduced network is a restriction of the U1a network, not an equivalent one.
 The select of `dv` loses edges, and the senders of `setTemp` get the conjunct that
 `dv` has a kept value. That conjunct is always true, because every other write of
 `dv` is a kept constant (checked). So every run of the reduced network is a run of
-the U1a network. Which answers transfer to the U1a network (`run_u4.transfer`):
+the U1a network. Which answers transfer to the U1a network (`run_munta.transfer`):
 
 - A reachable witness or a counterexample of an `A[] p` query transfers
   directly: it is a run of the U1a network. This covers P4a-w-cancel, collision,
@@ -671,7 +720,7 @@ the U1a network. Which answers transfer to the U1a network (`run_u4.transfer`):
 
 Run of 2026-11-22, same versions as U4, cap 16 GB, timeout 1800 s. All nine
 queries get a Munta answer, and each equals the UPPAAL answer on the same lowered
-network and in `uppaal/results.json`.
+network and in `uppaal/queries/results.json`.
 
 | query | Munta | gates | transfer to U1a | Munta time, memory, explored states |
 |---|---|---|---|---|
@@ -685,10 +734,10 @@ network and in `uppaal/results.json`.
 So eight pump answers count, and they transfer to the U1a pump: six directly, and
 `bolus` and `deadlock` by the argument above. M-missing-reject agrees with UPPAAL
 but does not count, because the mutant deadlocks, so its deadlock gates fail.
-`EXPECT_MUNTA_U5B` in `run_u4.py` records this. The pump queries that read a
+`EXPECT_MUNTA_U5B` in `run_munta.py` records this. The pump queries that read a
 clock (P4a, P4b and their witnesses and mutations) stay unsupported.
 
-## Extensions (U5)
+## Extended models
 
 `extensions.md` states the semantics of the three extensions and their relation
 to the U1b contract model. `build_ext` in `model.py` builds a pump part (for P4b)
@@ -710,7 +759,7 @@ less than 2 s, except P4b-120 and P4b-30 on the `lostack` pump part, which take
 Each result that holds has a witness for its trigger, and each extension has a
 witness that its new behavior is reachable. A trace of an extension is not a T2
 run, because T2 excludes these behaviors, so U3 does not replay it.
-`traces.py --u5` writes the traces to `traces/u5/`. The failures are candidate
+`traces.py --u5` writes the traces to `traces/extensions/`. The failures are candidate
 findings in `docs/FINDINGS.md` (F-28 to F-30). They wait for an extended T2 in
 Lean, and they can be spurious, because the contract allows more outputs than
 oref0 gives.
