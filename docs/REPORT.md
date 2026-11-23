@@ -18,7 +18,7 @@ the full experiment log is `docs/LOG.md`.
 | conformance on every in-scope call of oref0's tests | 148/148, all exact |
 | differential testing, 100,000 random valid inputs (seed 7) | 100,000 byte-identical to oref0 (100%). With exact rational arithmetic, before the binary64 model: 83.1%, and the rate differed in 82 cases (F-15) |
 | mutation testing | 24 mutations, all caught by the build. Strongest catch: a safety theorem's proof breaks in 4; only a supporting lemma breaks in 17 (downstream safety modules are then not built, so this does not show a safety property is violated); only concrete checks in 2; only conformance in 1 (re-run on the binary64 core). Specification gaps: H1 and H3 are relative to oref0's own maxSafeBasal and threshold |
-| binary | `aid-lean determine-basal` (same CLI and JSON as `oref0-determine-basal`), `aid-lean selftest`, `aid-lean batch` |
+| binary | `aid-lean determine-basal` (same CLI and JSON as `oref0-determine-basal`), `aid-lean selftest`, `aid-lean batch`, `aid-lean serve`, `aid-lean iob-batch` |
 
 ## Per milestone
 
@@ -86,6 +86,9 @@ node scripts/inventory.js && node scripts/tests_md.js
 node scripts/gen_conformance.js && node scripts/gen_test_theorems.js
 
 TZ=UTC node scripts/difftest/run.js 100000 7     # differential testing
+TZ=UTC node scripts/difftest/targeted.js         # hand-made determine-basal cases (docs/COVERAGE.md)
+TZ=UTC node scripts/difftest/iob.js 100000 1     # differential testing of IOB, meal history, basal lookup
+bash scripts/coverage/run.sh                     # branch coverage of oref0 (docs/COVERAGE.md)
 TZ=UTC node scripts/difftest/regress.js          # regression cases F-14, F-15
 python3 scripts/mutate.py                        # mutation testing
 node scripts/report.js                           # docs/numbers.json

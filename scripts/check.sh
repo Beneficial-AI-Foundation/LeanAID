@@ -7,7 +7,10 @@
 #   * any Lean source declares a new `axiom`;
 #   * the binary shell or core imports Mathlib;
 #   * a headline theorem depends on an axiom other than
-#     propext, Classical.choice, Quot.sound.
+#     propext, Classical.choice, Quot.sound;
+#   * a reproduction of F-04, F-11 or F-12 against vendor/oref0 does not give PRESENT;
+#   * a targeted differential case (scripts/difftest/targeted.jsonl, iob-targeted.jsonl)
+#     differs between oref0 and the built aid-lean.
 # It prints `#print axioms` for every theorem listed in scripts/headline.txt.
 set -u
 cd "$(dirname "$0")/.."
@@ -76,5 +79,18 @@ if [ -d vendor/oref0/lib ]; then
   fi
 else
   echo "check.sh: vendor/oref0 missing, finding reproductions skipped"
+fi
+# Targeted differential cases: oref0 against aid-lean on the hand-made inputs that reach the
+# branches the random difftests miss (docs/COVERAGE.md). No network, about 1 s.
+if [ -d vendor/oref0/lib ] && [ -x .lake/build/bin/aid-lean ]; then
+  for t in "scripts/difftest/targeted.js" "scripts/difftest/iob.js --file scripts/difftest/iob-targeted.jsonl"; do
+    out=$(TZ=UTC node $t 2>&1); rc=$?
+    echo "$out" | tail -1
+    if [ $rc -ne 0 ]; then
+      echo "$out"; echo "check.sh: targeted cases differ between oref0 and aid-lean ($t)"; exit 1
+    fi
+  done
+else
+  echo "check.sh: vendor/oref0 or .lake/build/bin/aid-lean missing, targeted cases skipped"
 fi
 echo "check.sh: OK"

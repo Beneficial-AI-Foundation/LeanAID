@@ -1,1548 +1,1170 @@
 {
- "generated": "2026-11-23T13:55:22.101Z",
+ "generated": "2026-11-23T19:57:30.956Z",
  "oref0": "vendor/oref0 (0.7.1)",
- "difftest": {
-  "cases": 100000,
-  "seed": 1
- },
+ "sources": [
+  {
+   "key": "oref0Tests",
+   "what": "oref0's own mocha suite (`tests/*.test.js`)"
+  },
+  {
+   "key": "difftest",
+   "what": "`scripts/difftest/run.js`, 100000 random determine-basal cases (seed 1), with ready-made IOB and meal data"
+  },
+  {
+   "key": "targeted",
+   "what": "`scripts/difftest/targeted.js`: the hand-made determine-basal cases of `scripts/difftest/targeted.jsonl`"
+  },
+  {
+   "key": "iobtest",
+   "what": "`scripts/difftest/iob.js`, 10000 random pump histories, carb histories and profiles (seed 1) and the hand-made cases of `scripts/difftest/iob-targeted.jsonl`, through lib/iob, lib/meal/history.js and basalLookup"
+  }
+ ],
  "files": {
   "basal-set-temp.js": {
    "modelled": true,
    "branches": 33,
-   "oref0Tests": 33,
-   "difftest": 32,
    "combined": 33,
-   "onlyOref0Tests": 1,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 33,
+    "difftest": 32,
+    "targeted": 16,
+    "iobtest": 0
+   },
    "missed": []
   },
   "bolus.js": {
    "modelled": false,
    "branches": 97,
-   "oref0Tests": 55,
-   "difftest": 0,
    "combined": 55,
-   "onlyOref0Tests": 55,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 55,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": null
+   },
    "missed": [
     {
      "line": 31,
      "type": "if",
      "outcome": 0,
-     "source": "if (!ev) { console.error('XXX', ev, remaining); return; }"
+     "source": "if (!ev) { console.error('XXX', ev, remaining); return; }",
+     "unreachable": false
     },
     {
      "line": 32,
      "type": "if",
      "outcome": 0,
-     "source": "if (ev._type === 'BolusWizard') {"
+     "source": "if (ev._type === 'BolusWizard') {",
+     "unreachable": false
     },
     {
      "line": 35,
      "type": "if",
      "outcome": 0,
-     "source": "if (ev.bg) {"
+     "source": "if (ev.bg) {",
+     "unreachable": false
     },
     {
      "line": 35,
      "type": "if",
      "outcome": 1,
-     "source": "if (ev.bg) {"
+     "source": "if (ev.bg) {",
+     "unreachable": false
     },
     {
      "line": 45,
      "type": "if",
      "outcome": 1,
-     "source": "if (ev._type === 'Bolus') {"
+     "source": "if (ev._type === 'Bolus') {",
+     "unreachable": false
     },
     {
      "line": 49,
      "type": "if",
      "outcome": 0,
-     "source": "if (ev.duration && ev.duration > 0) {"
+     "source": "if (ev.duration && ev.duration > 0) {",
+     "unreachable": false
     },
     {
      "line": 49,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (ev.duration && ev.duration > 0) {"
+     "source": "if (ev.duration && ev.duration > 0) {",
+     "unreachable": false
     },
     {
      "line": 62,
      "type": "if",
      "outcome": 0,
-     "source": "if (state.bolus && state.wizard) {"
+     "source": "if (state.bolus && state.wizard) {",
+     "unreachable": false
     },
     {
      "line": 73,
      "type": "cond-expr",
      "outcome": 0,
-     "source": "state.insulin = (state.insulin ? state.insulin : 0) + (state.square ? state.square.amount : 0) +"
+     "source": "state.insulin = (state.insulin ? state.insulin : 0) + (state.square ? state.square.amount : 0) +",
+     "unreachable": false
     },
     {
      "line": 73,
      "type": "cond-expr",
      "outcome": 0,
-     "source": "state.insulin = (state.insulin ? state.insulin : 0) + (state.square ? state.square.amount : 0) +"
+     "source": "state.insulin = (state.insulin ? state.insulin : 0) + (state.square ? state.square.amount : 0) +",
+     "unreachable": false
     },
     {
      "line": 74,
      "type": "cond-expr",
      "outcome": 1,
-     "source": "(state.bolus ? state.bolus.amount : 0);"
+     "source": "(state.bolus ? state.bolus.amount : 0);",
+     "unreachable": false
     },
     {
      "line": 76,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "var has_carbs = state.carbs && state.carbs > 0;"
+     "source": "var has_carbs = state.carbs && state.carbs > 0;",
+     "unreachable": false
     },
     {
      "line": 77,
      "type": "if",
      "outcome": 0,
-     "source": "if (state.square && state.bolus) {"
+     "source": "if (state.square && state.bolus) {",
+     "unreachable": false
     },
     {
      "line": 77,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (state.square && state.bolus) {"
+     "source": "if (state.square && state.bolus) {",
+     "unreachable": false
     },
     {
      "line": 79,
      "type": "if",
      "outcome": 0,
-     "source": "} else if (state.square && state.wizard) {"
+     "source": "} else if (state.square && state.wizard) {",
+     "unreachable": false
     },
     {
      "line": 79,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "} else if (state.square && state.wizard) {"
+     "source": "} else if (state.square && state.wizard) {",
+     "unreachable": false
     },
     {
      "line": 81,
      "type": "if",
      "outcome": 0,
-     "source": "} else if (state.square) {"
+     "source": "} else if (state.square) {",
+     "unreachable": false
     },
     {
      "line": 84,
      "type": "if",
      "outcome": 0,
-     "source": "} else if (state.bolus && state.wizard) {"
+     "source": "} else if (state.bolus && state.wizard) {",
+     "unreachable": false
     },
     {
      "line": 86,
      "type": "if",
      "outcome": 1,
-     "source": "} else if (state.bolus) {"
+     "source": "} else if (state.bolus) {",
+     "unreachable": false
     },
     {
      "line": 90,
      "type": "if",
      "outcome": 1,
-     "source": "if (has_insulin) {"
+     "source": "if (has_insulin) {",
+     "unreachable": false
     },
     {
      "line": 93,
      "type": "if",
      "outcome": 0,
-     "source": "if (fs.existsSync(iobFile)) {"
+     "source": "if (fs.existsSync(iobFile)) {",
+     "unreachable": false
     },
     {
      "line": 95,
      "type": "if",
      "outcome": 0,
-     "source": "if (iob && Array.isArray(iob) && iob.length) {"
+     "source": "if (iob && Array.isArray(iob) && iob.length) {",
+     "unreachable": false
     },
     {
      "line": 95,
      "type": "if",
      "outcome": 1,
-     "source": "if (iob && Array.isArray(iob) && iob.length) {"
+     "source": "if (iob && Array.isArray(iob) && iob.length) {",
+     "unreachable": false
     },
     {
      "line": 95,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if (iob && Array.isArray(iob) && iob.length) {"
+     "source": "if (iob && Array.isArray(iob) && iob.length) {",
+     "unreachable": false
     },
     {
      "line": 95,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (iob && Array.isArray(iob) && iob.length) {"
+     "source": "if (iob && Array.isArray(iob) && iob.length) {",
+     "unreachable": false
     },
     {
      "line": 95,
      "type": "binary-expr",
      "outcome": 2,
-     "source": "if (iob && Array.isArray(iob) && iob.length) {"
+     "source": "if (iob && Array.isArray(iob) && iob.length) {",
+     "unreachable": false
     },
     {
      "line": 101,
      "type": "if",
      "outcome": 1,
-     "source": "if (state.bolus) {"
+     "source": "if (state.bolus) {",
+     "unreachable": false
     },
     {
      "line": 106,
      "type": "if",
      "outcome": 0,
-     "source": "if (state.square) {"
+     "source": "if (state.square) {",
+     "unreachable": false
     },
     {
      "line": 111,
      "type": "if",
      "outcome": 0,
-     "source": "if (state.wizard) {"
+     "source": "if (state.wizard) {",
+     "unreachable": false
     },
     {
      "line": 120,
      "type": "if",
      "outcome": 0,
-     "source": "if (state.bg && state.bg > 0) {"
+     "source": "if (state.bg && state.bg > 0) {",
+     "unreachable": false
     },
     {
      "line": 120,
      "type": "if",
      "outcome": 1,
-     "source": "if (state.bg && state.bg > 0) {"
+     "source": "if (state.bg && state.bg > 0) {",
+     "unreachable": false
     },
     {
      "line": 120,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if (state.bg && state.bg > 0) {"
+     "source": "if (state.bg && state.bg > 0) {",
+     "unreachable": false
     },
     {
      "line": 120,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (state.bg && state.bg > 0) {"
+     "source": "if (state.bg && state.bg > 0) {",
+     "unreachable": false
     },
     {
      "line": 126,
      "type": "if",
      "outcome": 0,
-     "source": "if (has_carbs && has_insulin) {"
+     "source": "if (has_carbs && has_insulin) {",
+     "unreachable": false
     },
     {
      "line": 126,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (has_carbs && has_insulin) {"
+     "source": "if (has_carbs && has_insulin) {",
+     "unreachable": false
     },
     {
      "line": 129,
      "type": "if",
      "outcome": 0,
-     "source": "if (has_carbs && !has_insulin) {"
+     "source": "if (has_carbs && !has_insulin) {",
+     "unreachable": false
     },
     {
      "line": 129,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (has_carbs && !has_insulin) {"
+     "source": "if (has_carbs && !has_insulin) {",
+     "unreachable": false
     },
     {
      "line": 132,
      "type": "if",
      "outcome": 1,
-     "source": "if (!has_carbs && has_insulin) {"
+     "source": "if (!has_carbs && has_insulin) {",
+     "unreachable": false
     },
     {
      "line": 136,
      "type": "if",
      "outcome": 1,
-     "source": "if (state.notes && state.notes.length > 0) {"
+     "source": "if (state.notes && state.notes.length > 0) {",
+     "unreachable": false
     },
     {
      "line": 139,
      "type": "if",
      "outcome": 1,
-     "source": "if (state.insulin) {"
+     "source": "if (state.insulin) {",
+     "unreachable": false
     },
     {
      "line": 161,
      "type": "switch",
      "outcome": 2,
-     "source": "switch (current._type) {"
+     "source": "switch (current._type) {",
+     "unreachable": false
     },
     {
      "line": 161,
      "type": "switch",
      "outcome": 3,
-     "source": "switch (current._type) {"
+     "source": "switch (current._type) {",
+     "unreachable": false
     }
    ]
   },
   "determine-basal/determine-basal.js": {
    "modelled": true,
    "branches": 474,
-   "oref0Tests": 221,
-   "difftest": 455,
-   "combined": 464,
-   "onlyOref0Tests": 9,
-   "onlyDifftest": 243,
+   "combined": 473,
+   "by": {
+    "oref0Tests": 221,
+    "difftest": 455,
+    "targeted": 331,
+    "iobtest": 0
+   },
    "missed": [
-    {
-     "line": 83,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (meal_data.bwCarbs) {"
-    },
-    {
-     "line": 94,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (meal_data.bwCarbs) {"
-    },
-    {
-     "line": 179,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (glucose_status.device == \"fakecgm\") {"
-    },
-    {
-     "line": 191,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ( glucose_status.last_cal && glucose_status.last_cal < 3 ) {"
-    },
-    {
-     "line": 191,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "if ( glucose_status.last_cal && glucose_status.last_cal < 3 ) {"
-    },
-    {
-     "line": 268,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (c * (c + target_bg-normalTarget) <= 0.0) {"
-    },
-    {
-     "line": 361,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (typeof iob_data.activity === 'undefined' || typeof iob_data.iob === 'undefined' ) {"
-    },
-    {
-     "line": 419,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (typeof eventualBG === 'undefined' || isNaN(eventualBG)) {"
-    },
-    {
-     "line": 898,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ( meal_data.reason == \"Could not parse clock data\" ) {"
-    },
     {
      "line": 1011,
      "type": "if",
      "outcome": 0,
-     "source": "if (glucose_status.delta < minDelta) {"
+     "source": "if (glucose_status.delta < minDelta) {",
+     "unreachable": true
     }
    ]
   },
   "glucose-get-last.js": {
    "modelled": true,
    "branches": 44,
-   "oref0Tests": 40,
-   "difftest": 32,
-   "combined": 40,
-   "onlyOref0Tests": 8,
-   "onlyDifftest": 0,
+   "combined": 42,
+   "by": {
+    "oref0Tests": 40,
+    "difftest": 32,
+    "targeted": 37,
+    "iobtest": 0
+   },
    "missed": [
     {
      "line": 11,
      "type": "if",
      "outcome": 1,
-     "source": "if ( obj.glucose !== null ) {"
-    },
-    {
-     "line": 27,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (typeof data[i] !== 'undefined' && data[i].type === \"cal\") {"
-    },
-    {
-     "line": 32,
-     "type": "if",
-     "outcome": 1,
-     "source": "if (typeof data[i] !== 'undefined' && data[i].glucose > 38 && data[i].device === now.device) {"
+     "source": "if ( obj.glucose !== null ) {",
+     "unreachable": true
     },
     {
      "line": 37,
      "type": "if",
      "outcome": 1,
-     "source": "if (typeof then_date !== 'undefined' && typeof now_date !== 'undefined') {"
+     "source": "if (typeof then_date !== 'undefined' && typeof now_date !== 'undefined') {",
+     "unreachable": true
     }
    ]
   },
   "iob/calculate.js": {
    "modelled": true,
    "branches": 32,
-   "oref0Tests": 21,
-   "difftest": 0,
-   "combined": 21,
-   "onlyOref0Tests": 21,
-   "onlyDifftest": 0,
+   "combined": 31,
+   "by": {
+    "oref0Tests": 21,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": 31
+   },
    "missed": [
     {
      "line": 17,
      "type": "if",
      "outcome": 0,
-     "source": "if (typeof time === 'undefined') {"
-    },
-    {
-     "line": 87,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (profile.useCustomPeakTime === true && profile.insulinPeakTime !== undefined) {"
-    },
-    {
-     "line": 87,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "if (profile.useCustomPeakTime === true && profile.insulinPeakTime !== undefined) {"
-    },
-    {
-     "line": 88,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ( profile.insulinPeakTime > 120 ) {"
-    },
-    {
-     "line": 88,
-     "type": "if",
-     "outcome": 1,
-     "source": "if ( profile.insulinPeakTime > 120 ) {"
-    },
-    {
-     "line": 91,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if ( profile.insulinPeakTime < 50 ) {"
-    },
-    {
-     "line": 91,
-     "type": "if",
-     "outcome": 1,
-     "source": "} else if ( profile.insulinPeakTime < 50 ) {"
-    },
-    {
-     "line": 100,
-     "type": "if",
-     "outcome": 1,
-     "source": "} else if ( profile.curve === \"ultra-rapid\" ) {"
-    },
-    {
-     "line": 102,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ( profile.insulinPeakTime > 100 ) {"
-    },
-    {
-     "line": 105,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if ( profile.insulinPeakTime < 35 ) {"
-    },
-    {
-     "line": 123,
-     "type": "if",
-     "outcome": 1,
-     "source": "if (minsAgo < end) {"
+     "source": "if (typeof time === 'undefined') {",
+     "unreachable": true
     }
    ]
   },
   "iob/history.js": {
    "modelled": true,
    "branches": 166,
-   "oref0Tests": 125,
-   "difftest": 0,
-   "combined": 125,
-   "onlyOref0Tests": 125,
-   "onlyDifftest": 0,
+   "combined": 162,
+   "by": {
+    "oref0Tests": 125,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": 162
+   },
    "missed": [
     {
      "line": 12,
      "type": "if",
      "outcome": 1,
-     "source": "if (splitter.type === 'recurring') {"
-    },
-    {
-     "line": 95,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ((currentEvent.date+currentEvent.duration*60*1000) < firstResumeDate) {"
+     "source": "if (splitter.type === 'recurring') {",
+     "unreachable": true
     },
     {
      "line": 105,
      "type": "if",
      "outcome": 0,
-     "source": "if (currentlySuspended && ((currentEvent.date+currentEvent.duration*60*1000) > lastSuspendTime)) {"
-    },
-    {
-     "line": 105,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "if (currentlySuspended && ((currentEvent.date+currentEvent.duration*60*1000) > lastSuspendTime)) {"
+     "source": "if (currentlySuspended && ((currentEvent.date+currentEvent.duration*60*1000) > lastSuspendTime)) {",
+     "unreachable": true
     },
     {
      "line": 106,
      "type": "if",
      "outcome": 0,
-     "source": "if (currentEvent.date > lastSuspendTime) {"
+     "source": "if (currentEvent.date > lastSuspendTime) {",
+     "unreachable": true
     },
     {
      "line": 106,
      "type": "if",
      "outcome": 1,
-     "source": "if (currentEvent.date > lastSuspendTime) {"
-    },
-    {
-     "line": 177,
-     "type": "if",
-     "outcome": 0,
-     "source": "if(inputs.history24) {"
-    },
-    {
-     "line": 222,
-     "type": "if",
-     "outcome": 1,
-     "source": "if (pumpResumes[j].date > pumpSuspends[i].date) {"
-    },
-    {
-     "line": 227,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ((j >= pumpResumes.length) && !currentlySuspended) {"
-    },
-    {
-     "line": 227,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "if ((j >= pumpResumes.length) && !currentlySuspended) {"
-    },
-    {
-     "line": 245,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (!suspendedPrior && !currentlySuspended && (pumpResumes.length !== pumpSuspends.length)) {"
-    },
-    {
-     "line": 247,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (suspendedPrior && !currentlySuspended && ((pumpResumes.length-1) !== pumpSuspends.length)) {"
-    },
-    {
-     "line": 249,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (!suspendedPrior && currentlySuspended && (pumpResumes.length !== (pumpSuspends.length-1))) {"
-    },
-    {
-     "line": 249,
-     "type": "binary-expr",
-     "outcome": 2,
-     "source": "} else if (!suspendedPrior && currentlySuspended && (pumpResumes.length !== (pumpSuspends.length-1))) {"
-    },
-    {
-     "line": 251,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (suspendedPrior && currentlySuspended && (pumpResumes.length !== pumpSuspends.length)) {"
-    },
-    {
-     "line": 251,
-     "type": "binary-expr",
-     "outcome": 2,
-     "source": "} else if (suspendedPrior && currentlySuspended && (pumpResumes.length !== pumpSuspends.length)) {"
-    },
-    {
-     "line": 255,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (i < (pumpSuspends.length-1)) {"
-    },
-    {
-     "line": 265,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (current.bolus && current.bolus._type === \"Bolus\") {"
-    },
-    {
-     "line": 265,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "if (current.bolus && current.bolus._type === \"Bolus\") {"
-    },
-    {
-     "line": 269,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (current.created_at) {"
-    },
-    {
-     "line": 287,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (temp.started_at > now) {"
-    },
-    {
-     "line": 295,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (current.eventType === \"Meal Bolus\" || current.eventType === \"Correction Bolus\" || current.eventType === \"Snac"
-    },
-    {
-     "line": 304,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (current.enteredBy === \"xdrip\") {"
-    },
-    {
-     "line": 311,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (current.enteredBy ===\"HAPP_App\" && current.insulin) {"
-    },
-    {
-     "line": 311,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "} else if (current.enteredBy ===\"HAPP_App\" && current.insulin) {"
-    },
-    {
-     "line": 318,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (current.eventType === \"Temp Basal\" && (current.enteredBy === \"HAPP_App\" || current.enteredBy === \"openaps://A"
-    },
-    {
-     "line": 318,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "} else if (current.eventType === \"Temp Basal\" && (current.enteredBy === \"HAPP_App\" || current.enteredBy === \"openaps://A"
-    },
-    {
-     "line": 318,
-     "type": "binary-expr",
-     "outcome": 2,
-     "source": "} else if (current.eventType === \"Temp Basal\" && (current.enteredBy === \"HAPP_App\" || current.enteredBy === \"openaps://A"
-    },
-    {
-     "line": 326,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (current.eventType === \"Temp Basal\") {"
-    },
-    {
-     "line": 332,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (typeof current.amount !== 'undefined') {"
-    },
-    {
-     "line": 332,
-     "type": "if",
-     "outcome": 1,
-     "source": "if (typeof current.amount !== 'undefined') {"
-    },
-    {
-     "line": 390,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (tempHistory[i+1].duration === null) {"
-    },
-    {
-     "line": 479,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (currentlySuspended) {"
-    },
-    {
-     "line": 525,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (typeof profile_data.min_bg !== 'undefined' && typeof profile_data.max_bg !== 'undefined') {"
-    },
-    {
-     "line": 525,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "if (typeof profile_data.min_bg !== 'undefined' && typeof profile_data.max_bg !== 'undefined') {"
-    },
-    {
-     "line": 535,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ( profile.half_basal_exercise_target ) {"
-    },
-    {
-     "line": 540,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ( profile.exercise_mode && profile.temptargetSet && target_bg >= normalTarget + 5 ) {"
-    },
-    {
-     "line": 540,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "if ( profile.exercise_mode && profile.temptargetSet && target_bg >= normalTarget + 5 ) {"
-    },
-    {
-     "line": 540,
-     "type": "binary-expr",
-     "outcome": 2,
-     "source": "if ( profile.exercise_mode && profile.temptargetSet && target_bg >= normalTarget + 5 ) {"
-    },
-    {
-     "line": 545,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (typeof autosens_data !== 'undefined' ) {"
-    },
-    {
-     "line": 549,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ( sensitivityRatio ) {"
+     "source": "if (currentEvent.date > lastSuspendTime) {",
+     "unreachable": true
     }
    ]
   },
   "iob/index.js": {
    "modelled": true,
    "branches": 18,
-   "oref0Tests": 14,
-   "difftest": 0,
-   "combined": 14,
-   "onlyOref0Tests": 14,
-   "onlyDifftest": 0,
+   "combined": 17,
+   "by": {
+    "oref0Tests": 14,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": 17
+   },
    "missed": [
     {
      "line": 10,
      "type": "if",
      "outcome": 1,
-     "source": "if (!treatments) {"
-    },
-    {
-     "line": 25,
-     "type": "if",
-     "outcome": 0,
-     "source": "if ( inputs.autosens ) {"
-    },
-    {
-     "line": 36,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (! /(Z|[+-][0-2][0-9]:?[034][05])+/.test(inputs.clock) ) {"
-    },
-    {
-     "line": 61,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (currentIOBOnly) {"
+     "source": "if (!treatments) {",
+     "unreachable": true
     }
    ]
   },
   "iob/total.js": {
    "modelled": true,
    "branches": 31,
-   "oref0Tests": 28,
-   "difftest": 0,
-   "combined": 28,
-   "onlyOref0Tests": 28,
-   "onlyDifftest": 0,
+   "combined": 30,
+   "by": {
+    "oref0Tests": 28,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": 30
+   },
    "missed": [
     {
      "line": 18,
      "type": "if",
      "outcome": 0,
-     "source": "if (!treatments) return {};"
-    },
-    {
-     "line": 24,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (dia < 3) {"
-    },
-    {
-     "line": 52,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (!(curve in curveDefaults)) {"
+     "source": "if (!treatments) return {};",
+     "unreachable": true
     }
    ]
   },
   "meal/history.js": {
    "modelled": true,
    "branches": 59,
-   "oref0Tests": 30,
-   "difftest": 0,
-   "combined": 30,
-   "onlyOref0Tests": 30,
-   "onlyDifftest": 0,
+   "combined": 58,
+   "by": {
+    "oref0Tests": 30,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": 58
+   },
    "missed": [
-    {
-     "line": 13,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (eDate > tMin && eDate < tMax) return true;"
-    },
-    {
-     "line": 55,
-     "type": "if",
-     "outcome": 1,
-     "source": "} else if (current._type === \"BolusWizard\" && current.timestamp) {"
-    },
-    {
-     "line": 60,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if ((current._type === \"Meal Bolus\" || current._type === \"Correction Bolus\" || current._type === \"Snack Bolus\" ||"
-    },
-    {
-     "line": 60,
-     "type": "if",
-     "outcome": 1,
-     "source": "} else if ((current._type === \"Meal Bolus\" || current._type === \"Correction Bolus\" || current._type === \"Snack Bolus\" ||"
-    },
-    {
-     "line": 60,
-     "type": "binary-expr",
-     "outcome": 0,
-     "source": "} else if ((current._type === \"Meal Bolus\" || current._type === \"Correction Bolus\" || current._type === \"Snack Bolus\" ||"
-    },
-    {
-     "line": 60,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "} else if ((current._type === \"Meal Bolus\" || current._type === \"Correction Bolus\" || current._type === \"Snack Bolus\" ||"
-    },
-    {
-     "line": 60,
-     "type": "binary-expr",
-     "outcome": 2,
-     "source": "} else if ((current._type === \"Meal Bolus\" || current._type === \"Correction Bolus\" || current._type === \"Snack Bolus\" ||"
-    },
-    {
-     "line": 60,
-     "type": "binary-expr",
-     "outcome": 3,
-     "source": "} else if ((current._type === \"Meal Bolus\" || current._type === \"Correction Bolus\" || current._type === \"Snack Bolus\" ||"
-    },
-    {
-     "line": 60,
-     "type": "binary-expr",
-     "outcome": 4,
-     "source": "} else if ((current._type === \"Meal Bolus\" || current._type === \"Correction Bolus\" || current._type === \"Snack Bolus\" ||"
-    },
-    {
-     "line": 60,
-     "type": "binary-expr",
-     "outcome": 5,
-     "source": "} else if ((current._type === \"Meal Bolus\" || current._type === \"Correction Bolus\" || current._type === \"Snack Bolus\" ||"
-    },
-    {
-     "line": 69,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (!arrayHasElementWithSameTimestampAndProperty(mealInputs,current.created_at,\"carbs\")) {"
-    },
-    {
-     "line": 69,
-     "type": "if",
-     "outcome": 1,
-     "source": "if (!arrayHasElementWithSameTimestampAndProperty(mealInputs,current.created_at,\"carbs\")) {"
-    },
-    {
-     "line": 74,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (current.enteredBy === \"xdrip\") {"
-    },
-    {
-     "line": 74,
-     "type": "if",
-     "outcome": 1,
-     "source": "} else if (current.enteredBy === \"xdrip\") {"
-    },
-    {
-     "line": 80,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (!arrayHasElementWithSameTimestampAndProperty(mealInputs,current.timestamp,\"carbs\")) {"
-    },
-    {
-     "line": 80,
-     "type": "if",
-     "outcome": 1,
-     "source": "if (!arrayHasElementWithSameTimestampAndProperty(mealInputs,current.timestamp,\"carbs\")) {"
-    },
-    {
-     "line": 85,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (current.carbs > 0) {"
-    },
-    {
-     "line": 85,
-     "type": "if",
-     "outcome": 1,
-     "source": "} else if (current.carbs > 0) {"
-    },
-    {
-     "line": 91,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (!arrayHasElementWithSameTimestampAndProperty(mealInputs,current.timestamp,\"carbs\")) {"
-    },
-    {
-     "line": 91,
-     "type": "if",
-     "outcome": 1,
-     "source": "if (!arrayHasElementWithSameTimestampAndProperty(mealInputs,current.timestamp,\"carbs\")) {"
-    },
-    {
-     "line": 96,
-     "type": "if",
-     "outcome": 0,
-     "source": "} else if (current._type === \"JournalEntryMealMarker\" && current.carb_input > 0 && current.timestamp) {"
-    },
-    {
-     "line": 96,
-     "type": "if",
-     "outcome": 1,
-     "source": "} else if (current._type === \"JournalEntryMealMarker\" && current.carb_input > 0 && current.timestamp) {"
-    },
-    {
-     "line": 96,
-     "type": "binary-expr",
-     "outcome": 0,
-     "source": "} else if (current._type === \"JournalEntryMealMarker\" && current.carb_input > 0 && current.timestamp) {"
-    },
-    {
-     "line": 96,
-     "type": "binary-expr",
-     "outcome": 1,
-     "source": "} else if (current._type === \"JournalEntryMealMarker\" && current.carb_input > 0 && current.timestamp) {"
-    },
-    {
-     "line": 96,
-     "type": "binary-expr",
-     "outcome": 2,
-     "source": "} else if (current._type === \"JournalEntryMealMarker\" && current.carb_input > 0 && current.timestamp) {"
-    },
-    {
-     "line": 101,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (!arrayHasElementWithSameTimestampAndProperty(mealInputs,current.timestamp,\"carbs\")) {"
-    },
-    {
-     "line": 101,
-     "type": "if",
-     "outcome": 1,
-     "source": "if (!arrayHasElementWithSameTimestampAndProperty(mealInputs,current.timestamp,\"carbs\")) {"
-    },
-    {
-     "line": 125,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (current.carb_input === 0) {"
-    },
     {
      "line": 128,
      "type": "if",
      "outcome": 1,
-     "source": "if (current.timestamp) {"
+     "source": "if (current.timestamp) {",
+     "unreachable": true
     }
    ]
   },
   "medtronic-clock.js": {
    "modelled": false,
    "branches": 0,
-   "oref0Tests": 0,
-   "difftest": 0,
    "combined": 0,
-   "onlyOref0Tests": 0,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 0,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": null
+   },
    "missed": []
   },
   "profile/basal.js": {
    "modelled": true,
    "branches": 8,
-   "oref0Tests": 6,
-   "difftest": 0,
-   "combined": 6,
-   "onlyOref0Tests": 6,
-   "onlyDifftest": 0,
-   "missed": [
-    {
-     "line": 10,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (typeof(now) === 'undefined') {"
-    },
-    {
-     "line": 16,
-     "type": "if",
-     "outcome": 0,
-     "source": "if (basalRate === 0) {"
-    }
-   ]
+   "combined": 8,
+   "by": {
+    "oref0Tests": 6,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": 8
+   },
+   "missed": []
   },
   "profile/carbs.js": {
    "modelled": false,
    "branches": 18,
-   "oref0Tests": 0,
-   "difftest": 0,
    "combined": 0,
-   "onlyOref0Tests": 0,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 0,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": null
+   },
    "missed": [
     {
      "line": 10,
      "type": "if",
      "outcome": 0,
-     "source": "if (typeof(carbratio_data) !== \"undefined\" && typeof(carbratio_data.schedule) !== \"undefined\") {"
+     "source": "if (typeof(carbratio_data) !== \"undefined\" && typeof(carbratio_data.schedule) !== \"undefined\") {",
+     "unreachable": false
     },
     {
      "line": 10,
      "type": "if",
      "outcome": 1,
-     "source": "if (typeof(carbratio_data) !== \"undefined\" && typeof(carbratio_data.schedule) !== \"undefined\") {"
+     "source": "if (typeof(carbratio_data) !== \"undefined\" && typeof(carbratio_data.schedule) !== \"undefined\") {",
+     "unreachable": false
     },
     {
      "line": 10,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if (typeof(carbratio_data) !== \"undefined\" && typeof(carbratio_data.schedule) !== \"undefined\") {"
+     "source": "if (typeof(carbratio_data) !== \"undefined\" && typeof(carbratio_data.schedule) !== \"undefined\") {",
+     "unreachable": false
     },
     {
      "line": 10,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (typeof(carbratio_data) !== \"undefined\" && typeof(carbratio_data.schedule) !== \"undefined\") {"
+     "source": "if (typeof(carbratio_data) !== \"undefined\" && typeof(carbratio_data.schedule) !== \"undefined\") {",
+     "unreachable": false
     },
     {
      "line": 12,
      "type": "if",
      "outcome": 0,
-     "source": "if ((carbratio_data.units === \"grams\") || (carbratio_data.units === \"exchanges\")) {"
+     "source": "if ((carbratio_data.units === \"grams\") || (carbratio_data.units === \"exchanges\")) {",
+     "unreachable": false
     },
     {
      "line": 12,
      "type": "if",
      "outcome": 1,
-     "source": "if ((carbratio_data.units === \"grams\") || (carbratio_data.units === \"exchanges\")) {"
+     "source": "if ((carbratio_data.units === \"grams\") || (carbratio_data.units === \"exchanges\")) {",
+     "unreachable": false
     },
     {
      "line": 12,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if ((carbratio_data.units === \"grams\") || (carbratio_data.units === \"exchanges\")) {"
+     "source": "if ((carbratio_data.units === \"grams\") || (carbratio_data.units === \"exchanges\")) {",
+     "unreachable": false
     },
     {
      "line": 12,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if ((carbratio_data.units === \"grams\") || (carbratio_data.units === \"exchanges\")) {"
+     "source": "if ((carbratio_data.units === \"grams\") || (carbratio_data.units === \"exchanges\")) {",
+     "unreachable": false
     },
     {
      "line": 17,
      "type": "if",
      "outcome": 0,
-     "source": "if ((now >= getTime(carbratio_data.schedule[i].offset)) && (now < getTime(carbratio_data.schedule[i + 1].offset))) {"
+     "source": "if ((now >= getTime(carbratio_data.schedule[i].offset)) && (now < getTime(carbratio_data.schedule[i + 1].offset))) {",
+     "unreachable": false
     },
     {
      "line": 17,
      "type": "if",
      "outcome": 1,
-     "source": "if ((now >= getTime(carbratio_data.schedule[i].offset)) && (now < getTime(carbratio_data.schedule[i + 1].offset))) {"
+     "source": "if ((now >= getTime(carbratio_data.schedule[i].offset)) && (now < getTime(carbratio_data.schedule[i + 1].offset))) {",
+     "unreachable": false
     },
     {
      "line": 17,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if ((now >= getTime(carbratio_data.schedule[i].offset)) && (now < getTime(carbratio_data.schedule[i + 1].offset))) {"
+     "source": "if ((now >= getTime(carbratio_data.schedule[i].offset)) && (now < getTime(carbratio_data.schedule[i + 1].offset))) {",
+     "unreachable": false
     },
     {
      "line": 17,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if ((now >= getTime(carbratio_data.schedule[i].offset)) && (now < getTime(carbratio_data.schedule[i + 1].offset))) {"
+     "source": "if ((now >= getTime(carbratio_data.schedule[i].offset)) && (now < getTime(carbratio_data.schedule[i + 1].offset))) {",
+     "unreachable": false
     },
     {
      "line": 20,
      "type": "if",
      "outcome": 0,
-     "source": "if (carbRatio < 3 || carbRatio > 150) {"
+     "source": "if (carbRatio < 3 || carbRatio > 150) {",
+     "unreachable": false
     },
     {
      "line": 20,
      "type": "if",
      "outcome": 1,
-     "source": "if (carbRatio < 3 || carbRatio > 150) {"
+     "source": "if (carbRatio < 3 || carbRatio > 150) {",
+     "unreachable": false
     },
     {
      "line": 20,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if (carbRatio < 3 || carbRatio > 150) {"
+     "source": "if (carbRatio < 3 || carbRatio > 150) {",
+     "unreachable": false
     },
     {
      "line": 20,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (carbRatio < 3 || carbRatio > 150) {"
+     "source": "if (carbRatio < 3 || carbRatio > 150) {",
+     "unreachable": false
     },
     {
      "line": 27,
      "type": "if",
      "outcome": 0,
-     "source": "if (carbratio_data.units === \"exchanges\") {"
+     "source": "if (carbratio_data.units === \"exchanges\") {",
+     "unreachable": false
     },
     {
      "line": 27,
      "type": "if",
      "outcome": 1,
-     "source": "if (carbratio_data.units === \"exchanges\") {"
+     "source": "if (carbratio_data.units === \"exchanges\") {",
+     "unreachable": false
     }
    ]
   },
   "profile/index.js": {
    "modelled": false,
    "branches": 20,
-   "oref0Tests": 2,
-   "difftest": 0,
    "combined": 2,
-   "onlyOref0Tests": 2,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 2,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": null
+   },
    "missed": [
     {
      "line": 107,
      "type": "cond-expr",
      "outcome": 0,
-     "source": "var profile = opts && opts.type ? opts : defaults( );"
+     "source": "var profile = opts && opts.type ? opts : defaults( );",
+     "unreachable": false
     },
     {
      "line": 107,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "var profile = opts && opts.type ? opts : defaults( );"
+     "source": "var profile = opts && opts.type ? opts : defaults( );",
+     "unreachable": false
     },
     {
      "line": 112,
      "type": "if",
      "outcome": 0,
-     "source": "if (inputs.hasOwnProperty(pref)) {"
+     "source": "if (inputs.hasOwnProperty(pref)) {",
+     "unreachable": false
     },
     {
      "line": 112,
      "type": "if",
      "outcome": 1,
-     "source": "if (inputs.hasOwnProperty(pref)) {"
+     "source": "if (inputs.hasOwnProperty(pref)) {",
+     "unreachable": false
     },
     {
      "line": 118,
      "type": "if",
      "outcome": 0,
-     "source": "if (inputs.settings.insulin_action_curve > 1) {"
+     "source": "if (inputs.settings.insulin_action_curve > 1) {",
+     "unreachable": false
     },
     {
      "line": 118,
      "type": "if",
      "outcome": 1,
-     "source": "if (inputs.settings.insulin_action_curve > 1) {"
+     "source": "if (inputs.settings.insulin_action_curve > 1) {",
+     "unreachable": false
     },
     {
      "line": 125,
      "type": "if",
      "outcome": 0,
-     "source": "if (inputs.model) {"
+     "source": "if (inputs.model) {",
+     "unreachable": false
     },
     {
      "line": 125,
      "type": "if",
      "outcome": 1,
-     "source": "if (inputs.model) {"
+     "source": "if (inputs.model) {",
+     "unreachable": false
     },
     {
      "line": 139,
      "type": "if",
      "outcome": 0,
-     "source": "if (profile.current_basal === 0) {"
+     "source": "if (profile.current_basal === 0) {",
+     "unreachable": false
     },
     {
      "line": 139,
      "type": "if",
      "outcome": 1,
-     "source": "if (profile.current_basal === 0) {"
+     "source": "if (profile.current_basal === 0) {",
+     "unreachable": false
     },
     {
      "line": 143,
      "type": "if",
      "outcome": 0,
-     "source": "if (profile.max_daily_basal === 0) {"
+     "source": "if (profile.max_daily_basal === 0) {",
+     "unreachable": false
     },
     {
      "line": 143,
      "type": "if",
      "outcome": 1,
-     "source": "if (profile.max_daily_basal === 0) {"
+     "source": "if (profile.max_daily_basal === 0) {",
+     "unreachable": false
     },
     {
      "line": 147,
      "type": "if",
      "outcome": 0,
-     "source": "if (profile.max_basal < 0.1) {"
+     "source": "if (profile.max_basal < 0.1) {",
+     "unreachable": false
     },
     {
      "line": 147,
      "type": "if",
      "outcome": 1,
-     "source": "if (profile.max_basal < 0.1) {"
+     "source": "if (profile.max_basal < 0.1) {",
+     "unreachable": false
     },
     {
      "line": 171,
      "type": "if",
      "outcome": 0,
-     "source": "if (profile.sens < 5) {"
+     "source": "if (profile.sens < 5) {",
+     "unreachable": false
     },
     {
      "line": 171,
      "type": "if",
      "outcome": 1,
-     "source": "if (profile.sens < 5) {"
+     "source": "if (profile.sens < 5) {",
+     "unreachable": false
     },
     {
      "line": 175,
      "type": "if",
      "outcome": 0,
-     "source": "if (typeof(inputs.carbratio) !== \"undefined\") {"
+     "source": "if (typeof(inputs.carbratio) !== \"undefined\") {",
+     "unreachable": false
     },
     {
      "line": 175,
      "type": "if",
      "outcome": 1,
-     "source": "if (typeof(inputs.carbratio) !== \"undefined\") {"
+     "source": "if (typeof(inputs.carbratio) !== \"undefined\") {",
+     "unreachable": false
     }
    ]
   },
   "profile/isf.js": {
    "modelled": false,
    "branches": 13,
-   "oref0Tests": 0,
-   "difftest": 0,
    "combined": 0,
-   "onlyOref0Tests": 0,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 0,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": null
+   },
    "missed": [
     {
      "line": 9,
      "type": "if",
      "outcome": 0,
-     "source": "if (typeof(timestamp) === 'undefined') {"
+     "source": "if (typeof(timestamp) === 'undefined') {",
+     "unreachable": false
     },
     {
      "line": 9,
      "type": "if",
      "outcome": 1,
-     "source": "if (typeof(timestamp) === 'undefined') {"
+     "source": "if (typeof(timestamp) === 'undefined') {",
+     "unreachable": false
     },
     {
      "line": 15,
      "type": "if",
      "outcome": 0,
-     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {"
+     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {",
+     "unreachable": false
     },
     {
      "line": 15,
      "type": "if",
      "outcome": 1,
-     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {"
+     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {",
+     "unreachable": false
     },
     {
      "line": 15,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {"
+     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {",
+     "unreachable": false
     },
     {
      "line": 15,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {"
+     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {",
+     "unreachable": false
     },
     {
      "line": 15,
      "type": "binary-expr",
      "outcome": 2,
-     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {"
+     "source": "if (lastResult && nowMinutes >= lastResult.offset && nowMinutes < lastResult.endOffset) {",
+     "unreachable": false
     },
     {
      "line": 23,
      "type": "if",
      "outcome": 0,
-     "source": "if (isf_data[0].offset !== 0) {"
+     "source": "if (isf_data[0].offset !== 0) {",
+     "unreachable": false
     },
     {
      "line": 23,
      "type": "if",
      "outcome": 1,
-     "source": "if (isf_data[0].offset !== 0) {"
+     "source": "if (isf_data[0].offset !== 0) {",
+     "unreachable": false
     },
     {
      "line": 32,
      "type": "if",
      "outcome": 0,
-     "source": "if (nowMinutes >= currentISF.offset && nowMinutes < nextISF.offset) {"
+     "source": "if (nowMinutes >= currentISF.offset && nowMinutes < nextISF.offset) {",
+     "unreachable": false
     },
     {
      "line": 32,
      "type": "if",
      "outcome": 1,
-     "source": "if (nowMinutes >= currentISF.offset && nowMinutes < nextISF.offset) {"
+     "source": "if (nowMinutes >= currentISF.offset && nowMinutes < nextISF.offset) {",
+     "unreachable": false
     },
     {
      "line": 32,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if (nowMinutes >= currentISF.offset && nowMinutes < nextISF.offset) {"
+     "source": "if (nowMinutes >= currentISF.offset && nowMinutes < nextISF.offset) {",
+     "unreachable": false
     },
     {
      "line": 32,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (nowMinutes >= currentISF.offset && nowMinutes < nextISF.offset) {"
+     "source": "if (nowMinutes >= currentISF.offset && nowMinutes < nextISF.offset) {",
+     "unreachable": false
     }
    ]
   },
   "profile/targets.js": {
    "modelled": false,
    "branches": 22,
-   "oref0Tests": 0,
-   "difftest": 0,
    "combined": 0,
-   "onlyOref0Tests": 0,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 0,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": null
+   },
    "missed": [
     {
      "line": 21,
      "type": "if",
      "outcome": 0,
-     "source": "if ((now >= getTime(bgtargets_data.targets[i].offset)) && (now < getTime(bgtargets_data.targets[i + 1].offset))) {"
+     "source": "if ((now >= getTime(bgtargets_data.targets[i].offset)) && (now < getTime(bgtargets_data.targets[i + 1].offset))) {",
+     "unreachable": false
     },
     {
      "line": 21,
      "type": "if",
      "outcome": 1,
-     "source": "if ((now >= getTime(bgtargets_data.targets[i].offset)) && (now < getTime(bgtargets_data.targets[i + 1].offset))) {"
+     "source": "if ((now >= getTime(bgtargets_data.targets[i].offset)) && (now < getTime(bgtargets_data.targets[i + 1].offset))) {",
+     "unreachable": false
     },
     {
      "line": 21,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if ((now >= getTime(bgtargets_data.targets[i].offset)) && (now < getTime(bgtargets_data.targets[i + 1].offset))) {"
+     "source": "if ((now >= getTime(bgtargets_data.targets[i].offset)) && (now < getTime(bgtargets_data.targets[i + 1].offset))) {",
+     "unreachable": false
     },
     {
      "line": 21,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if ((now >= getTime(bgtargets_data.targets[i].offset)) && (now < getTime(bgtargets_data.targets[i + 1].offset))) {"
+     "source": "if ((now >= getTime(bgtargets_data.targets[i].offset)) && (now < getTime(bgtargets_data.targets[i + 1].offset))) {",
+     "unreachable": false
     },
     {
      "line": 27,
      "type": "if",
      "outcome": 0,
-     "source": "if (profile.target_bg) {"
+     "source": "if (profile.target_bg) {",
+     "unreachable": false
     },
     {
      "line": 27,
      "type": "if",
      "outcome": 1,
-     "source": "if (profile.target_bg) {"
+     "source": "if (profile.target_bg) {",
+     "unreachable": false
     },
     {
      "line": 48,
      "type": "if",
      "outcome": 0,
-     "source": "if (now >= start && temptargets_data[i].duration === 0) {"
+     "source": "if (now >= start && temptargets_data[i].duration === 0) {",
+     "unreachable": false
     },
     {
      "line": 48,
      "type": "if",
      "outcome": 1,
-     "source": "if (now >= start && temptargets_data[i].duration === 0) {"
+     "source": "if (now >= start && temptargets_data[i].duration === 0) {",
+     "unreachable": false
     },
     {
      "line": 48,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "if (now >= start && temptargets_data[i].duration === 0) {"
+     "source": "if (now >= start && temptargets_data[i].duration === 0) {",
+     "unreachable": false
     },
     {
      "line": 48,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "if (now >= start && temptargets_data[i].duration === 0) {"
+     "source": "if (now >= start && temptargets_data[i].duration === 0) {",
+     "unreachable": false
     },
     {
      "line": 53,
      "type": "if",
      "outcome": 0,
-     "source": "} else if (! temptargets_data[i].targetBottom || ! temptargets_data[i].targetTop) {"
+     "source": "} else if (! temptargets_data[i].targetBottom || ! temptargets_data[i].targetTop) {",
+     "unreachable": false
     },
     {
      "line": 53,
      "type": "if",
      "outcome": 1,
-     "source": "} else if (! temptargets_data[i].targetBottom || ! temptargets_data[i].targetTop) {"
+     "source": "} else if (! temptargets_data[i].targetBottom || ! temptargets_data[i].targetTop) {",
+     "unreachable": false
     },
     {
      "line": 53,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "} else if (! temptargets_data[i].targetBottom || ! temptargets_data[i].targetTop) {"
+     "source": "} else if (! temptargets_data[i].targetBottom || ! temptargets_data[i].targetTop) {",
+     "unreachable": false
     },
     {
      "line": 53,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "} else if (! temptargets_data[i].targetBottom || ! temptargets_data[i].targetTop) {"
+     "source": "} else if (! temptargets_data[i].targetBottom || ! temptargets_data[i].targetTop) {",
+     "unreachable": false
     },
     {
      "line": 56,
      "type": "if",
      "outcome": 0,
-     "source": "} else if (now >= start && now < expires ) {"
+     "source": "} else if (now >= start && now < expires ) {",
+     "unreachable": false
     },
     {
      "line": 56,
      "type": "if",
      "outcome": 1,
-     "source": "} else if (now >= start && now < expires ) {"
+     "source": "} else if (now >= start && now < expires ) {",
+     "unreachable": false
     },
     {
      "line": 56,
      "type": "binary-expr",
      "outcome": 0,
-     "source": "} else if (now >= start && now < expires ) {"
+     "source": "} else if (now >= start && now < expires ) {",
+     "unreachable": false
     },
     {
      "line": 56,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "} else if (now >= start && now < expires ) {"
+     "source": "} else if (now >= start && now < expires ) {",
+     "unreachable": false
     },
     {
      "line": 72,
      "type": "if",
      "outcome": 0,
-     "source": "if ( target.high < 20 ) { target.high = target.high * 18; }"
+     "source": "if ( target.high < 20 ) { target.high = target.high * 18; }",
+     "unreachable": false
     },
     {
      "line": 72,
      "type": "if",
      "outcome": 1,
-     "source": "if ( target.high < 20 ) { target.high = target.high * 18; }"
+     "source": "if ( target.high < 20 ) { target.high = target.high * 18; }",
+     "unreachable": false
     },
     {
      "line": 73,
      "type": "if",
      "outcome": 0,
-     "source": "if ( target.low < 20 ) { target.low = target.low * 18; }"
+     "source": "if ( target.low < 20 ) { target.low = target.low * 18; }",
+     "unreachable": false
     },
     {
      "line": 73,
      "type": "if",
      "outcome": 1,
-     "source": "if ( target.low < 20 ) { target.low = target.low * 18; }"
+     "source": "if ( target.low < 20 ) { target.low = target.low * 18; }",
+     "unreachable": false
     }
    ]
   },
   "round-basal.js": {
    "modelled": true,
    "branches": 12,
-   "oref0Tests": 12,
-   "difftest": 11,
    "combined": 12,
-   "onlyOref0Tests": 1,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 12,
+    "difftest": 11,
+    "targeted": 8,
+    "iobtest": 0
+   },
    "missed": []
   },
   "with-raw-glucose.js": {
    "modelled": false,
    "branches": 41,
-   "oref0Tests": 32,
-   "difftest": 0,
    "combined": 32,
-   "onlyOref0Tests": 32,
-   "onlyDifftest": 0,
+   "by": {
+    "oref0Tests": 32,
+    "difftest": null,
+    "targeted": null,
+    "iobtest": null
+   },
    "missed": [
     {
      "line": 5,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "scale: parseFloat(cal.scale) || 0"
+     "source": "scale: parseFloat(cal.scale) || 0",
+     "unreachable": false
     },
     {
      "line": 6,
      "type": "binary-expr",
      "outcome": 1,
-     "source": ", intercept: parseFloat(cal.intercept) || 0"
+     "source": ", intercept: parseFloat(cal.intercept) || 0",
+     "unreachable": false
     },
     {
      "line": 7,
      "type": "binary-expr",
      "outcome": 1,
-     "source": ", slope: parseFloat(cal.slope) || 0"
+     "source": ", slope: parseFloat(cal.slope) || 0",
+     "unreachable": false
     },
     {
      "line": 18,
      "type": "if",
      "outcome": 0,
-     "source": "if ( entry.type === \"mbg\" || entry.type === \"cal\" ) {"
+     "source": "if ( entry.type === \"mbg\" || entry.type === \"cal\" ) {",
+     "unreachable": false
     },
     {
      "line": 23,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "entry.unfiltered = parseInt(entry.unfiltered) || 0;"
+     "source": "entry.unfiltered = parseInt(entry.unfiltered) || 0;",
+     "unreachable": false
     },
     {
      "line": 24,
      "type": "binary-expr",
      "outcome": 1,
-     "source": "entry.filtered = parseInt(entry.filtered) || 0;"
+     "source": "entry.filtered = parseInt(entry.filtered) || 0;",
+     "unreachable": false
     },
     {
      "line": 30,
      "type": "if",
      "outcome": 1,
-     "source": "if (cal && cal.valid) {"
+     "source": "if (cal && cal.valid) {",
+     "unreachable": false
     },
     {
      "line": 39,
      "type": "if",
      "outcome": 1,
-     "source": "if (entry.raw) {"
+     "source": "if (entry.raw) {",
+     "unreachable": false
     },
     {
      "line": 50,
      "type": "if",
      "outcome": 0,
-     "source": "} else if (! entry.noise) {"
+     "source": "} else if (! entry.noise) {",
+     "unreachable": false
     }
    ]
   }

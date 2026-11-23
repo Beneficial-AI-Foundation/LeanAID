@@ -828,3 +828,33 @@ branches the random cases miss. It also holds regression cases for the two error
   timestamps in `scripts/coverage/unreachable.json`.
 - `iob/index.js` line 10 (the `treatments` argument) is not transcribed. Only COB and
   autosens pass that argument.
+
+## Coverage report
+
+2026-11-23. `bash scripts/coverage/run.sh` (defaults: 100,000 determine-basal cases, seed 1;
+10,000 IOB cases, seed 1) took 2,058 s wall time (34 min). It has four sources: oref0's tests,
+`run.js`, `targeted.js`, and `iob.js` with `iob-targeted.jsonl`. `docs/COVERAGE.md`, combined
+branch coverage (before: oref0 tests + `run.js` only):
+
+| file | before | after |
+|---|--:|--:|
+| `basal-set-temp.js` | 33/33 | 33/33 |
+| `determine-basal.js` | 464/474 | 473/474 |
+| `glucose-get-last.js` | 40/44 | 42/44 |
+| `iob/calculate.js` | 21/32 | 31/32 |
+| `iob/history.js` | 125/166 | 162/166 |
+| `iob/index.js` | 14/18 | 17/18 |
+| `iob/total.js` | 28/31 | 30/31 |
+| `meal/history.js` | 30/59 | 58/59 |
+| `profile/basal.js` | 6/8 | 8/8 |
+| `round-basal.js` | 12/12 | 12/12 |
+
+The 11 branches no source reaches each have an argument with quoted lines in `docs/COVERAGE.md`
+(from `scripts/coverage/unreachable.json`). 10 are unreachable: `determine-basal.js` 1011;
+`glucose-get-last.js` 11 and 37; `iob/calculate.js` 17; `iob/total.js` 18; `iob/history.js`
+12, 105, and 106 (both outcomes); and `meal/history.js` 128. For the three Q7 branches the
+argument assumes ISO-8601 timestamps. The 11th, `iob/index.js` line 10 (the caller's
+`treatments` argument), is not part of the transcription. No branch is left open.
+`scripts/check.sh` now also runs the 20 targeted determine-basal cases and the 9 targeted IOB
+cases against the built `aid-lean` (no network; the whole of `check.sh` takes 4.4 s).
+`site/index.html` is unchanged.
