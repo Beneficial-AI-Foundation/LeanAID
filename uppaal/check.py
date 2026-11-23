@@ -2,7 +2,9 @@
 
 Each query has an expected status. If a status differs from it, the script exits
 with 1. Statuses: holds, fails (for A[] queries), reachable, unreachable (for E<>
-queries), error, timeout.
+queries), parse error (verifyta rejects the model or the query), error (any other
+run without exactly one answer), timeout. The plan's status "unsupported" is for
+the Munta run of U4.
 
 Usage: python3 -I uppaal/check.py --verifyta PATH [--only ID ...]
 """
@@ -92,18 +94,140 @@ QUERIES = [
 ]
 
 
-# How the model of a result relates to the main model, and what the result says
-# about the main model.
-RELATION = {
-    "pump": "the main model, with its self-loop on Step.Closed. A deadlock result "
-            "is about this model, not about a model without the self-loop",
-    "witness": "the main model plus witness flags that no guard reads. Its states, "
-               "with the flags removed, are the states of the main model, so a "
-               "reachable result transfers to the main model",
-    "mutation": "a mutant of the main model. The result is about the mutant only and "
-                "shows that the query detects the fault. A counterexample is not one "
-                "of the main model",
+# U1b: the contract model and its variants
+FRESH = f"((hasReading == 1) && (age < {M.FRESH_AGE}))"
+P1 = "A[] (err1 == 0)"
+P3 = "A[] (err3 == 0)"
+P5_ISSUED = "A[] (err5 == 0)"
+P5_CLOCK = "A[] ((busy == 0) imply ((sinceBolus - p5c) == 0))"
+P5_PAIR = "A[] (errPair == 0)"
+CGM_OK = f"A[] ((errRead == 0) && ((rdSeen == 1) imply (hasReading == 1)))"
+SOON = f"(Step.O3 && (uk >= 2) && (prior == 1) && (p5c < {M.SPACING}))"
+
+# (id, work item, kind, model, mutations, query, expected, what it shows, search)
+# Models: "free" (U1a), "contract" (the main U1b model), "nopump" and "relaxed"
+# (variants, see MODEL_RELATION). Search: "" (breadth first) or "dfs".
+QUERIES_U1B = [
+    ("P1", "U1b", "contract", "nopump", (), P1, "holds",
+     "an issued high rate or any issued units field comes with a fresh reading", ""),
+    ("P1-w-noread", "U1b", "witness", "nopump", (), "E<> (Step.Iss && (hasReading == 0))",
+     "reachable", "a cycle before the first reading", ""),
+    ("P1-w-inc", "U1b", "witness", "nopump", (),
+     f"E<> (Step.Iss && ((rc == 5) || (uk >= 1)) && {FRESH})", "reachable",
+     "an issued Increase with a fresh reading", ""),
+    ("M-P1-rejected-high", "U1b", "mutation", "nopump", ("p1_rejected_high",), P1, "fails",
+     "P1 fails if the controller issues a rejected high rate without a fresh reading", ""),
+    ("M-P1-nan-units", "U1b", "mutation", "nopump", ("p1_nan_units",), P1, "fails",
+     "P1 fails if the controller issues NaN or non-positive units without a fresh reading", ""),
+    ("M-P1-no-hasreading", "U1b", "mutation", "nopump", ("p1_no_hasreading",), P1, "fails",
+     "P1 fails if the freshness guard drops hasReading", ""),
+    ("P3", "U1b", "contract", "nopump", (), P3, "holds",
+     "every issued output satisfies TempOk on its finite fields", ""),
+    ("M-P3-positive-120", "U1b", "mutation", "nopump", ("p3_positive_120",), P3, "fails",
+     "P3 fails if the controller issues a positive temp of 120 minutes", ""),
+    ("P5-issued", "U1b", "contract", "nopump", (), P5_ISSUED, "holds",
+     f"issued finite units after a real prior bolus come at least {M.SPACING} s after it", ""),
+    ("P5-w-first", "U1b", "witness", "nopump", (),
+     "E<> (Step.O3 && (uk >= 2) && (prior == 0))", "reachable",
+     "issued finite units with no prior bolus", ""),
+    ("P5-w-spaced", "U1b", "witness", "nopump", (),
+     f"E<> (Step.O3 && (uk >= 2) && (prior == 1) && (p5c >= {M.SPACING}))", "reachable",
+     "issued finite units after a prior bolus, with enough spacing", ""),
+    ("P5-w-early", "U1b", "witness", "nopump", (),
+     f"E<> (Step.O3 && (uk == 0) && (prior == 1) && (p5c < {M.SPACING}))", "reachable",
+     "a cycle too early for a bolus issues no units (steps can be closer than the spacing)", ""),
+    ("M-P5-user", "U1b", "mutation", "nopump", ("p5_no_user_reset",), P5_ISSUED, "fails",
+     "P5-issued fails if the controller clock is not reset on a user bolus", ""),
+    ("M-P5-user-w", "U1b", "witness", "nopump", ("p5_no_user_reset",), f"E<> {SOON}",
+     "reachable", "in that mutant, finite units are issued too soon after a user bolus", ""),
+    ("P5-clock", "U1b", "contract", "nopump", (), P5_CLOCK, "holds",
+     "the controller clock equals the observer clock between steps", ""),
+    ("M-P5-clock", "U1b", "mutation", "nopump", ("p5_reset_on_lost",), P5_CLOCK, "fails",
+     "P5-clock fails if the controller clock is also reset on a lost or rejected command", ""),
+    ("P5-pair", "U1b", "contract", "nopump", (), P5_PAIR, "holds",
+     f"two accepted microboluses are at least {M.SPACING} s apart", ""),
+    ("P5-pair-w", "U1b", "witness", "nopump", (), "E<> (mb2 == 1)", "reachable",
+     "two accepted microboluses", "dfs"),
+    ("P5-w-bolus", "U1b", "witness", "nopump", (),
+     "E<> (Step.End && (bolusDone == 1) && (err5 == 0) && (errPair == 0))", "reachable",
+     "an accepted valid microbolus with no error", ""),
+    ("P5-w-user-cycle", "U1b", "witness", "nopump", (), "E<> (Step.O3 && (wUb == 1))",
+     "reachable", "a user bolus followed by a cycle in the same step", ""),
+    ("cgm", "U1b", "pump", "nopump", (), CGM_OK, "holds",
+     "every reading sets hasReading, and readings are at least 150 s apart by the "
+     "observer's own clock", ""),
+    ("cgm-w", "U1b", "witness", "nopump", (),
+     f"E<> (Step.R1 && (rdSeen == 1) && (rdc == 0) && (g == 0) && (first == 0))",
+     "reachable", "a reading in a step", ""),
+    ("M-cgm-first", "U1b", "mutation", "nopump", ("cgm_first_unrecorded",), CGM_OK, "fails",
+     "the query cgm fails if CGM can take the first reading without setting hasReading", ""),
+    ("deadlock-contract", "U1b", "pump", "nopump", (), "A[] (!deadlock)", "holds",
+     "no reachable state of the contract model is stuck", ""),
+    ("P4b-30", "U1b", "contract", "relaxed", (), P4B_30, "holds",
+     "1800 s after the close, no positive temp runs, under the duration rule of the contract", ""),
+    ("M-P4b-30", "U1b", "mutation", "relaxed", ("p3_positive_120",), P4B_30, "fails",
+     "P4b-30 fails if the controller issues a positive temp of 120 minutes", ""),
+    ("F-20", "U1b", "witness", "contract", (),
+     f"E<> (Step.Closed && (f20 == 1) && {EFF} && (tcls == 3) && (obs >= 7199))", "reachable",
+     "a zero temp of 120 minutes accepted from a cycle still runs 7199 s after the close", "dfs"),
+    ("prerun-w-t0", "U1b", "witness", "contract", (),
+     "E<> (Step.Idle && (first == 1) && (g == 0) && Pump.Temp && (Pump.y == 0) "
+     "&& (sinceBolus == 3600) && (preB == 1))", "reachable",
+     "at t0 a temp starts, and the last bolus was 3600 s before", ""),
+    ("prerun-w-old", "U1b", "witness", "contract", (),
+     "E<> (Step.Idle && (first == 1) && (g == 0) && Pump.Temp && (Pump.y >= 1700) "
+     "&& (sinceBolus <= 10) && (preB == 1))", "reachable",
+     "at t0 an old temp runs, and the last bolus was recent", ""),
+]
+
+# How the model of a result relates to the main model of its work item.
+MODEL_RELATION = {
+    "free": "the U1a model (Step and Pump with a free command choice), with its "
+            "self-loop on Step.Closed. A deadlock result is about this model, not "
+            "about a model without the self-loop",
+    "contract": "the main U1b model: the U1a model with Controller, CGM, User, the "
+                "contract and the issue observers",
+    "nopump": "the main U1b model without Pump and the P4a observer. Pump never "
+              "blocks Step: it has a receiving edge for every value of its guards, "
+              "and its expiry edge releases its invariant. So this variant has the "
+              "same runs, projected on its variables, and its results, the deadlock "
+              "result included, are taken for the main U1b model. This is an "
+              "argument, not a check",
+    "relaxed": "the U1a model with the command choice limited to the field domains "
+               "and TempOk of the contract, without the freshness and spacing guards. "
+               "Readings, user boluses and the issue observers change no pump "
+               "variable and block nothing, so on the pump, the P4a observer and the "
+               "close this variant has more behaviors than the main U1b model. An A[] "
+               "result that holds transfers to the main U1b model. A counterexample "
+               "does not",
 }
+KIND_NOTE = {
+    "witness": "Witness flags that no guard reads are added. A reachable result "
+               "transfers to the same model without them (for a mutant: to the mutant "
+               "only).",
+    "mutation": "A mutant: the result is about the mutant only and shows that the "
+                "query detects the fault. A counterexample is not one of the main model.",
+}
+
+
+def relation(model, kind, muts):
+    notes = [KIND_NOTE["mutation"]] if muts else []
+    if kind == "witness":
+        notes.append(KIND_NOTE["witness"])
+    return MODEL_RELATION[model] + ". " + " ".join(notes)
+
+
+def build(model, muts, wit):
+    if model == "free":
+        return M.build(muts, witnesses=wit)
+    if model == "relaxed":
+        return M.build(muts, witnesses=wit, relaxed=True)
+    m = M.build(muts, witnesses=wit, contract=True)
+    return M.without_pump(m) if model == "nopump" else m
+
+
+# every query: the U1a queries run on the free model with breadth-first search
+ALL = [(q[0], q[1], q[2], "free", *q[3:], "") for q in QUERIES] + QUERIES_U1B
 
 
 def sha256(p):
@@ -115,8 +239,12 @@ def git(*args):
                           text=True).stdout.strip()
 
 
-def verify(verifyta, xml, qfile):
-    cmd = [verifyta, "-q", str(xml), str(qfile)]
+def verify_cmd(verifyta, xml, qfile, search=""):
+    return [verifyta, "-q"] + (["-o", "1"] if search == "dfs" else []) + [str(xml), str(qfile)]
+
+
+def verify(verifyta, xml, qfile, search=""):
+    cmd = verify_cmd(verifyta, xml, qfile, search)
     t0 = time.monotonic()
     try:
         p = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT)
@@ -124,6 +252,9 @@ def verify(verifyta, xml, qfile):
         return "timeout", "", time.monotonic() - t0
     out = p.stdout + p.stderr
     sat, unsat = out.count("Formula is satisfied."), out.count("Formula is NOT satisfied.")
+    if sat + unsat == 0 and "[error]" in out:
+        # verifyta rejected the model or the query (syntax or type error)
+        return "parse error", out.strip()[-500:], time.monotonic() - t0
     if p.returncode != 0 or sat + unsat != 1 or "[error]" in out:
         return "error", out.strip()[-500:], time.monotonic() - t0
     return (sat == 1), "", time.monotonic() - t0
@@ -143,23 +274,23 @@ def main():
     ap.add_argument("--only", nargs="+", metavar="ID")
     args = ap.parse_args()
     if args.only:
-        unknown = sorted(set(args.only) - {q[0] for q in QUERIES})
+        unknown = sorted(set(args.only) - {q[0] for q in ALL})
         if unknown:
             ap.error(f"unknown query IDs: {' '.join(unknown)}")
     OUT.mkdir(exist_ok=True)
     version = subprocess.run([args.verifyta, "--version"], capture_output=True,
                              text=True).stdout.splitlines()[0]
     results, bad = [], 0
-    for (qid, item, kind, muts, query, expected, about) in QUERIES:
+    for (qid, item, kind, model, muts, query, expected, about, search) in ALL:
         if args.only and qid not in args.only:
             continue
         wit = kind == "witness"
-        name = "model" + "".join("." + m for m in muts) + (".witness" if wit else "")
+        name = model + "".join("." + m for m in muts) + (".witness" if wit else "")
         xml = OUT / f"{name}.xml"
-        M.write_uppaal(M.build(muts, witnesses=wit), xml)
+        M.write_uppaal(build(model, muts, wit), xml)
         qfile = OUT / f"{qid}.q"
         qfile.write_text(query + "\n")
-        answer, msg, secs = verify(args.verifyta, xml, qfile)
+        answer, msg, secs = verify(args.verifyta, xml, qfile, search)
         st = status(query, answer)
         ok = st == expected
         bad += not ok
@@ -168,7 +299,9 @@ def main():
                         "about": about, "query": query, "expected": expected,
                         "status": st, "ok": ok, "seconds": round(secs, 2), "message": msg,
                         "model": xml.name, "model_sha256": sha256(xml),
-                        "relation": RELATION[kind],
+                        "model_variant": model, "search": search or "breadth first",
+                        "relation": relation(model, kind, muts),
+                        "command": " ".join(verify_cmd("VERIFYTA", xml.name, qfile.name, search)),
                         "max_valid_duration": 121 if "no_duration_upper_bound" in muts else 120,
                         "query_sha256": sha256(qfile)})
     report = {
@@ -178,11 +311,15 @@ def main():
         "dirty": bool(git("status", "--porcelain", "--untracked-files=no", ":/")
                       or git("status", "--porcelain", "--", ".")),
         "tool": version,
-        "command": f"{args.verifyta} -q MODEL QUERY",
+        "verifyta": args.verifyta,
+        # each result has its own command line; VERIFYTA stands for the binary above
+        "command": "per result, in results[].command",
         "timeout_seconds": TIMEOUT,
         "base_parameters": {"time_unit": "1 s", "duration_unit": "1 min",
                             "issued_duration_values": "-1..121",
-                            "max_valid_duration": 120},
+                            "max_valid_duration": 120,
+                            "smb_spacing_s": M.SPACING, "fresh_age_s": M.FRESH_AGE,
+                            "reading_gap_s": M.READ_GAP},
         "generator_sha256": sha256(HERE / "model.py"),
         "checker_sha256": sha256(pathlib.Path(__file__)),
         "results": results,

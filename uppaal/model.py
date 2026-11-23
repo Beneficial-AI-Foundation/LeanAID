@@ -12,11 +12,14 @@ queries.
 Units: one model time unit is one second. Durations are whole minutes.
 
 Work item U1a builds the `Step`, `Channel` and `Pump` parts with a free command
-choice. The channel is part of the `Step` chain.
+choice (`build(contract=False)`). The channel is part of the `Step` chain. Work item
+U1b adds the `Controller`, `CGM` and `User` templates, the controller contract of
+section 5 and the observers of P1, P3 and P5 (`build(contract=True)`).
 
 Encodings of the issued fields (section 5 of the plan):
   rc  rate:      0 absent, 1 NaN, 2 negative, 3 zero, 4 low, 5 high
-  dk  duration:  0 absent, 1 NaN, 2 fraction, 3 whole (value in dv)
+  dk  duration:  0 absent, 1 NaN, 2 fraction in [30, 120], 3 whole (value in dv),
+                 4 fraction outside [30, 120]
   dv  duration value in whole minutes, -1..121 (0 when dk is not 3)
   uk  units:     0 absent, 1 NaN, 2 finite <= 0, 3 positive (a microbolus)
 """
@@ -40,7 +43,95 @@ MUTATIONS = {
                               "rejects for its duration",
     "reject_executes_bolus": "the pump executes the bolus of a command that it rejects "
                              "for its duration",
+    # U1b: mutations of the controller side only
+    "p1_rejected_high": "the controller issues a high rate without a fresh reading when "
+                        "the command is rejected (absent or NaN duration)",
+    "p1_nan_units": "the controller issues NaN or non-positive units without a fresh "
+                    "reading",
+    "p1_no_hasreading": "the controller's freshness guard drops `hasReading`",
+    "p3_positive_120": "the controller issues a positive temp of 120 minutes",
+    "p5_no_user_reset": "the controller clock `sinceBolus` is not reset on a user bolus",
+    "p5_reset_on_lost": "the controller clock `sinceBolus` is also reset on a lost or "
+                        "rejected command",
+    "cgm_first_unrecorded": "CGM can take the first reading on its edge for later "
+                            "readings, without setting `hasReading`",
 }
+
+SPACING = 183      # 60·I + 3 seconds for I = 3 (smb_guard_iff in LeanAID/Time/SmbSpacing.lean)
+FRESH_AGE = 723    # a reading is fresh below 723 s (p1_derived, section 4.1 of the plan)
+READ_GAP = 150     # readings are at least 150 s apart (R_U)
+
+
+def ranges_dnf(pred, r, d, v):
+    """A disjunction over (rate code, duration kind, duration value) that holds
+    exactly where `pred(rate, kind, value)` holds. The value matters only for kind 3;
+    for the other kinds it is 0."""
+    terms = []
+    for rr in range(6):
+        for dd in range(5):
+            if dd != 3:
+                if pred(rr, dd, 0):
+                    terms.append(f"(({r} == {rr}) && ({d} == {dd}))")
+                continue
+            vals = [x for x in range(-1, 122) if pred(rr, 3, x)]
+            while vals:
+                lo = hi = vals.pop(0)
+                while vals and vals[0] == hi + 1:
+                    hi = vals.pop(0)
+                terms.append(f"(({r} == {rr}) && ({d} == 3) && ({v} >= {lo}) && ({v} <= {hi}))")
+    assert terms
+    return "(" + " || ".join(terms) + ")"
+
+
+def ranges(pred):
+    """The (rate code, duration kind, lowest value, highest value) blocks where
+    `pred` holds, as in `ranges_dnf`."""
+    out = []
+    for rr in range(6):
+        for dd in range(5):
+            if dd != 3:
+                if pred(rr, dd, 0):
+                    out.append((rr, dd, 0, 0))
+                continue
+            vals = [x for x in range(-1, 122) if pred(rr, 3, x)]
+            while vals:
+                lo = hi = vals.pop(0)
+                while vals and vals[0] == hi + 1:
+                    hi = vals.pop(0)
+                out.append((rr, 3, lo, hi))
+    return out
+
+
+def contract_temp(r, k, v, positive_120=False):
+    """The temp part of the contract (section 5): no negative rate, a duration that is
+    absent, NaN, 0, whole in 30..120 or a fraction in [30, 120], and `TempOk` on the
+    finite fields. `positive_120` is the mutation p3_positive_120."""
+    if r == 2 or k == 4:
+        return False
+    if k == 3 and not (v == 0 or 30 <= v <= 120):
+        return False
+    if k in (2, 3) and r in (LOW, HIGH):
+        return (k == 3 and v in (0, 30)) or (positive_120 and k == 3 and v == 120)
+    return True
+
+
+def temp_ok_observer(r, k, v):
+    """The P3 observer's own copy of `TempOk` (LeanAID/Time/Duration.lean): a finite
+    duration d is 0 or in [30, 120]; with a finite rate r as well, d = 0, or
+    d in [30, 120] and r = 0, or d = 30 and r >= 0."""
+    if k in (0, 1):
+        return True
+    if k == 3:
+        d0, rng, d30 = v == 0, 30 <= v <= 120, v == 30
+    elif k == 2:
+        d0, rng, d30 = False, True, False
+    else:
+        d0, rng, d30 = False, False, False
+    if not (d0 or rng):
+        return False
+    if r in (0, 1):
+        return True
+    return d0 or (rng and r == ZERO) or (d30 and r >= ZERO)
 
 
 @dataclass
@@ -89,8 +180,14 @@ CLEAR = "rc = 0, dk = 0, dv = 0, uk = 0, expB = 0, bolusDone = 0"
 EFF_TEMP = "(Pump.Temp && (Pump.y < (dur * 60)))"   # the pump delivers the temp class
 
 
-def build(mutations=(), witnesses=False):
-    """The U1a model: Step (with channel and pump execution) and Pump.
+def build(mutations=(), witnesses=False, contract=False, relaxed=False):
+    """The model: Step (with channel and pump execution) and Pump, and with
+    `contract` also Controller, CGM, User and the observers of U1b.
+
+    With `relaxed` (and without `contract`), the free command choice is limited to
+    the field domains and `TempOk` of the contract, without the freshness and spacing
+    guards. This variant has more behaviors than the contract model on the pump, the
+    P4a observer and the close (see `RELATION` in check.py).
 
     With `witnesses`, edges also set the witness flags `w...`. The flags multiply
     the state space, so only the witness queries use them.
@@ -106,12 +203,13 @@ def build(mutations=(), witnesses=False):
         return ", ".join(parts)
 
     # the witness flag of a rejection holds for one step only
-    clear = CLEAR + (", wRejBolus = 0" if witnesses else "")
+    clear = CLEAR + (", wRejBolus = 0" if witnesses else "") + \
+        (", wUb = 0" if (witnesses and contract) else "")
 
     m = Model()
     m.decl += [
         "// issued fields of the last cycle (encodings in uppaal/model.py)",
-        "int[0,5] rc; int[0,3] dk; int[-1,121] dv; int[0,3] uk;",
+        "int[0,5] rc; int[0,4] dk; int[-1,121] dv; int[0,3] uk;",
         "// running temp of the pump: class and duration in minutes",
         "int[0,5] tcls; int[0,121] dur;",
         "// class of an initial temp (pre-run)",
@@ -136,13 +234,36 @@ def build(mutations=(), witnesses=False):
             "int[0,1] wNoSteps;    // the run closed at t0 without steps",
             "int[0,1] wCancel;     // an accepted cancel of a running temp",
         ]
+    if contract:
+        m.decl += [
+            "// CGM: a reading exists, clock since the last reading",
+            "int[0,1] hasReading; clock age;",
+            "// controller: clock since the last bolus it sees, no bolus in the history",
+            "clock sinceBolus; int[0,1] noBolus = 1;",
+            "int[0,1] preB;        // the pre-run bolus happened",
+            "// observers: latched errors",
+            "int[0,1] err1; int[0,1] err3; int[0,1] err5; int[0,1] errPair;",
+            "// P5 observer: a real prior bolus, its own clock since it",
+            "int[0,1] prior; clock p5c;",
+            "// P5-pair observer: an accepted microbolus happened, clock since it",
+            "int[0,1] mb1; clock pb;",
+            "// reading observer: a reading happened, clock since it, latched error",
+            "int[0,1] rdSeen; clock rdc; int[0,1] errRead;",
+            "chan read, ubolus, decide;",
+        ]
+        if witnesses:
+            m.decl += [
+                "int[0,1] wUb;         // a user bolus in this step",
+                "int[0,1] mb2;         // a second accepted microbolus",
+                "int[0,1] f20;         // the obligation is a zero temp of 120 min from a cycle",
+            ]
 
     # The five reasons of validate to reject a command (section 5 of the plan).
     # They can overlap; each is a separate edge with the same effect.
     reject = {
         "presence": "(((rc == 0) && (dk >= 1)) || ((rc >= 1) && (dk == 0)))",
         "nan": "((rc == 1) || (dk == 1) || (uk == 1))",
-        "duration": f"((dk == 2) || ((dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) "
+        "duration": f"((dk == 2) || (dk == 4) || ((dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) "
                     f"|| (dv > {upper}))))",
         "bolus": "(uk == 2)",
         "negative": "((rc == 2) && (dk >= 1))",
@@ -174,7 +295,7 @@ def build(mutations=(), witnesses=False):
             # phase 1 (readings, user boluses) is empty in U1a
             Edge("S1", "End"),                              # a step without a cycle
             # phase 2: free choice of the issued fields
-            Edge("S1", "Iss", select="r : int[0,5], d : int[0,3], v : int[-1,121], u : int[0,3]",
+            Edge("S1", "Iss", select="r : int[0,5], d : int[0,4], v : int[-1,121], u : int[0,3]",
                  guard="((d == 3) || (v == 0))",
                  update="rc = r, dk = d, dv = v, uk = u"),
             # phase 3: issue observation (observers come in U1b)
@@ -190,18 +311,42 @@ def build(mutations=(), witnesses=False):
     o_notemp = "((rc == 0) && (dk == 0))"
     o_cancel = "((rc >= 3) && (dk == 3) && (dv == 0))"
     o_temp = "((rc >= 3) && (dk == 3) && (dv >= 30) && (dv <= 120))"
-    o_bad_temp = ("(((rc == 0) && (dk >= 1)) || (rc == 1) || (rc == 2) || ((rc >= 3) && (dk <= 2)) "
+    o_bad_temp = ("(((rc == 0) && (dk >= 1)) || (rc == 1) || (rc == 2) "
+                  "|| ((rc >= 3) && ((dk <= 2) || (dk == 4))) "
                   "|| ((rc >= 3) && (dk == 3) && ((dv < 0) || ((dv >= 1) && (dv <= 29)) "
                   "|| (dv > 120))))")
     o_bad_bolus = "((uk == 1) || (uk == 2))"
+    def join(*parts):
+        return ", ".join(x for x in parts if x)
+
+    # U1b: an accepted valid microbolus sets `prior` and resets the clocks of the P5
+    # and P5-pair observers. The pair observer latches `errPair` if the previous one
+    # was less than SPACING seconds before.
+    pair = [("(mb1 == 0)", ""),
+            (f"((mb1 == 1) && (pb >= {SPACING}))", "mb2 = 1" if witnesses else ""),
+            (f"((mb1 == 1) && (pb < {SPACING}))", join("errPair = 1", "mb2 = 1" if witnesses else ""))]
+    # U1b witness model: `f20` marks an obligation of a zero temp of 120 minutes
+    f20 = {o_notemp: [("", "")],
+           o_cancel: [("", "f20 = 0")],
+           o_temp: [("((rc == 3) && (dv == 120))", "f20 = 1"),
+                    ("((rc >= 4) || (dv <= 119))", "f20 = 0")]}
     for tg, eff in ((o_notemp, ""), (o_cancel, f"oCls = {SCHED_OBLIGATION}, oDur = 0, o4 = 0"),
                     (o_temp, "oCls = rc, oDur = dv, o4 = 0")):
-        step.edges.append(Edge("Ch", "Ex", guard=f"({tg} && (uk == 0))", update=eff))
-        step.edges.append(Edge("Ch", "Ex", guard=f"({tg} && (uk == 3))",
-                               update=", ".join(x for x in (eff, "expB = 1") if x)))
+        fv = f20[tg] if (contract and witnesses) else [("", "")]
+        for fg, fu in fv:
+            g0 = f"({tg} && {fg})" if fg else tg
+            step.edges.append(Edge("Ch", "Ex", guard=f"({g0} && (uk == 0))", update=join(eff, fu)))
+            for pg, pu in (pair if contract else [("", "")]):
+                g3 = f"({g0} && (uk == 3) && {pg})" if pg else f"({g0} && (uk == 3))"
+                p5 = "p5c = 0, prior = 1, mb1 = 1, pb = 0" if contract else ""
+                step.edges.append(Edge("Ch", "Ex", guard=g3, update=join(eff, fu, "expB = 1", p5, pu)))
     step.edges.append(Edge("Ch", "Ex", guard=o_bad_temp))      # rejected: no effect
     step.edges.append(Edge("Ch", "Ex", guard=o_bad_bolus))
     # phase 5: pump execution
+    lost_reset = "sinceBolus = 0" if "p5_reset_on_lost" in mutations else ""
+    for e in step.edges:
+        if e.src == "Ch" and e.dst == "End":
+            e.update = join(e.update, lost_reset)
     for why, g in reject.items():
         if why == "bolus" and "missing_reject_bolus" in mutations:
             continue
@@ -209,10 +354,11 @@ def build(mutations=(), witnesses=False):
             bad = "bolusDone = 1" if "reject_executes_bolus" in mutations else ""
             rc_sync = "rejCancel!" if "reject_cancels_initial" in mutations else ""
             step.edges.append(Edge("Ex", "End", guard=f"({g} && (uk == 3))", sync=rc_sync,
-                                   update=w("wRejBolus", bad)))
-            step.edges.append(Edge("Ex", "End", guard=f"({g} && (uk <= 2))", sync=rc_sync))
+                                   update=join(w("wRejBolus", bad), lost_reset)))
+            step.edges.append(Edge("Ex", "End", guard=f"({g} && (uk <= 2))", sync=rc_sync,
+                                   update=lost_reset))
         else:
-            step.edges.append(Edge("Ex", "End", guard=g))
+            step.edges.append(Edge("Ex", "End", guard=g, update=lost_reset))
     # valid commands: no temp part, cancel, temp; each with or without a bolus
     valid_temp = f"({temp_ok_rate} && (dk == 3) && (dv >= 30) && (dv <= {upper}))"
     valid = [(f"((rc == 0) && (dk == 0))", ""),
@@ -223,8 +369,10 @@ def build(mutations=(), witnesses=False):
         valid += [(valid_temp, "setTemp!")]
     for vg, sync in valid:
         step.edges.append(Edge("Ex", "End", guard=f"({vg} && (uk == 0))", sync=sync))
+        # an accepted microbolus is in the history that the controller reads
         step.edges.append(Edge("Ex", "End", guard=f"({vg} && (uk == 3))", sync=sync,
-                               update="bolusDone = 1"))
+                               update=join("bolusDone = 1",
+                                           "sinceBolus = 0, noBolus = 0" if contract else "")))
     step.edges += [
         # the end of a step: continue, or close the run in the same chain
         # The issued fields are dead after execution; clearing them keeps the
@@ -278,8 +426,114 @@ def build(mutations=(), witnesses=False):
         pump.edges += [Edge("Temp", "Sched", guard="(pInit == 1)", sync="rejCancel?"),
                        Edge("Temp", "Temp", guard="(pInit == 0)", sync="rejCancel?"),
                        Edge("Sched", "Sched", sync="rejCancel?")]
+    if relaxed:
+        step.edges = [e for e in step.edges if not (e.src == "S1" and e.dst == "Iss")]
+        pos120 = "p3_positive_120" in mutations
+        for rr, dd, lo, hi in ranges(lambda r, k, v: contract_temp(r, k, v, pos120)):
+            sel = ([f"v : int[{lo},{hi}]"] if lo != hi else []) + ["u : int[0,3]"]
+            vv = "v" if lo != hi else str(lo)
+            step.edges.append(Edge("S1", "Iss", select=", ".join(sel),
+                                   update=f"rc = {rr}, dk = {dd}, dv = {vv}, uk = u"))
     m.templates = [step, pump]
+    if contract:
+        add_contract(m, step, mutations, witnesses)
     return m
+
+
+def add_contract(m, step, mutations, witnesses):
+    """U1b: phases 1 to 3 with CGM, User, Controller and the issue observers."""
+    def join(*parts):
+        return ", ".join(x for x in parts if x)
+
+    step.edges = [e for e in step.edges
+                  if not (e.src == "S1" or (e.src == "Iss" and e.dst == "Ch"))]
+    step.locs += [Loc(n, kind="committed") for n in ("R1", "U1", "O1", "O3")]
+    step.edges += [
+        # pre-run: the last bolus before the run, optional, at a time of its own
+        Edge("Pre", "Pre", guard="(preB == 0)",
+             update="preB = 1, sinceBolus = 0, noBolus = 0, p5c = 0, prior = 1"),
+        # phase 1: an optional reading, then an optional positive user bolus. A
+        # non-positive user bolus is a silent event, so it has no edge.
+        Edge("S1", "R1"),
+        # the reading observer checks the gap of 150 s on its own clock
+        Edge("S1", "R1", sync="read!", guard="(rdSeen == 0)", update="rdSeen = 1, rdc = 0"),
+        Edge("S1", "R1", sync="read!", guard=f"((rdSeen == 1) && (rdc >= {READ_GAP}))",
+             update="rdc = 0"),
+        Edge("S1", "R1", sync="read!", guard=f"((rdSeen == 1) && (rdc < {READ_GAP}))",
+             update="rdc = 0, errRead = 1"),
+        Edge("R1", "U1"),
+        Edge("R1", "U1", sync="ubolus!", update=join("p5c = 0, prior = 1",
+                                                     "wUb = 1" if witnesses else "")),
+        # a step without a cycle
+        Edge("U1", "End"),
+        # phase 2: the controller chooses the issued fields
+        Edge("U1", "Iss", sync="decide!"),
+    ]
+    # phase 3: the issue observers, each with its own copy of its predicate
+    trig = "((rc == 5) || (uk >= 1))"
+    ok3 = ranges_dnf(temp_ok_observer, "rc", "dk", "dv")
+    bad3 = ranges_dnf(lambda r, k, v: not temp_ok_observer(r, k, v), "rc", "dk", "dv")
+    step.edges += [
+        # P1: an issued high rate or any units field needs a fresh reading
+        Edge("Iss", "O1", guard="((rc <= 4) && (uk == 0))"),
+        Edge("Iss", "O1", guard=f"({trig} && (hasReading == 1) && (age < {FRESH_AGE}))"),
+        Edge("Iss", "O1", guard=f"({trig} && (hasReading == 0))", update="err1 = 1"),
+        Edge("Iss", "O1", guard=f"({trig} && (age >= {FRESH_AGE}))", update="err1 = 1"),
+        # P3: TempOk on the finite issued fields
+        Edge("O1", "O3", guard=ok3),
+        Edge("O1", "O3", guard=bad3, update="err3 = 1"),
+        # P5: finite units after a real prior bolus need its own clock >= SPACING
+        Edge("O3", "Ch", guard="(uk <= 1)"),
+        Edge("O3", "Ch", guard="((uk >= 2) && (prior == 0))"),
+        Edge("O3", "Ch", guard=f"((uk >= 2) && (prior == 1) && (p5c >= {SPACING}))"),
+        Edge("O3", "Ch", guard=f"((uk >= 2) && (prior == 1) && (p5c < {SPACING}))",
+             update="err5 = 1"),
+    ]
+
+    # Controller: the contract of section 5
+    blocks = ranges(lambda r, k, v: contract_temp(r, k, v, "p3_positive_120" in mutations))
+    fresh = (f"(age < {FRESH_AGE})" if "p1_no_hasreading" in mutations
+             else f"((hasReading == 1) && (age < {FRESH_AGE}))")
+    # The guards of P1 and P5 by units value, as (rate filter, units values, guard).
+    cases = [
+        ("nothigh", (0,), ""),
+        ("high", (0,), fresh),
+        ("any", (1,), fresh),
+        ("any", (2, 3), f"({fresh} && (noBolus == 1))"),
+        ("any", (2, 3), f"({fresh} && (sinceBolus >= {SPACING}))"),
+    ]
+    if "p1_rejected_high" in mutations:
+        cases.append(("high-rejected", (0,), ""))
+    if "p1_nan_units" in mutations:
+        cases += [("any", (1,), ""), ("any", (2,), "(noBolus == 1)"),
+                  ("any", (2,), f"(sinceBolus >= {SPACING})")]
+    # one edge for each block of the contract and each case, with a select over the
+    # duration values of the block only
+    edges = []
+    for rr, dd, lo, hi in blocks:
+        for filt, us, g in cases:
+            if (filt == "nothigh" and rr == HIGH) or (filt in ("high", "high-rejected") and rr != HIGH):
+                continue
+            if filt == "high-rejected" and dd > 1:      # absent or NaN duration: rejected
+                continue
+            sel = [f"v : int[{lo},{hi}]"] if lo != hi else []
+            if len(us) > 1:
+                sel.append(f"u : int[{us[0]},{us[-1]}]")
+            vv = "v" if lo != hi else str(lo)
+            uu = "u" if len(us) > 1 else str(us[0])
+            edges.append(Edge("C", "C", select=", ".join(sel), guard=g, sync="decide?",
+                              update=f"rc = {rr}, dk = {dd}, dv = {vv}, uk = {uu}"))
+    controller = Template("Controller", "C", locs=[Loc("C")], edges=edges)
+    cgm = Template("CGM", "G", locs=[Loc("G")], edges=[
+        Edge("G", "G", guard="(hasReading == 0)", sync="read?", update="age = 0, hasReading = 1"),
+        Edge("G", "G", guard=(f"(age >= {READ_GAP})" if "cgm_first_unrecorded" in mutations
+                              else f"((hasReading == 1) && (age >= {READ_GAP}))"),
+             sync="read?", update="age = 0"),
+    ])
+    user_reset = "noBolus = 0" if "p5_no_user_reset" in mutations else "sinceBolus = 0, noBolus = 0"
+    user = Template("User", "U", locs=[Loc("U")], edges=[
+        Edge("U", "U", sync="ubolus?", update=user_reset)])
+    m.templates += [controller, cgm, user]
 
 
 def write_uppaal(model, path):
@@ -313,3 +567,27 @@ def write_uppaal(model, path):
     out.append(f"<system>{escape(insts)}\nsystem {names};</system>")
     out.append("</nta>")
     path.write_text("\n".join(out) + "\n")
+
+
+PUMP_SYNCS = ("initTemp!", "setTemp!", "cancel!", "rejCancel!")
+P4_VARS = ("oCls", "oDur", "o4", "f20", "tcls", "dur")
+
+
+def without_pump(m):
+    """The variant of a contract model without `Pump` and without the P4a observer.
+
+    The pump never blocks `Step`: it has a receiving edge for every value of its
+    guards, and its invariant `y <= dur * 60` is released by the expiry edge, so time
+    never stops in `Pump`. The P4a observer only writes its own variables. So the
+    variant has the same runs as the main model, projected on the variables that
+    remain. The variant drops the sends to the pump and every assignment to a
+    variable that only the pump and the P4a observer read.
+    """
+    m.templates = [t for t in m.templates if t.name != "Pump"]
+    for t in m.templates:
+        for e in t.edges:
+            if e.sync in PUMP_SYNCS:
+                e.sync = ""
+            parts = [x.strip() for x in e.update.split(",") if x.strip()]
+            e.update = ", ".join(x for x in parts if x.split("=")[0].strip() not in P4_VARS)
+    return m
