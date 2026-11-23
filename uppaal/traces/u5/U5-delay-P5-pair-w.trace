@@ -1,0 +1,129 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/U5-delay-P5-pair-w.q:1
+ -- Formula is satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Queue.E Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 hasReading=0 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=0 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.Pre->Step.Idle { 1, tau, g := 0, first := 1 }
+State:
+( Step.Idle Queue.E Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=1 hasReading=0 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=0 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.Idle->Step.S1 { first == 1 || g > 0, tau, busy := 1, first := 0, g := 0 }
+State:
+( Step.S1 Queue.E Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=1 first=0 hasReading=0 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=0 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.S1->Step.R1 { 1, read!, 1 }
+  CGM.G->CGM.G { hasReading == 0, read?, age := 0, hasReading := 1 }
+State:
+( Step.R1 Queue.E Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=0 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.R1->Step.U1 { 1, tau, 1 }
+State:
+( Step.U1 Queue.E Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=0 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.U1->Step.Iss { 1, decide!, 1 }
+  Controller.C->Controller.C { hasReading == 1 && age < 723 && noBolus == 1, decide?, uk := 3 }
+State:
+( Step.Iss Queue.E Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=0 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.Iss->Step.O3 { uk >= 2 && prior == 0, tau, 1 }
+State:
+( Step.O3 Queue.E Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=0 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.O3->Step.Ch { 1, tau, 1 }
+State:
+( Step.Ch Queue.E Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=0 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.Ch->Step.End { 1, enq!, 1 }
+  Queue.E->Queue.A { 1, enq?, ca := 0, aU := uk }
+State:
+( Step.End Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Transition:
+  Step.End->Step.Idle { 1, tau, busy := 0, rc := 0, dk := 0, dv := 0, uk := 0 }
+State:
+( Step.Idle Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=0 age=0 sinceBolus=0 p5c=0 pb=0 Queue.ca=0 Queue.cb=0
+Delay: 1
+State:
+( Step.Idle Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=1 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=1
+Transition:
+  Step.Idle->Step.S1 { first == 1 || g > 0, tau, busy := 1, first := 0, g := 0 }
+State:
+( Step.S1 Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=1
+Transition:
+  Step.S1->Step.R1 { 1, tau, 1 }
+State:
+( Step.R1 Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=1
+Transition:
+  Step.R1->Step.U1 { 1, tau, 1 }
+State:
+( Step.U1 Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=1
+Transition:
+  Step.U1->Step.Iss { 1, decide!, 1 }
+  Controller.C->Controller.C { hasReading == 1 && age < 723 && noBolus == 1, decide?, uk := 3 }
+State:
+( Step.Iss Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=1
+Transition:
+  Step.Iss->Step.O3 { uk >= 2 && prior == 0, tau, 1 }
+State:
+( Step.O3 Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=1
+Transition:
+  Step.O3->Step.Ch { 1, tau, 1 }
+State:
+( Step.Ch Queue.A Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=0 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=1
+Transition:
+  Step.Ch->Step.End { 1, enq!, 1 }
+  Queue.A->Queue.AB { 1, enq?, cb := 0, bU := uk }
+State:
+( Step.End Queue.AB Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=3 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=0
+Transition:
+  Step.End->Step.Idle { 1, tau, busy := 0, rc := 0, dk := 0, dv := 0, uk := 0 }
+State:
+( Step.Idle Queue.AB Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=3 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=0
+Transition:
+  Queue.AB->Queue.XAB { 1, tau, busy := 1, uk := aU }
+State:
+( Step.Idle Queue.XAB Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=1 preB=0 err5=0 prior=0 errPair=0 mb1=0 mb2=0 Queue.aU=3 Queue.bU=3 g=0 age=1 sinceBolus=1 p5c=1 pb=1 Queue.ca=1 Queue.cb=0
+Transition:
+  Queue.XAB->Queue.YAB { uk == 3 && mb1 == 0, tau, sinceBolus := 0, noBolus := 0, p5c := 0, prior := 1, mb1 := 1, pb := 0, aU := 0 }
+State:
+( Step.Idle Queue.YAB Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=0 preB=0 err5=0 prior=1 errPair=0 mb1=1 mb2=0 Queue.aU=0 Queue.bU=3 g=0 age=1 sinceBolus=0 p5c=0 pb=0 Queue.ca=1 Queue.cb=0
+Transition:
+  Queue.YAB->Queue.B { 1, tau, busy := 0, rc := 0, dk := 0, dv := 0, uk := 0 }
+State:
+( Step.Idle Queue.B Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 hasReading=1 noBolus=0 preB=0 err5=0 prior=1 errPair=0 mb1=1 mb2=0 Queue.aU=0 Queue.bU=3 g=0 age=1 sinceBolus=0 p5c=0 pb=0 Queue.ca=1 Queue.cb=0
+Delay: 183
+State:
+( Step.Idle Queue.B Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 hasReading=1 noBolus=0 preB=0 err5=0 prior=1 errPair=0 mb1=1 mb2=0 Queue.aU=0 Queue.bU=3 g=183 age=184 sinceBolus=183 p5c=183 pb=183 Queue.ca=184 Queue.cb=183
+Transition:
+  Queue.B->Queue.XB { 1, tau, busy := 1, uk := bU }
+State:
+( Step.Idle Queue.XB Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=0 preB=0 err5=0 prior=1 errPair=0 mb1=1 mb2=0 Queue.aU=0 Queue.bU=3 g=183 age=184 sinceBolus=183 p5c=183 pb=183 Queue.ca=184 Queue.cb=183
+Transition:
+  Queue.XB->Queue.YB { uk == 3 && mb1 == 1 && pb >= 183, tau, sinceBolus := 0, noBolus := 0, p5c := 0, prior := 1, mb1 := 1, pb := 0, mb2 := 1, bU := 0 }
+State:
+( Step.Idle Queue.YB Controller.C CGM.G User.U )
+rc=0 dk=0 dv=0 uk=3 busy=1 first=0 hasReading=1 noBolus=0 preB=0 err5=0 prior=1 errPair=0 mb1=1 mb2=1 Queue.aU=0 Queue.bU=0 g=183 age=184 sinceBolus=0 p5c=0 pb=0 Queue.ca=184 Queue.cb=183

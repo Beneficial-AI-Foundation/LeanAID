@@ -505,3 +505,41 @@ without a reset of `x`. So Munta refuses the input; it gives no wrong answer. Wo
 a contradictory data atom and every clock at its largest constant. The loop never
 fires, so the behavior does not change, and UPPAAL checks the same network.
 `uppaal/u0b/README.md` records it as input limit 17.
+
+## Candidate findings from the extended models (U5, 2026-11-22, `uppaal/extensions.md`)
+
+F-25 to F-27 come from UPPAAL models that extend the abstraction with behaviors
+that T2 excludes. They are not results about T2 or about oref0. Each trace is a
+run of an extended model, not a T2 run, so U3 does not replay it. Each waits for
+an extended T2 in Lean. Each can be spurious, because the contract allows more
+outputs than oref0 gives. The traces are in `uppaal/traces/u5/`, and the results
+are in `uppaal/results.json` (IDs `U5-...`).
+
+### F-25 — With delayed execution, P4b and the SMB spacing fail (candidate, extended model)
+In the `delayed` model, an accepted command waits in a queue of 2 and executes at
+most 300 s after its step. P4b-120 and P4b-30 fail: in trace `U5-delay-P4b-120`,
+the last step at t0 issues a zero temp of 120 minutes and closes the run, and the
+temp starts at t0 + 300 s. So it still runs 7200 s after the close. With the bound
+shifted by the delay (7500 s and 2100 s), both queries hold on the model. P5-pair
+fails: in trace `U5-delay-P5-pair`, steps at 0 s and 1 s each issue a microbolus.
+The second decision does not see the first microbolus, because it has not
+executed yet. Both execute at 1 s. P5-issued still holds, because the guard and
+the observer read the same executed history.
+
+### F-26 — With lost acknowledgements, a retry repeats a microbolus (candidate, extended model)
+In the `lostack` model, a command can execute and lose its acknowledgement. A
+later step can retry it with the same identity, without a new decision. P5-pair
+fails: in trace `U5-ack-P5-pair`, a microbolus executes at 0 s with a lost
+acknowledgement, and its retry at 1 s executes again. P5-issued holds, because a
+retry is not a decision. With a pump that ignores a copy of a command that it
+executed (`lostack-dedup`), P5-pair holds. P4b-120 and P4b-30 hold on the `lostack`
+model, because retries happen only in steps, so nothing executes after the close.
+
+### F-27 — With two loops, a decision from an old snapshot breaks the SMB spacing (candidate, extended model)
+In the `twoloops` model, each loop takes its own snapshot, and its spacing guard
+reads the snapshot. P5-pair fails: in trace `U5-two-P5-pair`, loop 1 takes a
+snapshot at 0 s, the other loop issues a microbolus at 0.5 s, and loop 1 issues a
+microbolus at 1 s from its old snapshot. Both execute. P5-issued also fails
+(trace `U5-two-P5-issued`: a user bolus comes between the snapshot and the
+decision). P4b-120 and P4b-30 hold on the model, because each command executes in
+its own step.

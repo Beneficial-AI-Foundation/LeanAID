@@ -633,3 +633,247 @@ def without_boluses(m):
         if t.name == "Controller":
             t.edges = [e for e in t.edges if "uk = 0" in e.update]
     return m
+
+
+# ---------------------------------------------------------------- U5 extensions
+# The semantics are in uppaal/extensions.md. Each extension has a pump part (P4b)
+# and a bolus part (P5). `build` and the variants above are not changed.
+
+U5_EXTS = ("u5-base", "delayed", "lostack", "lostack-dedup", "twoloops")
+QUEUE_BOUND = 2    # delayed: the smallest bound at which a command waits behind another
+DMAX = 300         # delayed: a queued command executes at most 300 s after its issue
+# pump part: the issued temps as (rate class, lowest and highest whole minutes);
+# duration 0 is a cancel. These are all valid temps that the contract allows.
+U5_TEMPS = ((ZERO, 0, 0), (ZERO, 30, 120), (LOW, 30, 30), (HIGH, 30, 30))
+# The delayed pump part keeps two commands in the queue. With all 91 zero durations
+# the shifted P4b queries ran out of 16 GB (docs/LOG.md, U5), so it uses the
+# shortest and the longest zero temp only.
+U5_TEMPS_DELAYED = ((ZERO, 0, 0), (ZERO, 30, 30), (ZERO, 120, 120), (LOW, 30, 30), (HIGH, 30, 30))
+
+
+def _join(*parts):
+    return ", ".join(x for x in parts if x)
+
+
+def _ext_pump():
+    """The U1a pump without mutations and witness flags."""
+    return Template("Pump", "Sched", decl="clock y;",
+                    locs=[Loc("Sched"), Loc("Temp", inv="y <= (dur * 60)")],
+                    edges=[
+                        Edge("Sched", "Temp", guard="(ic == 3)", sync="initTemp?",
+                             update="y = 0, dur = 120, tcls = ic"),
+                        Edge("Sched", "Temp", guard="(ic >= 4)", sync="initTemp?",
+                             update="y = 0, dur = 30, tcls = ic"),
+                        Edge("Sched", "Temp", sync="setTemp?", update="y = 0, dur = dv, tcls = rc"),
+                        Edge("Temp", "Temp", sync="setTemp?", update="y = 0, dur = dv, tcls = rc"),
+                        Edge("Sched", "Sched", sync="cancel?"),
+                        Edge("Temp", "Sched", sync="cancel?"),
+                        Edge("Temp", "Sched", guard="(y >= (dur * 60))"),
+                    ])
+
+
+def _exec_cases(part, witnesses):
+    """The pump executing the current fields, as (guard, sync, update). In the bolus
+    part an executed microbolus is recorded in the history (`sinceBolus`,
+    `noBolus`) and seen by the P5 and P5-pair observers; units <= 0 are rejected."""
+    if part == "pump":
+        return [("(dv == 0)", "cancel!", ""), ("(dv >= 30)", "setTemp!", "")]
+    rec = "sinceBolus = 0, noBolus = 0, p5c = 0, prior = 1, mb1 = 1, pb = 0"
+    second = "mb2 = 1" if witnesses else ""
+    return [("(uk == 2)", "", ""),
+            ("((uk == 3) && (mb1 == 0))", "", rec),
+            (f"((uk == 3) && (mb1 == 1) && (pb >= {SPACING}))", "", _join(rec, second)),
+            (f"((uk == 3) && (mb1 == 1) && (pb < {SPACING}))", "", _join(rec, "errPair = 1", second))]
+
+
+def build_ext(ext, part, witnesses=False):
+    """The model of extension `ext` (one of U5_EXTS), part "pump" or "bolus"."""
+    if ext not in U5_EXTS or part not in ("pump", "bolus"):
+        raise ValueError(f"unknown extension {ext} {part}")
+    fresh = f"((hasReading == 1) && (age < {FRESH_AGE}))"
+    spaced = [f"({fresh} && (noBolus == 1))", f"({fresh} && (sinceBolus >= {SPACING}))"]
+    m = Model()
+    m.decl += [
+        "// issued fields of the current command (encodings in uppaal/model.py)",
+        "int[0,5] rc; int[0,4] dk; int[-1,121] dv; int[0,3] uk;",
+        "int[0,1] busy;        // inside a committed chain",
+        "int[0,1] first;       // the next step is the first one, allowed at t0",
+        "clock g;              // time since the start or the last step",
+    ]
+    clear = ["rc = 0, dk = 0, dv = 0, uk = 0"]
+    if part == "pump":
+        m.decl += [
+            "int[0,5] tcls; int[0,121] dur; int[0,5] ic; int[0,1] initDone;",
+            "clock obs;            // time since the close of the run",
+            "chan initTemp, setTemp, cancel;",
+        ]
+    else:
+        m.decl += [
+            "int[0,1] hasReading; clock age;",
+            "clock sinceBolus; int[0,1] noBolus = 1; int[0,1] preB;",
+            "int[0,1] err5; int[0,1] prior; clock p5c;      // P5-issued observer",
+            "int[0,1] errPair; int[0,1] mb1; clock pb;     // P5-pair observer",
+            "chan read, ubolus, decide;",
+        ]
+        if witnesses:
+            m.decl += ["int[0,1] mb2;         // a second executed microbolus"]
+
+    step = Template("Step", "Pre", locs=[Loc("Pre"), Loc("Idle"), Loc("Closed")], edges=[])
+    S = step.edges
+
+    def cl(*names):
+        step.locs.extend(Loc(n, kind="committed") for n in names)
+
+    cl("S1", "Iss", "Ch", "End")
+    S += [Edge("Pre", "Idle", update="g = 0, first = 1" + (", ic = 0" if part == "pump" else "")),
+          Edge("Idle", "S1", guard="((first == 1) || (g > 0))", update="busy = 1, first = 0, g = 0"),
+          Edge("Closed", "Closed")]
+    if part == "pump":
+        cl("PreC")
+        S += [Edge("Pre", "PreC", guard="(initDone == 0)", select="c : int[3,5]",
+                   update="ic = c, initDone = 1"),
+              Edge("PreC", "Pre", sync="initTemp!"),
+              Edge("Pre", "Closed", update="obs = 0, ic = 0")]
+        start = "S1"           # the location where a cycle starts
+    else:
+        cl("R1", "U1", "O3")
+        S += [Edge("Pre", "Pre", guard="(preB == 0)",
+                   update="preB = 1, sinceBolus = 0, noBolus = 0, p5c = 0, prior = 1"),
+              Edge("S1", "R1"), Edge("S1", "R1", sync="read!"),
+              Edge("R1", "U1"), Edge("R1", "U1", sync="ubolus!", update="p5c = 0, prior = 1"),
+              # no units: no command
+              Edge("Iss", "End", guard="(uk == 0)"),
+              # the P5-issued observer on issued finite units
+              Edge("Iss", "O3", guard="((uk >= 2) && (prior == 0))"),
+              Edge("Iss", "O3", guard=f"((uk >= 2) && (prior == 1) && (p5c >= {SPACING}))"),
+              Edge("Iss", "O3", guard=f"((uk >= 2) && (prior == 1) && (p5c < {SPACING}))",
+                   update="err5 = 1"),
+              Edge("O3", "Ch")]
+        start = "U1"
+    S.append(Edge(start, "End"))                     # a step without a cycle
+
+    def decide(src, update=""):
+        """Edges from `src` to Iss that issue a command (the decision)."""
+        if part == "pump":
+            return [Edge(src, "Iss", select=f"v : int[{lo},{hi}]" if lo < hi else "",
+                         update=_join(f"rc = {r}, dk = 3, dv = {'v' if lo < hi else lo}", update))
+                    for r, lo, hi in (U5_TEMPS_DELAYED if ext == "delayed" else U5_TEMPS)]
+        return [Edge(src, "Iss", sync="decide!", update=update)]
+
+    if part == "pump":
+        S.append(Edge("Iss", "Ch"))
+    execs = _exec_cases(part, witnesses)
+    store = "pR = rc, pV = dv" if part == "pump" else "pU = uk"
+    load = "rc = pR, dk = 3, dv = pV" if part == "pump" else "uk = pU"
+
+    if ext == "twoloops":
+        m.decl += ["// two loops: a snapshot is held, and its spacing guard (bolus part)",
+                   "int[0,1] snapped1; int[0,1] snapped2; int[0,1] snapOk1; int[0,1] snapOk2;",
+                   "int[0,1] snapOk;      // the snapshot of the current decision"]
+        clear.append("snapOk = 0")
+        if part == "bolus":
+            cl("Dec")
+            S.append(Edge("Dec", "Iss", sync="decide!"))
+        for i in (1, 2):
+            # take a snapshot and end the step
+            if part == "bolus":
+                S += [Edge(start, "End", guard=g, update=f"snapped{i} = 1, snapOk{i} = 1") for g in spaced]
+            S.append(Edge(start, "End", update=f"snapped{i} = 1, snapOk{i} = 0"))
+            # decide from the held snapshot
+            if part == "bolus":
+                S.append(Edge(start, "Dec", guard=f"(snapped{i} == 1)",
+                              update=f"snapOk = snapOk{i}, snapped{i} = 0, snapOk{i} = 0"))
+                # take a snapshot and decide in the same step
+                S += [Edge(start, "Dec", guard=g, update=f"snapOk = 1, snapped{i} = 0, snapOk{i} = 0")
+                      for g in spaced]
+                S.append(Edge(start, "Dec", update=f"snapped{i} = 0, snapOk{i} = 0"))
+            else:
+                # the pump part has no guards to snapshot: a decision of loop i drops
+                # the snapshot that loop i holds
+                S += decide(start, f"snapped{i} = 0")
+    else:
+        upd = "pending = 0, pexec = 0" if ext.startswith("lostack") else ""
+        S += decide(start, upd)
+
+    if ext in ("u5-base", "twoloops"):
+        cl("Ex")
+        S += [Edge("Ch", "End"), Edge("Ch", "Ex")]
+        S += [Edge("Ex", "End", guard=gd, sync=sy, update=up) for gd, sy, up in execs]
+    elif ext == "delayed":
+        S += [Edge("Ch", "End"), Edge("Ch", "End", sync="enq!")]
+        m.decl.append("chan enq;")
+        m.templates.append(_queue(part, execs))
+    else:                                            # lostack, lostack-dedup
+        cl("Ex", "Ack")
+        m.decl += ["// lost acknowledgement: a command is pending (no acknowledgement),",
+                   "// the current send is a retry, the pump executed the pending command",
+                   "int[0,1] pending; int[0,1] retry; int[0,1] pexec;",
+                   "int[0,5] pR; int[-1,121] pV;" if part == "pump" else "int[0,3] pU;"]
+        clear.append("retry = 0")
+        S += [Edge(start, "Ch", guard="(pending == 1)", update=f"{load}, retry = 1"),
+              # lost before execution
+              Edge("Ch", "End", guard="(retry == 0)", update=f"pending = 1, pexec = 0, {store}"),
+              Edge("Ch", "End", guard="(retry == 1)"),
+              # acknowledged, or the acknowledgement is lost
+              Edge("Ack", "End", update="pending = 0"),
+              Edge("Ack", "End", update=f"pending = 1, pexec = 1, {store}")]
+        if ext == "lostack-dedup":
+            S += [Edge("Ch", "Ex", guard="((retry == 0) || (pexec == 0))"),
+                  Edge("Ch", "Ack", guard="((retry == 1) && (pexec == 1))")]   # ignored copy
+        else:
+            S.append(Edge("Ch", "Ex"))
+        S += [Edge("Ex", "Ack", guard=gd, sync=sy, update=_join(up, "pexec = 1")) for gd, sy, up in execs]
+
+    clr = ", ".join(clear)
+    S += [Edge("End", "Idle", update=f"busy = 0, {clr}"),
+          Edge("End", "Closed", update=f"busy = 0, {clr}" + (", obs = 0" if part == "pump" else ""))]
+    m.templates.insert(0, step)
+    if part == "pump":
+        m.templates.append(_ext_pump())
+    else:
+        guards = ["(snapOk == 1)"] if ext == "twoloops" else spaced
+        ctrl = [Edge("C", "C", sync="decide?", update="uk = 0")]
+        ctrl += [Edge("C", "C", select="u : int[2,3]", guard=g, sync="decide?", update="uk = u")
+                 for g in guards]
+        m.templates += [
+            Template("Controller", "C", locs=[Loc("C")], edges=ctrl),
+            Template("CGM", "G", locs=[Loc("G")], edges=[
+                Edge("G", "G", guard="(hasReading == 0)", sync="read?", update="age = 0, hasReading = 1"),
+                Edge("G", "G", guard=f"((hasReading == 1) && (age >= {READ_GAP}))", sync="read?",
+                     update="age = 0")]),
+            Template("User", "U", locs=[Loc("U")], edges=[
+                Edge("U", "U", sync="ubolus?", update="sinceBolus = 0, noBolus = 0")]),
+        ]
+    return m
+
+
+def _queue(part, execs):
+    """The FIFO queue of the delayed extension: two slots a and b, each with its own
+    clock since the issue. Locations name the slots in use, head first. The head
+    executes at most DMAX seconds after its issue (the invariant). A command that
+    arrives at a full queue is dropped."""
+    fields = (("R", "rc"), ("V", "dv")) if part == "pump" else (("U", "uk"),)
+    store = {s: ", ".join(f"{s}{f} = {v}" for f, v in fields) for s in "ab"}
+    load = {s: ", ".join(f"{v} = {s}{f}" for f, v in fields) + (", dk = 3" if part == "pump" else "")
+            for s in "ab"}
+    wipe = {s: ", ".join(f"{s}{f} = 0" for f, _ in fields) for s in "ab"}
+    t = Template("Queue", "E", decl="clock ca; clock cb;\n" + "\n".join(
+        f"int[0,5] {s}R; int[-1,121] {s}V;" if part == "pump" else f"int[0,3] {s}U;" for s in "ab"),
+        locs=[Loc("E"), Loc("A", inv=f"ca <= {DMAX}"), Loc("B", inv=f"cb <= {DMAX}"),
+              Loc("AB", inv=f"ca <= {DMAX}"), Loc("BA", inv=f"cb <= {DMAX}")]
+        + [Loc(n, kind="committed") for n in ("XA", "XAB", "XB", "XBA", "YA", "YAB", "YB", "YBA")],
+        edges=[Edge("E", "A", sync="enq?", update=f"ca = 0, {store['a']}"),
+               Edge("A", "AB", sync="enq?", update=f"cb = 0, {store['b']}"),
+               Edge("B", "BA", sync="enq?", update=f"ca = 0, {store['a']}"),
+               Edge("AB", "AB", sync="enq?"),            # full: dropped
+               Edge("BA", "BA", sync="enq?")])
+    for src, x, head, nxt in (("A", "XA", "a", "E"), ("AB", "XAB", "a", "B"),
+                              ("B", "XB", "b", "E"), ("BA", "XBA", "b", "A")):
+        # load the head, execute it, then clear the fields. The clearing has its own
+        # edge, because the pump reads the fields after the update of the sender.
+        y = "Y" + x[1:]
+        t.edges.append(Edge(src, x, update=f"busy = 1, {load[head]}"))
+        t.edges += [Edge(x, y, guard=gd, sync=sy, update=_join(up, wipe[head]))
+                    for gd, sy, up in execs]
+        t.edges.append(Edge(y, nxt, update="busy = 0, rc = 0, dk = 0, dv = 0, uk = 0"))
+    return t

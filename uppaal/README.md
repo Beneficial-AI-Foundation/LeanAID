@@ -19,7 +19,7 @@ Research artifact. Nothing here is fit for dosing insulin.
 | U3a | replay of the U1a traces on the T2 pump (`replay.py`, `../LeanAID/Conformance/UppaalReplay.lean`) | done |
 | U3b | replay of the U1b traces on legal T2 runs (`../LeanAID/Conformance/UppaalReplayU1b.lean`) | done, see "Replay on T2 (U3b)" |
 | U4 | Munta run (`u4/`) | done: Munta confirms 21 data-only queries, times out on the pump networks. See "Munta run (U4)" |
-| U5 | extensions | planned |
+| U5 | extensions: delayed execution, lost acknowledgement, two loops (`extensions.md`) | done: P4b and P5 on each extension. The failures are candidate findings, not T2 results. See "Extensions (U5)" |
 
 ## How to run
 
@@ -58,6 +58,8 @@ answer. The status `unsupported` is used only by the Munta run of U4. The status
 | `results.json` | the results of the last full run |
 | `traces.py` | U2: writes a shortest trace and an SVG timeline for each witness and counterexample |
 | `traces/` | the traces, the timelines and `index.md` |
+| `extensions.md` | U5: the semantics of the extensions and their relation to the U1b model |
+| `traces/u5/` | U5: the traces of the extensions (`traces.py --u5`), not replayed in U3 |
 | `replay.py` | U3a: writes the Lean replay of the U1a traces, and `replay.json` |
 | `replay.json` | the replay result of each trace |
 | `u0b/` | work item U0b |
@@ -610,10 +612,37 @@ no result for the pump queries. Those rest on UPPAAL alone.
 `run_u4.py --rescore` applies a changed `EXPECT_MUNTA` to `results.json` without a
 new run.
 
+## Extensions (U5)
+
+`extensions.md` states the semantics of the three extensions and their relation
+to the U1b contract model. `build_ext` in `model.py` builds a pump part (for P4b)
+and a bolus part (for P5) of each extension, and of `u5-base`, the same parts
+without an extension. `QUERIES_U5` in `check.py` holds 46 queries with their
+expected status. `scripts/uppaal.sh` runs them after the 58 queries of U1a to
+U3b. `check.ALL`, which U3 and U4 use, does not contain them. Each U5 query takes
+less than 2 s, except P4b-120 and P4b-30 on the `lostack` pump part, which take
+27 s.
+
+| extension | P4b-120, P4b-30 | P5-issued | P5-pair |
+|---|---|---|---|
+| `u5-base` | hold | holds | holds |
+| `delayed` (queue of 2, delay ≤ 300 s) | fail. They hold with 7500 s and 2100 s | holds | fails |
+| `lostack` (retries, no deduplication) | hold | holds | fails |
+| `lostack-dedup` (the pump ignores a copy) | not checked | holds | holds |
+| `twoloops` | hold | fails | fails |
+
+Each result that holds has a witness for its trigger, and each extension has a
+witness that its new behavior is reachable. A trace of an extension is not a T2
+run, because T2 excludes these behaviors, so U3 does not replay it.
+`traces.py --u5` writes the traces to `traces/u5/`. The failures are candidate
+findings in `docs/FINDINGS.md` (F-25 to F-27). They wait for an extended T2 in
+Lean, and they can be spurious, because the contract allows more outputs than
+oref0 gives.
+
 ## Results
 
-With UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075), all 58 queries give their
-expected status: 21 of U1a, 29 of U1b and 8 of U3b. On U1a, P4a, P4b-120, `bolus` and
+With UPPAAL 5.1.0-beta5 (rev. C7C01B0740E14075), all 104 queries give their
+expected status: 21 of U1a, 29 of U1b, 8 of U3b and 46 of U5. On U1a, P4a, P4b-120, `bolus` and
 the deadlock query take 47 to 127 s. On U1b, P1, P3, P5-issued, P5-clock, P5-pair,
 `cgm` and the deadlock query take 25 to 76 s on the `nopump` variant, and P4b-30
 takes 4 s on the `relaxed` variant. The U3b witnesses take up to 52 s. Every other

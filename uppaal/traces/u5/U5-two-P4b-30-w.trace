@@ -1,0 +1,26 @@
+Verifying formula 1 at /home/lacra/git_repos/baif/LeanAID/uppaal/out/U5-two-P4b-30-w.q:1
+ -- Formula is satisfied.
+ -- Showing witness trace:
+State:
+( Step.Pre Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=0 dur=0 ic=0 initDone=0 snapped1=0 snapped2=0 snapOk1=0 snapOk2=0 snapOk=0 g=0 obs=0 Pump.y=0
+Transition:
+  Step.Pre->Step.PreC { initDone == 0, tau, ic := 4, initDone := 1 }
+State:
+( Step.PreC Pump.Sched )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=0 dur=0 ic=4 initDone=1 snapped1=0 snapped2=0 snapOk1=0 snapOk2=0 snapOk=0 g=0 obs=0 Pump.y=0
+Transition:
+  Step.PreC->Step.Pre { 1, initTemp!, 1 }
+  Pump.Sched->Pump.Temp { ic >= 4, initTemp?, y := 0, dur := 30, tcls := ic }
+State:
+( Step.Pre Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=4 dur=30 ic=4 initDone=1 snapped1=0 snapped2=0 snapOk1=0 snapOk2=0 snapOk=0 g=0 obs=0 Pump.y=0
+Transition:
+  Step.Pre->Step.Closed { 1, tau, obs := 0, ic := 0 }
+State:
+( Step.Closed Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=4 dur=30 ic=0 initDone=1 snapped1=0 snapped2=0 snapOk1=0 snapOk2=0 snapOk=0 g=0 obs=0 Pump.y=0
+Delay: 1799
+State:
+( Step.Closed Pump.Temp )
+rc=0 dk=0 dv=0 uk=0 busy=0 first=0 tcls=4 dur=30 ic=0 initDone=1 snapped1=0 snapped2=0 snapOk1=0 snapOk2=0 snapOk=0 g=1799 obs=1799 Pump.y=1799

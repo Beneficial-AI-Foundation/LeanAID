@@ -214,6 +214,95 @@ QUERIES_U3B = [
      "reachable", "F-20 with three readings before the cycle", ""),
 ]
 
+# U5: the extensions of uppaal/extensions.md. Each runs on a pump part (P4b) or a
+# bolus part (P5) of one extension. A trace found here is not a T2 run and is not
+# replayed in U3; a failure is a candidate finding (docs/FINDINGS.md).
+P4B_W = f"E<> (Step.Closed && (obs >= 7199) && (busy == 0) && {EFF})"
+P4B_30_W = f"E<> (Step.Closed && (obs >= 1799) && (busy == 0) && {EFF} && {POSITIVE})"
+P4B_120_D = f"A[] ((Step.Closed && (obs >= {7200 + M.DMAX}) && (busy == 0)) imply (!{EFF}))"
+P4B_30_D = (f"A[] ((Step.Closed && (obs >= {1800 + M.DMAX}) && (busy == 0)) "
+            f"imply (!({EFF} && {POSITIVE})))")
+SPACED_W = f"E<> (Step.O3 && (uk >= 2) && (prior == 1) && (p5c >= {M.SPACING}))"
+REEXEC_BOLUS = "E<> (Step.Ex && (retry == 1) && (pexec == 1) && (uk == 3))"
+REEXEC_TEMP = "E<> (Step.Ex && (retry == 1) && (pexec == 1) && (dv >= 30))"
+
+
+def _u5(prefix, variant, rows):
+    return [(f"U5-{prefix}-{qid}", "U5", kind, variant, (), q, exp, about, "")
+            for qid, kind, q, exp, about in rows]
+
+
+def _p4b(prefix, variant, exp120, exp30):
+    return _u5(prefix, variant, [
+        ("P4b-120", "extension", P4B_120, exp120,
+         "7200 s after the close, the schedule runs"),
+        ("P4b-120-w", "witness", P4B_W, "reachable", "a temp still runs 7199 s after the close"),
+        ("P4b-30", "extension", P4B_30, exp30, "1800 s after the close, no positive temp runs"),
+        ("P4b-30-w", "witness", P4B_30_W, "reachable",
+         "a positive temp still runs 1799 s after the close"),
+    ])
+
+
+def _p5(prefix, variant, exp_issued, exp_pair):
+    return _u5(prefix, variant, [
+        ("P5-issued", "extension", P5_ISSUED, exp_issued,
+         f"issued finite units after a real prior bolus come at least {M.SPACING} s after it"),
+        ("P5-w-spaced", "witness", SPACED_W, "reachable",
+         "issued finite units after a prior bolus, with enough spacing"),
+        ("P5-pair", "extension", P5_PAIR, exp_pair,
+         f"two executed microboluses are at least {M.SPACING} s apart"),
+        ("P5-pair-w", "witness", "E<> (mb2 == 1)", "reachable", "two executed microboluses"),
+    ])
+
+
+QUERIES_U5 = (
+    _p4b("base", "u5-base-pump", "holds", "holds")
+    + _p5("base", "u5-base-bolus", "holds", "holds")
+    + _p4b("delay", "delayed-pump", "fails", "fails")
+    + _u5("delay", "delayed-pump", [
+        ("P4b-120-shift", "extension", P4B_120_D, "holds",
+         f"{7200 + M.DMAX} s (7200 s plus the delay bound) after the close, the schedule runs"),
+        ("P4b-120-shift-w", "witness",
+         f"E<> (Step.Closed && (obs >= {7200 + M.DMAX - 1}) && (busy == 0) && {EFF})", "reachable",
+         f"a temp still runs {7200 + M.DMAX - 1} s after the close"),
+        ("P4b-30-shift", "extension", P4B_30_D, "holds",
+         f"{1800 + M.DMAX} s after the close, no positive temp runs"),
+        ("P4b-30-shift-w", "witness",
+         f"E<> (Step.Closed && (obs >= {1800 + M.DMAX - 1}) && (busy == 0) && {EFF} && {POSITIVE})",
+         "reachable", f"a positive temp still runs {1800 + M.DMAX - 1} s after the close"),
+        ("w-late", "witness", f"E<> (Step.Closed && Pump.Temp && (Pump.y < obs) && (busy == 0))",
+         "reachable", "a queued temp starts after the close"),
+    ])
+    + _p5("delay", "delayed-bolus", "holds", "fails")
+    + _u5("delay", "delayed-bolus", [
+        ("w-two", "witness",
+         "E<> ((Queue.AB || Queue.BA) && (Queue.aU == 3) && (Queue.bU == 3))", "reachable",
+         "two microboluses wait in the queue"),
+    ])
+    + _p4b("ack", "lostack-pump", "holds", "holds")
+    + _u5("ack", "lostack-pump", [
+        ("w-reexec-pump", "witness", REEXEC_TEMP, "reachable",
+         "a retry of an executed temp reaches the pump again"),
+    ])
+    + _p5("ack", "lostack-bolus", "holds", "fails")
+    + _u5("ack", "lostack-bolus", [
+        ("w-reexec", "witness", REEXEC_BOLUS, "reachable",
+         "a retry of an executed microbolus reaches the pump again"),
+    ])
+    + _p5("ackdedup", "lostack-dedup-bolus", "holds", "holds")
+    + _u5("ackdedup", "lostack-dedup-bolus", [
+        ("w-ignored", "witness", "E<> (Step.Ch && (retry == 1) && (pexec == 1) && (uk == 3))",
+         "reachable", "a retry of an executed microbolus reaches the channel; the pump ignores "
+                      "it if it arrives"),
+    ])
+    + _p4b("two", "twoloops-pump", "holds", "holds")
+    + _u5("two", "twoloops-pump", [
+        ("w-snap", "witness", "E<> ((busy == 0) && (snapped1 == 1) && (snapped2 == 1))",
+         "reachable", "both loops hold a snapshot"),
+    ])
+    + _p5("two", "twoloops-bolus", "fails", "fails")
+)
+
 # How the model of a result relates to the main model of its work item.
 MODEL_RELATION = {
     "free": "the U1a model (Step and Pump with a free command choice), with its "
@@ -239,6 +328,27 @@ MODEL_RELATION = {
                "result that holds transfers to the main U1b model. A counterexample "
                "does not",
 }
+_U5_PUMP = ("the pump part of extension {e} (uppaal/extensions.md): Step, Pump, the "
+            "pre-run initial temp and the close, without units and without CGM. Its commands "
+            "are {c}. It is a sub-model of the U1b contract model extended by {e}: a "
+            "counterexample or a reachable witness transfers to that model{h}. The argument "
+            "maps whole commands by their validate outcome (uppaal/extensions.md)")
+_ALL_TEMPS = ("cancel, zero 30 to 120 min (every whole minute), low 30 min and high 30 min. "
+              "These are all the valid temps that the contract allows")
+_FEW_TEMPS = "cancel, zero 30 min, zero 120 min, low 30 min and high 30 min"
+_U5_BOLUS = ("the bolus part of extension {e} (uppaal/extensions.md): Step, Controller, "
+             "CGM, User, the pre-run bolus and the P5 observers, with commands that carry "
+             "only units (<= 0 or a microbolus). It is a sub-model of the U1b contract model "
+             "extended by {e}: a counterexample or a reachable witness transfers to that "
+             "model. A result that holds transfers by an argument, not a check, that maps "
+             "whole commands by their validate outcome (uppaal/extensions.md)")
+for _e in M.U5_EXTS:
+    MODEL_RELATION[f"{_e}-pump"] = _U5_PUMP.format(
+        e=_e, c=_FEW_TEMPS if _e == "delayed" else _ALL_TEMPS,
+        h=(". A result that holds covers only these five commands. For full commands that map to them "
+           "it transfers by an argument, not a check" if _e == "delayed" else
+           ". A result that holds transfers by an argument, not a check"))
+    MODEL_RELATION[f"{_e}-bolus"] = _U5_BOLUS.format(e=_e)
 KIND_NOTE = {
     "witness": "Witness flags that no guard reads are added. A reachable result "
                "transfers to the same model without them (for a mutant: to the mutant "
@@ -260,14 +370,20 @@ def build(model, muts, wit):
         return M.build(muts, witnesses=wit)
     if model == "relaxed":
         return M.build(muts, witnesses=wit, relaxed=True)
+    for part in ("pump", "bolus"):
+        if model.endswith("-" + part) and model[:-len(part) - 1] in M.U5_EXTS:
+            assert not muts
+            return M.build_ext(model[:-len(part) - 1], part, witnesses=wit)
     m = M.build(muts, witnesses=wit, contract=True)
     if model == "nobolus":
         return M.without_boluses(m)
     return M.without_pump(m) if model == "nopump" else m
 
 
-# every query: the U1a queries run on the free model with breadth-first search
+# every query of U1a to U3b: the U1a queries run on the free model with breadth-first
+# search. U3 and U4 use this list. RUN adds the U5 queries for this script.
 ALL = [(q[0], q[1], q[2], "free", *q[3:], "") for q in QUERIES] + QUERIES_U1B + QUERIES_U3B
+RUN = ALL + QUERIES_U5
 
 
 def sha256(p):
@@ -314,14 +430,14 @@ def main():
     ap.add_argument("--only", nargs="+", metavar="ID")
     args = ap.parse_args()
     if args.only:
-        unknown = sorted(set(args.only) - {q[0] for q in ALL})
+        unknown = sorted(set(args.only) - {q[0] for q in RUN})
         if unknown:
             ap.error(f"unknown query IDs: {' '.join(unknown)}")
     OUT.mkdir(exist_ok=True)
     version = subprocess.run([args.verifyta, "--version"], capture_output=True,
                              text=True).stdout.splitlines()[0]
     results, bad = [], 0
-    for (qid, item, kind, model, muts, query, expected, about, search) in ALL:
+    for (qid, item, kind, model, muts, query, expected, about, search) in RUN:
         if args.only and qid not in args.only:
             continue
         wit = kind == "witness"
@@ -359,7 +475,8 @@ def main():
                             "issued_duration_values": "-1..121",
                             "max_valid_duration": 120,
                             "smb_spacing_s": M.SPACING, "fresh_age_s": M.FRESH_AGE,
-                            "reading_gap_s": M.READ_GAP},
+                            "reading_gap_s": M.READ_GAP,
+                            "u5_queue_bound": M.QUEUE_BOUND, "u5_max_delay_s": M.DMAX},
         "generator_sha256": sha256(HERE / "model.py"),
         "checker_sha256": sha256(pathlib.Path(__file__)),
         "results": results,
