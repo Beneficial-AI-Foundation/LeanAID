@@ -71,14 +71,14 @@ Munta statuses are from `uppaal/u4/results.json` (U4) and
 
 | property | proved (`lake build`) | model-checked: UPPAAL | model-checked: Munta | T2 replay of traces |
 |---|---|---|---|---|
-| P1 freshness | `p1_faithful`. `p1_derived` with a whole-number status date as a hypothesis | P1 holds (`nopump`). Witnesses P1-w-noread, P1-w-inc reachable. Mutations M-P1-rejected-high, M-P1-nan-units, M-P1-no-hasreading fail | P1 holds, P1-w-noread reachable, the three mutations fail (U4). P1-w-inc unsupported (clock) | P1-w-noread and R-P1-w-inc realized. P1-w-inc unresolved. The three mutation traces are not realizable (`p1_faithful`) |
+| P1 freshness | `p1_faithful`. `p1_derived` with a whole-number status date as a hypothesis. On `main` also `p1_dated`, `p1_true_age`, `p1_true_age_head` | P1 holds (`nopump`). Witnesses P1-w-noread, P1-w-inc reachable. Mutations M-P1-rejected-high, M-P1-nan-units, M-P1-no-hasreading fail | P1 holds, P1-w-noread reachable, the three mutations fail (U4). P1-w-inc unsupported (clock) | P1-w-noread and R-P1-w-inc realized. P1-w-inc unresolved. The three mutation traces are not realizable (`p1_faithful`) |
 | P2 rate bound | `p2_rate_bound` | not checked: the contract assumes it | not checked | — |
 | P3 durations | `issued_temp_ok`, `p3_temp_ok` | P3 holds (`nopump`). M-P3-positive-120 fails | P3 holds, M-P3-positive-120 fails (U4) | M-P3-positive-120 is not realizable (`p3_temp_ok`) |
 | P4a expiry | `p4a_expiry` | P4a holds (`free`). Witnesses P4a-w-running, P4a-w-expired, P4a-w-cancel, collision reachable. Mutations M-ignore-cancel, M-reject-initial, M-drop-temp, M-no-y-reset fail | P4a and most witnesses unsupported (clock). P4a-w-cancel: timeout on the U1a pump (U4), reachable on the reduced pump (U5b). Collision: not run on the U1a pump (U4), reachable on the reduced pump (U5b) | the four witnesses realized on the T2 pump. The four mutation traces are not realized |
-| P4b-120 fail-safe | `p4b_fail_safe` (with `InvTemp` on the initial temp) | P4b-120 holds (`free`). P4b-120-w reachable. M-no-upper-bound fails | unsupported (clock) | P4b-120-w realized. M-no-upper-bound not realized |
+| P4b-120 fail-safe | `p4b_fail_safe` (with `InitRemaining` for the initial temp, which `initRemaining_of_invTemp` derives from `InvTemp`) | P4b-120 holds (`free`). P4b-120-w reachable. M-no-upper-bound fails | unsupported (clock) | P4b-120-w realized. M-no-upper-bound not realized |
 | P4b-30 fail-safe | `p4b_fail_safe` | P4b-30 holds (`relaxed`). Without the contract it fails (P4b-30-free, `free`), as the plan expects. M-P4b-30 fails | unsupported (clock) | P4b-30-free and P4b-30-free-w realized on the T2 pump. M-P4b-30 is not realizable (`p3_temp_ok`) |
 | P5 faithful | `p5_faithful` | P5-issued holds (`nopump`). Witnesses P5-w-first, P5-w-spaced, P5-w-early reachable. M-P5-user fails, and M-P5-user-w is reachable on that mutant. P5-clock holds, M-P5-clock fails | P5-issued holds, P5-w-first and R-P5-w-first reachable, M-P5-user fails (U4). The other witnesses, P5-clock and M-P5-clock unsupported (clock) | P5-w-early, R-P5-w-first, R-P5-w-spaced, R-P5-w-early realized. P5-w-first and P5-w-spaced unresolved. M-P5-user and M-P5-user-w are not realizable (`p5_faithful`, `smb_spacing` under BolusSeen). M-P5-clock: observable part realized, the clock fault has no T2 counterpart |
-| P5 derived (spacing of accepted microboluses) | not proved over runs. `smb_guard_iff`, `lastBolusAge_guard_iff` and `smb_spacing` (BolusSeen as a hypothesis) give the guard as a time bound | P5-pair holds (`nopump`). P5-pair-w, P5-w-bolus, P5-w-user-cycle reachable | P5-pair holds. P5-pair-w, P5-w-bolus, P5-w-user-cycle and their `R-` witnesses reachable (U4) | R-P5-pair-w, R-P5-w-bolus, P5-w-user-cycle, R-P5-w-user-cycle realized. P5-pair-w and P5-w-bolus unresolved |
+| P5 derived (spacing of accepted microboluses) | `p5_gap`, `p5_strict` (from `main`): a gap of more than I − 0.05 min, up to double rounding. `smb_guard_iff`, `lastBolusAge_guard_iff` and `smb_spacing` (BolusSeen as a hypothesis) give the exact guard as a time bound for whole milliseconds | P5-pair holds (`nopump`). P5-pair-w, P5-w-bolus, P5-w-user-cycle reachable | P5-pair holds. P5-pair-w, P5-w-bolus, P5-w-user-cycle and their `R-` witnesses reachable (U4) | R-P5-pair-w, R-P5-w-bolus, P5-w-user-cycle, R-P5-w-user-cycle realized. P5-pair-w and P5-w-bolus unresolved |
 | P6 delivered insulin | `rate_envelope`, `p6_basal` (rate part only) | not checked (outside the plan) | not checked | — |
 | F-20 (zero temp after a stopped loop) | finding, run `zeroRun` (`native_decide`, `LeanAID/Conformance/TimeRuns.lean`) | F-20 reachable (contract model). R-F-20 reachable (`nobolus`) | unsupported (clock) | R-F-20 realized. F-20 unresolved |
 | model property: CGM readings | — (an assumption of the model) | `cgm` holds (`nopump`). cgm-w reachable. M-cgm-first fails | `cgm` holds, M-cgm-first fails (U4) | cgm-w realized. M-cgm-first not replayed |
@@ -121,7 +121,7 @@ The U5 models extend the abstraction with behaviors that T2 excludes
 (`uppaal/extensions.md`): delayed execution, lost acknowledgement, and two loops.
 Their results are UPPAAL results on the extended models, not results about T2 or
 oref0, and they have no Munta run. Their traces are in `uppaal/traces/u5/`. They are
-not T2 runs and are not replayed. The failures are candidate findings F-25 to F-27
+not T2 runs and are not replayed. The failures are candidate findings F-28 to F-30
 (`docs/FINDINGS.md`). They can be spurious, because the contract allows more outputs
 than oref0 gives. Each extension has a pump part, which checks P4b, and a bolus part,
 which checks P5. The delayed pump part issues a reduced set of commands
@@ -130,7 +130,7 @@ which checks P5. The delayed pump part issues a reduced set of commands
 | model | P4b-120, P4b-30 | P5-issued | P5-pair | candidate finding |
 |---|---|---|---|---|
 | `u5-base` (no extension) | hold | holds | holds | — |
-| `delayed` | fail. They hold with the bounds 7500 s and 2100 s | holds | fails | F-25 |
-| `lostack` | hold | holds | fails | F-26 |
+| `delayed` | fail. They hold with the bounds 7500 s and 2100 s | holds | fails | F-28 |
+| `lostack` | hold | holds | fails | F-29 |
 | `lostack-dedup` | not checked | holds | holds | — |
-| `twoloops` | hold | fails | fails | F-27 |
+| `twoloops` | hold | fails | fails | F-30 |

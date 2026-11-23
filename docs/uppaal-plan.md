@@ -3,6 +3,13 @@
 Status: plan, nothing in this file is built or checked yet. Written 2026-11-19 and
 revised after nine reviews (section 10). Round 9 found no critical or major problem.
 
+Note (2026-11-23): all work items are done (see `docs/LOG.md`). After the rebase onto
+`main`, the T2 model of section 3 is the run model in `LeanAID/Time/` on `main`, whose
+definitions are the same. The run theorems that this plan cites (`p1_faithful`,
+`p1_derived`, `p2_rate_bound`, `p3_temp_ok`, `p5_faithful`) are in
+`LeanAID/Time/Issued.lean`. The findings of this branch are F-25 to F-30 in
+`docs/FINDINGS.md`. F-25 here is the former F-22.
+
 ## 1. Goal and what it is not
 
 The goal is a timed-automata model of the T2 transition system
@@ -57,7 +64,7 @@ item has a source: a hypothesis of a Lean theorem, or a modelling choice.
 | `InvTemp env.init`: an initial temp has deadline at most 120 minutes after its start, 30 minutes for a positive rate | hypothesis | `temp_bound`, `p4b_fail_safe` |
 | the run has an origin t0, at or before its first step. A run with no steps also has one. An initial temp starts at or before t0 and has a rate ≥ 0. An initial temp whose deadline is at or before t0 counts as no temp | choice | `InvTemp` alone allows a start after t0, and `tempRate` then applies the temp before its start |
 | `InvRate B env.init`, `RateCap env B`, and `env.sched k ≤ B` for every k | hypothesis | `rate_envelope`, `p6_basal` |
-| BolusSeen: `lastBolusTime` of a cycle is at least the time of every earlier accepted microbolus and positive user bolus, including those earlier in the same step | assumption, not proved (F-22) | T5 handoff in `docs/LOG.md` |
+| BolusSeen: `lastBolusTime` of a cycle is at least the time of every earlier accepted microbolus and positive user bolus, including those earlier in the same step | assumption, not proved (F-25) | T5 handoff in `docs/LOG.md` |
 | the schedule has one rate for the whole run, and the rate is positive. `ValidProfile (env.profileAt t)` holds for every t | choice | removes `profileAt` changes during a run. `ValidRun` says nothing on a run without cycles. With a zero schedule rate, `basalLookup` gives `none`, so `pcb` is NaN |
 | every reading is dated. Its recorded date and true time equal the time of its step, which is positive. Its value is finite and above 38 | choice | excludes F-11 and future readings. A recorded date of 0 is not truthy, so `getDateFromEntry` gives NaN for it |
 | two readings are at least 150 seconds apart | choice | If the rounded gap is below 2.5 minutes, `getLastGlucose` averages two readings. Then the status date is not a reading time. With this gap, the status date is the date of the newest reading |
@@ -308,7 +315,7 @@ The link between T2 and the model is the weakest point. Three levels, in order:
    predicate of the query holds on the T2 run at that final time. It also states that
    `ValidRun` and BolusSeen hold and that the run is in R_U. The concrete check goes into
    `LeanAID/Conformance/`, because `scripts/check.sh` allows `native_decide` only there
-   (F-22).
+   (F-25).
 
    T2 times are whole milliseconds. A UPPAAL trace is symbolic: each state has a zone
    of clock values. The replay picks one assignment of whole-millisecond times for the

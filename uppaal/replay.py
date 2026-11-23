@@ -204,7 +204,7 @@ trace. A witness, and the counterexample of P4b-30-free, is realized
 The environment has a schedule of 1 U/h (`prof`), and `schedule_one` checks it at
 every checkpoint. Classes as rates: the schedule 1, zero 0, low 1/2, high 2. The
 checks use `native_decide`, because `rateAt` reads the schedule with `basalLookup`,
-which the kernel does not reduce (F-22). The runs are not legal runs: their results
+which the kernel does not reduce (F-25). The runs are not legal runs: their results
 are given, not computed by `LeanAID.step`.
 
 Research artifact. Not for dosing insulin.
@@ -499,7 +499,7 @@ at least 150 s apart with values above 38, and an SMB interval of 3 minutes.
 `pred_*` checks the T2 predicate of the trace's query.
 
 The checks use `native_decide`, because `Iob.generate` and `basalLookup` do not
-reduce in the kernel (F-22).
+reduce in the kernel (F-25).
 
 Research artifact. Not for dosing insulin.
 -/

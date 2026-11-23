@@ -286,7 +286,9 @@ guard made UPPAAL evaluate the guard 14,760 times in every state.
   rounding is monotone and exact at the two boundary values.
 - `smb_spacing`: if the guard passes and `lastBolusTime` is a whole millisecond at or
   after a real prior bolus, at least 60000·I + 3000 ms passed since that bolus.
-  BolusSeen is a hypothesis of this theorem, not a proved fact (F-22).
+  BolusSeen is a hypothesis of this theorem. On `main`, `Legal.bolusSeen` proves it
+  for the accepted boluses in the log of a legal run. The two are not combined, and it
+  is not checked whether `Legal.bolusSeen` covers the boluses of the initial history.
 
 So for I = 3 and whole milliseconds, the guard of oref0 is exactly "at least
 183,000 ms since `lastBolusTime`". The model clock `sinceBolus` measures the time
@@ -400,7 +402,7 @@ trace is replayed on the T2 pump alone (section 7, level 2 of the plan).
 cycle as `applyEvent` does, and `rateObs` is `rateAt`, the temp or the schedule. The
 environment has a schedule of 1 U/h. Classes are rates: the schedule 1, `zero` 0,
 `low` 1/2, `high` 2. `rateAt` reads the schedule with `basalLookup`, which the kernel
-does not reduce (F-22), so the theorems use `native_decide`, which
+does not reduce (F-25), so the theorems use `native_decide`, which
 `scripts/check.sh` allows in `LeanAID/Conformance/` only. Model time s is T2
 time T0 + 1000·(s − t0) ms. A trace that ends before t0 takes its end as t0.
 
@@ -454,7 +456,7 @@ outcome of the trace. The profiles and free inputs are those of
   `Iob.generate` finds 3600 s before t0 (prerun-w-t0).
 
 The checks use `native_decide`, because `Iob.generate` and `basalLookup` do not reduce
-in the kernel (F-22). `replay.py` first evaluates every obligation of each candidate
+in the kernel (F-25). `replay.py` first evaluates every obligation of each candidate
 with Lean, writes theorems only for a candidate that meets all of them, and stops if
 Lean fails or the generated file does not build.
 
@@ -541,9 +543,9 @@ that stand alone. The steps:
   `Step.Init`. No other process may start in a committed location (checked). So a
   query `A[] p` becomes `A[] (Step.Init || p)` on the lowered
   network, and `E<> p` becomes `E<> (!(Step.Init) && p)`,
-- every committed location is also urgent (finding F-23 in `../docs/FINDINGS.md`),
+- every committed location is also urgent (finding F-26 in `../docs/FINDINGS.md`),
 - every location with an edge gets a self-loop that never fires and carries the largest
-  constant of each clock (finding F-24).
+  constant of each clock (finding F-27).
 
 The first lowered `nopump` network had 826,237 states in UPPAAL, and Munta ran out
 of memory on P1 after 225 s (`u4/p1_lowered_nopump.muntax`). Three reductions make
@@ -709,7 +711,7 @@ Each result that holds has a witness for its trigger, and each extension has a
 witness that its new behavior is reachable. A trace of an extension is not a T2
 run, because T2 excludes these behaviors, so U3 does not replay it.
 `traces.py --u5` writes the traces to `traces/u5/`. The failures are candidate
-findings in `docs/FINDINGS.md` (F-25 to F-27). They wait for an extended T2 in
+findings in `docs/FINDINGS.md` (F-28 to F-30). They wait for an extended T2 in
 Lean, and they can be spurious, because the contract allows more outputs than
 oref0 gives.
 

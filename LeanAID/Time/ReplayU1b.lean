@@ -1,5 +1,5 @@
 import LeanAID.Time.Replay
-import LeanAID.Time.Lift
+import LeanAID.Time.Issued
 import LeanAID.Proofs.ValidCheck
 import LeanAID.Time.Delivery
 
@@ -11,7 +11,7 @@ contract. The T2 run is built by `build`, so `LeanAID.step` computes every issue
 output. The projection gives, for each step, whether it has a reading and a positive
 user bolus, and for its cycle the issued fields as the codes of `uppaal/model.py` and
 the execution (`Replay.obsOf`). It also gives the checks of section 7 that the run is
-in R_U: `ValidRun` (`validRunB`, with `validRun_of`), BolusSeen (`bolusSeenB`), and the
+in R_U: `ValidRun` (`validRunB`, with `validRun_of_B`), BolusSeen (`bolusSeenB`), and the
 reading and interval conditions of section 3 (`readingsOkB`, `smbThreeB`).
 
 Research artifact. Not for dosing insulin.
@@ -115,7 +115,7 @@ def traceMatchU1b (env : Env) (r : Run Event) (steps : List StepObs) (rates : Li
 /-- Every cycle has valid input (decided by `validInputB`). -/
 def validRunB (env : Env) (r : Run Event) : Bool := (cycles env r).all fun c => validInputB c.inp
 
-theorem validRun_of {env : Env} {r : Run Event} (h : validRunB env r = true) : ValidRun env r := by
+theorem validRun_of_B {env : Env} {r : Run Event} (h : validRunB env r = true) : ValidRun env r := by
   intro c hc
   exact validInputB_sound (List.all_eq_true.mp h c hc)
 
@@ -214,7 +214,7 @@ theorem ru_of {env : Env} {r : Run Event} {t0 : Int} {B : Rat} {pre : List Int} 
   unfold ruB at h
   simp only [Bool.and_eq_true, decide_eq_true_eq] at h
   obtain ⟨⟨⟨⟨⟨⟨⟨⟨⟨⟨hv, hp⟩, hpos⟩, hcap⟩, hM⟩, hit⟩, horig⟩, -⟩, -⟩, -⟩, -⟩ := h
-  refine ⟨validRun_of hv, fun t => ?_, fun t => ?_, fun t u => sched_single he t u, ?_,
+  refine ⟨validRun_of_B hv, fun t => ?_, fun t => ?_, fun t u => sched_single he t u, ?_,
     fun t => ?_, ?_, ?_, ?_, ?_⟩
   · rw [profileAt_single he t t0]; exact validProfileB_sound hp
   · rw [sched_single he t t0]; exact hpos

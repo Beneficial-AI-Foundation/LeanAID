@@ -1,4 +1,4 @@
-import LeanAID.Time.Lift
+import LeanAID.Time.Issued
 
 /-!
 # The SMB spacing guard in whole milliseconds
@@ -23,7 +23,9 @@ milliseconds.
   millisecond L, and L is at or after the time tb of a real prior bolus (the
   BolusSeen assumption, `docs/uppaal-plan.md` section 3), then at least
   60000·I + 3000 milliseconds passed since that bolus. BolusSeen is a hypothesis
-  here, not a proved fact (F-22).
+  here. On `main`, `Legal.bolusSeen` proves it for the accepted boluses in the log of
+  a legal run. This file does not combine the two, and it is not checked whether
+  `Legal.bolusSeen` covers the boluses of the initial history.
 
 Research artifact. Not for dosing insulin.
 -/

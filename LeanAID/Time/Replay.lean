@@ -8,7 +8,7 @@ the projection that a replay compares with a trace: for each cycle, its time, it
 channel outcome, the pump action that `validate` and `applyCmd` give, and whether a
 bolus is delivered; and the delivered rate (`rateAt`: the temp, or the schedule) at
 given times. `rateAt` reads the schedule with `basalLookup`, which the kernel does not
-reduce (F-22), so the replay checks in `LeanAID/Conformance/` use `native_decide`.
+reduce (F-25), so the replay checks in `LeanAID/Conformance/` use `native_decide`.
 
 Research artifact. Not for dosing insulin.
 -/

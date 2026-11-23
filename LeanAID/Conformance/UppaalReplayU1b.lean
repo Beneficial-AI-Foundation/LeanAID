@@ -21,7 +21,7 @@ at least 150 s apart with values above 38, and an SMB interval of 3 minutes.
 `pred_*` checks the T2 predicate of the trace's query.
 
 The checks use `native_decide`, because `Iob.generate` and `basalLookup` do not
-reduce in the kernel (F-22).
+reduce in the kernel (F-25).
 
 Research artifact. Not for dosing insulin.
 -/

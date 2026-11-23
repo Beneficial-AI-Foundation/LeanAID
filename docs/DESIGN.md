@@ -35,8 +35,9 @@ outside the Lean build.
 | `uppaal/u4/run_u4.py`, `uppaal/u4/results.json` | U4: runs the queries of `check.ALL` in Munta with the three gates of U0b | `run_u4.py`. `--check-networks` rebuilds the networks and compares their SHA-256 |
 | `uppaal/u4/results-u5b.json` | U5b: the nine pump queries without a clock on the reduced pump, with the transfer to the U1a pump | `run_u4.py --u5b` |
 | `uppaal/u4/test_lower.py` | regression checks of `munta.py` from the U4 and U5b reviews. Runs no model checker | `python3 -I uppaal/u4/test_lower.py` |
-| `uppaal/u4/*.muntax`, `uppaal/u4/committed_delay.xml`, `uppaal/u4/shrink_*.py` | the networks of the Munta findings F-23 and F-24, the P1 networks of U4, and the scripts that shrank them | written in U4 |
+| `uppaal/u4/*.muntax`, `uppaal/u4/committed_delay.xml`, `uppaal/u4/shrink_*.py` | the networks of the Munta findings F-26 and F-27, the P1 networks of U4, and the scripts that shrank them | written in U4 |
 | `uppaal/out/`, `uppaal/u4/out/` | generated models, queries and lowered networks (ignored by git) | `check.py`, `run_u4.py` |
+| `LeanAID/Time/Issued.lean` | `p1_faithful`, `p1_derived`, `p2_rate_bound`, `p3_temp_ok`, `p5_faithful`: run theorems of the earlier timing design that the contract and the replay cite, kept after the rebase onto `main` | `lake build` |
 | `LeanAID/Time/SmbSpacing.lean` | `smb_guard_iff`, `lastBolusAge_guard_iff`, `smb_spacing`: the SMB guard as a time bound in milliseconds, used by the contract | `lake build` |
 | `LeanAID/Time/Replay.lean` | the projection of a T2 run that a U1a trace is compared with | `lake build` |
 | `LeanAID/Time/ReplayU1b.lean` | the projection and the R_U checks for the U1b traces | `lake build` |
