@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-20T12:33:31.036Z",
+ "generated": "2026-11-23T11:40:50.244Z",
  "oref0": "88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (0.7.1)",
  "tests": {
   "blocks": 116,
@@ -30,8 +30,8 @@
   ]
  },
  "theorems": {
-  "total": 306,
-  "headline": 58,
+  "total": 314,
+  "headline": 61,
   "headlineNames": [
    "LeanAID.Proofs.rate_le_roundBasal_maxSafeBasal",
    "LeanAID.Proofs.rate_le_maxSafeBasal_of_grid",
@@ -90,7 +90,10 @@
    "LeanAID.Time.smbTraced_run",
    "LeanAID.Time.round3_accounting",
    "LeanAID.Time.getLastGlucose_date_first",
-   "LeanAID.Patched.determineBasalPatched_eq"
+   "LeanAID.Patched.determineBasalPatched_eq",
+   "LeanAID.Iob.Q6.splitPass_fst",
+   "LeanAID.Iob.Q6.q6_drops_zero_temp",
+   "LeanAID.Iob.Q6.q6_fixed_keeps"
   ]
  },
  "axioms": [
@@ -107,7 +110,7 @@
  },
  "linesOfLean": {
   "core": 3173,
-  "proofs": 4495,
+  "proofs": 4643,
   "spec": 107
  }
 }
