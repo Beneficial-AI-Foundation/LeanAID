@@ -769,3 +769,18 @@ limit. A `max_basal` on the 0.1 U/h grid never rounds up. Largest overshoot 0.02
   delta on pull requests.
 - The maintainer allowed a `Co-Authored-By` line for Claude in commit messages for this
   change, which differs from AGENTS.md.
+
+## Branch coverage of oref0
+
+2026-11-23. `scripts/coverage/run.sh` (istanbul 0.4.5, declared by oref0; nothing written to
+`vendor/`) measures branch coverage of `vendor/oref0/lib` from oref0's own mocha tests and from
+`scripts/difftest/run.js` (100,000 cases, seed 1); `scripts/coverage/report.js` writes
+`docs/coverage.json` and `docs/COVERAGE.md`. About 10 minutes.
+- `determine-basal.js`: oref0's tests reach 221 / 474 branches (46.6 %), the difftest 455
+  (96.0 %), together 464 (97.9 %); the difftest adds 243 branches the tests miss. 10 branches
+  are reached by neither (listed in `docs/COVERAGE.md`).
+- `basal-set-temp.js` and `round-basal.js`: 100 % together. `glucose-get-last.js`: 90.9 %.
+- `lib/iob/*`, `lib/meal/history.js`, `lib/profile/basal.js`: reached only by oref0's own tests
+  (`iob/history.js` 75.3 %, `iob/calculate.js` 65.6 %, `meal/history.js` 50.8 %), because the
+  difftest passes ready-made IOB and meal data. A differential test on pump histories is the
+  next step.

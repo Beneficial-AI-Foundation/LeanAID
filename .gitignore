@@ -21,3 +21,6 @@ prompts/
 
 # read-only clones for the upstream survey (never committed)
 /upstream/
+
+# istanbul output of scripts/coverage/run.sh
+scripts/coverage/out/
