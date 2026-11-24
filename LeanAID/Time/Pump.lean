@@ -93,32 +93,6 @@ theorem foldl_steps_temp : ∀ (s : PState) (r : Run Event), (∀ st ∈ r, sets
     rw [foldl_steps_temp _ r (fun x hx => h x (List.mem_cons_of_mem _ hx))]
     exact foldl_events_temp st.time s st.events (h st List.mem_cons_self)
 
-/-! ### Prefixes of an increasing run -/
-
-theorem upTo_split {r : Run Event} (hinc : Increasing r) {t k : Int} (htk : t ≤ k) :
-    upTo r k = upTo r t ++ r.filter (fun s => decide (t < s.time) && decide (s.time ≤ k)) := by
-  induction r with
-  | nil => rfl
-  | cons st rest ih =>
-    unfold Increasing at hinc
-    rw [List.pairwise_cons] at hinc
-    have ih := ih hinc.2
-    unfold upTo at ih ⊢
-    by_cases h1 : st.time ≤ t
-    · simp [h1, show st.time ≤ k by omega, show ¬ t < st.time by omega, ih]
-    · have hrest : ∀ x ∈ rest, t < x.time := fun x hx => by have := hinc.1 x hx; omega
-      have e1 : rest.filter (fun s => decide (s.time ≤ t)) = [] := by
-        rw [List.filter_eq_nil_iff]; intro x hx; have := hrest x hx; simp; omega
-      have e2 : rest.filter (fun s => decide (t < s.time) && decide (s.time ≤ k)) =
-          rest.filter (fun s => decide (s.time ≤ k)) := by
-        apply List.filter_congr; intro x hx; have := hrest x hx; simp; omega
-      by_cases h2 : st.time ≤ k
-      · simp [h1, h2, show t < st.time by omega, e1, e2]
-      · have e3 : rest.filter (fun s => decide (s.time ≤ k)) = [] := by
-          rw [List.filter_eq_nil_iff]; intro x hx; have := hinc.1 x hx; simp; omega
-        simp [h1, h2, e1, e3]
-        intro x hx _; have := hinc.1 x hx; omega
-
 /-- Let `r` be an increasing run, `t ≤ k`, and suppose no step of `r` with time in `(t, k]`
     satisfies `setsTemp`. Then the stored temp at `k` is the stored temp at `t`, and
     `rateAt env r k` is its rate if `k` is before its deadline, and `env.sched k` if `k` is
@@ -256,21 +230,6 @@ theorem inv_take {P : Temp → Prop} :
     apply inv_take
     · exact inv_foldl_events hs (fun c h => hc c (by simp only [cyclesFrom, List.mem_append]; left; exact h))
     · exact fun c h => hc c (by simp only [cyclesFrom, List.mem_append]; right; exact h)
-
-theorem upTo_take {r : Run Event} (hinc : Increasing r) (k : Int) : ∃ n, upTo r k = r.take n := by
-  induction r with
-  | nil => exact ⟨0, rfl⟩
-  | cons st rest ih =>
-    unfold Increasing at hinc
-    rw [List.pairwise_cons] at hinc
-    obtain ⟨n, hn⟩ := ih hinc.2
-    unfold upTo at hn ⊢
-    by_cases h : st.time ≤ k
-    · exact ⟨n + 1, by simp [h, hn]⟩
-    · refine ⟨0, ?_⟩
-      have : rest.filter (fun s => decide (s.time ≤ k)) = [] := by
-        rw [List.filter_eq_nil_iff]; intro x hx; have := hinc.1 x hx; simp; omega
-      simp [h, this]
 
 /-- In an increasing run, if the initial state satisfies `InvWith P` and every cycle
     satisfies `StoresOk P`, the state at every time satisfies `InvWith P`. -/
