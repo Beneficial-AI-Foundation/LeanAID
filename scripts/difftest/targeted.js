@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Targeted differential test of aid-lean against oref0's determine_basal.
-//   TZ=UTC node scripts/difftest/targeted.js [cases.jsonl = scripts/difftest/targeted.jsonl]
+//   TZ=UTC node scripts/difftest/targeted.js [cases.jsonl = scripts/difftest/targeted.jsonl] [--fixed]
 // Runs every case of the file through oref0 (getLastGlucose, then determine_basal) and
 // through `aid-lean batch`, and compares the outputs exactly as scripts/difftest/run.js does
 // (scripts/difftest/common.js). Prints a summary; exit code 1 if any case differs without a
@@ -13,7 +13,11 @@ var path = require('path');
 var common = require('./common');
 
 if (process.env.TZ !== 'UTC') { console.error('run with TZ=UTC'); process.exit(1); }
-var file = process.argv[2] || path.join(__dirname, 'targeted.jsonl');
+// --fixed: the corrected version against oref0 and the patched oref0 (scripts/difftest/fixed.js)
+var FIXED = process.argv.indexOf('--fixed') >= 0;
+var argv = process.argv.filter(function (a) { return a !== '--fixed'; });
+var file = argv[2] || path.join(__dirname, 'targeted.jsonl');
+if (FIXED) { require('./fixed').runFixedFile(file); return; }
 var lines = fs.readFileSync(file, 'utf8').split('\n').filter(function (l) { return l.trim() !== ''; });
 var cases = lines.map(function (l) { return JSON.parse(l); });
 

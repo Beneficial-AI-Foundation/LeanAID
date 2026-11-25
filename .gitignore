@@ -31,3 +31,7 @@ sim/out/smoke/*.log
 
 # internal notes kept locally (experiment log, draft upstream reports)
 private/
+
+# patched copies of oref0 made by scripts/fixes/apply.sh
+scripts/fixes/out/
+sim/out/runs-fixed/

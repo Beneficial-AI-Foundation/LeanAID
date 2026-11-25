@@ -1,0 +1,33 @@
+diff -ruN a/lib/determine-basal/determine-basal.js b/lib/determine-basal/determine-basal.js
+--- a/lib/determine-basal/determine-basal.js
++++ b/lib/determine-basal/determine-basal.js
+@@ -142,6 +142,29 @@
+     var profile_current_basal = round_basal(profile.current_basal, profile);
+     var basal = profile_current_basal;
+ 
++    // LeanAID fix F-12 (not in oref0): with max_basal or max_daily_basal missing or not a
++    // number, maxSafeBasal is NaN and no rate cap applies. Then refuse to raise the rate, in
++    // the form of the CGM-error branch below: no microbolus, cancel a temp above the
++    // scheduled basal, shorten a long zero temp, or do nothing.
++    var maxSafeBasalF12 = tempBasalFunctions.getMaxSafeBasal(profile);
++    if (!(typeof maxSafeBasalF12 === 'number' && isFinite(maxSafeBasalF12) && maxSafeBasalF12 > 0)) {
++        rT.temp = 'absolute';
++        rT.deliverAt = deliverAt;
++        rT.reason = "Error: maxSafeBasal " + maxSafeBasalF12 + " is not a positive number; check max_basal, max_daily_basal and current_basal. Not raising the temp basal";
++        if (currenttemp.rate > profile.current_basal) {
++            rT.reason += ". Canceling temp basal of " + currenttemp.rate + " above current basal " + profile.current_basal;
++            rT.duration = 0;
++            rT.rate = 0;
++        } else if (currenttemp.rate === 0 && currenttemp.duration > 30) {
++            rT.reason += ". Shortening " + currenttemp.duration + "m long zero temp to 30m. ";
++            rT.duration = 30;
++            rT.rate = 0;
++        } else {
++            rT.reason += ". Temp " + currenttemp.rate + " <= current basal " + profile.current_basal + "U/hr; doing nothing. ";
++        }
++        return rT;
++    }
++
+     var systemTime = new Date();
+     if (currentTime) {
+         systemTime = currentTime;

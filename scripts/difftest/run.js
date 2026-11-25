@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Differential testing of aid-lean against oref0's determine_basal (M10).
-//   TZ=UTC node scripts/difftest/run.js [N=100000] [seed=1]
+//   TZ=UTC node scripts/difftest/run.js [N=100000] [seed=1] [--fixed]
+// (--fixed: the corrected version, see scripts/difftest/fixed.js and docs/FIXED.md)
 // Generates N random inputs, runs oref0 in-process (exactly as
 // bin/oref0-determine-basal.js does: getLastGlucose, then determine_basal) and
 // `aid-lean batch` on the same inputs, and compares the JSON outputs.
@@ -12,8 +13,12 @@ var common = require('./common');
 var ROOT = common.ROOT;
 
 if (process.env.TZ !== 'UTC') { console.error('run with TZ=UTC'); process.exit(1); }
-var N = parseInt(process.argv[2] || '100000', 10);
-var seed = parseInt(process.argv[3] || '1', 10);
+// --fixed: compare `aid-lean batch --fixed` (docs/FIXED.md) with oref0 and with the patched copy
+// of scripts/fixes/apply.sh, and write docs/difftest-fixed.json instead (see the end of the file).
+var FIXED = process.argv.indexOf('--fixed') >= 0;
+var argv = process.argv.filter(function (a) { return a !== '--fixed'; });
+var N = parseInt(argv[2] || '100000', 10);
+var seed = parseInt(argv[3] || '1', 10);
 
 // mulberry32
 function rng() { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
@@ -100,6 +105,7 @@ function genCase() {
 
 var OUT = path.join(__dirname, 'out');
 fs.mkdirSync(OUT, { recursive: true });
+if (FIXED) { require('./fixed').runFixed({ N: N, seed: parseInt(argv[3] || '1', 10), genCase: genCase, OUT: OUT }); return; }
 var casesFile = path.join(OUT, 'chunk.jsonl');
 var stats = common.newStats({ cases: N, seed: parseInt(process.argv[3] || '1', 10) });
 stats.aidLeanSeconds = 0;

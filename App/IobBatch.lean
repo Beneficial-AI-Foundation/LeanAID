@@ -23,6 +23,7 @@
 import App.Json
 import App.Serve
 import LeanAID.Core.MealHistory
+import LeanAID.Fixed.Combined
 
 open Lean LeanAID LeanAID.Iob LeanAID.MealHistory
 
@@ -62,7 +63,10 @@ def mealInputJson (m : MealInput) : String :=
 
 def arr (j : Json) : List Json := match j with | .arr a => a.toList | _ => []
 
-def step (j : Json) : String :=
+/-- One case. With `fixed` (`aid-lean iob-batch <f> --fixed`, docs/FIXED.md), the IOB is the
+    corrected one (`LeanAID.Fixed.generateFixed`), and the output has one more key, `"f24"`:
+    whether the F-24 trigger holds (`LeanAID.Fixed.triggerF24`). -/
+def step (j : Json) (fixed : Bool := false) : String :=
   let tz : Int := 0
   let get := fun k => (field j k).getD .null
   let profile := Serve.fullProfileOf (get "profile")
@@ -74,7 +78,8 @@ def step (j : Json) : String :=
   let autosens : Option Autosens := (field j "autosens").bind fun a => match a with
     | .obj _ => some { ratio := num a "ratio" } | _ => none
   let currentIOBOnly := (bool j "currentIOBOnly").getD false
-  let iobOut := generate { history, history24, profile, autosens, clockMs, tzOffsetMin := tz } currentIOBOnly
+  let hin : HistoryInputs := { history, history24, profile, autosens, clockMs, tzOffsetMin := tz }
+  let iobOut := if fixed then LeanAID.Fixed.generateFixed hin currentIOBOnly else generate hin currentIOBOnly
   let meal := findMealInputs ((arr (get "pumphistory")).map mealPumpRecordOf) ((arr (get "carbhistory")).map carbRecordOf)
   let lookups := (arr (get "lookups")).map fun l =>
     let sched := (arr ((field l "schedule").getD .null)).filterMap Serve.basalEntryOf
@@ -83,10 +88,11 @@ def step (j : Json) : String :=
     | some r => JsonOut.num r
     | none => "null"
   "{\"iob\":" ++ iobArrayJson iobOut ++ ",\"meal\":[" ++ ",".intercalate (meal.map mealInputJson) ++
-    "],\"basal\":[" ++ ",".intercalate lookups ++ "]}"
+    "],\"basal\":[" ++ ",".intercalate lookups ++ "]" ++
+    (if fixed then ",\"f24\":" ++ (if LeanAID.Fixed.triggerF24 hin then "true" else "false") else "") ++ "}"
 
-/-- `aid-lean iob-batch <cases.jsonl>`: one output line per input line. -/
-def batch (path : String) : IO UInt32 := do
+/-- `aid-lean iob-batch <cases.jsonl> [--fixed]`: one output line per input line. -/
+def batch (path : String) (fixed : Bool := false) : IO UInt32 := do
   let h ← IO.FS.Handle.mk path .read
   let out ← IO.getStdout
   let rec loop (fuel : Nat) : IO Unit := do
@@ -96,7 +102,7 @@ def batch (path : String) : IO UInt32 := do
       let line ← h.getLine
       if line.isEmpty then pure () else
       match Json.parse line with
-      | .ok j => out.putStrLn (step j)
+      | .ok j => out.putStrLn (step j fixed)
       | .error e => out.putStrLn s!"{JsonOut.obj [("parseError", some (JsonOut.str e))]}"
       loop fuel
   loop 100000000

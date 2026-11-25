@@ -23,6 +23,7 @@
 -/
 import App.Json
 import LeanAID.Core.JsonOut
+import LeanAID.Fixed.Combined
 
 open Lean LeanAID LeanAID.Iob
 
@@ -88,7 +89,9 @@ def iobInput (o : IobOut) : IobInput :=
                                          duration := o.lastTemp.duration } else none,
       lastBolusTime := if k == 0 then some o.lastBolusTime else none })
 
-def step (j : Json) : String :=
+/-- One step. With `fixed`, the corrected version (`aid-lean serve --fixed`, docs/FIXED.md):
+    `LeanAID.Fixed.generateFixed` and `LeanAID.Fixed.determineBasalFixed`. -/
+def step (j : Json) (fixed : Bool := false) : String :=
   let tz : Int := 0
   let get := fun k => (field j k).getD .null
   let profile := fullProfileOf (get "profile")
@@ -98,7 +101,8 @@ def step (j : Json) : String :=
   let history := match get "pumphistory" with
     | .arr a => a.toList.map pumpRecordOf
     | _ => []
-  let iobOut := generate { history, profile, clockMs, tzOffsetMin := tz }
+  let hin : HistoryInputs := { history, profile, clockMs, tzOffsetMin := tz }
+  let iobOut := if fixed then LeanAID.Fixed.generateFixed hin else generate hin
   let entries := match get "glucose" with
     | .arr a => a.toList.map (entryOf · tz)
     | _ => []
@@ -116,14 +120,14 @@ def step (j : Json) : String :=
           meal_data := some (match field j "meal" with | some m => mealOf m | none => {}),
           microBolusAllowed := (bool j "microBolusAllowed").getD false, reservoir_data := .null,
           clock := { now, tzOffsetMin := tz } }
-      let r := determineBasal inp
+      let r := if fixed then LeanAID.Fixed.determineBasalFixed inp else determineBasal inp
       match r.error with
       | some e => JsonOut.obj [("error", some (JsonOut.str e))]
       | none => JsonOut.result r
   "{\"iob\":" ++ iobJson iobOut ++ ",\"suggestion\":" ++ suggestion ++ "}"
 
-/-- `aid-lean serve`: one output line per input line, until end of input. -/
-partial def serve : IO UInt32 := do
+/-- `aid-lean serve [--fixed]`: one output line per input line, until end of input. -/
+partial def serve (fixed : Bool := false) : IO UInt32 := do
   let inp ← IO.getStdin
   let out ← IO.getStdout
   let rec loop : IO Unit := do
@@ -131,7 +135,7 @@ partial def serve : IO UInt32 := do
     if line.isEmpty then return
     if line.all Char.isWhitespace then loop else
     match Json.parse line with
-    | .ok j => out.putStrLn (step j)
+    | .ok j => out.putStrLn (step j fixed)
     | .error e => out.putStrLn (JsonOut.obj [("parseError", some (JsonOut.str e))])
     out.flush
     loop

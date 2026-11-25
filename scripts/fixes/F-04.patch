@@ -1,0 +1,55 @@
+diff -ruN a/lib/determine-basal/determine-basal.js b/lib/determine-basal/determine-basal.js
+--- a/lib/determine-basal/determine-basal.js
++++ b/lib/determine-basal/determine-basal.js
+@@ -1189,4 +1189,22 @@
+ 
+ };
+ 
++// LeanAID fix F-04 (not in oref0): round_basal rounds to the nearest pump step, so an
++// issued rate can be above maxSafeBasal when maxSafeBasal is not on the pump's grid
++// (0.83 -> 0.85 U/h). At the exit of determine_basal, issue the largest rate on the grid
++// that is at most maxSafeBasal instead. Every other result is returned unchanged.
++var determine_basal_oref0 = determine_basal;
++determine_basal = function determine_basal(glucose_status, currenttemp, iob_data, profile, autosens_data, meal_data, tempBasalFunctions, microBolusAllowed, reservoir_data, currentTime) {
++    var rT = determine_basal_oref0(glucose_status, currenttemp, iob_data, profile, autosens_data, meal_data, tempBasalFunctions, microBolusAllowed, reservoir_data, currentTime);
++    if (typeof rT.rate !== 'undefined') {
++        var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
++        if (rT.rate > maxSafeBasal && maxSafeBasal >= 0) {
++            var down = round_basal.down(maxSafeBasal, profile);
++            rT.reason += "; " + rT.rate + "U/hr is above maxSafeBasal " + maxSafeBasal + ": setting " + down + "U/hr";
++            rT.rate = down;
++        }
++    }
++    return rT;
++};
++
+ module.exports = determine_basal;
+diff -ruN a/lib/round-basal.js b/lib/round-basal.js
+--- a/lib/round-basal.js
++++ b/lib/round-basal.js
+@@ -41,4 +41,25 @@
+     return rounded_basal;
+ }
+ 
++// LeanAID fix F-04 (not in oref0): the largest rate on the pump's grid that is at most
++// `basal`, with the scale round_basal uses for `basal`. Math.floor(basal * scale) can be one
++// too high when the double product basal * scale is rounded up to an integer; the second
++// line corrects that, so the result is never above `basal`.
++round_basal.down = function round_basal_down(basal, profile) {
++    var lowest_rate_scale = 20;
++    if (typeof profile !== 'undefined' && typeof profile.model === 'string') {
++        if (endsWith(profile.model, "54") || endsWith(profile.model, "23")) {
++            lowest_rate_scale = 40;
++        }
++    }
++    var scale;
++    if (basal < 1) { scale = lowest_rate_scale; }
++    else if (basal < 10) { scale = 20; }
++    else { scale = 10; }
++    var k = Math.floor(basal * scale);
++    var down = k / scale;
++    if (down > basal) { down = (k - 1) / scale; }
++    return down;
++};
++
+ exports = module.exports = round_basal

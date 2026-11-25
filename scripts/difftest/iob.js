@@ -5,6 +5,7 @@
 //
 //   TZ=UTC node scripts/difftest/iob.js [N=100000] [seed=1]
 //   TZ=UTC node scripts/difftest/iob.js --file cases.jsonl     (the cases of a file instead)
+//   ... --fixed   the corrected IOB (docs/FIXED.md) against oref0 and the patched oref0
 // aid-lean runs in IOB_JOBS parallel processes (default: number of CPUs minus 2).
 //
 // Generates N random, well-formed pump histories, carb histories and profiles (seeded,
@@ -32,9 +33,17 @@ var findMeals = require(path.join(O, 'lib/meal/history'));
 var basalLookup = require(path.join(O, 'lib/profile/basal')).basalLookup;
 
 if (process.env.TZ !== 'UTC') { console.error('run with TZ=UTC'); process.exit(1); }
+// --fixed: compare `aid-lean iob-batch --fixed` (the corrected IOB, docs/FIXED.md) with oref0 and
+// with the patched copy of scripts/fixes/apply.sh; write docs/iobtest-fixed.json instead.
+var FIXED = process.argv.indexOf('--fixed') >= 0;
+process.argv = process.argv.filter(function (a) { return a !== '--fixed'; });
 var fileMode = process.argv[2] === '--file';
 var N = fileMode ? 0 : parseInt(process.argv[2] || '100000', 10);
 var seed = fileMode ? 0 : parseInt(process.argv[3] || '1', 10);
+var P = FIXED ? {
+  generateIob: require(path.join(common.FIXED_OREF0, 'lib/iob')),
+  findMeals: require(path.join(common.FIXED_OREF0, 'lib/meal/history')),
+  basalLookup: require(path.join(common.FIXED_OREF0, 'lib/profile/basal')).basalLookup } : null;
 var seed0 = seed;
 
 // mulberry32, as in scripts/difftest/run.js
@@ -273,7 +282,16 @@ function runNode(c) {
     } else v = basalLookup(copy(l.schedule), new Date(l.t));
     return v === undefined ? null : v;
   });
-  return { out: { iob: iob, meal: meal, basal: basal }, nearTie: common.sawNearTie(), leanCase: leanCase };
+  var patched = null;
+  if (FIXED) {
+    var pin = { history: copy(c.pumphistory), profile: copy(c.profile), clock: c.clock };
+    if (c.history24) pin.history24 = copy(c.history24);
+    if (c.autosens) pin.autosens = copy(c.autosens);
+    patched = { iob: copy(P.generateIob(pin, c.currentIOBOnly)),
+      meal: copy(P.findMeals({ history: copy(c.pumphistory), carbs: copy(c.carbhistory), profile: copy(c.profile) })),
+      basal: leanCase.lookups.map(function (l) { var v = P.basalLookup(copy(l.schedule), new Date(l.t)); return v === undefined ? null : v; }) };
+  }
+  return { out: { iob: iob, meal: meal, basal: basal }, nearTie: common.sawNearTie(), leanCase: leanCase, patched: patched };
 }
 
 // JSON with the keys of every object sorted.
@@ -297,6 +315,13 @@ var stats = { cases: 0, seed: fileMode ? null : seed0, file: fileMode ? process.
   exercised: { suspendZerosIob: 0, withSuspends: 0, history24: 0, currentIOBOnly: 0, exponential: 0, withCarbs: 0,
     unzonedClock: 0, lookupsWithoutTime: 0, lookupsUndefined: 0 },
   jobs: JOBS, nodeSeconds: 0, aidLeanSeconds: 0, aidLeanCpuSeconds: 0 };
+if (FIXED) {
+  stats.fixedVsOref0 = { identical: 0, differ: 0, differWithTrigger: 0, differWithoutTrigger: 0, triggerButIdentical: 0 };
+  stats.fixedVsPatchedJs = { identical: 0, differ: 0 };
+  stats.f24 = { cases: 0, differ: 0, iobTicksDiffering: 0, maxIobDiff: 0, maxZeroTempIobDiff: 0,
+    fixedIobHigher: 0, fixedIobLower: 0, maxIobDiffCase: null };
+  TAG += '-fixed';
+}
 var mm = fs.openSync(path.join(OUT, TAG + '-mismatches.jsonl'), 'w');
 
 // `aid-lean iob-batch` on the lines, split over JOBS processes; one output line per input line.
@@ -308,7 +333,7 @@ function runLean(lines) {
     fs.writeFileSync(f, part.join('\n') + '\n');
     return new Promise(function (resolve, reject) {
       var t0 = Date.now();
-      cp.execFile(path.join(ROOT, '.lake/build/bin/aid-lean'), ['iob-batch', f], { encoding: 'utf8', maxBuffer: 1 << 30 },
+      cp.execFile((process.env.AID_LEAN || path.join(ROOT, '.lake/build/bin/aid-lean')), FIXED ? ['iob-batch', f, '--fixed'] : ['iob-batch', f], { encoding: 'utf8', maxBuffer: 1 << 30 },
         function (err, out) {
           if (err) return reject(err);
           stats.aidLeanCpuSeconds += (Date.now() - t0) / 1000;
@@ -338,6 +363,7 @@ function runChunk(cases, base) {
     c.lookups.forEach(function (l, k) { if (l.t === null) stats.exercised.lookupsWithoutTime++; if (r.out.basal[k] === null) stats.exercised.lookupsUndefined++; });
     if (r.nearTie) stats.casesWithNearTie++;
     var lo; try { lo = JSON.parse(lean[n]); } catch (e) { lo = { unparsable: String(lean[n]) }; }
+    if (FIXED) return countFixed(r, lo, base + n);
     var parts = ['iob', 'meal', 'basal'].filter(function (p) { return canon(r.out[p]) !== canon(lo[p]); });
     if (!parts.length) { stats.identical++; return; }
     if (r.nearTie) stats.mismatchWithNearTie++; else stats.mismatchWithoutNearTie++;
@@ -345,6 +371,39 @@ function runChunk(cases, base) {
     fs.writeSync(mm, JSON.stringify({ n: base + n, nearTie: r.nearTie, parts: parts, oref0: r.out, aidLean: lo, input: r.leanCase }) + '\n');
   });
   });
+}
+
+// --fixed: count one case. The corrected IOB may differ from oref0's only when the F-24 trigger
+// holds (`f24` in aid-lean's output), and must equal the patched oref0's.
+function countFixed(r, lo, n) {
+  var trig = lo.f24 === true;
+  var parts = ['iob', 'meal', 'basal'].filter(function (p) { return canon(r.out[p]) !== canon(lo[p]); });
+  var partsJs = ['iob', 'meal', 'basal'].filter(function (p) { return canon(r.patched[p]) !== canon(lo[p]); });
+  var bad = [];
+  if (trig) stats.f24.cases++;
+  if (!parts.length) { stats.identical++; stats.fixedVsOref0.identical++; if (trig) stats.fixedVsOref0.triggerButIdentical++; }
+  else {
+    stats.fixedVsOref0.differ++;
+    parts.forEach(function (p) { stats.partsDiffering[p]++; });
+    if (trig) {
+      stats.fixedVsOref0.differWithTrigger++; stats.f24.differ++;
+      (r.out.iob || []).forEach(function (t, k) {
+        var u = (lo.iob || [])[k]; if (!u) return;
+        var d = u.iob - t.iob, dz = u.iobWithZeroTemp.iob - t.iobWithZeroTemp.iob;
+        if (d !== 0 || dz !== 0) stats.f24.iobTicksDiffering++;
+        if (Math.abs(d) > stats.f24.maxIobDiff) { stats.f24.maxIobDiff = Math.round(Math.abs(d) * 1e4) / 1e4; stats.f24.maxIobDiffCase = n; }
+        stats.f24.maxZeroTempIobDiff = Math.max(stats.f24.maxZeroTempIobDiff, Math.round(Math.abs(dz) * 1e4) / 1e4);
+        if (k === 0 && d > 0) stats.f24.fixedIobHigher++;
+        if (k === 0 && d < 0) stats.f24.fixedIobLower++;
+      });
+    } else { stats.fixedVsOref0.differWithoutTrigger++; bad.push('differs from oref0 without the F-24 trigger'); }
+  }
+  if (!partsJs.length) stats.fixedVsPatchedJs.identical++;
+  else { stats.fixedVsPatchedJs.differ++; bad.push('differs from the patched oref0: ' + partsJs.join(',')); }
+  if (bad.length) {
+    if (r.nearTie) stats.mismatchWithNearTie++; else stats.mismatchWithoutNearTie++;
+    fs.writeSync(mm, JSON.stringify({ n: n, problems: bad, nearTie: r.nearTie, f24: trig, oref0: r.out, patchedJs: r.patched, aidLean: lo, input: r.leanCase }) + '\n');
+  }
 }
 
 var CHUNK = 5000;
@@ -377,7 +436,14 @@ stats.wallSeconds = Math.round((Date.now() - t00) / 100) / 10;
 stats.aidLeanCpuSeconds = Math.round(stats.aidLeanCpuSeconds * 10) / 10;
 stats.nodeSeconds = Math.round(stats.nodeSeconds * 10) / 10;
 stats.aidLeanSeconds = Math.round(stats.aidLeanSeconds * 10) / 10;
-if (!fileMode) fs.writeFileSync(path.join(ROOT, 'docs/iobtest.json'), JSON.stringify(stats, null, 1) + '\n');
+if (!fileMode) fs.writeFileSync(path.join(ROOT, FIXED ? 'docs/iobtest-fixed.json' : 'docs/iobtest.json'), JSON.stringify(stats, null, 1) + '\n');
+if (FIXED) {
+  console.log('iob --fixed: ' + stats.fixedVsOref0.identical + '/' + stats.cases + ' identical to oref0, ' +
+    stats.fixedVsOref0.differWithTrigger + ' differ with the F-24 trigger, ' + stats.fixedVsOref0.differWithoutTrigger +
+    ' differ without it; ' + stats.fixedVsPatchedJs.identical + '/' + stats.cases + ' identical to the patched oref0; ' +
+    'F-24 trigger in ' + stats.f24.cases + ' cases');
+  process.exit(stats.fixedVsOref0.differWithoutTrigger === 0 && stats.fixedVsPatchedJs.differ === 0 ? 0 : 1);
+}
 console.log(JSON.stringify(stats, null, 1));
 console.log('iob: ' + stats.identical + '/' + stats.cases + ' identical, ' + stats.mismatchWithNearTie +
   ' differ at a rounding tie, ' + stats.mismatchWithoutNearTie + ' differ without one');

@@ -10,7 +10,9 @@
 #     propext, Classical.choice, Quot.sound;
 #   * a reproduction of F-04, F-11 or F-12 against vendor/oref0 does not give PRESENT;
 #   * a targeted differential case (scripts/difftest/targeted.jsonl, iob-targeted.jsonl)
-#     differs between oref0 and the built aid-lean.
+#     differs between oref0 and the built aid-lean;
+#   * (if scripts/fixes/apply.sh has run) `aid-lean --fixed` differs from the patched oref0 on
+#     the targeted cases or the finding inputs, or from oref0 without a trigger.
 # It prints `#print axioms` for every theorem listed in scripts/headline.txt.
 set -u
 cd "$(dirname "$0")/.."
@@ -94,5 +96,19 @@ if [ -d vendor/oref0/lib ] && [ -x .lake/build/bin/aid-lean ]; then
   done
 else
   echo "check.sh: vendor/oref0 or .lake/build/bin/aid-lean missing, targeted cases skipped"
+fi
+# The corrected version (docs/FIXED.md): the targeted cases and the finding inputs through
+# oref0, the patched copy of oref0 (scripts/fixes/apply.sh) and `aid-lean --fixed`. Runs only if
+# the patched copy exists. About 2 s.
+if [ -d scripts/fixes/out/oref0-fixed/lib ] && [ -x .lake/build/bin/aid-lean ]; then
+  for f in scripts/difftest/targeted.jsonl scripts/fixes/findings.jsonl; do
+    out=$(TZ=UTC node scripts/difftest/targeted.js "$f" --fixed 2>&1); rc=$?
+    echo "$out" | tail -1
+    if [ $rc -ne 0 ]; then
+      echo "$out"; echo "check.sh: the corrected version fails on $f"; exit 1
+    fi
+  done
+else
+  echo "check.sh: scripts/fixes/out/oref0-fixed missing (bash scripts/fixes/apply.sh), --fixed cases skipped"
 fi
 echo "check.sh: OK"

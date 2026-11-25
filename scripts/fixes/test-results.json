@@ -1,0 +1,174 @@
+{
+ "suite": {
+  "unpatched": {
+   "tests": 244,
+   "passes": 234,
+   "failures": 10
+  },
+  "F-04": {
+   "tests": 244,
+   "passes": 234,
+   "failures": 10
+  },
+  "F-11": {
+   "tests": 244,
+   "passes": 196,
+   "failures": 48
+  },
+  "F-12": {
+   "tests": 244,
+   "passes": 232,
+   "failures": 12
+  },
+  "F-23": {
+   "tests": 244,
+   "passes": 234,
+   "failures": 10
+  },
+  "F-24": {
+   "tests": 244,
+   "passes": 234,
+   "failures": 10
+  },
+  "all five": {
+   "tests": 244,
+   "passes": 196,
+   "failures": 48
+  }
+ },
+ "newFailures": {
+  "F-04": {
+   "count": 0,
+   "onTriggerInputs": 0,
+   "otherwise": [],
+   "passingNow": [],
+   "tests": []
+  },
+  "F-11": {
+   "count": 38,
+   "onTriggerInputs": 38,
+   "otherwise": [],
+   "passingNow": [],
+   "tests": [
+    "determine-basal should temp to 0 when low w/o IOB",
+    "determine-basal should not extend temp to 0 when <10m elapsed",
+    "determine-basal should do nothing when low and rising w/o IOB",
+    "determine-basal should temp to zero when rising slower than BGI",
+    "determine-basal should temp to 0 when low and falling, regardless of BGI",
+    "determine-basal should high-temp when > 80-ish and rising w/ lots of negative IOB",
+    "determine-basal should high-temp when > 180-ish and rising but not more then maxSafeBasal",
+    "determine-basal should reduce high-temp when schedule would be above max",
+    "determine-basal should continue high-temp when required ~= temp running",
+    "determine-basal should set high-temp when required running temp is low",
+    "determine-basal should stop high-temp when iob is near max_iob.",
+    "determine-basal should temp to 0 when LOW w/ positive IOB",
+    "determine-basal should low temp when LOW w/ negative IOB",
+    "determine-basal should temp to 0 when LOW w/ no IOB",
+    "determine-basal should low-temp when eventualBG < min_bg",
+    "determine-basal should low-temp when eventualBG < min_bg with delta > exp. delta",
+    "determine-basal should low-temp when eventualBG < min_bg with delta > exp. delta",
+    "determine-basal should low-temp much less when eventualBG < min_bg with delta barely negative",
+    "determine-basal should cancel low-temp when lowish and avg.delta rising faster than BGI",
+    "determine-basal should cancel low-temp when lowish and delta rising faster than BGI",
+    "determine-basal should set current basal as temp when lowish and delta rising faster than BGI",
+    "determine-basal should low-temp when low and rising slower than BGI",
+    "determine-basal should high-temp when eventualBG > max_bg",
+    "determine-basal should cancel high-temp when high and avg. delta falling faster than BGI",
+    "determine-basal should cancel high-temp when high and delta falling faster than BGI",
+    "determine-basal should do nothing when no temp and high and delta falling faster than BGI",
+    "determine-basal should high-temp when high and falling slower than BGI",
+    "determine-basal should high-temp when high and falling slowly with low insulin activity",
+    "determine-basal should let low-temp run when bg < 30 (Dexcom is in ???)",
+    "determine-basal profile should contain min_bg,max_bg",
+    "determine-basal iob_data should not be undefined",
+    "determine-basal should temp to zero with double sensitivity adjustment",
+    "determine-basal maxSafeBasal current_basal_safety_multiplier of 1 should cause the current rate to be set, even if higher is needed",
+    "determine-basal maxSafeBasal max_daily_safety_multiplier of 1 should cause the max daily rate to be set, even if higher is needed",
+    "determine-basal overriding maxSafeBasal multipliers to 10 should increase temp",
+    "determine-basal should round appropriately for small basals when setting basal to maxSafeBasal ",
+    "determine-basal should match the basal rate precision available on a 523",
+    "determine-basal should match the basal rate precision available on a 522"
+   ]
+  },
+  "F-12": {
+   "count": 2,
+   "onTriggerInputs": 2,
+   "otherwise": [],
+   "passingNow": [],
+   "tests": [
+    "determine-basal profile should contain min_bg,max_bg",
+    "determine-basal iob_data should not be undefined"
+   ]
+  },
+  "F-23": {
+   "count": 0,
+   "onTriggerInputs": 0,
+   "otherwise": [],
+   "passingNow": [],
+   "tests": []
+  },
+  "F-24": {
+   "count": 0,
+   "onTriggerInputs": 0,
+   "otherwise": [],
+   "passingNow": [],
+   "tests": []
+  },
+  "all five": {
+   "count": 38,
+   "onTriggerInputs": 38,
+   "otherwise": [],
+   "passingNow": [],
+   "tests": [
+    "determine-basal should temp to 0 when low w/o IOB",
+    "determine-basal should not extend temp to 0 when <10m elapsed",
+    "determine-basal should do nothing when low and rising w/o IOB",
+    "determine-basal should temp to zero when rising slower than BGI",
+    "determine-basal should temp to 0 when low and falling, regardless of BGI",
+    "determine-basal should high-temp when > 80-ish and rising w/ lots of negative IOB",
+    "determine-basal should high-temp when > 180-ish and rising but not more then maxSafeBasal",
+    "determine-basal should reduce high-temp when schedule would be above max",
+    "determine-basal should continue high-temp when required ~= temp running",
+    "determine-basal should set high-temp when required running temp is low",
+    "determine-basal should stop high-temp when iob is near max_iob.",
+    "determine-basal should temp to 0 when LOW w/ positive IOB",
+    "determine-basal should low temp when LOW w/ negative IOB",
+    "determine-basal should temp to 0 when LOW w/ no IOB",
+    "determine-basal should low-temp when eventualBG < min_bg",
+    "determine-basal should low-temp when eventualBG < min_bg with delta > exp. delta",
+    "determine-basal should low-temp when eventualBG < min_bg with delta > exp. delta",
+    "determine-basal should low-temp much less when eventualBG < min_bg with delta barely negative",
+    "determine-basal should cancel low-temp when lowish and avg.delta rising faster than BGI",
+    "determine-basal should cancel low-temp when lowish and delta rising faster than BGI",
+    "determine-basal should set current basal as temp when lowish and delta rising faster than BGI",
+    "determine-basal should low-temp when low and rising slower than BGI",
+    "determine-basal should high-temp when eventualBG > max_bg",
+    "determine-basal should cancel high-temp when high and avg. delta falling faster than BGI",
+    "determine-basal should cancel high-temp when high and delta falling faster than BGI",
+    "determine-basal should do nothing when no temp and high and delta falling faster than BGI",
+    "determine-basal should high-temp when high and falling slower than BGI",
+    "determine-basal should high-temp when high and falling slowly with low insulin activity",
+    "determine-basal should let low-temp run when bg < 30 (Dexcom is in ???)",
+    "determine-basal profile should contain min_bg,max_bg",
+    "determine-basal iob_data should not be undefined",
+    "determine-basal should temp to zero with double sensitivity adjustment",
+    "determine-basal maxSafeBasal current_basal_safety_multiplier of 1 should cause the current rate to be set, even if higher is needed",
+    "determine-basal maxSafeBasal max_daily_safety_multiplier of 1 should cause the max daily rate to be set, even if higher is needed",
+    "determine-basal overriding maxSafeBasal multipliers to 10 should increase temp",
+    "determine-basal should round appropriately for small basals when setting basal to maxSafeBasal ",
+    "determine-basal should match the basal rate precision available on a 523",
+    "determine-basal should match the basal rate precision available on a 522"
+   ]
+  }
+ },
+ "ok": true,
+ "findings": "{\"f04\":\"ABSENT\",\"f11\":\"ABSENT\",\"f12\":\"ABSENT\"}",
+ "f23probe": [
+  "JSON as sent: {\"rate\":0,\"duration\":30}",
+  "JSON as sent: {\"rate\":0,\"duration\":30}",
+  "JSON as sent: {\"rate\":0,\"duration\":30}",
+  "JSON as sent: {\"rate\":0,\"duration\":60}",
+  "JSON as sent: {\"rate\":0,\"duration\":30}"
+ ],
+ "f24probe": "patched copy scripts/fixes/out/oref0-fixed: treatments identical to the fix in memory in 8 of 8 cases"
+}

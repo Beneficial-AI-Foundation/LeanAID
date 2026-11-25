@@ -58,6 +58,7 @@ Project page: <https://beneficial-ai-foundation.github.io/LeanAID/>
 | `scripts/difftest/` | differential tests against oref0 |
 | `scripts/coverage/` | branch coverage of oref0 |
 | `scripts/findings/` | one reproduction script per main finding |
+| `scripts/fixes/` | the fixes of `LeanAID/Fixed` as patches to oref0, and their tests |
 | `sim/` | virtual-patient harness (simglucose) |
 | `docs/` | design, requirements and traceability, findings, coverage, simulation results |
 | `site/` | the project page |
@@ -101,6 +102,29 @@ One decision, as `oref0-determine-basal`:
 `--safe` refuses inputs with an undated glucose reading, a missing maximum-basal setting or
 carbs without a meal time. Without it, `aid-lean` decides exactly as oref0 does, findings
 included.
+
+## The corrected version (`--fixed`)
+
+`LeanAID/Fixed/` is a corrected oref0 next to the unchanged translation: the smallest fixes
+of F-04 (a rate rounded above `maxSafeBasal`), F-11 (undated glucose), F-12 (missing
+`max_basal`), F-23 (low-glucose suspend with a NaN duration) and F-24 (`splitTimespan` drops
+insulin), each calling `LeanAID/Core` for everything it does not fix. For each fix Lean
+proves when it changes anything (a trigger), that nothing else changes, and that it works;
+for the combined version it proves the safety rules without their current exceptions
+(for example, every rate at most `maxSafeBasal`, with no rounding allowance). The same fixes
+are JavaScript patches to oref0 (`scripts/fixes/`), applied to a copy, never to `vendor/`.
+Details, results and what is not proved: [docs/FIXED.md](docs/FIXED.md).
+
+```bash
+.lake/build/bin/aid-lean determine-basal … --fixed   # the corrected decision
+.lake/build/bin/aid-lean batch cases.jsonl --fixed    # also --fixed-triggers, iob-batch --fixed, serve --fixed
+bash scripts/fixes/apply.sh                          # patched copy of oref0 in scripts/fixes/out/
+TZ=UTC node scripts/difftest/run.js 100000 7 --fixed # against oref0 and the patched oref0
+TZ=UTC node scripts/difftest/iob.js 100000 1 --fixed
+TZ=UTC node scripts/fixes/test.js                    # oref0's tests and the findings on the patched copy
+```
+
+Without `--fixed`, `aid-lean` is the faithful translation and nothing changes.
 
 ## Limits
 

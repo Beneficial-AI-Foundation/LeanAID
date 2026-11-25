@@ -25,6 +25,8 @@ How common (`scripts/findings/f04-search.js`): with scheduled basals on the pump
 `max_basal` typed with two decimals, the issued rate exceeds the limit in 15–20 % of
 combinations (40 % of those where `max_basal` is the binding limit); never when
 `max_basal` is a multiple of 0.1 U/h. Overshoot at most 0.02 U/h in these ranges.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/Rounding.lean` and `scripts/fixes/F-04.patch` issue
+`round_basal.down(maxSafeBasal)` instead of a rate above `maxSafeBasal`; `f04_fixed`.
 
 ### F-05 — The SMB low temp is not clamped to `maxSafeBasal`
 The SMB branch returns `rate = round(basal × durationReq/30, 2)` directly (line 1155),
@@ -132,6 +134,8 @@ without a date during two 45-minute dropouts a day): no harm. The repeated readi
 delta 0, so oref0's flat-CGM check (F-18) catches it and no temp is raised; against
 plain dropout, mean BG +0.2 mg/dL and insulin −0.05 U/day on average. The F-11 input
 above (an undated reading with non-zero deltas) did not arise in this scenario.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/Undated.lean` and `scripts/fixes/F-11.patch` treat a
+reading as stale unless `minAgo <= 12 && minAgo >= -5`; `f11_fixed`.
 
 ### F-12 — Missing `max_basal` / `max_daily_basal` disables the clamp (R14)
 `getMaxSafeBasal` is `Math.min(max_basal, 3·max_daily_basal, 4·current_basal)`; with
@@ -146,6 +150,8 @@ both arms identical): 1,064 decisions per arm above the configured `max_basal` (
 up to 9.8 × it (median of the per-patient maxima 3.8 ×); +1.9 U/day insulin and −10 mg/dL
 mean BG on average; time below 54 mg/dL 4.8 % against 1.6 % with the profile intact; 18
 of 30 patients spent more time below 70.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/MaxBasal.lean` and `scripts/fixes/F-12.patch` refuse to
+raise the rate without a positive `maxSafeBasal`; `f12_fixed`, `missing_max_basal_fixed`.
 
 ### F-13 — Exact and floating-point IOB differ by more than one rounding unit
 **Resolved** by modelling binary64 in the core (second review, step 3; DESIGN "Numbers"):
@@ -366,6 +372,8 @@ with `mdt settempbasal` (`bin/oref0-pump-loop.sh:360`), which is not in `vendor/
 driver reads `null` as 0, a Medtronic pump cancels the temp and runs the schedule, which is
 milder. If both conditions hold, a high temp can continue at low glucose for up to 30
 minutes.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/LowGlucose.lean` and `scripts/fixes/F-23.patch` (a NaN
+duration becomes 30 minutes); `f23_fixed`, `low_glucose_suspend_fixed`.
 
 ### F-11 in the run model
 In the run model the glucose status is `getLastGlucose` of the readings. When the readings
@@ -474,6 +482,8 @@ covered by the runs: long manual high temps, which lose insulin in the other dir
 clinical outcome in simulation for their whole Swift port, which fixes this bug among
 others, so their result does not rate this bug alone.
 `LeanAID/Core` is unchanged.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/SplitTimespan.lean` and `scripts/fixes/F-24.patch`
+decide per piece; `generateF24_eq`, `splitTimespanF24_tiles`.
 
 ## Found by the differential test of IOB, meal history and the basal schedule
 
@@ -515,3 +525,23 @@ Q11 is also a quirk of oref0 itself: line 357 warns "No duration found", but the
 runs for another temp's duration. A pump history cut between a `TempBasal` record and its
 duration record can do this. Not rated further.
 
+
+## Found while writing the corrected version (`docs/FIXED.md`)
+
+`LeanAID/Fixed` fixes F-04, F-11, F-12, F-23 and F-24; `LeanAID/Core` is unchanged. What the
+corrected version does not do, or what is not proved as intended (details in
+`docs/FIXED.md`, "What is not proved as intended"):
+- **oref0's own tests depend on F-11.** On the patched copy of oref0, 38 of oref0's tests
+  that pass unpatched fail with the F-11 patch: they pass glucose statuses without a `date`,
+  which the fix treats as stale. Two of them also fail with the F-12 patch alone: they pass
+  the profile `{"current_basal": 0.0}` without `max_basal`, which the fix refuses before oref0
+  reports its error. No test fails on an input that does not trigger a patch.
+- **The F-11 and F-12 fixes stop dosing, including low-glucose suspend.** With a missing
+  `max_basal`, the corrected version issues no rate other than 0 but sets no zero temp at low
+  glucose; an undated reading at low glucose takes the stale-data path, which sets no zero
+  temp. So `low_glucose_suspend_fixed` and `iob_at_max_fixed` keep `ValidInput` and assume a
+  dated, fresh reading.
+- **F-04 at the exit of `determine_basal`.** oref0's CGM-error branch issues
+  `round_basal(current_basal)` without a cap, which exceeds `maxSafeBasal` when
+  `current_basal = max_basal` is off the pump grid. The fix therefore acts on the issued rate,
+  not inside `setTempBasal`. `f04_fixed` assumes `maxSafeBasal` is a double in `[0, 2^30]`.

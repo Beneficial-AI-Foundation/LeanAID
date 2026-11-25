@@ -4,10 +4,17 @@
     aid-lean determine-basal <iob.json> <currenttemp.json> <glucose.json> <profile.json>
                              [<autosens.json>] [<meal.json>]
                              [--auto-sens F] [--meal F] [--reservoir F] [--currentTime T]
-                             [--microbolus] [--safe]
+                             [--microbolus] [--safe] [--fixed]
     aid-lean selftest
-    aid-lean serve        (JSON lines on stdin: IOB and determine-basal; see App/Serve.lean)
-    aid-lean iob-batch <cases.jsonl>  (IOB, meal history, basal lookups; see App/IobBatch.lean)
+    aid-lean serve [--fixed]  (JSON lines on stdin: IOB and determine-basal; see App/Serve.lean)
+    aid-lean batch <cases.jsonl> [--fixed | --fixed-triggers]
+    aid-lean iob-batch <cases.jsonl> [--fixed]  (IOB, meal history, basal lookups; see App/IobBatch.lean)
+
+  `--fixed` (not in oref0) runs the corrected version of `LeanAID/Fixed` instead of the
+  faithful translation: `determineBasalFixed` (fixes of F-04, F-11, F-12, F-23) and
+  `generateFixed` (F-24); see docs/FIXED.md. Without `--fixed` nothing changes.
+  `batch --fixed-triggers` prints `{"triggers":[...],"result":<line>}` for each case, with
+  the findings whose trigger holds (`LeanAID.Fixed.triggers`).
 
   `determine-basal` mirrors `bin/oref0-determine-basal.js`: the suggestion as JSON on
   stdout, or the error on stderr. `--safe` (not in oref0) first checks that the input
@@ -23,6 +30,7 @@ import App.Serve
 import App.IobBatch
 import LeanAID.Core.JsonOut
 import LeanAID.Spec.ValidCheck
+import LeanAID.Fixed.Combined
 import LeanAID.Conformance.Case
 import LeanAID.Conformance.Data.DetermineBasalData
 import LeanAID.Conformance.Data.IobData
@@ -60,6 +68,7 @@ structure Opts where
   currentTime : Option String := none
   microbolus : Bool := false
   safe : Bool := false
+  fixed : Bool := false
 
 partial def parseOpts (args : List String) (o : Opts := {}) : Except String Opts :=
   match args with
@@ -74,6 +83,7 @@ partial def parseOpts (args : List String) (o : Opts := {}) : Except String Opts
   | "-c" :: t :: rest => parseOpts rest { o with currentTime := some t }
   | "--microbolus" :: rest => parseOpts rest { o with microbolus := true }
   | "--safe" :: rest => parseOpts rest { o with safe := true }
+  | "--fixed" :: rest => parseOpts rest { o with fixed := true }
   | a :: rest => if a.startsWith "-" then .error s!"Unknown argument: {a}" else
       parseOpts rest { o with positional := o.positional.push a }
 
@@ -82,7 +92,7 @@ def determineBasalCmd (args : List String) : IO UInt32 := do
     | .ok o => pure o
     | .error e => IO.eprintln e; return 1
   if o.positional.size < 4 || o.positional.size > 6 then
-    IO.eprintln "usage: aid-lean determine-basal <iob.json> <currenttemp.json> <glucose.json> <profile.json> [<autosens.json>] [<meal.json>] [--auto-sens F] [--meal F] [--reservoir F] [--currentTime T] [--microbolus] [--safe]"
+    IO.eprintln "usage: aid-lean determine-basal <iob.json> <currenttemp.json> <glucose.json> <profile.json> [<autosens.json>] [<meal.json>] [--auto-sens F] [--meal F] [--reservoir F] [--currentTime T] [--microbolus] [--safe] [--fixed]"
     return 1
   let autosensFile := o.autosens <|> o.positional[4]?
   let mealFile := o.meal <|> o.positional[5]?
@@ -144,7 +154,7 @@ def determineBasalCmd (args : List String) : IO UInt32 := do
     if !reasons.isEmpty then
       IO.eprintln s!"aid-lean --safe: refusing input: {"; ".intercalate reasons}; no suggestion"
       return 2
-  let r := determineBasal inp
+  let r := if o.fixed then LeanAID.Fixed.determineBasalFixed inp else determineBasal inp
   match r.error with
   | some e => IO.eprintln e
   | none => IO.println (JsonOut.result r)
@@ -153,14 +163,14 @@ def determineBasalCmd (args : List String) : IO UInt32 := do
 /-- One case of `aid-lean batch`: a JSON object with the contents of the CLI's input
     files (`iob`, `currenttemp`, `glucose`, `profile`, optional `autosens`, `meal`),
     `microBolusAllowed` and `currentTime` (epoch ms). -/
-def batchCase (j : Json) : String :=
+def batchInput (j : Json) : Option DBInputs :=
   let tz : Int := 0
   let get := fun k => (field j k).getD .null
   let entries := match get "glucose" with
     | .arr a => a.toList.map (entryOf · tz)
     | _ => []
   match Glucose.getLastGlucose entries with
-  | none => "{\"error\":\"no glucose\"}"
+  | none => none
   | some gs =>
     let now : Int := match num j "currentTime" with
       | some (.fin q) => q.floor
@@ -173,13 +183,31 @@ def batchCase (j : Json) : String :=
         meal_data := some (match field j "meal" with | some m => mealOf m | none => {}),
         microBolusAllowed := (bool j "microBolusAllowed").getD false, reservoir_data := .null,
         clock := { now, tzOffsetMin := tz } }
-    let r := determineBasal inp
-    match r.error with
-    | some e => JsonOut.obj [("error", some (JsonOut.str e))]
-    | none => JsonOut.result r
+    some inp
+
+/-- How `aid-lean batch` prints a result. -/
+def resultLine (r : Result) : String :=
+  match r.error with
+  | some e => JsonOut.obj [("error", some (JsonOut.str e))]
+  | none => JsonOut.result r
+
+/-- `aid-lean batch`'s output for one case: oref0's result, or with `mode` `fixed` the
+    corrected result, or with `fixedTriggers` the corrected result and the triggers. -/
+inductive BatchMode | oref0 | fixed | fixedTriggers
+
+def batchCase (j : Json) (mode : BatchMode := .oref0) : String :=
+  match batchInput j with
+  | none => "{\"error\":\"no glucose\"}"
+  | some inp =>
+    match mode with
+    | .oref0 => resultLine (determineBasal inp)
+    | .fixed => resultLine (LeanAID.Fixed.determineBasalFixed inp)
+    | .fixedTriggers =>
+      "{\"triggers\":[" ++ ",".intercalate ((LeanAID.Fixed.triggers inp).map JsonOut.str) ++ "],\"result\":" ++
+        resultLine (LeanAID.Fixed.determineBasalFixed inp) ++ "}"
 
 /-- `aid-lean batch <cases.jsonl>`: one output line per input line (time zone UTC). -/
-def batch (path : String) : IO UInt32 := do
+def batch (path : String) (mode : BatchMode := .oref0) : IO UInt32 := do
   let h ← IO.FS.Handle.mk path .read
   let out ← IO.getStdout
   let rec loop (fuel : Nat) : IO Unit := do
@@ -189,7 +217,7 @@ def batch (path : String) : IO UInt32 := do
       let line ← h.getLine
       if line.isEmpty then pure () else
       match Json.parse line with
-      | .ok j => out.putStrLn (batchCase j)
+      | .ok j => out.putStrLn (batchCase j mode)
       | .error e => out.putStrLn s!"{JsonOut.obj [("parseError", some (JsonOut.str e))]}"
       loop fuel
   loop 100000000
@@ -235,8 +263,12 @@ def main (args : List String) : IO UInt32 := do
   | "determine-basal" :: rest => App.determineBasalCmd rest
   | ["selftest"] => App.selftest
   | ["batch", f] => App.batch f
+  | ["batch", f, "--fixed"] => App.batch f .fixed
+  | ["batch", f, "--fixed-triggers"] => App.batch f .fixedTriggers
   | ["serve"] => App.Serve.serve
+  | ["serve", "--fixed"] => App.Serve.serve true
   | ["iob-batch", f] => App.IobBatch.batch f
+  | ["iob-batch", f, "--fixed"] => App.IobBatch.batch f true
   | _ =>
-    IO.eprintln "usage: aid-lean determine-basal <iob.json> <currenttemp.json> <glucose.json> <profile.json> [<autosens.json>] [<meal.json>] [options]\n       aid-lean selftest\n       aid-lean serve\n       aid-lean iob-batch <cases.jsonl>\nResearch artifact. Not for dosing insulin."
+    IO.eprintln "usage: aid-lean determine-basal <iob.json> <currenttemp.json> <glucose.json> <profile.json> [<autosens.json>] [<meal.json>] [options]\n       aid-lean selftest\n       aid-lean serve [--fixed]\n       aid-lean batch <cases.jsonl> [--fixed | --fixed-triggers]\n       aid-lean iob-batch <cases.jsonl> [--fixed]\n(--fixed: the corrected version, docs/FIXED.md)\nResearch artifact. Not for dosing insulin."
     return 1

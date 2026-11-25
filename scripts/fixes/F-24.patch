@@ -1,0 +1,25 @@
+diff -ruN a/lib/iob/history.js b/lib/iob/history.js
+--- a/lib/iob/history.js
++++ b/lib/iob/history.js
+@@ -60,16 +60,20 @@
+         splitFound = false;
+ 
+         _.forEach(results,function split(o) {
++            // LeanAID fix F-24 (not in oref0): splitFound is shared by all pieces of a pass,
++            // so a piece that does not split was dropped after one that did. Decide per piece.
++            var thisSplit = false;
+             _.forEach(splitterMoments,function split(p) {
+                 var splitResult = splitTimespanWithOneSplitter(o,p);
+                 if (splitResult.length > 1) {
+                     resultArray = resultArray.concat(splitResult);
+                     splitFound = true;
++                    thisSplit = true;
+                     return false;
+                 }
+             });
+ 
+-            if (!splitFound) resultArray = resultArray.concat([o]);
++            if (!thisSplit) resultArray = resultArray.concat([o]);
+ 
+         });
+ 

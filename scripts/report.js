@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Collects the project's headline numbers from the build and writes docs/numbers.json.
 // Run after `lake build`: node scripts/report.js
-// Every number on site/index.html must come from this file.
+// Every number on site/index.html must come from this file. `theorems.total` counts
+// LeanAID/Proofs only; `theorems.fixed` counts LeanAID/Fixed (docs/FIXED.md).
 'use strict';
 var fs = require('fs');
 var path = require('path');
@@ -28,6 +29,10 @@ tests.notLifted = ab.filter(function (t) { return lifted.indexOf(t) < 0; }).map(
 var proofFiles = sh("find LeanAID/Proofs -name '*.lean'").trim().split('\n');
 var nThm = 0;
 proofFiles.forEach(function (f) { nThm += (fs.readFileSync(path.join(ROOT, f), 'utf8').match(/^theorem /gm) || []).length; });
+// theorems in LeanAID/Fixed (the corrected version, docs/FIXED.md), counted separately
+var fixedFiles = sh("find LeanAID/Fixed -name '*.lean'").trim().split('\n').filter(Boolean);
+var nFixed = 0;
+fixedFiles.forEach(function (f) { nFixed += (fs.readFileSync(path.join(ROOT, f), 'utf8').match(/^theorem /gm) || []).length; });
 var headline = fs.readFileSync(path.join(__dirname, 'headline.txt'), 'utf8').split('\n')
   .filter(function (l) { return l.trim() && !/^\s*#/.test(l); });
 
@@ -49,12 +54,13 @@ var out = {
   generated: new Date().toISOString(),
   oref0: '88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (0.7.1)',
   tests: tests,
-  theorems: { total: nThm, headline: headline.length, headlineNames: headline },
+  theorems: { total: nThm, headline: headline.length, headlineNames: headline, fixed: nFixed },
   axioms: Object.keys(axioms).sort(),
   sorry: sorries,
   checkShOk: /check\.sh: OK/.test(check),
   conformance: m ? { passed: +m[1], total: +m[2], atRoundingTies: +m[3] } : null,
-  linesOfLean: { core: lines('LeanAID/Core'), proofs: lines('LeanAID/Proofs'), spec: lines('LeanAID/Spec') }
+  linesOfLean: { core: lines('LeanAID/Core'), proofs: lines('LeanAID/Proofs'), spec: lines('LeanAID/Spec'),
+    fixed: lines('LeanAID/Fixed') }
 };
 fs.writeFileSync(path.join(ROOT, 'docs/numbers.json'), JSON.stringify(out, null, 1) + '\n');
 console.log(JSON.stringify(out, null, 1));
