@@ -15,12 +15,9 @@ checked.
   task descriptions given to the agent, answered its questions, approved anything that
   needed approval (installing packages, network access), and decided what was published. A
   second Claude Code session helped the maintainer draft the task descriptions and review
-  the agents' work and the pull requests.
+  the agents' work.
 - **Independent reviewers** were separate agent sessions with no access to the working
   folder (see below).
-- **A colleague** contributed, through pull requests that were reviewed and tested before
-  merging, the model of the loop over many cycles (`LeanAID/Time/`), continuous
-  integration, and finding F-24.
 
 ## The task
 
