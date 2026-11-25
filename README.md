@@ -40,7 +40,8 @@ This repository contains:
    insulin-on-board calculation (F-24).
 
 The work was carried out by an AI agent and checked by Lean: a proof counts only if `lake
-build` accepts it.
+build` accepts it. How the agents were set up, what people did, and how the results were
+checked: [docs/METHOD.md](docs/METHOD.md).
 
 Project page: <https://beneficial-ai-foundation.github.io/LeanAID/>
 
@@ -112,7 +113,8 @@ included.
 - The virtual patients are simglucose's (an open reimplementation of the 2008 UVA/Padova
   simulator), which is not FDA-accepted evidence.
 
-## Credits
+## Licence
 
-oref0 is by the OpenAPS community (MIT licence). This project is by the
-Beneficial AI Foundation.
+MIT, Copyright (c) 2026 Beneficial AI Foundation (`LICENSE`). The translation and the
+captured test data are derived from oref0, Copyright (c) 2015-2019 OpenAPS Contributors,
+also under the MIT licence; see `NOTICE.md`.
