@@ -545,3 +545,13 @@ corrected version does not do, or what is not proved as intended (details in
   `round_basal(current_basal)` without a cap, which exceeds `maxSafeBasal` when
   `current_basal = max_basal` is off the pump grid. The fix therefore acts on the issued rate,
   not inside `setTempBasal`. `f04_fixed` assumes `maxSafeBasal` is a double in `[0, 2^30]`.
+- **In the simulator the F-04 cap fires only on floating-point noise.** Without a fault, 525
+  of 17,280 decisions differ from oref0 because of F-04, all where `maxSafeBasal` is a grid
+  value minus rounding error (`3 × 0.35 = 1.0499999999999998`): oref0's 1.05 is above it by
+  about 2·10⁻¹⁶ and the fix issues 1.0. The fix is as specified (no rounding allowance), but
+  so the corrected version is not identical to oref0 on ordinary profiles.
+- **The cost of the F-12 refusal, measured.** With the F-12 fault (30 patients, 2 days), time
+  below 54 mg/dL falls from 4.80 % to 2.48 % and no rate exceeds `maxSafeBasal`, but time
+  above 180 rises from 5.7 % to 10.2 %, the time below 54 rises for 3 of 30 patients, and the
+  monitor reports 962 R8 violations: at low glucose the refusal lets a zero temp run out and
+  the scheduled basal resume.

@@ -1,0 +1,51 @@
+{
+ "cases": 100000,
+ "seed": 1,
+ "file": null,
+ "identical": 88854,
+ "mismatchWithNearTie": 0,
+ "mismatchWithoutNearTie": 0,
+ "casesWithNearTie": 70852,
+ "partsDiffering": {
+  "iob": 11146,
+  "meal": 0,
+  "basal": 0
+ },
+ "exercised": {
+  "suspendZerosIob": 49953,
+  "withSuspends": 34957,
+  "history24": 9662,
+  "currentIOBOnly": 4980,
+  "exponential": 69914,
+  "withCarbs": 95934,
+  "unzonedClock": 2033,
+  "lookupsWithoutTime": 5902,
+  "lookupsUndefined": 31016
+ },
+ "jobs": 5,
+ "nodeSeconds": 580.6,
+ "aidLeanSeconds": 23888.4,
+ "aidLeanCpuSeconds": 116557.9,
+ "fixedVsOref0": {
+  "identical": 88854,
+  "differ": 11146,
+  "differWithTrigger": 11146,
+  "differWithoutTrigger": 0,
+  "triggerButIdentical": 12585
+ },
+ "fixedVsPatchedJs": {
+  "identical": 100000,
+  "differ": 0
+ },
+ "f24": {
+  "cases": 23731,
+  "differ": 11146,
+  "iobTicksDiffering": 212775,
+  "maxIobDiff": 1.883,
+  "maxZeroTempIobDiff": 3.11,
+  "fixedIobHigher": 1222,
+  "fixedIobLower": 4188,
+  "maxIobDiffCase": 96493
+ },
+ "wallSeconds": 24546.5
+}
