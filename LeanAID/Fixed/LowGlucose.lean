@@ -84,6 +84,25 @@ def determineBasalPatched (inp : DBInputs) : Result :=
   | .error r => r
   | .ok pre => dbDosePatched (dbPredict inp pre)
 
+/-- `determine_basal` with the F-23 fix (the name used by the other fixes). -/
+abbrev determineBasalF23 (inp : DBInputs) : Result := determineBasalPatched inp
+
+/-- **The F-23 trigger**, stated with oref0's functions: the prelude succeeds, oref0 takes
+    the low-glucose branch of lines 912-920 (the branch of lines 908-911 is not taken, and BG
+    or `minGuardBG` is below `threshold`), and its duration `durationReq` (`lgsDur`, oref0's
+    expression of lines 915-918) is NaN. `doseFirstBranch` and `lgsDur` are oref0's
+    conditions and expressions, named in `LeanAID/Proofs/Hypo.lean`. -/
+def triggerF23 (inp : DBInputs) : Bool :=
+  match dbPrelude inp with
+  | .ok pre => !doseFirstBranch pre && (pre.bg <ʲ pre.threshold || (dbPredict inp pre).minGuardBG <ʲ pre.threshold) &&
+      (lgsDur (dbPredict inp pre)).isNaN
+  | .error _ => false
+
+/-- The F-23 trigger as a proposition. -/
+def TriggerF23 (inp : DBInputs) : Prop := triggerF23 inp = true
+
+instance (inp : DBInputs) : Decidable (TriggerF23 inp) := inferInstanceAs (Decidable (_ = _))
+
 /-- `patchDur` changes only NaN. -/
 theorem patchDur_of_ne {x : JsNum} (h : x ≠ .nan) : patchDur x = x := by
   cases x with
