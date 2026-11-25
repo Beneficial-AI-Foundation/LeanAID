@@ -157,9 +157,10 @@ theorem f04_fixed {inp : DBInputs} (ht : TriggerF04 inp) {p : Profile} (hp : inp
       "U/hr is above maxSafeBasal " ++ JsFmt.numToString (getMaxSafeBasal p) ++ ": setting " ++
       JsFmt.numToString (roundBasalDown (getMaxSafeBasal p) p.model) ++ "U/hr")
       with rate := some (roundBasalDown (getMaxSafeBasal p) p.model) } := by
+    have hge : (getMaxSafeBasal p ≥ʲ 0) = true := by rw [hM]; simpa using h0
     unfold determineBasalF04 capRate
     rw [hp]
-    simp only [hx, hgt, ite_true]
+    simp only [hx, hgt, hge, Bool.and_self, ite_true]
   rw [e]
   refine ⟨r, ?_, r0, r1, rfl, rfl⟩
   simp only [hM, hr]

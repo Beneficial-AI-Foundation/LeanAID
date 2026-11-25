@@ -33,7 +33,7 @@ in the reason. Every other result is returned unchanged. In JavaScript
 ```
     var rT = determine_basal_oref0(...);
     var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
-    if (typeof rT.rate !== 'undefined' && rT.rate > maxSafeBasal) {
+    if (typeof rT.rate !== 'undefined' && rT.rate > maxSafeBasal && maxSafeBasal >= 0) {
         var down = round_basal.down(maxSafeBasal, profile);
         rT.reason += "; " + rT.rate + "U/hr is above maxSafeBasal " + maxSafeBasal + ": setting " + down + "U/hr";
         rT.rate = down;
@@ -79,12 +79,13 @@ def roundBasalDown (x : JsNum) (model : Option String) : JsNum :=
 
 /-- The F-04 step on a result `r` of `determine_basal` with profile `p`: an issued rate
     above `maxSafeBasal` becomes `roundBasalDown maxSafeBasal`, with a note in the reason.
-    Every other result is unchanged. -/
+    Every other result is unchanged. A negative `maxSafeBasal` has no rate on the grid below
+    it; the step then leaves the result alone (the F-12 fix handles such profiles). -/
 def capRate (p : Profile) (r : Result) : Result :=
   let maxSafeBasal := getMaxSafeBasal p
   match r.rate with
   | some rate =>
-    if rate >ʲ maxSafeBasal then
+    if rate >ʲ maxSafeBasal && maxSafeBasal ≥ʲ 0 then
       let down := roundBasalDown maxSafeBasal p.model
       { r.addReason ("; " ++ JsFmt.numToString rate ++ "U/hr is above maxSafeBasal " ++
           JsFmt.numToString maxSafeBasal ++ ": setting " ++ JsFmt.numToString down ++ "U/hr")

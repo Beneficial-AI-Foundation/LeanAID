@@ -84,3 +84,18 @@ LeanAID.Fixed.generateF24_eq
 LeanAID.Fixed.splitTimespanF24_tiles
 LeanAID.Fixed.splitOne_parts
 LeanAID.Fixed.q6Event_ev60
+# The corrected version, combined: nothing else changed, and the safety rules without exceptions
+LeanAID.Fixed.determineBasalFixed_eq
+LeanAID.Fixed.generateFixed_eq
+LeanAID.Fixed.rate_le_maxSafeBasal_fixed
+LeanAID.Fixed.cgm_unreliable_no_increase_fixed
+LeanAID.Fixed.cgmError_no_increase_fixed
+LeanAID.Fixed.missing_max_basal_fixed
+LeanAID.Fixed.low_glucose_suspend_fixed
+LeanAID.Fixed.microbolus_limits_fixed
+LeanAID.Fixed.iob_at_max_fixed
+LeanAID.Fixed.missing_current_basal_fixed
+LeanAID.Fixed.missing_targets_fixed
+LeanAID.Fixed.missing_iob_fixed
+LeanAID.Fixed.rate_double_fixed
+LeanAID.Fixed.validInputFixed_of_valid
