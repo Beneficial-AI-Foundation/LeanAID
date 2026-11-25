@@ -45,6 +45,6 @@ import LeanAID.Time.Config
 import LeanAID.Time.Spacing
 import LeanAID.Time.Boluses
 import LeanAID.Time.IobAccounting
-import LeanAID.Patched.LowGlucose
+import LeanAID.Fixed.LowGlucose
 import LeanAID.Conformance.F23Run
 import LeanAID.Proofs.SplitTimespan

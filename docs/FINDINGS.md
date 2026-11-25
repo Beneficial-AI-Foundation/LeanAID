@@ -356,7 +356,7 @@ a 2 U/h temp in the pump history: the theorem applies to it (`f23Run_covered`), 
 case holds (`f23Run_second`), and the temp keeps running (`f23Run_rate`). With `carbs` 30 the
 same run has a finite `minGuardBG` and the pump accepts the zero temp (`f23RunC_checks`). We found no path through `lib/meal/total.js` that
 produces this input, but we did not prove that none exists. `aid-lean --safe` now refuses
-`mealCOB` without positive carbs. `LeanAID/Patched/LowGlucose.lean` models oref0 with the
+`mealCOB` without positive carbs. `LeanAID/Fixed/LowGlucose.lean` models oref0 with the
 NaN duration replaced by 30 minutes, and `lgs_patched_valid` proves that the pump accepts
 its low-glucose command. `LeanAID/Core` is unchanged. Dosing severity: medium, but only if two
 conditions hold that we did not show. First, oref0 must get this input: as said above, we

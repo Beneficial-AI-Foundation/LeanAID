@@ -35,7 +35,7 @@ LeanAID.Time.low_glucose_no_smb
 LeanAID.Time.p5_strict
 LeanAID.Time.p1_dated
 LeanAID.Time.p1_true_age
-LeanAID.Patched.lgs_patched_valid
+LeanAID.Fixed.lgs_patched_valid
 LeanAID.Time.iobTotal_insert_bolus_num
 # Runs, model and input facts
 LeanAID.Time.Legal.cycle
@@ -60,7 +60,7 @@ LeanAID.Time.doubleRates_of_legal
 LeanAID.Time.smbTraced_run
 LeanAID.Time.round3_accounting
 LeanAID.Time.getLastGlucose_date_first
-LeanAID.Patched.determineBasalPatched_eq
+LeanAID.Fixed.determineBasalPatched_eq
 # F-24 (QUIRK Q6)
 LeanAID.Iob.Q6.splitPass_fst
 LeanAID.Iob.Q6.q6_drops_zero_temp

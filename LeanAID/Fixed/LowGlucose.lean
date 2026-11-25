@@ -58,7 +58,7 @@ inputs. A fix in oref0 has to guard both.
 Research artifact. Not for dosing insulin.
 -/
 
-namespace LeanAID.Patched
+namespace LeanAID.Fixed
 
 open LeanAID LeanAID.Proofs LeanAID.Time JsNum
 
@@ -200,4 +200,4 @@ example : (determineBasal f23Input).rate = some 0 ∧ (determineBasal f23Input).
     (determineBasalPatched f23Input).rate = some 0 ∧ (determineBasalPatched f23Input).duration = some 30 := by
   decide +kernel
 
-end LeanAID.Patched
+end LeanAID.Fixed

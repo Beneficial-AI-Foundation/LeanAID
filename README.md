@@ -53,7 +53,7 @@ Project page: <https://beneficial-ai-foundation.github.io/LeanAID/>
 | `LeanAID/Proofs/` | safety theorems and oref0's tests as general theorems |
 | `LeanAID/Conformance/` | oref0's test cases replayed in Lean |
 | `LeanAID/Time/` | a model of the loop over many cycles, and theorems about runs |
-| `LeanAID/Patched/` | a corrected variant for one finding, with a proof of where it differs |
+| `LeanAID/Fixed/` | the corrected version: fixes for F-04, F-11, F-12, F-23, F-24, with proofs that nothing else changed ([docs/FIXED.md](docs/FIXED.md)) |
 | `App/` | the `aid-lean` executable |
 | `scripts/difftest/` | differential tests against oref0 |
 | `scripts/coverage/` | branch coverage of oref0 |

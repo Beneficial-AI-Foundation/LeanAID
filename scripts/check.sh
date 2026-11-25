@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # LeanAID static checks. Fails (exit 1) if:
 #   * `sorry` appears in any Lean source;
-#   * the core (LeanAID/Core) uses `partial`, `unsafe`, `@[extern]`,
-#     `implemented_by`, `native_decide`, `Float`, or imports Mathlib;
+#   * the core (LeanAID/Core) or the corrected version (LeanAID/Fixed) uses `partial`,
+#     `unsafe`, `@[extern]`, `implemented_by`, `native_decide`, `Float`, or imports Mathlib;
 #   * any module outside LeanAID/Conformance uses `native_decide`;
 #   * any Lean source declares a new `axiom`;
 #   * the binary shell or core imports Mathlib;
@@ -18,6 +18,8 @@ fail=0
 
 lean_files=$(find LeanAID App -name '*.lean' | sort)
 core_files=$(find LeanAID/Core -name '*.lean' | sort)
+# LeanAID/Fixed (the corrected version, docs/FIXED.md) follows the same rules as the core.
+fixed_files=$(find LeanAID/Fixed -name '*.lean' 2>/dev/null | sort)
 nonconf_files=$(find LeanAID App -name '*.lean' -not -path 'LeanAID/Conformance/*' | sort)
 
 # Strip line comments and block comments before searching, so that the
@@ -39,12 +41,12 @@ check() { # $1 = description, $2 = regex, rest = files
 check "sorry"            '\bsorry\b'                 $lean_files
 check "axiom"            '^\s*(private\s+|protected\s+)?axiom\b' $lean_files
 check "native_decide"    '\bnative_decide\b'         $nonconf_files
-check "partial"          '\bpartial\b'               $core_files
-check "unsafe"           '\bunsafe\b'                $core_files
-check "extern"           '@\[\s*extern'              $core_files
-check "implemented_by"   '\bimplemented_by\b'        $core_files
-check "Float"            '\bFloat(32)?\b'            $core_files
-check "Mathlib import"   '^\s*import\s+Mathlib'      $core_files $(find App -name '*.lean')
+check "partial"          '\bpartial\b'               $core_files $fixed_files
+check "unsafe"           '\bunsafe\b'                $core_files $fixed_files
+check "extern"           '@\[\s*extern'              $core_files $fixed_files
+check "implemented_by"   '\bimplemented_by\b'        $core_files $fixed_files
+check "Float"            '\bFloat(32)?\b'            $core_files $fixed_files
+check "Mathlib import"   '^\s*import\s+Mathlib'      $core_files $fixed_files $(find App -name '*.lean')
 
 if [ $fail -ne 0 ]; then
   echo "check.sh: forbidden constructs found"; exit 1
