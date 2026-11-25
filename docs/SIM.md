@@ -1,4 +1,4 @@
-# Virtual patients: closed-loop results (M11)
+# Virtual patients: closed-loop results
 
 **Research artifact. Nothing here says that oref0 or aid-lean is safe for people, and
 nothing here may be used to dose insulin.** The patients are simglucose's, an open

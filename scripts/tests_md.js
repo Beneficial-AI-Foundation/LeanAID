@@ -30,7 +30,7 @@ out.push('');
 out.push('In-scope test files: `determine-basal.test.js` (round_basal and determine-basal),');
 out.push('`iob.test.js`, `set-temp-basal.test.js`, `basal.test.js`, `get-last-glucose.test.js`,');
 out.push('`cobhistory.test.js`. Out of scope: `profile.test.js` (profile generation, and broken');
-out.push('upstream, see `docs/LOG.md`), `bolus.test.js` (pump bolus record parsing),');
+out.push('upstream), `bolus.test.js` (pump bolus record parsing),');
 out.push('`with-raw-glucose.test.js` (raw CGM), syntax and shell tests.');
 out.push('');
 out.push('Classes: **A** generalises to a universal property; **B** generalises to a directional');

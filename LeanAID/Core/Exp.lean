@@ -14,7 +14,7 @@
   rounding adds at most 2^-128 < 3·10^-39, and squaring a value in [0, 1] at most
   doubles an absolute error, so after k ≤ 8 squarings (|x| ≤ 128) the absolute
   error is below 2^9 · 2^-127 < 10^-35. The proof of this bound against Mathlib's
-  `Real.exp` is planned for M8 (`docs/LOG.md`); until then the bound is a design
+  `Real.exp` is planned; until then the bound is a design
   claim, not a theorem, and nothing in the safety theorems depends on it.
   For x > 0 (never used by oref0) we return 1/approx(-x).
 -/

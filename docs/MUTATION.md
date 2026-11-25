@@ -52,7 +52,7 @@ All 24 mutations are caught by the build (see the summary above for what catches
 | mutation | caught by a general theorem? | meaning |
 |---|---|---|
 | M04 double `max_basal` inside `maxSafeBasal` | **no** (only the lemmas `maxSafeBasal_double`, `maxSafeBasal_ge`, and conformance; since the binary64 core, re-run 2026-11-18 17:19, the concrete checks are no longer reached because the lemma failure stops their modules) | **specification gap**: H1 bounds the rate by `getMaxSafeBasal p`, the implementation's own function. A wrong `maxSafeBasal` formula is not caught by H1. An independent statement (`rate ≤ max_basal`, `≤ 3·max_daily_basal`, `≤ 4·current_basal`, with the multipliers) would catch it. |
-| M10 lower the hypo threshold | **no** (conformance only) | **specification gap**: H3 is stated for oref0's computed `threshold`, as the kickoff asked; a wrong threshold formula is not a theorem violation. |
+| M10 lower the hypo threshold | **no** (conformance only) | **specification gap**: H3 is stated for oref0's computed `threshold`, as the requirements state it; a wrong threshold formula is not a theorem violation. |
 | M21 expected delta over 1 h | **no** (`DB_28_test` and conformance) | not safety-relevant by itself; no general theorem constrains `expectedDelta`. |
 | M23 IOB check against 2·max_iob | **no** (`DB_22_test` and conformance) | the mutated code is still safe in the sense of H4 (the high-temp branch caps insulinReq at the room below max_iob), so H4 correctly does not break. |
 | all others | yes | |

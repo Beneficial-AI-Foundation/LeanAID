@@ -7,7 +7,7 @@ and `scripts/test-theorems.json`. Do not edit by hand.
 In-scope test files: `determine-basal.test.js` (round_basal and determine-basal),
 `iob.test.js`, `set-temp-basal.test.js`, `basal.test.js`, `get-last-glucose.test.js`,
 `cobhistory.test.js`. Out of scope: `profile.test.js` (profile generation, and broken
-upstream, see `docs/LOG.md`), `bolus.test.js` (pump bolus record parsing),
+upstream), `bolus.test.js` (pump bolus record parsing),
 `with-raw-glucose.test.js` (raw CGM), syntax and shell tests.
 
 Classes: **A** generalises to a universal property; **B** generalises to a directional

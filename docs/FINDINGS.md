@@ -34,14 +34,14 @@ excludes this by validity condition V5/V9 (adjusted basal within `maxSafeBasal`)
 V5 the low temp is proved ≤ the adjusted basal (`smbLowTemp_bound`, using the 0.025
 grid). Without V5 the bound fails; an input with autosens ratio 2 and `max_basal` 1.5
 reached the SMB microbolus path in Node but not the low-temp path, so no concrete
-over-limit low temp was observed yet (M10 will search for one).
+over-limit low temp has been observed.
 
 ### F-06 — NaN temp basal rate when carbs are present without `lastCarbTime`
 With `meal_data.carbs > 0` and `mealCOB > 0` but no `lastCarbTime`, `remainingCATime`
 becomes NaN, the COB predictions become NaN, `minPredBG` and `insulinReq` become NaN, and
 oref0 issues `{"rate": null, "duration": 30}` with reason "no temp, setting NaNU/hr".
 ```
-(see scripts in docs/LOG.md, M5) → {"rate":null,"duration":30,"eventualBG":null}
+(determine-basal on the input above) → {"rate":null,"duration":30,"eventualBG":null}
 ```
 A pump driver receiving `rate: null` may reject or misinterpret the command. This is the
 kind of out-of-bounds input CFR862 (b)(3)(iv) is about (R14). Our theorems are stated for
@@ -256,7 +256,7 @@ Not yet checked: whether the rate can differ, and whether `--safe` should reject
 `lastCarbTime > currentTime` (as it rejects carbs without `lastCarbTime`, F-06).
 
 ### F-18 — Flat CGM data below the threshold: no zero temp (R8 does not cover it)
-**Open.** Found 2026-11-19 by the safety monitor in the overnight closed-loop runs
+**Open.** Found 2026-11-19 by the safety monitor in the closed-loop runs on virtual patients
 (`docs/SIM.md`). determine-basal.js lines 177-185 treat a reading as a CGM error when
 `delta` is exactly 0 and both average deltas are within ±1 (above 60 mg/dL): it then only
 replaces a high temp or shortens a long zero temp, and otherwise does nothing, **whatever
@@ -478,7 +478,7 @@ others, so their result does not rate this bug alone.
 ## Found by the differential test of IOB, meal history and the basal schedule
 
 `scripts/difftest/iob.js` compares `lib/iob`, `lib/meal/history.js` and `basalLookup` with
-the Lean core on random pump histories (`docs/COVERAGE.md`, `docs/LOG.md`).
+the Lean core on random pump histories (`docs/COVERAGE.md`).
 
 ### F-25 — Two transcription errors in `LeanAID.Iob` (fixed)
 The first 500 random cases (seed 1) gave 27 cases whose IOB arrays differed. All 27 came

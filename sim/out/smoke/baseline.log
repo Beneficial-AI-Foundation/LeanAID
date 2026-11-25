@@ -1,4 +1,0 @@
-{"run_id": "adult001_baseline_1d_seed1_none", "tir_70_180": 0.9479166666666666, "below_70": 0.0, "below_54": 0.0, "mean_bg": 139.429406532106, "insulin_per_day": 41.316651999892585, "decisions_compared": 0, "decisions_identical": 0, "iob_identical": 0, "steps": 288, "violations": {}, "controller_errors": 0, "wall_seconds": 1.2374610900878906}
-real 2.50
-user 2.11
-sys 0.23

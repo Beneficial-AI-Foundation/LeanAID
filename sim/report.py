@@ -1,4 +1,4 @@
-"""Part 4: aggregate the overnight runs into sim/out/report.json, sim/out/report.md and
+"""Aggregate the virtual-patient runs into sim/out/report.json, sim/out/report.md and
 plots in sim/out/plots/. Reads only sim/out/runs/ (summaries, and the step files for the
 trace comparison and the violation details). docs/SIM.md is written from its output.
 

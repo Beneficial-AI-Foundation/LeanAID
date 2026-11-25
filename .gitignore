@@ -14,13 +14,20 @@ sim/out/logs/
 sim/out/**/*.jsonl.gz
 sim/out/**/*.tmp
 
-# agent instructions: kept local only
+# local-only files
 AGENTS.md
 CLAUDE.md
 prompts/
 
-# read-only clones for the upstream survey (never committed)
+# read-only clones of other repositories
 /upstream/
 
 # istanbul output of scripts/coverage/run.sh
 scripts/coverage/out/
+
+# logs of the virtual-patient runs
+sim/out/run_all.log
+sim/out/smoke/*.log
+
+# internal notes kept locally (experiment log, draft upstream reports)
+private/

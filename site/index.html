@@ -186,7 +186,7 @@ footer li { margin: 3px 0; }
     <p class="lede">
       <strong>oref0</strong> is open-source software that decides insulin doses for people with type 1 diabetes.
       With an AI agent, we rewrote it in <strong>Lean 4</strong> and proved safety rules from FDA research on insulin pumps.
-      We tested the compiled Lean program against the original on 100,000 cases and 30 virtual patients.
+      We tested the compiled Lean program against the original on 200,000 random cases, covering every reachable branch of the translated code, and on 30 virtual patients.
     </p>
     <div class="buttons">
       <a class="btn primary" href="#findings">What we found</a>
@@ -267,7 +267,7 @@ footer li { margin: 3px 0; }
       <div class="prop"><h3>Bad sensor data never adds insulin <span class="tag ok">Proved, except undated readings</span></h3><p>Error codes, noisy or old readings never increase insulin. Readings with no date slip through (see What we found).</p></div>
       <div class="prop"><h3>Many decisions in a row stay within a ceiling <span class="tag ok">Proved in a pump model</span></h3><p>In a model where the pump carries out one decision after another, the basal rate never goes above a ceiling computed from the user's basal schedule and limits. Every temporary rate ends after at most 30 minutes, or 2 hours for a zero rate, and then the normal schedule runs again. Lean checks the settings these proofs need on a given profile. The proofs also assume that the autosens ratio stays within its set limit, as oref0's autosens code does.</p></div>
       <div class="prop"><h3>Over many cycles, more insulin only on fresh data <span class="tag ok">Proved, with assumptions</span></h3><p>In a model of the loop over time: if every reading has a date, each step that adds insulin used a glucose value whose age, as oref0 computes it, is between −5.05 and 12.05 minutes. If each date is also at most δ off the true time, and the newest reading is at least 2.5 minutes newer than the older ones, the newest reading really is between −5.05 minutes − 1 ms − δ and 12.05 minutes + δ old. The dates are an assumption, not a proof: readings with no date are still the finding above.</p></div>
-      <div class="prop"><h3>Insulin in the body is computed correctly <span class="tag">Not yet proved</span></h3><p>Tested instead: identical to oref0 on all 51 of its test cases.</p></div>
+      <div class="prop"><h3>Insulin in the body is computed correctly <span class="tag">Not yet proved</span></h3><p>Tested instead: identical to oref0 on all 51 of its test cases and on 100,000 random pump histories.</p></div>
     </div>
   </div>
 </section>
@@ -289,7 +289,11 @@ footer li { margin: 3px 0; }
           <tr><td>Any difference</td><td>0</td></tr>
         </tbody>
       </table></div>
-      <p>These cases test the dose decision. The insulin still active in the body is one of its inputs, so that calculation is checked separately, on oref0's 51 test cases (all identical). The Lean version rounds every arithmetic operation exactly as JavaScript does, except the exponential function (see Details). An earlier version computed with exact fractions instead: on the same 100,000 cases it gave identical output in 83,089 and a different insulin rate in 82, usually slightly more insulin.</p>
+      <p>These cases test the dose decision. The insulin still active in the body is one of its inputs, so that calculation has its own test, below. The Lean version rounds every arithmetic operation exactly as JavaScript does, except the exponential function (see Details). An earlier version computed with exact fractions instead: on the same 100,000 cases it gave identical output in 83,089 and a different insulin rate in 82, usually slightly more insulin.</p>
+    </div>
+    <div class="props" style="margin-top:12px">
+      <div class="prop"><h3>100,000 random pump histories <span class="tag ok">100,000 of 100,000 identical</span></h3><p>Random boluses, temporary rates, suspensions, meals and basal schedules, run through oref0's insulin-on-board, meal-history and basal-schedule code and through lean-oref0. Every output is identical. This test found two mistakes in our own Lean version, which we fixed before proving anything about that code.</p></div>
+      <div class="prop"><h3>Branch coverage <span class="tag ok">every reachable branch</span></h3><p>Every branch of the oref0 code we translated is taken by at least one of the cases above on which both versions are compared. Of the 877 branches, 10 are shown to be unreachable, with the lines that prove it, and 1 is used only by code we did not translate. oref0's own tests reach between 47% and 100% of the branches, depending on the file.</p></div>
     </div>
     <div class="prop" style="margin-top:12px">
       <h3>Virtual patients <span class="tag ok">220,608 of 220,608 identical</span></h3>
@@ -327,7 +331,7 @@ footer li { margin: 3px 0; }
       <li><b>Research only.</b> Not a medical device and not for dosing insulin.</li>
       <li><b>The program, not the body.</b> The proofs cover what the algorithm decides, not how a patient's glucose responds.</li>
       <li><b>Consistent settings.</b> The proofs assume the user's settings make sense, for example a maximum rate at least as high as the usual rate.</li>
-      <li><b>Rounding.</b> The Lean version rounds every arithmetic operation exactly as JavaScript does, so two proved limits (the extra-bolus cap and the cap on active insulin) hold up to a rounding error smaller than one part in 10<sup>13</sup>. JavaScript's exponential function is not exactly rounded and ours is: an independent reviewer measured a difference in the last digit for 8% of the values oref0 uses. The exponential is only used to compute the insulin still active in the body; on oref0's 51 test cases for that calculation, the results are identical. The 100,000 random cases do not use it.</li>
+      <li><b>Rounding.</b> The Lean version rounds every arithmetic operation exactly as JavaScript does, so two proved limits (the extra-bolus cap and the cap on active insulin) hold up to a rounding error smaller than one part in 10<sup>13</sup>. JavaScript's exponential function is not exactly rounded and ours is: an independent reviewer measured a difference in the last digit for 8% of the values oref0 uses. The exponential is only used to compute the insulin still active in the body; on oref0's 51 test cases for that calculation, the results are identical. On 100,000 random pump histories, 69,914 of them with the exponential insulin curve, the results are identical.</li>
       <li><b>Not everything is rewritten.</b> The calculation of carbohydrates still being absorbed is taken as an input, as in the original command-line tool.</li>
       <li><b>Trusted tools.</b> We rely on Lean's compiler and on the C compiler being correct.</li>
       <li><b>Next steps.</b> Proved fixes for the three findings, more proofs over many decisions in a row, the remaining safety rules, and running on a verified operating system (seL4).</li>
@@ -338,7 +342,7 @@ footer li { margin: 3px 0; }
 <section id="details">
   <div class="wrap">
     <h2>Details</h2>
-    <p class="sub">Numbers from <code>scripts/report.js</code>. Full write-up: <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REPORT.md">REPORT</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/FINDINGS.md">FINDINGS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REQUIREMENTS.md">REQUIREMENTS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/TRACEABILITY.md">TRACEABILITY</a>.</p>
+    <p class="sub">Numbers from <code>scripts/report.js</code>. Full write-up: <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/README.md">README</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/FINDINGS.md">FINDINGS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REQUIREMENTS.md">REQUIREMENTS</a>, <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/TRACEABILITY.md">TRACEABILITY</a>.</p>
     <div class="stats">
       <div class="stat"><b>52 / 59</b><span>generalizable oref0 unit tests (of 116 inventoried) proved as instances of general theorems</span></div>
       <div class="stat"><b>314</b><span>theorems, no <code>sorry</code>, standard axioms only</span></div>
@@ -357,7 +361,7 @@ cd LeanAID
 lake build                         # transcription, all proofs, conformance checks
 lake test                          # build + aid-lean selftest + forbidden-construct check
 .lake/build/bin/aid-lean selftest  # replays oref0's test cases</code></pre>
-    <p class="note">Comparing with the original JavaScript needs oref0 at commit <code>88cf032</code> and Node; see <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/docs/REPORT.md">REPORT</a>.</p>
+    <p class="note">Comparing with the original JavaScript needs oref0 at commit <code>88cf032</code> and Node; see <a href="https://github.com/Beneficial-AI-Foundation/LeanAID/blob/main/README.md">README</a>.</p>
   </div>
 </section>
 
@@ -372,7 +376,7 @@ lake test                          # build + aid-lean selftest + forbidden-const
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-862/subpart-B/section-862.1356">21 CFR 862.1356</a>, interoperable automated glycemic controller.</li>
       <li><a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-880/subpart-F/section-880.5730">21 CFR 880.5730</a>, alternate controller enabled infusion pump.</li>
     </ol>
-    LeanAID · Beneficial AI Foundation · Numbers from <code>scripts/report.js</code> (<code>docs/numbers.json</code>), 18 November 2026; virtual patients from <code>sim/run_all.py</code>, 19 November 2026.
+    LeanAID · Beneficial AI Foundation · Numbers from <code>scripts/report.js</code> (<code>docs/numbers.json</code>), 18 November 2026; virtual patients from <code>sim/run_all.py</code>, 19 November 2026; pump histories and coverage from <code>scripts/difftest/iob.js</code> and <code>scripts/coverage/run.sh</code>, 23 November 2026.
   </div>
 </footer>
 

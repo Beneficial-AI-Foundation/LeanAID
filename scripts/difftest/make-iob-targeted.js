@@ -30,7 +30,7 @@ function add(name, target, f) { var c = base(); f(c); cases.push(Object.assign({
 // *string*, compared there with numbers; for ISO-8601 timestamps that is NaN and the branch is
 // never taken. A numeric string (epoch ms) would compare as a number, but then
 // `new Date(lastSuspendTime).toISOString()` at line 482, which runs in the same call, throws
-// RangeError, so oref0 gives no output to compare (docs/COVERAGE.md, docs/LOG.md).
+// RangeError, so oref0 gives no output to compare (docs/COVERAGE.md).
 // history.js:95 then: with the pump suspended before the history starts, a temp that ends
 // before the first resume loses all of its duration
 add('suspended-prior-temp-before-resume', 'iob/history.js:95 if 0', function (c) {

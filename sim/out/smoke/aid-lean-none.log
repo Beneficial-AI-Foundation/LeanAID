@@ -1,4 +1,0 @@
-{"run_id": "adult001_aid-lean_1d_seed1_none", "tir_70_180": 1.0, "below_70": 0.0, "below_54": 0.0, "mean_bg": 113.92647011471371, "insulin_per_day": 44.091666666666704, "decisions_compared": 288, "decisions_identical": 288, "iob_identical": 288, "steps": 288, "violations": {}, "controller_errors": 0, "wall_seconds": 300.7401978969574}
-real 302.17
-user 301.45
-sys 0.75

@@ -1,6 +1,0 @@
-# F-12 fix applied alone to a copy of trio-oref/lib; Part 1 tests on the patched copy
-lib: trio-oref-patched/b/lib
-F-04: PRESENT — maxSafeBasal 0.83 -> 0.85 U/h for 30 min; control maxSafeBasal 0.85 -> 0.85 U/h for 30 min; determine_basal with max_basal 0.83: 0.85 U/h for 30 min
-F-11: PRESENT — undated: 3.5 U/h for 30 min; dated 60 min ago: no temp
-F-12: ABSENT — no max_basal, no max_daily_basal: 0.9 U/h for 30 min; no max_basal: 0.9 U/h for 30 min; no max_daily_basal: 0.9 U/h for 30 min; control (max_basal 3.5): 3.5 U/h for 30 min
-summary: {"f04":"PRESENT","f11":"PRESENT","f12":"ABSENT"}
