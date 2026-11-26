@@ -206,6 +206,7 @@ footer li { margin: 3px 0; }
     <div class="layer"><span class="num">1</span><div>
       <h3>Rewrote oref0 from JavaScript in Lean</h3>
       <p>Function by function, so every piece of the Lean code matches a piece of the original. We call the Lean version lean-oref0. It compiles via C to a binary, <code>aid-lean</code>, that takes the same inputs and gives the same kind of answer as the original.</p>
+      <p>We translated the part of oref0 that decides each dose: 10 of the 31 files of its algorithm library, 2,483 of 5,595 lines of JavaScript (44%). That is the dose decision, insulin on board, the latest glucose reading and its trend, the meal history, the basal schedule, and the safety cap and rounding. The sensitivity adjustment (autosens), carbohydrates on board and the tuning of settings (autotune) work out inputs to the decision; they are not translated yet, and the Lean version takes their results as given, as oref0's own command-line tool does.</p>
     </div></div>
     <div class="layer"><span class="num">2</span><div>
       <h3>Proved safety rules and generalized tests for every possible input</h3>
@@ -332,7 +333,7 @@ footer li { margin: 3px 0; }
       <li><b>The program, not the body.</b> The proofs cover what the algorithm decides, not how a patient's glucose responds.</li>
       <li><b>Consistent settings.</b> The proofs assume the user's settings make sense, for example a maximum rate at least as high as the usual rate.</li>
       <li><b>Rounding.</b> The Lean version rounds every arithmetic operation exactly as JavaScript does, so two proved limits (the extra-bolus cap and the cap on active insulin) hold up to a rounding error smaller than one part in 10<sup>13</sup>. JavaScript's exponential function is not exactly rounded and ours is: an independent reviewer measured a difference in the last digit for 8% of the values oref0 uses. The exponential is only used to compute the insulin still active in the body; on oref0's 51 test cases for that calculation, the results are identical. On 100,000 random pump histories, 69,914 of them with the exponential insulin curve, the results are identical.</li>
-      <li><b>Not everything is rewritten.</b> The calculation of carbohydrates still being absorbed is taken as an input, as in the original command-line tool.</li>
+      <li><b>Not everything is rewritten.</b> 44% of oref0's algorithm library is translated: the part that decides each dose. The sensitivity adjustment, carbohydrates still being absorbed and the tuning of settings are taken as inputs, as in the original command-line tool.</li>
       <li><b>Trusted tools.</b> We rely on Lean's compiler and on the C compiler being correct.</li>
       <li><b>Next steps.</b> Proved fixes for the three findings, more proofs over many decisions in a row, the remaining safety rules, and running on a verified operating system (seL4).</li>
     </ul>

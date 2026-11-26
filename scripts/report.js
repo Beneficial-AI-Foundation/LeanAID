@@ -50,6 +50,29 @@ var m = self.match(/selftest: (\d+)\/(\d+) conformance cases \((\d+) at rounding
 
 var lines = function (dir) { return parseInt(sh("cat $(find " + dir + " -name '*.lean') | wc -l").trim(), 10); };
 
+// How much of oref0's lib/ is translated: the files modelled in LeanAID/Core (the same list
+// as "Files modelled in Lean" in docs/COVERAGE.md), against every .js file in lib/.
+var TRANSLATED = ['basal-set-temp.js', 'determine-basal/determine-basal.js', 'glucose-get-last.js',
+  'iob/calculate.js', 'iob/history.js', 'iob/index.js', 'iob/total.js', 'meal/history.js',
+  'profile/basal.js', 'round-basal.js'];
+var LIB = path.join(ROOT, 'vendor/oref0/lib');
+var translated = null;
+if (fs.existsSync(LIB)) {
+  var countLines = function (f) {
+    var s = fs.readFileSync(f, 'utf8'); var all = s.split('\n'); if (all[all.length - 1] === '') all.pop();
+    var code = all.filter(function (l) { return l.trim() !== '' && !/^\s*\/\//.test(l); });
+    return { lines: all.length, code: code.length };
+  };
+  var libFiles = sh("cd vendor/oref0/lib && find . -name '*.js' | sed 's|^./||' | sort").trim().split('\n');
+  var sum = function (fs_) { return fs_.reduce(function (a, f) { var c = countLines(path.join(LIB, f));
+    return { lines: a.lines + c.lines, code: a.code + c.code }; }, { lines: 0, code: 0 }); };
+  var tr = sum(TRANSLATED), lib = sum(libFiles);
+  translated = { files: TRANSLATED.length, libFiles: libFiles.length, lines: tr.lines, libLines: lib.lines,
+    codeLines: tr.code, libCodeLines: lib.code, percentOfLines: Math.round(100 * tr.lines / lib.lines),
+    note: 'lines of vendor/oref0/lib/*.js; codeLines leaves out blank lines and // comment lines',
+    fileList: TRANSLATED };
+}
+
 var out = {
   generated: new Date().toISOString(),
   oref0: '88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (0.7.1)',
@@ -59,6 +82,7 @@ var out = {
   sorry: sorries,
   checkShOk: /check\.sh: OK/.test(check),
   conformance: m ? { passed: +m[1], total: +m[2], atRoundingTies: +m[3] } : null,
+  translated: translated,
   linesOfLean: { core: lines('LeanAID/Core'), proofs: lines('LeanAID/Proofs'), spec: lines('LeanAID/Spec'),
     fixed: lines('LeanAID/Fixed') }
 };

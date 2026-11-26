@@ -11,7 +11,9 @@ This repository contains:
 
 1. **A translation of oref0 0.7.1 into Lean 4**, function by function: the dose decision
    (`determine-basal`), the temp-basal cap and rounding, insulin on board, the basal schedule,
-   the glucose status and the meal history. Arithmetic follows JavaScript exactly: every
+   the glucose status and the meal history. That is the part of oref0 that decides each dose:
+   10 of the 31 files of its algorithm library (`lib/`), 2,483 of 5,595 lines of JavaScript
+   (44%), translated into 3,196 lines of Lean (`docs/numbers.json`, `translated`). Arithmetic follows JavaScript exactly: every
    operation is computed on rationals and rounded to the nearest IEEE-754 double, with
    JavaScript's NaN behaviour. The core uses no `Float`.
 2. **A native executable, `aid-lean`**, compiled from the same Lean code through Lean's C
@@ -131,8 +133,11 @@ Without `--fixed`, `aid-lean` is the faithful translation and nothing changes.
 
 - The proofs are about what the algorithm decides, not about a patient's glucose.
 - They assume consistent settings (for example a maximum rate at least the scheduled rate).
-- Carbs on board (`lib/meal/total.js`, `cob.js`) are not translated; they are an input, as
-  in oref0's command-line tool.
+- The rest of `lib/` is not translated. Sensitivity detection (`determine-basal/autosens.js`),
+  carbs on board (`meal/total.js`, `determine-basal/cob.js`) and autotune compute inputs to
+  the dose decision; the Lean version takes their results as given, as oref0's command-line
+  tool does. Profile building, the bolus calculator, and oref0's command-line and setup
+  scripts (`bin/`) are not translated either.
 - The conformance checks use `native_decide` and so trust Lean's compiler; the safety
   theorems are checked by the kernel. The executable also trusts the C compiler.
 - The virtual patients are simglucose's (an open reimplementation of the 2008 UVA/Padova
