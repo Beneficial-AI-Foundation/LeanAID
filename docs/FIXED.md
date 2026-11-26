@@ -142,7 +142,7 @@ when both patches are applied.
 **Fix, first version, replaced** (commit `eccda9f`, still in git history). Right after the
 `current_basal` check, it returned without a dosing decision: no microbolus, a running temp
 above `current_basal` cancelled, a long zero temp shortened, otherwise nothing. It removed
-the over-dosing (with the F-12 fault: R1 1,064 → 0 violations, time below 54 mg/dL 4.80 % →
+the rates above the limit (with the F-12 fault: R1 1,064 → 0 violations, time below 54 mg/dL 4.80 % →
 2.48 %), but it never set a zero temp at low glucose: 962 R8 violations against oref0's 1,
 and 3 of 30 virtual patients spent more time below 54 mg/dL than with oref0 (see "Virtual
 patients" below). A fix that removes one hazard and adds another was replaced.
@@ -332,7 +332,7 @@ are not restated.
   changes nothing. The "nothing else changed" theorems are unaffected; the counts below are
   counts of the triggers.
 - **F-11 through `aid-lean`.** `getLastGlucose` gives an undated entry the deltas 0, so the
-  dangerous F-11 input (undated, non-zero deltas) can reach `determine_basal` only as a
+  F-11 input that matters (undated, non-zero deltas) can reach `determine_basal` only as a
   glucose status from another source; through CGM entries the trigger holds but the flat-data
   check already catches it (FINDINGS, "F-11 in the run model").
 

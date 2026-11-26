@@ -96,9 +96,9 @@ The maintainer ran a separate agent as a reviewer. It worked on its own clone, c
 or change the working folder, and was told to report, not fix. Its report, and a second round
 of review that followed, led to changes:
 
-- It recognized that undated glucose readings, which the building agent had recorded as a
-  quirk of oref0, are a safety problem (F-11), and it found that a missing maximum-basal
-  setting switches the rate cap off (F-12).
+- It pointed out that undated glucose readings, which the building agent had recorded as a
+  quirk of oref0, skip a safety check (F-11), and it found that without a maximum-basal
+  setting the rate cap does not apply (F-12).
 - It showed that computing with exact fractions, as the agent had done, can differ from
   JavaScript's rounded arithmetic (F-13). In the second round, the random cases that differed
   from oref0 were traced to the same cause (F-15). The core was then rewritten to round every
@@ -128,5 +128,5 @@ of review that followed, led to changes:
 - **Some proofs were weaker than they looked.** Mutation testing showed that two safety
   theorems are stated in terms of oref0's own computed limits, so a wrong formula for the
   limit would not break them (`docs/MUTATION.md`).
-- **A proof attempt found a real bug.** The proof that the dose never exceeds the maximum
+- **A failed proof pointed to an edge case in oref0.** The proof that the dose never exceeds the maximum
   rate failed, and the counterexample (0.83 U/h rounded up to 0.85 U/h) is finding F-04.

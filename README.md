@@ -32,12 +32,13 @@ This repository contains:
    safety rules traced to FDA research on insulin pumps (never above the maximum rate, no
    insulin when glucose is low, no extra insulin at the insulin-on-board limit, bad sensor
    data never adds insulin), and 52 of oref0's unit tests generalized to every valid input.
-5. **Findings in oref0**, each reproduced by running the original
-   ([docs/FINDINGS.md](docs/FINDINGS.md)). The main ones: a glucose reading with no date is
-   never treated as stale (F-11); a missing maximum-basal setting switches the rate cap off
-   (F-12); rounding after capping can exceed the cap by half a pump step (F-04); a long temp
-   basal crossing a schedule change or midnight can lose part of its insulin in the
-   insulin-on-board calculation (F-24).
+5. **Ways to make oref0 even more robust**, each reproduced by running the original
+   ([docs/FINDINGS.md](docs/FINDINGS.md)). Most are edge cases that need unusual input, which
+   the apps around oref0 normally supply correctly, so they may have no effect in practice.
+   The main ones: a glucose reading with no date is not checked for age (F-11); without a
+   maximum-basal setting the rate cap does not apply (F-12); rounding after capping can go
+   over the cap by at most half a pump step (F-04); a long temp basal crossing a schedule
+   change or midnight can be partly left out of the insulin-on-board calculation (F-24).
 
 The work was carried out by an AI agent and checked by Lean: a proof counts only if `lake
 build` accepts it. How the agents were set up, what people did, and how the results were

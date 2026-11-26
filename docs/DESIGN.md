@@ -170,7 +170,7 @@ these holds (`App/Main.lean`, `determineBasalCmd`):
 
 | check | rejects | why |
 |---|---|---|
-| `validInputB inp = false` | a profile violating V0–V8 or V10 (e.g. missing or non-numeric `current_basal`, `max_basal`, `max_daily_basal`, `max_iob`, `sens`; `max_basal` or `max_daily_basal` below `current_basal`; `max_basal` above 2^30; a safety multiplier below 1; `autosens_max` with more than two decimals or with `current_basal × autosens_max > maxSafeBasal`; a non-positive `bolus_increment`), or autosens data violating V9 (non-numeric or non-positive ratio, or `current_basal × ratio > maxSafeBasal`) | outside the domain of the safety theorems; F-12 (missing `max_basal` disables the clamp) |
+| `validInputB inp = false` | a profile violating V0–V8 or V10 (e.g. missing or non-numeric `current_basal`, `max_basal`, `max_daily_basal`, `max_iob`, `sens`; `max_basal` or `max_daily_basal` below `current_basal`; `max_basal` above 2^30; a safety multiplier below 1; `autosens_max` with more than two decimals or with `current_basal × autosens_max > maxSafeBasal`; a non-positive `bolus_increment`), or autosens data violating V9 (non-numeric or non-positive ratio, or `current_basal × ratio > maxSafeBasal`) | outside the domain of the safety theorems; F-12 (without `max_basal` the clamp does not apply) |
 | meal data with truthy `carbs` and no numeric `lastCarbTime` | carbs without a carb time | F-06 (NaN rate) |
 | the glucose status has no finite `date` | CGM entries without `date`, `display_time` or `dateString` (or unparsable ones) | F-11 (staleness check skipped; maximum rate on an old reading) |
 | meal data with truthy `mealCOB` and `carbs` missing or not positive | COB without carbs | F-23 (NaN `minGuardBG`; at low BG a zero temp with NaN duration) |

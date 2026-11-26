@@ -3,9 +3,10 @@
 Facts about oref0 0.7.1 (commit 88cf032) found while transcribing, testing and proving.
 Each was reproduced under Node (commands below, run from `vendor/oref0`) unless stated.
 None of these is a claim that oref0 is unsafe in practice: most need inputs that the
-rest of OpenAPS normally prevents. They are what a formal model makes visible.
+rest of OpenAPS normally prevents, so they may have no effect in practice. They are what a
+formal model makes visible.
 
-## Safety-relevant
+## Related to the safety rules
 
 ### F-04 — Rounding can push the temp basal above `maxSafeBasal` (R3)
 `setTempBasal` clamps the request to `maxSafeBasal` and *then* rounds with
@@ -113,7 +114,7 @@ non-negative doses" (R18) is false for oref0's bilinear curve; the strongest ver
 
 ## Found or sharpened by the independent review (2026-11-18, of commit a95cea8)
 
-### F-11 — An undated glucose reading disables the staleness check (safety)
+### F-11 — An undated glucose reading skips the staleness check
 Previously listed only as quirk Q2. If `glucose_status` has no `date` (or the CGM entry
 has no `date`, `display_time` or `dateString`, so `getLastGlucose` returns NaN), then
 `minAgo` is NaN, `minAgo > 12 || minAgo < -5` is false, and the reading is used however
@@ -137,7 +138,7 @@ above (an undated reading with non-zero deltas) did not arise in this scenario.
 **Fix** (docs/FIXED.md): `LeanAID/Fixed/Undated.lean` and `scripts/fixes/F-11.patch` treat a
 reading as stale unless `minAgo <= 12 && minAgo >= -5`; `f11_fixed`.
 
-### F-12 — Missing `max_basal` / `max_daily_basal` disables the clamp (R14)
+### F-12 — Without `max_basal` / `max_daily_basal` the clamp does not apply (R14)
 `getMaxSafeBasal` is `Math.min(max_basal, 3·max_daily_basal, 4·current_basal)`; with
 either input missing it is NaN, `rate > maxSafeBasal` is always false, and no clamp is
 applied. Concrete input: test profile without `max_basal` and `max_daily_basal`, BG 300
@@ -172,7 +173,7 @@ decision. Example (iob/history.js lines 545-548): a temp of 0.05 U/h against a b
 vs 3.2 U/h). The divergence is still caused by exact ties, but its effect on outputs is
 not bounded by one unit of the final rounding.
 
-The most severe case found (difftest pilot, seed 1): `minDelta − bgi = −6 − (−6.05)`.
+The largest case found (difftest pilot, seed 1): `minDelta − bgi = −6 − (−6.05)`.
 Exactly this is 0.05, so `ci = round(0.05, 1) = 0.1 > 0` and the UAM predictions switch
 on (determine-basal.js line 681); in doubles it is 0.04999999999999982, `ci = 0`, and they
 stay off. oref0 then issues a **30-minute zero temp** (eventualBG −147) while aid-lean

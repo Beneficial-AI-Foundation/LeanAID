@@ -218,7 +218,7 @@ BG column is the mean and the worst per-patient change.)
   harm in this scenario.** The undated copy has delta 0, so oref0's flat-CGM check
   catches it before the missing staleness check matters. Compared with plain dropout:
   mean glucose +0.2 mg/dL, insulin −0.05 U/day; the trajectories diverge after the first
-  different decision, in both directions. The dangerous F-11 input (an undated reading
+  different decision, in both directions. The F-11 input that matters (an undated reading
   with non-zero deltas, FINDINGS F-11) did not arise here.
 
   ![F-11, child#004](../sim/out/plots/f11_child004.png)
