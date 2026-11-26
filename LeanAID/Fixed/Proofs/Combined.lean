@@ -21,30 +21,46 @@ namespace LeanAID.Fixed
 
 open LeanAID LeanAID.Proofs LeanAID.Time JsNum
 
-theorem capRate_units (p : Profile) (r : Result) : (capRate p r).units = r.units := by
-  unfold capRate; split
-  · dsimp only; split <;> rfl
-  · rfl
-
-theorem capRate_duration (p : Profile) (r : Result) : (capRate p r).duration = r.duration := by
-  unfold capRate; split
-  · dsimp only; split <;> rfl
-  · rfl
-
-theorem determineBasalFixed_units (inp : DBInputs) :
-    (determineBasalFixed inp).units = (determineBasalUncapped inp).units := by
-  unfold determineBasalFixed; split
-  · exact capRate_units _ _
-  · rfl
-
-/-- The F-12 trigger is false exactly when the corrected version does not refuse. -/
-theorem uncapped_of_ok {inp : DBInputs} {p : Profile} (hs : stProfile inp = .ok p) (hok : maxSafeOk p = true) :
+/-- The fixes of F-11 and F-23, once the profile check has passed. -/
+theorem uncapped_of_st {inp : DBInputs} {p : Profile} (hs : stProfile inp = .ok p) :
     determineBasalUncapped inp = (match dbPreludeF11 inp with
       | .error r => r
       | .ok pre => dbDosePatched (dbPredict inp pre)) := by
   unfold determineBasalUncapped
-  rw [hs]; simp only [hok, ite_true]
+  rw [hs]
   rfl
+
+/-- Without the F-12 trigger, the corrected version is the fixes of F-04, F-11 and F-23. -/
+theorem fixed_of_not12 {inp : DBInputs} (h : triggerF12 inp = false) :
+    determineBasalFixed inp = determineBasalCapped inp := by
+  unfold determineBasalFixed determineBasalCapped
+  split <;> simp [h]
+
+/-- With a positive `maxSafeBasal`, the corrected version is the F-04 step after the fixes of
+    F-11 and F-23. -/
+theorem fixed_of_ok {inp : DBInputs} {p : Profile} (hp : inp.profile = some p) (hok : maxSafeOk p = true) :
+    determineBasalFixed inp = capRate p (determineBasalUncapped inp) := by
+  have h : triggerF12 inp = false := by simp [triggerF12, hp, hok]
+  rw [fixed_of_not12 h]; unfold determineBasalCapped; rw [hp]
+
+/-- With the F-12 trigger, the corrected version is `postF12` after the fixes of F-04, F-11
+    and F-23 on `inputF12 inp p`. -/
+theorem fixed_of_trigger {inp : DBInputs} (ht : TriggerF12 inp) :
+    ∃ p, inp.profile = some p ∧ p.current_basal.isSome = true ∧ maxSafeOk p = false ∧
+      determineBasalFixed inp = postF12 inp p (capRate (capProfile p) (determineBasalUncapped (inputF12 inp p))) := by
+  obtain ⟨p, hp, hcb, hok⟩ := triggerF12_iff.mp ht
+  refine ⟨p, hp, hcb, hok, ?_⟩
+  have ht' : triggerF12 inp = true := ht
+  unfold determineBasalFixed; rw [hp]; simp only [ht', ite_true]
+  rfl
+
+theorem inputFixed_of_not12 {inp : DBInputs} (h : triggerF12 inp = false) : inputFixed inp = inp := by
+  unfold inputFixed; split <;> simp [h]
+
+theorem inputFixed_of_trigger {inp : DBInputs} {p : Profile} (hp : inp.profile = some p) (ht : TriggerF12 inp) :
+    inputFixed inp = inputF12 inp p := by
+  have ht' : triggerF12 inp = true := ht
+  unfold inputFixed; rw [hp]; simp [ht']
 
 /-- **Nothing else changed.** If none of the triggers of F-04, F-11, F-12 and F-23 holds,
     the corrected `determine_basal` returns exactly oref0's result. -/
@@ -57,25 +73,13 @@ theorem determineBasalFixed_eq (inp : DBInputs) (h04 : ¬ TriggerF04 inp) (h11 :
       unfold determineBasalUncapped; rw [hs]
       exact (determineBasal_of_stProfile_error hs).symm
     | ok p =>
-      have hok : maxSafeOk p = true := by
-        have := determineBasalF12_eq inp h12
-        unfold determineBasalF12 at this
-        rw [hs] at this
-        cases hm : maxSafeOk p
-        · exfalso
-          have hp := stProfile_ok hs
-          have hcb : p.current_basal.isSome := by
-            unfold stProfile at hs; rw [hp] at hs
-            cases hc : p.current_basal with
-            | none => simp [hc] at hs
-            | some _ => rfl
-          exact h12 (by simp [TriggerF12, triggerF12, hp, hcb, hm])
-        · rfl
-      rw [uncapped_of_ok hs hok, dbPreludeF11_eq h11]
+      rw [uncapped_of_st hs, dbPreludeF11_eq h11]
       have := determineBasalF23_eq inp h23
       unfold determineBasalF23 determineBasalPatched at this
       exact this
-  unfold determineBasalFixed
+  have h12' : triggerF12 inp = false := by simpa [TriggerF12] using h12
+  rw [fixed_of_not12 h12']
+  unfold determineBasalCapped
   rw [hu]
   split
   · rename_i p hp

@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-25T16:43:54.995Z",
+ "generated": "2026-11-26T09:01:30.095Z",
  "oref0": "88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (0.7.1)",
  "tests": {
   "blocks": 116,
@@ -31,7 +31,7 @@
  },
  "theorems": {
   "total": 314,
-  "headline": 93,
+  "headline": 95,
   "headlineNames": [
    "LeanAID.Proofs.rate_le_roundBasal_maxSafeBasal",
    "LeanAID.Proofs.rate_le_maxSafeBasal_of_grid",
@@ -103,7 +103,9 @@
    "LeanAID.Fixed.f11_example",
    "LeanAID.Fixed.determineBasalF12_eq",
    "LeanAID.Fixed.f12_fixed",
-   "LeanAID.Fixed.f12_rate_le",
+   "LeanAID.Fixed.f12_lgs_example",
+   "LeanAID.Fixed.maxSafe_capProfile",
+   "LeanAID.Fixed.determineBasal_units_noSmb",
    "LeanAID.Fixed.triggerF12_of_missing",
    "LeanAID.Fixed.f12_example",
    "LeanAID.Fixed.determineBasalF23_eq",
@@ -127,7 +129,7 @@
    "LeanAID.Fixed.rate_double_fixed",
    "LeanAID.Fixed.validInputFixed_of_valid"
   ],
-  "fixed": 102
+  "fixed": 130
  },
  "axioms": [
   "Classical.choice",
@@ -145,6 +147,6 @@
   "core": 3196,
   "proofs": 4643,
   "spec": 107,
-  "fixed": 2663
+  "fixed": 3151
  }
 }

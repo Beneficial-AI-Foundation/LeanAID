@@ -17,8 +17,8 @@
   },
   "F-12": {
    "tests": 244,
-   "passes": 232,
-   "failures": 12
+   "passes": 234,
+   "failures": 10
   },
   "F-23": {
    "tests": 244,
@@ -91,14 +91,11 @@
    ]
   },
   "F-12": {
-   "count": 2,
-   "onTriggerInputs": 2,
+   "count": 0,
+   "onTriggerInputs": 0,
    "otherwise": [],
    "passingNow": [],
-   "tests": [
-    "determine-basal profile should contain min_bg,max_bg",
-    "determine-basal iob_data should not be undefined"
-   ]
+   "tests": []
   },
   "F-23": {
    "count": 0,

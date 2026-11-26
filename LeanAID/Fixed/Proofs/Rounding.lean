@@ -178,4 +178,75 @@ theorem f04_example :
     TriggerF04 inp ∧ (determineBasal inp).rate = some 0.85 ∧ (determineBasalF04 inp).rate = some 0.8 := by
   decide +kernel
 
+/-! ### The F-04 step on any result (used for F-12 and the combined version) -/
+
+theorem nan_gt (x : JsNum) : (JsNum.nan >ʲ x) = false := by cases x <;> rfl
+
+/-- The rate after the F-04 step. -/
+theorem capRate_rate_eq (p : Profile) (U : Result) :
+    (capRate p U).rate = (match U.rate with
+      | some x => if (x >ʲ getMaxSafeBasal p && getMaxSafeBasal p ≥ʲ 0) = true
+          then some (roundBasalDown (getMaxSafeBasal p) p.model) else some x
+      | none => none) := by
+  unfold capRate
+  cases h : U.rate with
+  | none => exact h
+  | some x =>
+    dsimp only
+    split
+    · rfl
+    · exact h
+
+/-- The F-04 step leaves a result alone if it issues no rate or rate 0. -/
+theorem capRate_of_zero {p : Profile} {U : Result} (h : U.rate = some 0 ∨ U.rate = none) : capRate p U = U := by
+  have hz : ((0 : JsNum) >ʲ getMaxSafeBasal p && getMaxSafeBasal p ≥ʲ 0) = false := by
+    cases getMaxSafeBasal p with
+    | nan => rfl
+    | fin m =>
+      show (decide (m < 0) && decide (0 ≤ m)) = false
+      by_cases hm : m < 0
+      · have : ¬ (0 ≤ m) := by grind
+        simp [hm, this]
+      · simp [hm]
+  unfold capRate
+  rcases h with h | h <;> rw [h]
+  dsimp only
+  split
+  · rename_i hc; rw [hz] at hc; cases hc
+  · rfl
+
+/-- After the F-04 step a finite rate is at most `maxSafeBasal = M` (a double in `[0, 2^30]`):
+    it is the rate before the step, or `round_basal.down M` replacing a rate above `M`. -/
+theorem capRate_rate {p : Profile} {U : Result} {M r : Rat} (hM : getMaxSafeBasal p = .fin M)
+    (hd : rd M = M) (h0 : 0 ≤ M) (h1 : M ≤ 2 ^ 30) (h : (capRate p U).rate = some (.fin r)) :
+    (U.rate = some (.fin r) ∧ r ≤ M) ∨ (0 ≤ r ∧ r ≤ M ∧ ∃ x, U.rate = some (.fin x) ∧ M < x) := by
+  rw [capRate_rate_eq, hM] at h
+  cases hU : U.rate with
+  | none => rw [hU] at h; cases h
+  | some x =>
+    rw [hU] at h
+    cases x with
+    | nan => simp [nan_gt] at h
+    | fin x =>
+      by_cases hx : M < x
+      · have hc : ((JsNum.fin x >ʲ .fin M) && (JsNum.fin M ≥ʲ 0)) = true := by simp [hx, h0]
+        simp only [hc, ite_true] at h
+        obtain ⟨r', hr', r0, r1⟩ := roundBasalDown_le p.model hd h0 h1
+        rw [hr'] at h; cases h
+        exact Or.inr ⟨r0, r1, x, rfl, hx⟩
+      · have hc : ((JsNum.fin x >ʲ .fin M) && (JsNum.fin M ≥ʲ 0)) = false := by simp [hx]
+        simp only [hc, Bool.false_eq_true, ite_false] at h
+        cases h
+        exact Or.inl ⟨rfl, by grind⟩
+
+theorem capRate_units (p : Profile) (r : Result) : (capRate p r).units = r.units := by
+  unfold capRate; split
+  · dsimp only; split <;> rfl
+  · rfl
+
+theorem capRate_duration (p : Profile) (r : Result) : (capRate p r).duration = r.duration := by
+  unfold capRate; split
+  · dsimp only; split <;> rfl
+  · rfl
+
 end LeanAID.Fixed

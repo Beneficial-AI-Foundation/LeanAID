@@ -31,7 +31,7 @@ function newFixedStats(prefix) {
   s.f04 = { oref0MaxOvershoot: 0, oref0MaxOvershootCase: null, oref0RatesAboveMaxSafeBasal: 0,
     fixedRatesAboveMaxSafeBasal: 0, fixedMaxBelowMaxSafeBasal: 0, examples: [] };
   s.f11 = { oref0RateAboveBasal: 0, fixedRateAboveBasal: 0, fixedUnits: 0, examples: [] };
-  s.f12 = { oref0RateAboveBasal: 0, fixedRateAboveBasal: 0, fixedUnits: 0, examples: [] };
+  s.f12 = { oref0RateAboveBasal: 0, fixedRateAboveBasal: 0, fixedUnits: 0, fixedZeroTemps: 0, examples: [] };
   s.f23 = { oref0DurationNull: 0, fixedDurations: {}, examples: [] };
   s.allFixedRatesWithinMaxSafeBasal = { checked: 0, above: 0 };
   return s;
@@ -58,8 +58,12 @@ function safety(s, f, c, eo, fo) {
     if (eo.rate > cb) t.oref0RateAboveBasal++;
     if (fo.units !== undefined) t.fixedUnits++;
     if (fo.rate > cb && !(f === 'F-11' && fo.rate === roundBasal(cb, c.profile))) t.fixedRateAboveBasal++;
+    if (f === 'F-12' && fo.rate === 0 && fo.duration > 0) t.fixedZeroTemps++;
     if (t.examples.length < 3) t.examples.push({ oref0: ex(eo), fixed: ex(fo) });
-    if (f === 'F-12') return fo.units === undefined && (fo.rate === undefined || fo.rate === 0);
+    // F-12: no microbolus, no rate above current_basal, and no rate only while the running
+    // temp is not above current_basal (docs/FIXED.md, F-12)
+    if (f === 'F-12') return fo.units === undefined && !(fo.rate > cb) &&
+      (fo.rate !== undefined || !(c.currenttemp && c.currenttemp.rate > cb));
     return fo.units === undefined && !(fo.rate > Math.max(cb, roundBasal(cb, c.profile)));
   }
   if (f === 'F-23') {

@@ -10,9 +10,12 @@ The number of worker processes is read before each start from sim/out/runs-fixed
 (default: SIM_WORKERS, else 3), so it can be raised while the runner is going.
 Then `sim/fixed_report.py` writes sim/out/fixed-report.json.
 
-Usage: .venv/bin/python sim/run_fixed.py
+Usage: .venv/bin/python sim/run_fixed.py [--out DIR] [--controllers C,...] [--faults F,...]
+The second version of the F-12 fix (docs/FIXED.md, "F-12") was run with
+  .venv/bin/python sim/run_fixed.py --out sim/out/runs-fixed-f12v2 --controllers aid-lean-fixed --faults f12
 RESEARCH ARTIFACT. NOT FOR DOSING INSULIN.
 """
+import argparse
 import os
 import subprocess
 import sys
@@ -43,18 +46,26 @@ def workers():
         return int(os.environ.get('SIM_WORKERS', '3'))
 
 
-def jobs():
+def jobs(controllers=('oref0', 'aid-lean-fixed'), faults=FAULTS):
     js = []
-    for c in ('oref0', 'aid-lean-fixed'):          # the oref0 runs are fast; do them first
-        for fault in FAULTS:
+    for c in controllers:                          # the oref0 runs are fast; do them first
+        for fault in faults:
             for p in harness.PATIENTS:
                 js.append((p, c, fault))
     return js
 
 
 def main():
+    global OUT, PROGRESS
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--out', default=OUT)
+    ap.add_argument('--controllers', default='oref0,aid-lean-fixed')
+    ap.add_argument('--faults', default=','.join(FAULTS))
+    a = ap.parse_args()
+    OUT = os.path.abspath(a.out)
+    PROGRESS = os.path.join(OUT, 'progress.log')
     os.makedirs(OUT, exist_ok=True)
-    todo = [j for j in jobs() if not os.path.exists(
+    todo = [j for j in jobs(a.controllers.split(','), a.faults.split(',')) if not os.path.exists(
         os.path.join(OUT, harness.run_id(j[0], j[1], 2, 1, j[2]) + '.summary.json'))]
     log(f'start: {len(todo)} runs to do, aid-lean {harness.LEAN_BIN}')
     running = {}

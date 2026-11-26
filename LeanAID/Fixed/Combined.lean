@@ -13,7 +13,8 @@ not changed. `determineBasalFixed` combines the fixes of F-04, F-11, F-12 and F-
 in source order of `determine_basal`:
 
 1. lines 138-143: a missing profile or `current_basal` is oref0's error (`stProfile`);
-2. **F-12** (`Fixed/MaxBasal.lean`): without a positive `maxSafeBasal`, return `refuseF12`;
+2. **F-12** (`Fixed/MaxBasal.lean`): without a positive `maxSafeBasal`, the steps below run on
+   `inputF12 inp p` (the profile capped at `current_basal`, no microbolus), then `postF12`;
 3. lines 145-423 with **F-11** (`Fixed/Undated.lean`): the prelude `dbPreludeF11`;
 4. lines 428-903: oref0's predictions `dbPredict`;
 5. lines 905-1188 with **F-23** (`Fixed/LowGlucose.lean`): `dbDosePatched`;
@@ -29,21 +30,35 @@ namespace LeanAID.Fixed
 
 open LeanAID JsNum
 
-/-- `determine_basal` with the fixes of F-11, F-12 and F-23, before the F-04 step. -/
+/-- `determine_basal` with the fixes of F-11 and F-23, before the F-04 step. -/
 def determineBasalUncapped (inp : DBInputs) : Result :=
   match stProfile inp with
   | .error r => r
-  | .ok p =>
-    if maxSafeOk p then
-      match dbPreludeF11 inp with
-      | .error r => r
-      | .ok pre => dbDosePatched (dbPredict inp pre)
-    else refuseF12 inp p
+  | .ok _ =>
+    match dbPreludeF11 inp with
+    | .error r => r
+    | .ok pre => dbDosePatched (dbPredict inp pre)
 
-/-- **The corrected `determine_basal`**: the fixes of F-04, F-11, F-12 and F-23. -/
-def determineBasalFixed (inp : DBInputs) : Result :=
+/-- `determine_basal` with the fixes of F-04, F-11 and F-23. -/
+def determineBasalCapped (inp : DBInputs) : Result :=
   match inp.profile with
   | some p => capRate p (determineBasalUncapped inp)
+  | none => determineBasalUncapped inp
+
+/-- The input the corrected version evaluates: under the F-12 trigger `inputF12 inp p` (the
+    profile capped at `current_basal`, no microbolus), otherwise `inp`. -/
+def inputFixed (inp : DBInputs) : DBInputs :=
+  match inp.profile with
+  | some p => if triggerF12 inp then inputF12 inp p else inp
+  | none => inp
+
+/-- **The corrected `determine_basal`**: the fixes of F-04, F-11, F-12 and F-23. Under the
+    F-12 trigger, the fixes of F-04, F-11 and F-23 on `inputF12 inp p`, then `postF12`. -/
+def determineBasalFixed (inp : DBInputs) : Result :=
+  match inp.profile with
+  | some p =>
+    if triggerF12 inp then postF12 inp p (determineBasalCapped (inputF12 inp p))
+    else capRate p (determineBasalUncapped inp)
   | none => determineBasalUncapped inp
 
 /-- **The corrected insulin on board** (`lib/iob/index.js` `generate`): the fix of F-24. -/

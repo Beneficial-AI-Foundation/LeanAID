@@ -1,10 +1,10 @@
-import LeanAID.Core.DetermineBasal
+import LeanAID.Fixed.Rounding
 
 /-!
-# F-12: a missing maximum basal, corrected
+# F-12: a missing maximum basal, corrected (second version)
 
 **This file is not oref0.** `LeanAID/Core` is the faithful transcription of oref0 0.7.1 and
-is not changed. `determineBasalF12` adds one early return to `LeanAID.determineBasal`.
+is not changed. Every function here calls `Core` functions.
 
 **The oref0 code.** `lib/basal-set-temp.js:11-17` computes
 ```
@@ -13,49 +13,33 @@ is not changed. `determineBasalF12` adds one early return to `LeanAID.determineB
 ```
 With `max_basal` or `max_daily_basal` missing or not a number this is `NaN`, every
 `rate > maxSafeBasal` is false, and no cap applies: oref0 issues 5.9 U/h for a scheduled
-basal of 0.9 U/h (F-12). `determine_basal` checks only `current_basal`
-(`lib/determine-basal/determine-basal.js:138-143`):
-```
-    if (typeof profile === 'undefined' || typeof profile.current_basal === 'undefined') {
-        rT.error ='Error: could not get current basal rate';
-        return rT;
-    }
-    var profile_current_basal = round_basal(profile.current_basal, profile);
-    var basal = profile_current_basal;
-```
+basal of 0.9 U/h (F-12).
 
-**The fix.** After these lines, if `maxSafeBasal` is not a finite positive number, refuse
-to raise the rate and return:
-```
-    var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
-    if (!(typeof maxSafeBasal === 'number' && isFinite(maxSafeBasal) && maxSafeBasal > 0)) {
-        rT.temp = 'absolute';
-        rT.deliverAt = deliverAt;
-        rT.reason = "Error: maxSafeBasal " + maxSafeBasal + " is not a positive number; check max_basal, max_daily_basal and current_basal. Not raising the temp basal";
-        if (currenttemp.rate > profile.current_basal) {
-            rT.reason += ". Canceling temp basal of " + currenttemp.rate + " above current basal " + profile.current_basal;
-            rT.duration = 0;
-            rT.rate = 0;
-        } else if (currenttemp.rate === 0 && currenttemp.duration > 30) {
-            rT.reason += ". Shortening " + currenttemp.duration + "m long zero temp to 30m. ";
-            rT.duration = 30;
-            rT.rate = 0;
-        } else {
-            rT.reason += ". Temp " + currenttemp.rate + " <= current basal " + profile.current_basal + "U/hr; doing nothing. ";
-        }
-        return rT;
-    }
-```
-**Why this form.** It is oref0's own handling of input it cannot trust, the CGM-error branch
-(lines 198-221): no microbolus, no dosing decision, and the running temp is dealt with in the
-same three cases. The one change is the first case. oref0 replaces a high temp by a 30-minute
-temp at `round_basal(current_basal)`, which rounding can put above `current_basal`; here the
-temp is cancelled (rate 0, duration 0, as oref0 cancels at lines 380-392), so the pump runs
-its own schedule. The result has the shape of those lines' result (`temp`, `deliverAt`,
-`reason`, `duration`, `rate`). The alternative, continuing with `current_basal` as the cap,
-would let `setTempBasal` keep a running temp up to 20 % above the request, so it would not
-cancel a high temp. A low temp is not set either: the loop stops dosing until the profile is
-fixed, as it does for bad CGM data.
+**The fix.** When the trigger holds (the profile has `current_basal` and `maxSafeBasal` is not
+a positive number), run oref0's normal decision with three changes:
+
+1. **The cap is the scheduled basal.** oref0 runs on `capProfile p`: the profile with
+   `max_basal` and `max_daily_basal` set to `current_basal` and both safety multipliers 1,
+   so that `getMaxSafeBasal` is `min(cb, 1·cb, 1·cb) = cb` (for a double `cb`). `getMaxSafeBasal`
+   is the only reader of these four fields in `determine_basal` and `setTempBasal`, so
+   oref0 uses `current_basal` wherever it used `maxSafeBasal`. The F-04 step
+   (`Fixed/Rounding.lean`, `capRate`) with the same profile then replaces a rate rounded
+   above `current_basal` by the largest grid rate below it.
+2. **No microbolus.** oref0 runs with `microBolusAllowed = false`, its own path when the
+   pump loop does not allow SMB (`determine-basal.js:60-62`).
+3. **A running temp above `current_basal` is not left running** (`postF12`). Wherever oref0
+   issues no rate and keeps a running temp (the "~ req" comparisons, the 20 % window of
+   `setTempBasal`, the CGM-error branch for a temp between `current_basal` and its rounding),
+   and that temp's rate is above `current_basal`, it is cancelled (rate 0, duration 0, so the
+   pump runs its schedule), as oref0 itself cancels at lines 380-392.
+4. The reason ends with a note that `maxSafeBasal` is not a positive number and the rate is
+   capped at the scheduled basal (and, for 3, that the temp is cancelled).
+
+Everything else, including the low-glucose suspend, the CGM-error and stale-data paths and
+the predictions, is oref0's. An error result (`{error}`) is returned unchanged.
+
+The first version (commit `eccda9f`) returned early without any dosing decision; it never
+set a zero temp at low glucose. See `docs/FIXED.md`, "F-12".
 
 Research artifact. Not for dosing insulin.
 -/
@@ -66,33 +50,6 @@ open LeanAID JsNum
 
 /-- `maxSafeBasal` is a finite positive number. (`JsNum` has no infinities.) -/
 def maxSafeOk (p : Profile) : Bool := getMaxSafeBasal p >ʲ 0
-
-/-- The F-12 early return: no microbolus, no rate above `current_basal`; a running temp
-    above `current_basal` is cancelled and a long zero temp shortened to 30 minutes. -/
-def refuseF12 (inp : DBInputs) (p : Profile) : Result :=
-  match inp.currenttemp with
-  | none => typeError "rate"
-  | some ct =>
-    let msg := "Error: maxSafeBasal " ++ JsFmt.numToString (getMaxSafeBasal p) ++
-      " is not a positive number; check max_basal, max_daily_basal and current_basal. Not raising the temp basal"
-    let rT : Result :=
-      { shape := .lastTemp, temp := some "absolute", deliverAt := some inp.clock.now, reason := some msg }
-    if ct.rate.js >ʲ p.current_basal.js then
-      let rT := rT.addReason (". Canceling temp basal of " ++ jsStr ct.rate ++ " above current basal " ++
-        jsStr p.current_basal)
-      { rT with duration := some 0, rate := some 0 }
-    else if ct.rate.js =ʲ 0 && ct.duration.js >ʲ 30 then
-      { rT.addReason (". Shortening " ++ jsStr ct.duration ++ "m long zero temp to 30m. ")
-        with duration := some 30, rate := some 0 }
-    else
-      rT.addReason (". Temp " ++ jsStr ct.rate ++ " <= current basal " ++ jsStr p.current_basal ++
-        "U/hr; doing nothing. ")
-
-/-- `determine_basal` with the F-12 fix. -/
-def determineBasalF12 (inp : DBInputs) : Result :=
-  match stProfile inp with
-  | .ok p => if maxSafeOk p then determineBasal inp else refuseF12 inp p
-  | .error r => r
 
 /-- **The F-12 trigger**, on the input: a profile with `current_basal` (so oref0 gets past
     lines 138-141) whose `maxSafeBasal = min(max_basal, 3 × max_daily_basal,
@@ -108,5 +65,46 @@ def triggerF12 (inp : DBInputs) : Bool :=
 def TriggerF12 (inp : DBInputs) : Prop := triggerF12 inp = true
 
 instance (inp : DBInputs) : Decidable (TriggerF12 inp) := inferInstanceAs (Decidable (_ = _))
+
+/-- The profile whose `maxSafeBasal` is `current_basal`: `max_basal` and `max_daily_basal`
+    are `current_basal`, both safety multipliers are 1. Every other field is `p`'s. -/
+def capProfile (p : Profile) : Profile :=
+  { p with max_basal := p.current_basal, max_daily_basal := p.current_basal,
+           max_daily_safety_multiplier := some 1, current_basal_safety_multiplier := some 1 }
+
+/-- The input oref0 runs on under the F-12 trigger: the capped profile, no microbolus. -/
+def inputF12 (inp : DBInputs) (p : Profile) : DBInputs :=
+  { inp with profile := some (capProfile p), microBolusAllowed := false }
+
+/-- The note appended to the reason under the F-12 trigger. -/
+def noteF12 (p : Profile) : String :=
+  "; maxSafeBasal " ++ JsFmt.numToString (getMaxSafeBasal p) ++
+    " is not a positive number (max_basal or max_daily_basal missing or not a number): rate capped at current basal " ++
+    jsStr p.current_basal ++ "U/hr, no SMB"
+
+/-- Point 3 and 4 of the fix, applied to oref0's result `U` on `inputF12 inp p`: append the
+    note; if no rate is issued and the running temp is above `current_basal`, cancel it. An
+    error result is returned unchanged. -/
+def postF12 (inp : DBInputs) (p : Profile) (U : Result) : Result :=
+  if U.shape = .error then U else
+  let U : Result := match U.reason with
+    | some r => { U with reason := some (r ++ noteF12 p) }
+    | none => U
+  match U.rate, inp.currenttemp with
+  | none, some ct =>
+    if ct.rate.js >ʲ p.current_basal.js then
+      let msg := "; canceling temp basal of " ++ jsStr ct.rate ++ " above current basal " ++ jsStr p.current_basal
+      { U with reason := U.reason.map (· ++ msg), deliverAt := (U.deliverAt <|> some inp.clock.now),
+               temp := (U.temp <|> some "absolute"), duration := some 0, rate := some 0 }
+    else U
+  | _, _ => U
+
+/-- `determine_basal` with the F-12 fix: under the trigger, oref0 on `inputF12 inp p`, then
+    the F-04 step with the capped profile (point 1), then `postF12`. Without the trigger,
+    oref0. -/
+def determineBasalF12 (inp : DBInputs) : Result :=
+  match inp.profile with
+  | some p => if triggerF12 inp then postF12 inp p (determineBasalF04 (inputF12 inp p)) else determineBasal inp
+  | none => determineBasal inp
 
 end LeanAID.Fixed

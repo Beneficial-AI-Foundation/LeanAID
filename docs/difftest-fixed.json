@@ -98,6 +98,7 @@
   "oref0RateAboveBasal": 0,
   "fixedRateAboveBasal": 0,
   "fixedUnits": 0,
+  "fixedZeroTemps": 0,
   "examples": []
  },
  "f23": {
@@ -109,8 +110,8 @@
   "checked": 89695,
   "above": 0
  },
- "nodeSeconds": 41.5,
- "aidLeanSeconds": 2892.5,
- "wallSeconds": 2936,
+ "nodeSeconds": 41.9,
+ "aidLeanSeconds": 2504.5,
+ "wallSeconds": 2548.4,
  "ok": true
 }

@@ -52,6 +52,7 @@ cases.push(caseOf('F-12 trigger (running high temp)', 'no max_basal, temp 2 U/h 
   currenttemp: { duration: 20, rate: 2, temp: 'absolute' } }));
 cases.push(caseOf('F-12 trigger (long zero temp)', 'no max_basal, zero temp with 90 min left', { glucose: readings(300, 10, true), profile: p12b,
   currenttemp: { duration: 90, rate: 0, temp: 'absolute' } }));
+cases.push(caseOf('F-12 trigger (low glucose)', 'no max_basal, no max_daily_basal, BG 60 falling', { glucose: readings(60, -3, true), profile: p12 }));
 cases.push(caseOf('F-12 control', 'the test profile, max_basal 3.5', { glucose: readings(300, 10, true), profile: testProfile() }));
 // F-23: scripts/probe-lgs-nan.js case A (mealCOB 20, no carbs, UAM, BG 60 rising) and its control with carbs
 var p23 = { current_basal: 1, max_daily_basal: 1, max_basal: 3, max_iob: 1, min_bg: 100, max_bg: 100,

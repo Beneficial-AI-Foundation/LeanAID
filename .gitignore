@@ -35,3 +35,4 @@ private/
 # patched copies of oref0 made by scripts/fixes/apply.sh
 scripts/fixes/out/
 sim/out/runs-fixed/
+sim/out/runs-fixed-f12v2/

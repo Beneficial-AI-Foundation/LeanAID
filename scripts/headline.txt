@@ -75,7 +75,9 @@ LeanAID.Fixed.f11_fixed
 LeanAID.Fixed.f11_example
 LeanAID.Fixed.determineBasalF12_eq
 LeanAID.Fixed.f12_fixed
-LeanAID.Fixed.f12_rate_le
+LeanAID.Fixed.f12_lgs_example
+LeanAID.Fixed.maxSafe_capProfile
+LeanAID.Fixed.determineBasal_units_noSmb
 LeanAID.Fixed.triggerF12_of_missing
 LeanAID.Fixed.f12_example
 LeanAID.Fixed.determineBasalF23_eq

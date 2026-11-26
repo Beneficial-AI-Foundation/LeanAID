@@ -150,8 +150,11 @@ both arms identical): 1,064 decisions per arm above the configured `max_basal` (
 up to 9.8 × it (median of the per-patient maxima 3.8 ×); +1.9 U/day insulin and −10 mg/dL
 mean BG on average; time below 54 mg/dL 4.8 % against 1.6 % with the profile intact; 18
 of 30 patients spent more time below 70.
-**Fix** (docs/FIXED.md): `LeanAID/Fixed/MaxBasal.lean` and `scripts/fixes/F-12.patch` refuse to
-raise the rate without a positive `maxSafeBasal`; `f12_fixed`, `missing_max_basal_fixed`.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/MaxBasal.lean` and `scripts/fixes/F-12.patch` run oref0
+with the cap at the scheduled basal (`current_basal` in place of `maxSafeBasal`), no SMB, and
+a running temp above the scheduled basal cancelled; low-glucose suspend stays oref0's.
+`f12_fixed`, `missing_max_basal_fixed`, `low_glucose_suspend_fixed`. (A first version, which
+refused to dose and so set no zero temp at low glucose, was replaced.)
 
 ### F-13 — Exact and floating-point IOB differ by more than one rounding unit
 **Resolved** by modelling binary64 in the core (second review, step 3; DESIGN "Numbers"):
@@ -533,14 +536,13 @@ corrected version does not do, or what is not proved as intended (details in
 `docs/FIXED.md`, "What is not proved as intended"):
 - **oref0's own tests depend on F-11.** On the patched copy of oref0, 38 of oref0's tests
   that pass unpatched fail with the F-11 patch: they pass glucose statuses without a `date`,
-  which the fix treats as stale. Two of them also fail with the F-12 patch alone: they pass
-  the profile `{"current_basal": 0.0}` without `max_basal`, which the fix refuses before oref0
-  reports its error. No test fails on an input that does not trigger a patch.
-- **The F-11 and F-12 fixes stop dosing, including low-glucose suspend.** With a missing
-  `max_basal`, the corrected version issues no rate other than 0 but sets no zero temp at low
-  glucose; an undated reading at low glucose takes the stale-data path, which sets no zero
-  temp. So `low_glucose_suspend_fixed` and `iob_at_max_fixed` keep `ValidInput` and assume a
-  dated, fresh reading.
+  which the fix treats as stale. No test fails on an input that does not trigger a patch.
+  (The first F-12 version also broke two error-message tests; the second does not.)
+- **The F-11 fix stops dosing, including low-glucose suspend.** An undated reading at low
+  glucose takes the stale-data path, which sets no zero temp, so `low_glucose_suspend_fixed`
+  assumes a dated, fresh reading. (The first F-12 version had the same defect for a missing
+  `max_basal`; the second keeps oref0's low-glucose suspend, and `low_glucose_suspend_fixed`
+  covers it under `ValidInputFixed`. `iob_at_max_fixed` still needs `max_basal`.)
 - **F-04 at the exit of `determine_basal`.** oref0's CGM-error branch issues
   `round_basal(current_basal)` without a cap, which exceeds `maxSafeBasal` when
   `current_basal = max_basal` is off the pump grid. The fix therefore acts on the issued rate,
@@ -550,8 +552,10 @@ corrected version does not do, or what is not proved as intended (details in
   value minus rounding error (`3 × 0.35 = 1.0499999999999998`): oref0's 1.05 is above it by
   about 2·10⁻¹⁶ and the fix issues 1.0. The fix is as specified (no rounding allowance), but
   so the corrected version is not identical to oref0 on ordinary profiles.
-- **The cost of the F-12 refusal, measured.** With the F-12 fault (30 patients, 2 days), time
-  below 54 mg/dL falls from 4.80 % to 2.48 % and no rate exceeds `maxSafeBasal`, but time
-  above 180 rises from 5.7 % to 10.2 %, the time below 54 rises for 3 of 30 patients, and the
-  monitor reports 962 R8 violations: at low glucose the refusal lets a zero temp run out and
-  the scheduled basal resume.
+- **The F-12 fix, first version, replaced.** With the F-12 fault (30 patients, 2 days), the
+  refusal to dose lowered time below 54 mg/dL from 4.80 % to 2.48 % and removed every rate
+  above `maxSafeBasal`, but raised the time below 54 for 3 of 30 patients and gave 962 R8
+  violations: at low glucose it let a zero temp run out. The second version (cap at the
+  scheduled basal, oref0's low-glucose suspend kept) gives 0.09 % below 54, R1 0, R8 0, and
+  no patient with more time below 54 than oref0. Its cost: time above 180 is 15.4 % (oref0
+  with the fault 5.7 %), since the rate cannot rise above the scheduled basal.

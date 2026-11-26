@@ -59,4 +59,5 @@ import LeanAID.Fixed.Proofs.LowGlucose
 import LeanAID.Fixed.Proofs.SplitTimespan
 import LeanAID.Fixed.Combined
 import LeanAID.Fixed.Proofs.Combined
+import LeanAID.Fixed.Proofs.MaxBasalLgs
 import LeanAID.Fixed.Proofs.Safety
