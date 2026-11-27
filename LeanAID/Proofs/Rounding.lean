@@ -4,28 +4,15 @@
 -/
 import LeanAID.Core.RoundBasal
 import LeanAID.Proofs.JsNumLemmas
+import MetricTemporal.Run.Integral
 
 namespace LeanAID.Proofs
 
 open JsNum
 
-/-! ### Small order lemmas on `Rat` -/
+/-! ### Small order lemmas on `Rat`, from the library `MetricTemporal` -/
 
-theorem div_le_iff_le_mul {a b c : Rat} (hb : 0 < b) : a / b ≤ c ↔ a ≤ c * b := by
-  constructor
-  · intro h; exact Rat.not_lt.mp fun h' => Rat.not_lt.mpr h ((Rat.lt_div_iff hb).mpr h')
-  · intro h; exact Rat.not_lt.mp fun h' => Rat.not_lt.mpr h ((Rat.lt_div_iff hb).mp h')
-
-theorem le_div_iff_mul_le {a b c : Rat} (hc : 0 < c) : a ≤ b / c ↔ a * c ≤ b := by
-  constructor
-  · intro h; exact Rat.not_lt.mp fun h' => Rat.not_lt.mpr h ((Rat.div_lt_iff hc).mpr h')
-  · intro h; exact Rat.not_lt.mp fun h' => Rat.not_lt.mpr h ((Rat.div_lt_iff hc).mp h')
-
-theorem div_le_div_of_le {a b c : Rat} (hc : 0 < c) (h : a ≤ b) : a / c ≤ b / c := by
-  rw [div_le_iff_le_mul hc, Rat.div_mul_cancel (by grind)]; exact h
-
-theorem div_nonneg' {a c : Rat} (hc : 0 < c) (h : 0 ≤ a) : 0 ≤ a / c := by
-  rw [le_div_iff_mul_le hc]; grind
+export MetricTemporal (div_le_iff_le_mul le_div_iff_mul_le div_le_div_of_le div_nonneg')
 
 /-! ### `Math.round` -/
 

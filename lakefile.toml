@@ -24,3 +24,8 @@ root = "App.Main"
 name = "TestDriver"
 srcDir = "scripts"
 root = "TestDriver"
+
+[[require]]
+name = "MetricTemporal"
+git = "https://github.com/Beneficial-AI-Foundation/metric_temporal"
+rev = "v0.2.0"
