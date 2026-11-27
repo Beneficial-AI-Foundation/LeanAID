@@ -1,6 +1,6 @@
 // F-24 probe (QUIRK Q6): oref0 0.7.1 can lose temp-basal insulin when a temp longer than
 // 30 minutes crosses a basal schedule entry or midnight (case H, with a flat schedule).
-//   TZ=UTC node scripts/probe-split-timespan.js [path to oref0, default vendor/oref0]
+//   TZ=UTC node scripts/probe-split-timespan.js [path to oref0, default vendor/oref0] [patched copy]
 // For each case it prints the net temp insulin of the treatments that oref0 builds, the
 // same with a fixed copy of lib/iob/history.js (sim/q6fix.js, loaded in memory; the oref0
 // checkout is not changed), the exact integral without rounding, and the IOB at 07:00 and
@@ -14,6 +14,11 @@ var calcOref = require(histFile);
 var generate = require(path.join(O, 'lib/iob'));
 
 var calcFixed = require('../sim/q6fix').load(O);   // the fix, in memory
+// Optional: a copy of oref0 with scripts/fixes/F-24.patch applied (scripts/fixes/apply.sh). Its
+// history.js must give exactly the treatments of the fix in memory (checked below).
+var P = process.argv[3] ? path.resolve(process.argv[3]) : null;
+var calcPatched = P ? require(path.join(P, 'lib/iob/history.js')) : null;
+var samePatched = 0, diffPatched = 0;
 
 function iso(h, m, d) { return new Date(Date.UTC(2026, 10, d || 18, h, m, 0)).toISOString(); }
 function netInsulin(treatments) {
@@ -43,6 +48,10 @@ function run(label, startH, startM, rate, dur, changeMin, iobHours) {
     exact += (rate - ((changeMin !== null && m >= changeMin) ? 1.2 : 1)) / 60;
   }
   var nO = netInsulin(tO), nF = netInsulin(tF);
+  if (calcPatched) {
+    var tP = quiet(function () { return calcPatched(inputs); });
+    if (JSON.stringify(tP) === JSON.stringify(tF)) samePatched++; else diffPatched++;
+  }
   console.log(label);
   console.log('   net temp insulin: oref0 ' + nO.toFixed(2) + ' U, fixed ' + nF.toFixed(2) +
     ' U, exact ' + exact.toFixed(2) + ' U; Q6 loss ' + (nF - nO).toFixed(2) + ' U');
@@ -59,3 +68,7 @@ run('E 2 U/h temp 30m from 05:50, change at 06:00', 5, 50, 2, 30, 360);
 run('F 2 U/h temp 60m from 05:50, change at 06:00', 5, 50, 2, 60, 360);
 run('G zero temp 90m from 05:20, change at 06:00', 5, 20, 0, 90, 360);
 run('H zero temp 60m from 23:50, flat schedule (midnight)', 23, 50, 0, 60, null, [1, 2]);
+if (calcPatched) {
+  console.log('patched copy ' + P + ': treatments identical to the fix in memory in ' + samePatched + ' of ' +
+    (samePatched + diffPatched) + ' cases');
+}

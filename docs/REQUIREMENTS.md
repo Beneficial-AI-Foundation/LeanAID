@@ -198,4 +198,4 @@ testing).
 | Clinical performance, human factors, labelling | CFR862 (b)(1)(i)–(ii), (b)(7)–(8) | require clinical evidence; simulation (M11) is not evidence |
 | Bolus calculator and food database | SR2011 1.3.9–1.3.22; HA2010 3.1.1 | oref0 does not recommend manual boluses |
 | Clock correctness | HA2010 4.6.1–4.6.2; SR2011 3.3.1 | the clock is an input; R12 covers readings whose time is implausible |
-| Autosens and autotune | kickoff scope | their outputs are inputs here (`sensitivityRatio`) |
+| Autosens and autotune | out of scope | their outputs are inputs here (`sensitivityRatio`) |

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # LeanAID static checks. Fails (exit 1) if:
 #   * `sorry` appears in any Lean source;
-#   * the core (LeanAID/Core) uses `partial`, `unsafe`, `@[extern]`,
-#     `implemented_by`, `native_decide`, `Float`, or imports Mathlib;
+#   * the core (LeanAID/Core) or the corrected version (LeanAID/Fixed) uses `partial`,
+#     `unsafe`, `@[extern]`, `implemented_by`, `native_decide`, `Float`, or imports Mathlib;
 #   * any module outside LeanAID/Conformance uses `native_decide`;
 #   * any Lean source declares a new `axiom`;
 #   * the binary shell or core imports Mathlib;
@@ -10,7 +10,9 @@
 #     propext, Classical.choice, Quot.sound;
 #   * a reproduction of F-04, F-11 or F-12 against vendor/oref0 does not give PRESENT;
 #   * a targeted differential case (scripts/difftest/targeted.jsonl, iob-targeted.jsonl)
-#     differs between oref0 and the built aid-lean.
+#     differs between oref0 and the built aid-lean;
+#   * (if scripts/fixes/apply.sh has run) `aid-lean --fixed` differs from the patched oref0 on
+#     the targeted cases or the finding inputs, or from oref0 without a trigger.
 # It prints `#print axioms` for every theorem listed in scripts/headline.txt.
 set -u
 cd "$(dirname "$0")/.."
@@ -18,6 +20,8 @@ fail=0
 
 lean_files=$(find LeanAID App -name '*.lean' | sort)
 core_files=$(find LeanAID/Core -name '*.lean' | sort)
+# LeanAID/Fixed (the corrected version, docs/FIXED.md) follows the same rules as the core.
+fixed_files=$(find LeanAID/Fixed -name '*.lean' 2>/dev/null | sort)
 nonconf_files=$(find LeanAID App -name '*.lean' -not -path 'LeanAID/Conformance/*' | sort)
 
 # Strip line comments and block comments before searching, so that the
@@ -39,12 +43,12 @@ check() { # $1 = description, $2 = regex, rest = files
 check "sorry"            '\bsorry\b'                 $lean_files
 check "axiom"            '^\s*(private\s+|protected\s+)?axiom\b' $lean_files
 check "native_decide"    '\bnative_decide\b'         $nonconf_files
-check "partial"          '\bpartial\b'               $core_files
-check "unsafe"           '\bunsafe\b'                $core_files
-check "extern"           '@\[\s*extern'              $core_files
-check "implemented_by"   '\bimplemented_by\b'        $core_files
-check "Float"            '\bFloat(32)?\b'            $core_files
-check "Mathlib import"   '^\s*import\s+Mathlib'      $core_files $(find App -name '*.lean')
+check "partial"          '\bpartial\b'               $core_files $fixed_files
+check "unsafe"           '\bunsafe\b'                $core_files $fixed_files
+check "extern"           '@\[\s*extern'              $core_files $fixed_files
+check "implemented_by"   '\bimplemented_by\b'        $core_files $fixed_files
+check "Float"            '\bFloat(32)?\b'            $core_files $fixed_files
+check "Mathlib import"   '^\s*import\s+Mathlib'      $core_files $fixed_files $(find App -name '*.lean')
 
 if [ $fail -ne 0 ]; then
   echo "check.sh: forbidden constructs found"; exit 1
@@ -92,5 +96,19 @@ if [ -d vendor/oref0/lib ] && [ -x .lake/build/bin/aid-lean ]; then
   done
 else
   echo "check.sh: vendor/oref0 or .lake/build/bin/aid-lean missing, targeted cases skipped"
+fi
+# The corrected version (docs/FIXED.md): the targeted cases and the finding inputs through
+# oref0, the patched copy of oref0 (scripts/fixes/apply.sh) and `aid-lean --fixed`. Runs only if
+# the patched copy exists. About 2 s.
+if [ -d scripts/fixes/out/oref0-fixed/lib ] && [ -x .lake/build/bin/aid-lean ]; then
+  for f in scripts/difftest/targeted.jsonl scripts/fixes/findings.jsonl; do
+    out=$(TZ=UTC node scripts/difftest/targeted.js "$f" --fixed 2>&1); rc=$?
+    echo "$out" | tail -1
+    if [ $rc -ne 0 ]; then
+      echo "$out"; echo "check.sh: the corrected version fails on $f"; exit 1
+    fi
+  done
+else
+  echo "check.sh: scripts/fixes/out/oref0-fixed missing (bash scripts/fixes/apply.sh), --fixed cases skipped"
 fi
 echo "check.sh: OK"

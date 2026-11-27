@@ -1,0 +1,13 @@
+diff -ruN a/lib/determine-basal/determine-basal.js b/lib/determine-basal/determine-basal.js
+--- a/lib/determine-basal/determine-basal.js
++++ b/lib/determine-basal/determine-basal.js
+@@ -917,6 +917,9 @@
+         durationReq = round(durationReq/30)*30;
+         // always set a 30-120m zero temp (oref0-pump-loop will let any longer SMB zero temp run)
+         durationReq = Math.min(120,Math.max(30,durationReq));
++        // LeanAID fix F-23 (not in oref0): a NaN minGuardBG gives a NaN duration, which a pump
++        // rejects; use the shortest duration the comment above allows.
++        if (isNaN(durationReq)) { durationReq = 30; }
+         return tempBasalFunctions.setTempBasal(0, durationReq, profile, rT, currenttemp);
+     }
+ 

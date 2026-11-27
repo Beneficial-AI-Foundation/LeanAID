@@ -3,9 +3,10 @@
 Facts about oref0 0.7.1 (commit 88cf032) found while transcribing, testing and proving.
 Each was reproduced under Node (commands below, run from `vendor/oref0`) unless stated.
 None of these is a claim that oref0 is unsafe in practice: most need inputs that the
-rest of OpenAPS normally prevents. They are what a formal model makes visible.
+rest of OpenAPS normally prevents, so they may have no effect in practice. They are what a
+formal model makes visible.
 
-## Safety-relevant
+## Related to the safety rules
 
 ### F-04 — Rounding can push the temp basal above `maxSafeBasal` (R3)
 `setTempBasal` clamps the request to `maxSafeBasal` and *then* rounds with
@@ -25,6 +26,8 @@ How common (`scripts/findings/f04-search.js`): with scheduled basals on the pump
 `max_basal` typed with two decimals, the issued rate exceeds the limit in 15–20 % of
 combinations (40 % of those where `max_basal` is the binding limit); never when
 `max_basal` is a multiple of 0.1 U/h. Overshoot at most 0.02 U/h in these ranges.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/Rounding.lean` and `scripts/fixes/F-04.patch` issue
+`round_basal.down(maxSafeBasal)` instead of a rate above `maxSafeBasal`; `f04_fixed`.
 
 ### F-05 — The SMB low temp is not clamped to `maxSafeBasal`
 The SMB branch returns `rate = round(basal × durationReq/30, 2)` directly (line 1155),
@@ -34,14 +37,14 @@ excludes this by validity condition V5/V9 (adjusted basal within `maxSafeBasal`)
 V5 the low temp is proved ≤ the adjusted basal (`smbLowTemp_bound`, using the 0.025
 grid). Without V5 the bound fails; an input with autosens ratio 2 and `max_basal` 1.5
 reached the SMB microbolus path in Node but not the low-temp path, so no concrete
-over-limit low temp was observed yet (M10 will search for one).
+over-limit low temp has been observed.
 
 ### F-06 — NaN temp basal rate when carbs are present without `lastCarbTime`
 With `meal_data.carbs > 0` and `mealCOB > 0` but no `lastCarbTime`, `remainingCATime`
 becomes NaN, the COB predictions become NaN, `minPredBG` and `insulinReq` become NaN, and
 oref0 issues `{"rate": null, "duration": 30}` with reason "no temp, setting NaNU/hr".
 ```
-(see scripts in docs/LOG.md, M5) → {"rate":null,"duration":30,"eventualBG":null}
+(determine-basal on the input above) → {"rate":null,"duration":30,"eventualBG":null}
 ```
 A pump driver receiving `rate: null` may reject or misinterpret the command. This is the
 kind of out-of-bounds input CFR862 (b)(3)(iv) is about (R14). Our theorems are stated for
@@ -111,7 +114,7 @@ non-negative doses" (R18) is false for oref0's bilinear curve; the strongest ver
 
 ## Found or sharpened by the independent review (2026-11-18, of commit a95cea8)
 
-### F-11 — An undated glucose reading disables the staleness check (safety)
+### F-11 — An undated glucose reading skips the staleness check
 Previously listed only as quirk Q2. If `glucose_status` has no `date` (or the CGM entry
 has no `date`, `display_time` or `dateString`, so `getLastGlucose` returns NaN), then
 `minAgo` is NaN, `minAgo > 12 || minAgo < -5` is false, and the reading is used however
@@ -132,8 +135,10 @@ without a date during two 45-minute dropouts a day): no harm. The repeated readi
 delta 0, so oref0's flat-CGM check (F-18) catches it and no temp is raised; against
 plain dropout, mean BG +0.2 mg/dL and insulin −0.05 U/day on average. The F-11 input
 above (an undated reading with non-zero deltas) did not arise in this scenario.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/Undated.lean` and `scripts/fixes/F-11.patch` treat a
+reading as stale unless `minAgo <= 12 && minAgo >= -5`; `f11_fixed`.
 
-### F-12 — Missing `max_basal` / `max_daily_basal` disables the clamp (R14)
+### F-12 — Without `max_basal` / `max_daily_basal` the clamp does not apply (R14)
 `getMaxSafeBasal` is `Math.min(max_basal, 3·max_daily_basal, 4·current_basal)`; with
 either input missing it is NaN, `rate > maxSafeBasal` is always false, and no clamp is
 applied. Concrete input: test profile without `max_basal` and `max_daily_basal`, BG 300
@@ -146,6 +151,11 @@ both arms identical): 1,064 decisions per arm above the configured `max_basal` (
 up to 9.8 × it (median of the per-patient maxima 3.8 ×); +1.9 U/day insulin and −10 mg/dL
 mean BG on average; time below 54 mg/dL 4.8 % against 1.6 % with the profile intact; 18
 of 30 patients spent more time below 70.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/MaxBasal.lean` and `scripts/fixes/F-12.patch` run oref0
+with the cap at the scheduled basal (`current_basal` in place of `maxSafeBasal`), no SMB, and
+a running temp above the scheduled basal cancelled; low-glucose suspend stays oref0's.
+`f12_fixed`, `missing_max_basal_fixed`, `low_glucose_suspend_fixed`. (A first version, which
+refused to dose and so set no zero temp at low glucose, was replaced.)
 
 ### F-13 — Exact and floating-point IOB differ by more than one rounding unit
 **Resolved** by modelling binary64 in the core (second review, step 3; DESIGN "Numbers"):
@@ -163,7 +173,7 @@ decision. Example (iob/history.js lines 545-548): a temp of 0.05 U/h against a b
 vs 3.2 U/h). The divergence is still caused by exact ties, but its effect on outputs is
 not bounded by one unit of the final rounding.
 
-The most severe case found (difftest pilot, seed 1): `minDelta − bgi = −6 − (−6.05)`.
+The largest case found (difftest pilot, seed 1): `minDelta − bgi = −6 − (−6.05)`.
 Exactly this is 0.05, so `ci = round(0.05, 1) = 0.1 > 0` and the UAM predictions switch
 on (determine-basal.js line 681); in doubles it is 0.04999999999999982, `ci = 0`, and they
 stay off. oref0 then issues a **30-minute zero temp** (eventualBG −147) while aid-lean
@@ -256,7 +266,7 @@ Not yet checked: whether the rate can differ, and whether `--safe` should reject
 `lastCarbTime > currentTime` (as it rejects carbs without `lastCarbTime`, F-06).
 
 ### F-18 — Flat CGM data below the threshold: no zero temp (R8 does not cover it)
-**Open.** Found 2026-11-19 by the safety monitor in the overnight closed-loop runs
+**Open.** Found 2026-11-19 by the safety monitor in the closed-loop runs on virtual patients
 (`docs/SIM.md`). determine-basal.js lines 177-185 treat a reading as a CGM error when
 `delta` is exactly 0 and both average deltas are within ±1 (above 60 mg/dL): it then only
 replaces a high temp or shortens a long zero temp, and otherwise does nothing, **whatever
@@ -356,7 +366,7 @@ a 2 U/h temp in the pump history: the theorem applies to it (`f23Run_covered`), 
 case holds (`f23Run_second`), and the temp keeps running (`f23Run_rate`). With `carbs` 30 the
 same run has a finite `minGuardBG` and the pump accepts the zero temp (`f23RunC_checks`). We found no path through `lib/meal/total.js` that
 produces this input, but we did not prove that none exists. `aid-lean --safe` now refuses
-`mealCOB` without positive carbs. `LeanAID/Patched/LowGlucose.lean` models oref0 with the
+`mealCOB` without positive carbs. `LeanAID/Fixed/LowGlucose.lean` models oref0 with the
 NaN duration replaced by 30 minutes, and `lgs_patched_valid` proves that the pump accepts
 its low-glucose command. `LeanAID/Core` is unchanged. Dosing severity: medium, but only if two
 conditions hold that we did not show. First, oref0 must get this input: as said above, we
@@ -366,6 +376,8 @@ with `mdt settempbasal` (`bin/oref0-pump-loop.sh:360`), which is not in `vendor/
 driver reads `null` as 0, a Medtronic pump cancels the temp and runs the schedule, which is
 milder. If both conditions hold, a high temp can continue at low glucose for up to 30
 minutes.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/LowGlucose.lean` and `scripts/fixes/F-23.patch` (a NaN
+duration becomes 30 minutes); `f23_fixed`, `low_glucose_suspend_fixed`.
 
 ### F-11 in the run model
 In the run model the glucose status is `getLastGlucose` of the readings. When the readings
@@ -474,11 +486,13 @@ covered by the runs: long manual high temps, which lose insulin in the other dir
 clinical outcome in simulation for their whole Swift port, which fixes this bug among
 others, so their result does not rate this bug alone.
 `LeanAID/Core` is unchanged.
+**Fix** (docs/FIXED.md): `LeanAID/Fixed/SplitTimespan.lean` and `scripts/fixes/F-24.patch`
+decide per piece; `generateF24_eq`, `splitTimespanF24_tiles`.
 
 ## Found by the differential test of IOB, meal history and the basal schedule
 
 `scripts/difftest/iob.js` compares `lib/iob`, `lib/meal/history.js` and `basalLookup` with
-the Lean core on random pump histories (`docs/COVERAGE.md`, `docs/LOG.md`).
+the Lean core on random pump histories (`docs/COVERAGE.md`).
 
 ### F-25 — Two transcription errors in `LeanAID.Iob` (fixed)
 The first 500 random cases (seed 1) gave 27 cases whose IOB arrays differed. All 27 came
@@ -515,3 +529,34 @@ Q11 is also a quirk of oref0 itself: line 357 warns "No duration found", but the
 runs for another temp's duration. A pump history cut between a `TempBasal` record and its
 duration record can do this. Not rated further.
 
+
+## Found while writing the corrected version (`docs/FIXED.md`)
+
+`LeanAID/Fixed` fixes F-04, F-11, F-12, F-23 and F-24; `LeanAID/Core` is unchanged. What the
+corrected version does not do, or what is not proved as intended (details in
+`docs/FIXED.md`, "What is not proved as intended"):
+- **oref0's own tests depend on F-11.** On the patched copy of oref0, 38 of oref0's tests
+  that pass unpatched fail with the F-11 patch: they pass glucose statuses without a `date`,
+  which the fix treats as stale. No test fails on an input that does not trigger a patch.
+  (The first F-12 version also broke two error-message tests; the second does not.)
+- **The F-11 fix stops dosing, including low-glucose suspend.** An undated reading at low
+  glucose takes the stale-data path, which sets no zero temp, so `low_glucose_suspend_fixed`
+  assumes a dated, fresh reading. (The first F-12 version had the same defect for a missing
+  `max_basal`; the second keeps oref0's low-glucose suspend, and `low_glucose_suspend_fixed`
+  covers it under `ValidInputFixed`. `iob_at_max_fixed` still needs `max_basal`.)
+- **F-04 at the exit of `determine_basal`.** oref0's CGM-error branch issues
+  `round_basal(current_basal)` without a cap, which exceeds `maxSafeBasal` when
+  `current_basal = max_basal` is off the pump grid. The fix therefore acts on the issued rate,
+  not inside `setTempBasal`. `f04_fixed` assumes `maxSafeBasal` is a double in `[0, 2^30]`.
+- **In the simulator the F-04 cap fires only on floating-point noise.** Without a fault, 525
+  of 17,280 decisions differ from oref0 because of F-04, all where `maxSafeBasal` is a grid
+  value minus rounding error (`3 × 0.35 = 1.0499999999999998`): oref0's 1.05 is above it by
+  about 2·10⁻¹⁶ and the fix issues 1.0. The fix is as specified (no rounding allowance), but
+  so the corrected version is not identical to oref0 on ordinary profiles.
+- **The F-12 fix, first version, replaced.** With the F-12 fault (30 patients, 2 days), the
+  refusal to dose lowered time below 54 mg/dL from 4.80 % to 2.48 % and removed every rate
+  above `maxSafeBasal`, but raised the time below 54 for 3 of 30 patients and gave 962 R8
+  violations: at low glucose it let a zero temp run out. The second version (cap at the
+  scheduled basal, oref0's low-glucose suspend kept) gives 0.09 % below 54, R1 0, R8 0, and
+  no patient with more time below 54 than oref0. Its cost: time above 180 is 15.4 % (oref0
+  with the fault 5.7 %), since the rate cannot rise above the scheduled basal.

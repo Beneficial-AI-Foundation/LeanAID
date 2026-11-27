@@ -15,6 +15,12 @@ try {
 var basal = c.testProfile().current_basal;
 function raises(r) { return r && !r.error && typeof r.rate === 'number' && r.rate > basal; }
 var detail = 'undated: ' + c.fmt(trig) + '; dated 60 min ago: ' + c.fmt(ctrl);
+if (c.FIXED) {   // the control must give the same result as vendor/oref0
+  var same = c.sameAsVendor(function (l) {
+    return c.determine(l, Object.assign({date: c.NOW.getTime() - 60 * 60 * 1000}, bg), c.testProfile()); }, lib);
+  detail += same ? ' (control as vendor/oref0)' : ' (control DIFFERS from vendor/oref0)';
+  if (!same) c.verdict('F-11', 'INCONCLUSIVE', detail);
+}
 if (!trig || trig.error || !ctrl || ctrl.error) c.verdict('F-11', 'INCONCLUSIVE', detail);
 if (raises(trig) && !raises(ctrl)) c.verdict('F-11', 'PRESENT', detail);
 if (!raises(trig) && !raises(ctrl)) c.verdict('F-11', 'ABSENT', detail);

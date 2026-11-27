@@ -29,6 +29,11 @@ try {
 }
 var ctrlOk = ctrl && !ctrl.error && typeof ctrl.rate === 'number' && ctrl.rate <= p.max_basal;
 var detail = parts.join('; ') + '; control (max_basal 3.5): ' + c.fmt(ctrl);
+if (c.FIXED) {   // the control must give the same result as vendor/oref0
+  var same = c.sameAsVendor(function (l) { return c.determine(l, Object.assign({}, bg), c.testProfile()); }, lib);
+  detail += same ? ' (control as vendor/oref0)' : ' (control DIFFERS from vendor/oref0)';
+  if (!same) c.verdict('F-12', 'INCONCLUSIVE', detail);
+}
 if (!ctrlOk) c.verdict('F-12', 'INCONCLUSIVE', detail);
 if (present) c.verdict('F-12', 'PRESENT', detail);
 if (!odd) c.verdict('F-12', 'ABSENT', detail);

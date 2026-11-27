@@ -59,7 +59,7 @@ These are about one call of `determine_basal`. The run theorems use them.
   within δ ms of the true time (`RecordedNear δ r`). Then every cycle that increases insulin
   saw a reading with true age below 12.05 min + δ and a reading with true age above
   −5.05 min − 1 ms − δ. They need not be the same reading.
-- `lgs_patched_valid`: one call of oref0 with the F-23 fix. The pump accepts its
+- `lgs_patched_valid` (`LeanAID/Fixed/LowGlucose.lean`): one call of oref0 with the F-23 fix. The pump accepts its
   low-glucose command.
 - `iobTotal_insert_bolus_num`: let the insulin curve be bilinear with finite DIA, and let a
   bolus of u units dated t (`rd u ≠ 0`, |t − 1| ≤ 2⁵³) be inserted before every treatment

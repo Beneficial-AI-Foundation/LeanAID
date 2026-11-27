@@ -1,1 +1,0 @@
-cases 3944160; unpatched above maxSafeBasal: 526342; patched above maxSafeBasal: 0; patched differs from unpatched: 526342 (of which where unpatched was within the limit: 0)

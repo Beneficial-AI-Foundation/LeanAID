@@ -47,7 +47,7 @@ logging.getLogger('simglucose').setLevel(logging.WARNING)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'sim', 'out', 'runs')
-LEAN_BIN = os.path.join(ROOT, '.lake', 'build', 'bin', 'aid-lean')
+LEAN_BIN = os.environ.get('AID_LEAN') or os.path.join(ROOT, '.lake', 'build', 'bin', 'aid-lean')
 NODE_SERVER = os.path.join(ROOT, 'sim', 'oref0_server.js')
 
 START = dt.datetime(2026, 1, 1, 0, 0, 0, tzinfo=dt.timezone.utc)   # simulated start (a past date: see SIM.md, Q10)
@@ -72,7 +72,8 @@ BASAL_SCHEDULES = {
     'flat': [(0, 1.0)],
     'steps': [(0, 0.9), (180, 1.1), (420, 1.0), (720, 0.95), (1020, 1.05), (1260, 1.0)],
 }
-CONTROLLERS = ['oref0', 'oref0-q6fix', 'aid-lean', 'baseline']
+# aid-lean-fixed: `aid-lean serve --fixed`, the corrected version (docs/FIXED.md)
+CONTROLLERS = ['oref0', 'oref0-q6fix', 'aid-lean', 'aid-lean-fixed', 'baseline']
 
 
 def iso(t):
@@ -218,8 +219,8 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
         node = LineProc(['node', NODE_SERVER], env=env_q6fix() if controller == 'oref0-q6fix' else env_utc())
         if shadow_q6:
             q6 = LineProc(['node', NODE_SERVER], env=env_q6fix())
-        if controller == 'aid-lean' or shadow:
-            lean = LineProc([LEAN_BIN, 'serve'], env=env_utc())
+        if controller in ('aid-lean', 'aid-lean-fixed') or shadow:
+            lean = LineProc([LEAN_BIN, 'serve'] + (['--fixed'] if controller == 'aid-lean-fixed' else []), env=env_utc())
         profile = node.call({'cmd': 'profile', 'inputs': pinp})['profile']
         configured_max_basal = profile['max_basal']
         if fault == 'f12':
@@ -325,7 +326,7 @@ def run(patient, controller, days=2, meal_seed=1, fault='none', out_dir=OUT, log
             del lin['carbhistory']
             ln = None
             same = iob_same = None
-            if controller == 'aid-lean' or shadow:
+            if controller in ('aid-lean', 'aid-lean-fixed') or shadow:
                 # aid-lean on the same input (meal data from oref0's lib/meal, see SIM.md)
                 ln = lean.call(lin)
                 js_s = json.dumps(js['suggestion'], separators=(',', ':'))

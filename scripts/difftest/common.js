@@ -25,7 +25,9 @@ Math.round = function (x) {
 };
 
 // oref0 on one case, as bin/oref0-determine-basal.js does: getLastGlucose, then determine_basal.
-function runNode(c) {
+function runNode(c) { return runWith(getLastGlucose, determine_basal, tempBasalFunctions, c); }
+
+function runWith(getLastGlucose, determine_basal, tempBasalFunctions, c) {
   nearTie = false;
   var gs = getLastGlucose(JSON.parse(JSON.stringify(c.glucose)));
   var autosens = c.autosens ? JSON.parse(JSON.stringify(c.autosens)) : null;
@@ -36,12 +38,35 @@ function runNode(c) {
   return { out: out, nearTie: nearTie };
 }
 
+// The same for the oref0 copy in directory `dir` (for the patched copy of scripts/fixes/apply.sh),
+// with oref0's diagnostics silenced.
+function runnerFor(dir) {
+  var g = require(path.join(dir, 'lib/glucose-get-last'));
+  var d = require(path.join(dir, 'lib/determine-basal/determine-basal'));
+  var t = require(path.join(dir, 'lib/basal-set-temp'));
+  return function (c) { return quietly(function () { return runWith(g, d, t, c); }); };
+}
+
+// The patched copy of oref0 made by scripts/fixes/apply.sh (docs/FIXED.md).
+var FIXED_OREF0 = path.join(ROOT, 'scripts/fixes/out/oref0-fixed');
+
+// `aid-lean batch --fixed-triggers` on a JSONL file: for each case the corrected result (the
+// same string as `aid-lean batch --fixed` prints) and the findings whose trigger holds.
+function runLeanFixed(casesFile) {
+  return cp.execFileSync((process.env.AID_LEAN || path.join(ROOT, '.lake/build/bin/aid-lean')), ['batch', casesFile, '--fixed-triggers'],
+    { encoding: 'utf8', maxBuffer: 1 << 30 }).split('\n').map(function (l) {
+      if (!l) return undefined;
+      var k = l.indexOf(',"result":');
+      return { triggers: JSON.parse(l.slice(l.indexOf(':') + 1, k)), out: l.slice(k + 10, l.length - 1) };
+    });
+}
+
 // runNode with oref0's diagnostics on stderr silenced.
 function runNodeQuiet(c) { return quietly(function () { return runNode(c); }); }
 
 // `aid-lean batch` on a JSONL file: one output line per case.
 function runLean(casesFile) {
-  return cp.execFileSync(path.join(ROOT, '.lake/build/bin/aid-lean'), ['batch', casesFile],
+  return cp.execFileSync((process.env.AID_LEAN || path.join(ROOT, '.lake/build/bin/aid-lean')), ['batch', casesFile],
     { encoding: 'utf8', maxBuffer: 1 << 30 }).split('\n');
 }
 
@@ -97,4 +122,5 @@ function quietly(f) {
 }
 
 module.exports = { ROOT: ROOT, runNode: runNode, runNodeQuiet: runNodeQuiet, runLean: runLean,
+  runnerFor: runnerFor, runLeanFixed: runLeanFixed, FIXED_OREF0: FIXED_OREF0, getMaxSafeBasal: tempBasalFunctions.getMaxSafeBasal,
   newStats: newStats, compare: compare, resetNearTie: resetNearTie, sawNearTie: sawNearTie, quietly: quietly };

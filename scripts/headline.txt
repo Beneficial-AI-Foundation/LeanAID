@@ -35,7 +35,7 @@ LeanAID.Time.low_glucose_no_smb
 LeanAID.Time.p5_strict
 LeanAID.Time.p1_dated
 LeanAID.Time.p1_true_age
-LeanAID.Patched.lgs_patched_valid
+LeanAID.Fixed.lgs_patched_valid
 LeanAID.Time.iobTotal_insert_bolus_num
 # Runs, model and input facts
 LeanAID.Time.Legal.cycle
@@ -60,8 +60,44 @@ LeanAID.Time.doubleRates_of_legal
 LeanAID.Time.smbTraced_run
 LeanAID.Time.round3_accounting
 LeanAID.Time.getLastGlucose_date_first
-LeanAID.Patched.determineBasalPatched_eq
+LeanAID.Fixed.determineBasalPatched_eq
 # F-24 (QUIRK Q6)
 LeanAID.Iob.Q6.splitPass_fst
 LeanAID.Iob.Q6.q6_drops_zero_temp
 LeanAID.Iob.Q6.q6_fixed_keeps
+# The corrected version (LeanAID/Fixed, docs/FIXED.md): per finding, nothing else changed / the fix works
+LeanAID.Fixed.determineBasalF04_eq
+LeanAID.Fixed.f04_fixed
+LeanAID.Fixed.roundBasalDown_le
+LeanAID.Fixed.f04_example
+LeanAID.Fixed.determineBasalF11_eq
+LeanAID.Fixed.f11_fixed
+LeanAID.Fixed.f11_example
+LeanAID.Fixed.determineBasalF12_eq
+LeanAID.Fixed.f12_fixed
+LeanAID.Fixed.f12_lgs_example
+LeanAID.Fixed.maxSafe_capProfile
+LeanAID.Fixed.determineBasal_units_noSmb
+LeanAID.Fixed.triggerF12_of_missing
+LeanAID.Fixed.f12_example
+LeanAID.Fixed.determineBasalF23_eq
+LeanAID.Fixed.f23_fixed
+LeanAID.Fixed.generateF24_eq
+LeanAID.Fixed.splitTimespanF24_tiles
+LeanAID.Fixed.splitOne_parts
+LeanAID.Fixed.q6Event_ev60
+# The corrected version, combined: nothing else changed, and the safety rules without exceptions
+LeanAID.Fixed.determineBasalFixed_eq
+LeanAID.Fixed.generateFixed_eq
+LeanAID.Fixed.rate_le_maxSafeBasal_fixed
+LeanAID.Fixed.cgm_unreliable_no_increase_fixed
+LeanAID.Fixed.cgmError_no_increase_fixed
+LeanAID.Fixed.missing_max_basal_fixed
+LeanAID.Fixed.low_glucose_suspend_fixed
+LeanAID.Fixed.microbolus_limits_fixed
+LeanAID.Fixed.iob_at_max_fixed
+LeanAID.Fixed.missing_current_basal_fixed
+LeanAID.Fixed.missing_targets_fixed
+LeanAID.Fixed.missing_iob_fixed
+LeanAID.Fixed.rate_double_fixed
+LeanAID.Fixed.validInputFixed_of_valid

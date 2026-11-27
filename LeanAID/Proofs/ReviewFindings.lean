@@ -1,6 +1,6 @@
 /-
   LeanAID.Proofs.ReviewFindings — findings and restatements prompted by the
-  independent review (docs/LOG.md, "Review fixes").
+  independent review of the project.
 -/
 import LeanAID.Proofs.Hypo
 import LeanAID.Spec.ValidCheck

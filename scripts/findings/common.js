@@ -7,9 +7,22 @@ var path = require('path');
 
 var REPO = path.resolve(__dirname, '..', '..');
 
+// --fixed (docs/FIXED.md): the lib/ of the patched copy made by scripts/fixes/apply.sh is the
+// default, and each script also checks that its control input gives the same result as with
+// vendor/oref0/lib (`sameAsVendor`).
+var FIXED = process.argv.indexOf('--fixed') >= 0;
+var ARGS = process.argv.slice(2).filter(function (a) { return a !== '--fixed'; });
+var VENDOR_LIB = path.join(REPO, 'vendor', 'oref0', 'lib');
+var FIXED_LIB = path.join(REPO, 'scripts', 'fixes', 'out', 'oref0-fixed', 'lib');
+
 function libDir() {
-  var arg = process.argv[2];
-  return path.resolve(arg || path.join(REPO, 'vendor', 'oref0', 'lib'));
+  var arg = ARGS[0];
+  return path.resolve(arg || (FIXED ? FIXED_LIB : VENDOR_LIB));
+}
+
+// --fixed: the control input `f(lib)` gives the same result on `lib` as on vendor/oref0/lib.
+function sameAsVendor(f, lib) {
+  return JSON.stringify(f(lib)) === JSON.stringify(f(VENDOR_LIB));
 }
 
 // oref0 logs its reasoning with console.error; keep the verdict line clean
@@ -76,5 +89,5 @@ function verdict(id, v, detail) {
   process.exit(v === 'PRESENT' ? 0 : v === 'ABSENT' ? 1 : 2);
 }
 
-module.exports = {libDir: libDir, quiet: quiet, load: load, testProfile: testProfile,
+module.exports = {FIXED: FIXED, sameAsVendor: sameAsVendor, libDir: libDir, quiet: quiet, load: load, testProfile: testProfile,
   emptyMeal: emptyMeal, NOW: NOW, determine: determine, fmt: fmt, verdict: verdict};

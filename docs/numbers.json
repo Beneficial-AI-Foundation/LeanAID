@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-23T11:40:50.244Z",
+ "generated": "2026-11-26T11:24:26.397Z",
  "oref0": "88cf032aa74ff25f69464a7d9cd601ee3940c0b3 (0.7.1)",
  "tests": {
   "blocks": 116,
@@ -31,7 +31,7 @@
  },
  "theorems": {
   "total": 314,
-  "headline": 61,
+  "headline": 95,
   "headlineNames": [
    "LeanAID.Proofs.rate_le_roundBasal_maxSafeBasal",
    "LeanAID.Proofs.rate_le_maxSafeBasal_of_grid",
@@ -66,7 +66,7 @@
    "LeanAID.Time.p5_strict",
    "LeanAID.Time.p1_dated",
    "LeanAID.Time.p1_true_age",
-   "LeanAID.Patched.lgs_patched_valid",
+   "LeanAID.Fixed.lgs_patched_valid",
    "LeanAID.Time.iobTotal_insert_bolus_num",
    "LeanAID.Time.Legal.cycle",
    "LeanAID.Time.build_legal",
@@ -90,11 +90,46 @@
    "LeanAID.Time.smbTraced_run",
    "LeanAID.Time.round3_accounting",
    "LeanAID.Time.getLastGlucose_date_first",
-   "LeanAID.Patched.determineBasalPatched_eq",
+   "LeanAID.Fixed.determineBasalPatched_eq",
    "LeanAID.Iob.Q6.splitPass_fst",
    "LeanAID.Iob.Q6.q6_drops_zero_temp",
-   "LeanAID.Iob.Q6.q6_fixed_keeps"
-  ]
+   "LeanAID.Iob.Q6.q6_fixed_keeps",
+   "LeanAID.Fixed.determineBasalF04_eq",
+   "LeanAID.Fixed.f04_fixed",
+   "LeanAID.Fixed.roundBasalDown_le",
+   "LeanAID.Fixed.f04_example",
+   "LeanAID.Fixed.determineBasalF11_eq",
+   "LeanAID.Fixed.f11_fixed",
+   "LeanAID.Fixed.f11_example",
+   "LeanAID.Fixed.determineBasalF12_eq",
+   "LeanAID.Fixed.f12_fixed",
+   "LeanAID.Fixed.f12_lgs_example",
+   "LeanAID.Fixed.maxSafe_capProfile",
+   "LeanAID.Fixed.determineBasal_units_noSmb",
+   "LeanAID.Fixed.triggerF12_of_missing",
+   "LeanAID.Fixed.f12_example",
+   "LeanAID.Fixed.determineBasalF23_eq",
+   "LeanAID.Fixed.f23_fixed",
+   "LeanAID.Fixed.generateF24_eq",
+   "LeanAID.Fixed.splitTimespanF24_tiles",
+   "LeanAID.Fixed.splitOne_parts",
+   "LeanAID.Fixed.q6Event_ev60",
+   "LeanAID.Fixed.determineBasalFixed_eq",
+   "LeanAID.Fixed.generateFixed_eq",
+   "LeanAID.Fixed.rate_le_maxSafeBasal_fixed",
+   "LeanAID.Fixed.cgm_unreliable_no_increase_fixed",
+   "LeanAID.Fixed.cgmError_no_increase_fixed",
+   "LeanAID.Fixed.missing_max_basal_fixed",
+   "LeanAID.Fixed.low_glucose_suspend_fixed",
+   "LeanAID.Fixed.microbolus_limits_fixed",
+   "LeanAID.Fixed.iob_at_max_fixed",
+   "LeanAID.Fixed.missing_current_basal_fixed",
+   "LeanAID.Fixed.missing_targets_fixed",
+   "LeanAID.Fixed.missing_iob_fixed",
+   "LeanAID.Fixed.rate_double_fixed",
+   "LeanAID.Fixed.validInputFixed_of_valid"
+  ],
+  "fixed": 130
  },
  "axioms": [
   "Classical.choice",
@@ -108,9 +143,32 @@
   "total": 148,
   "atRoundingTies": 0
  },
+ "translated": {
+  "files": 10,
+  "libFiles": 31,
+  "lines": 2483,
+  "libLines": 5595,
+  "codeLines": 1805,
+  "libCodeLines": 4136,
+  "percentOfLines": 44,
+  "note": "lines of vendor/oref0/lib/*.js; codeLines leaves out blank lines and // comment lines",
+  "fileList": [
+   "basal-set-temp.js",
+   "determine-basal/determine-basal.js",
+   "glucose-get-last.js",
+   "iob/calculate.js",
+   "iob/history.js",
+   "iob/index.js",
+   "iob/total.js",
+   "meal/history.js",
+   "profile/basal.js",
+   "round-basal.js"
+  ]
+ },
  "linesOfLean": {
-  "core": 3173,
+  "core": 3196,
   "proofs": 4643,
-  "spec": 107
+  "spec": 107,
+  "fixed": 3151
  }
 }

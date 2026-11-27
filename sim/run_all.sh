@@ -1,5 +1,5 @@
 #!/bin/bash
-# Overnight virtual-patient runs (milestone M11). Start with:
+# Virtual-patient runs. Start with:
 #   nohup caffeinate -i sim/run_all.sh > sim/out/run_all.log 2>&1 &
 # Stops starting new runs after 12 hours (SIM_HOURS), resumable, progress in
 # sim/out/progress.log. See sim/run_all.py. RESEARCH ARTIFACT. NOT FOR DOSING INSULIN.

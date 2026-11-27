@@ -9,10 +9,11 @@
 | `LeanAID/Proofs/` | theorems about the core | Lean core (no Mathlib needed so far) |
 | `LeanAID/Conformance/` | oref0's test calls as Lean data, checked by `native_decide` | Lean core |
 | `LeanAID/Time/` | runs over time: run type, pump model, properties of runs | Lean core |
+| `LeanAID/Fixed/` | a corrected version (fixes of F-04, F-11, F-12, F-23, F-24) next to the transcription, and its proofs (`docs/FIXED.md`) | Lean core only, as `LeanAID/Core` |
 | `App/` | the `aid-lean` shell: JSON, files, clock | Lean core |
 
 `scripts/check.sh` enforces: no `sorry` anywhere; no `partial`, `unsafe`, `@[extern]`,
-`implemented_by`, `Float` or Mathlib in the core; `native_decide` only in
+`implemented_by`, `Float` or Mathlib in the core and in `LeanAID/Fixed`; `native_decide` only in
 `LeanAID/Conformance`; no `axiom` declarations; headline theorems depend only on
 `propext`, `Classical.choice`, `Quot.sound`.
 
@@ -169,7 +170,7 @@ these holds (`App/Main.lean`, `determineBasalCmd`):
 
 | check | rejects | why |
 |---|---|---|
-| `validInputB inp = false` | a profile violating V0–V8 or V10 (e.g. missing or non-numeric `current_basal`, `max_basal`, `max_daily_basal`, `max_iob`, `sens`; `max_basal` or `max_daily_basal` below `current_basal`; `max_basal` above 2^30; a safety multiplier below 1; `autosens_max` with more than two decimals or with `current_basal × autosens_max > maxSafeBasal`; a non-positive `bolus_increment`), or autosens data violating V9 (non-numeric or non-positive ratio, or `current_basal × ratio > maxSafeBasal`) | outside the domain of the safety theorems; F-12 (missing `max_basal` disables the clamp) |
+| `validInputB inp = false` | a profile violating V0–V8 or V10 (e.g. missing or non-numeric `current_basal`, `max_basal`, `max_daily_basal`, `max_iob`, `sens`; `max_basal` or `max_daily_basal` below `current_basal`; `max_basal` above 2^30; a safety multiplier below 1; `autosens_max` with more than two decimals or with `current_basal × autosens_max > maxSafeBasal`; a non-positive `bolus_increment`), or autosens data violating V9 (non-numeric or non-positive ratio, or `current_basal × ratio > maxSafeBasal`) | outside the domain of the safety theorems; F-12 (without `max_basal` the clamp does not apply) |
 | meal data with truthy `carbs` and no numeric `lastCarbTime` | carbs without a carb time | F-06 (NaN rate) |
 | the glucose status has no finite `date` | CGM entries without `date`, `display_time` or `dateString` (or unparsable ones) | F-11 (staleness check skipped; maximum rate on an old reading) |
 | meal data with truthy `mealCOB` and `carbs` missing or not positive | COB without carbs | F-23 (NaN `minGuardBG`; at low BG a zero temp with NaN duration) |
